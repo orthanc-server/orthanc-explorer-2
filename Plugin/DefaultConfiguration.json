@@ -1,0 +1,56 @@
+{
+    "OrthancExplorer2" : {
+        // enables or disables the plugin completely
+        "Enable": true,
+
+        // This block of configuration is transmitted as is to the frontend application.
+        // Make sure not to store any secret here
+        "UiOptions" : {
+            "EnableUpload": true,                       // Enables the upload menu/interface
+            "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances
+            "EnableApiViewMenu": true,                  // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
+            "EnableSettings": true,                     // Enables the settings menu/interface
+            "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
+            
+            // The list of tags to be displayed in the upload dialog result list
+            // (the first N defined tags in the list are displayed on the UI)
+            // Allowed values are: "StudyDate", "AccessionNumber", "PatientID",
+            // "PatientName", "PatientBirthDate", "StudyDescription"
+            "UploadReportTags" : [                      
+                "AccessionNumber", 
+                "StudyDate", 
+                "PatientName", 
+                "PatientID", 
+                "StudyDescription"
+            ],
+            "UploadReportMaxTags" : 2,                  // See above, the max number of tags displayed in the upload report
+
+            // The ordered list of columns to display in the study list.
+            // Allowed values are:
+            //  - Dicom Tags: "StudyDate", "AccessionNumber", "PatientID"
+            //                "PatientName", "PatientBirthDate", "StudyDescription"
+            //  - special columns:
+            //    - "modalities": the list of modalities in the study
+            //    - "seriesCount": the number of series in the study
+            "StudyListColumns" : [
+                "StudyDate",
+                "AccessionNumber",
+                "PatientID",
+                "PatientName",
+                "PatientBirthDate",
+                "StudyDescription",
+                "modalities",
+                "seriesCount"
+            ]
+
+        },
+
+        // Prefix URL of the OE2 application (and API)
+        // A value of '/oe2' means that the app will be available under /oe2/app/...
+        // and the api will be available under /oe2/api/...
+        "Root" : "/oe2/",
+
+        // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
+        "ReplaceDefaultExplorer": false                  
+    }
+}

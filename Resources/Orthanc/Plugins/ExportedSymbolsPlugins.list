@@ -1,0 +1,7 @@
+# This is the list of the symbols that must be exported by Orthanc
+# plugins, if targeting OS X
+
+_OrthancPluginInitialize
+_OrthancPluginFinalize
+_OrthancPluginGetName
+_OrthancPluginGetVersion

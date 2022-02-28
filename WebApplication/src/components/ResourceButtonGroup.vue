@@ -1,0 +1,284 @@
+<script>
+import Modal from "./Modal.vue"
+import $ from "jquery"
+import { mapState } from "vuex"
+import api from "../orthancApi"
+
+
+export default {
+    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass"],
+    setup() {
+        return {
+        }
+    },
+
+    data() {
+        return {
+            "isDeleteModalVisible": false,
+        };
+    },
+    mounted() {
+    },
+    methods: {
+        toggleSubMenu(event) {
+            let parent = event.target.parentElement; // TODO: find a clean way to go to next ul 
+            if (event.target.tagName == "I") {
+                parent = parent.parentElement;
+            }
+            $(parent.querySelector(".dropdown-menu")).toggle();
+            event.stopPropagation();
+            event.preventDefault();
+        },
+        deleteResource(event) {
+            api.deleteResource(this.resourceLevel, this.resourceOrthancId)
+                .then(() => {
+                    this.$emit("deletedResource");
+                })
+                .catch((reason) => {
+                    console.error("failed to delete resource : ", this.resourceOrthancId, reason);
+                });
+        },
+        getApiUrl(subRoute) {
+            return api.getApiUrl(this.resourceLevel, this.resourceOrthancId, subRoute);
+        },
+        sendToDicomWebServer(server) {
+            return api.sendToDicomWebServer([this.resourceOrthancId], server);
+        }
+    },
+    computed: {
+        ...mapState({
+            uiOptions: state => state.configuration.uiOptions,
+            installedPlugins: state => state.configuration.installedPlugins,
+            targetDicomWebServers: state => state.configuration.targetDicomWebServers,
+            orthancPeers: state => state.configuration.orthancPeers
+        }),
+        hasSendTo() {
+            return this.hasSendToDicomWeb || this.hasSendToPeers;
+        },
+        hasSendToPeers() {
+            return this.orthancPeers.length > 0;
+        },
+        hasSendToDicomWeb() {
+            return this.targetDicomWebServers.length > 0;
+        },
+        hasOsimisViewer() {
+            return "osimis-web-viewer" in this.installedPlugins;
+        },
+        osimisViewerUrl() {
+            return api.getOsimisViewerUrl(this.resourceLevel, this.resourceOrthancId);
+        },
+        hasStoneViewer() {
+            return "stone-webviewer" in this.installedPlugins;
+        },
+        stoneViewerUrl() {
+            return api.getStoneViewerUrl(this.resourceLevel, this.resourceOrthancId);
+        },
+        instancePreviewUrl() {
+            return api.getInstancePreviewUrl(this.resourceOrthancId);
+        },
+        instanceDownloadUrl() {
+            return api.getInstanceDownloadUrl(this.resourceOrthancId);
+        },
+        downloadZipUrl() {
+            return api.getDownloadZipUrl(this.resourceLevel, this.resourceOrthancId);
+        },
+        downloadDicomDirUrl() {
+            return api.getDownloadDicomDirUrl(this.resourceLevel, this.resourceOrthancId);
+        },
+    },
+    components: { Modal }
+}
+</script>
+
+<template>
+    <div class="d-grid d-lg-block gap-2">
+        <a
+            v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="View in OsimisViewer"
+            target="blank"
+            v-bind:href="osimisViewerUrl"
+        >
+            <i class="bi bi-eye"></i>
+        </a>
+        <a
+            v-if="hasStoneViewer && this.resourceLevel == 'study'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="View in StoneViewer"
+            target="blank"
+            v-bind:href="stoneViewerUrl"
+        >
+            <i class="bi bi-eye-fill"></i>
+        </a>
+        <a
+            v-if="this.resourceLevel == 'instance'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="Preview"
+            target="blank"
+            v-bind:href="instancePreviewUrl"
+        >
+            <i class="bi bi-binoculars"></i>
+        </a>
+        <a
+            v-if="this.resourceLevel != 'instance'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="Download ZIP"
+            v-bind:href="downloadZipUrl"
+        >
+            <i class="bi bi-file-earmark-zip"></i>
+        </a>
+        <a
+            v-if="this.resourceLevel != 'instance'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="Download DICOMDIR"
+            v-bind:href="downloadDicomDirUrl"
+        >
+            <i class="bi bi-download"></i>
+        </a>
+        <a
+            v-if="this.resourceLevel == 'instance'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="Download DICOM file"
+            v-bind:href="instanceDownloadUrl"
+        >
+            <i class="bi bi-download"></i>
+        </a>
+        <button
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="Anonymize (TODO)"
+        >
+            <i class="bi bi-person-x"></i>
+        </button>
+        <button
+            v-if="uiOptions.EnableDeleteResources"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="modal"
+            v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId"
+        >
+            <i class="bi bi-trash" data-bs-toggle="tooltip" title="Delete"></i>
+        </button>
+        <Modal
+            v-if="uiOptions.EnableDeleteResources"
+            :id="'delete-modal-' + this.resourceOrthancId"
+            :headerText="'Delete ' + this.resourceLevel + ' ?'"
+            :okText="'Delete'"
+            :cancelText="'Cancel'"
+            :bodyText="'Are you sure you want to delete this ' + this.resourceLevel + ' ?<br/>  This action can not be undone !'"
+            @ok="deleteResource($event)"
+        ></Modal>
+        <button
+            v-if="uiOptions.EnableApiViewMenu"
+            class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
+            type="button"
+            id="apiDropdownMenuId"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+        >
+            <span data-bs-toggle="tooltip" title="API">
+                <i class="bi bi-code-slash"></i>
+            </span>
+        </button>
+        <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId">
+            <li>
+                <a class="dropdown-item" href="#">copy {{ this.resourceLevel }} orthanc id</a>
+            </li>
+            <li>
+                <a
+                    class="dropdown-item"
+                    target="blank"
+                    v-bind:href="getApiUrl('')"
+                >/</a>
+            </li>
+            <li v-if="this.resourceLevel == 'instance'">
+                <a
+                    class="dropdown-item"
+                    target="blank"
+                    v-bind:href="getApiUrl('/tags?simplify')"
+                >/tags?simplify</a>
+            </li>
+            <li>
+                <a
+                    class="dropdown-item"
+                    target="blank"
+                    v-bind:href="getApiUrl('/metadata?expand')"
+                >/metadata</a>
+            </li>
+            <li>
+                <a
+                    class="dropdown-item"
+                    target="blank"
+                    v-bind:href="getApiUrl('/attachments?expand')"
+                >/attachments</a>
+            </li>
+        </ul>
+        <button
+            v-if="hasSendTo"
+            class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
+            type="button"
+            id="dropdownMenuId"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+        >
+            <span data-bs-toggle="tooltip" title="Send">
+                <i class="bi bi-send"></i>
+            </span>
+        </button>
+        <ul class="dropdown-menu bg-dropdown" aria-labelledby="dropdownMenuId">
+            <li v-if="hasSendToPeers" class="dropdown-submenu">
+                <a class="dropdown-item" @click="toggleSubMenu" href="#">
+                    Orthanc peers
+                    <i class="bi bi-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu bg-dropdown">
+                    <li v-for="peer in orthancPeers" :key="peer">
+                        <a class="dropdown-item">{{ peer }}</a>
+                    </li>
+                </ul>
+            </li>
+            <li v-if="hasSendToDicomWeb" class="dropdown-submenu">
+                <a class="dropdown-item" @click="toggleSubMenu" href="#">
+                    Dicom WEB
+                    <i class="bi bi-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu bg-dropdown">
+                    <li v-for="dwServer in targetDicomWebServers" :key="dwServer">
+                        <a
+                            class="dropdown-item"
+                            @click="sendToDicomWebServer(dwServer)"
+                        >{{ dwServer }}</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<style>
+.bg-dropdown {
+    background-color: rgb(220, 220, 220);
+}
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    right: 100%;
+    margin-top: -1px;
+}
+</style>

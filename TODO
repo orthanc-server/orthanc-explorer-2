@@ -1,0 +1,98 @@
+For this version:
+****************
+
+- implement login (https://router.vuejs.org/guide/advanced/meta.html)
+
+- show orthanc id somewhere (button to copy it or open the "api" view (ex: /studies/{id}) ?)
+- add copy to clipboard buttons for study-details and series-details (https://codepen.io/nathanlong/pen/edVQjy)
+
+- remove pseudo responsive side menu
+
+
+For next version:
+****************
+- show jobs e.g. when sending a study to a remote modality/peer
+  (jobs-registry -> use this.$bus.$on('new-job-created') ...)
+
+
+For next version:
+****************
+- allow selection of multiple studies/series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
+- show attachments
+
+For next version:
+**************
+- support multiple languages
+- support dicom-web plugin (QIDO-RS UI)
+- support modification of MainDicomTags via a UI (including anonymization):
+  - Config to list the dicom tags to display (possibly all)
+  - option to keep the StudyInstanceUID or not
+  - option to delete the original data or not
+  - option to anonymize or not (if modification is an anonymization, it will remove many tags)
+
+- query-retrieve (DICOM modalities)
+
+- TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
+
+
+For a further version (ideas):
+**************
+- UI customization:
+ - use bootstrap-table: https://github.com/wenzhixin/bootstrap-table/issues/5477
+                       https://codepen.io/vlaem/pen/gNjGQE
+ - add custom actions per study/series/instances
+ - select fields to display/hide in tables
+ - select default viewer
+ - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
+ - hide/show standard actions -> probably to be handled once user management is implemented
+- make table sortable and faster search by maintaining a cache DB (SQLite in each Orthanc instance handled by the oe2 plugin)
+  - only for studies.  with a few indexed tags (the ones from the UI table)
+  - plugin monitors /changes route to see changes from all orthancs (instead of reacting to change events)
+  - to monitor deleted studies, react to change event + call other oe2 plugin API ?  (need to list all orthanc urls somewhere)
+
+- list last studies received (through DICOM or upload)
+
+For a further version (ideas):
+***************
+
+User & configuration management (ideas + implementation notes):
+-------------------------------
+
+- allow Orthanc to store anything in Global Properties.  Maybe not through the API but only through the SDK.
+  Or, only for an "admin" user ?
+
+- TBC: allow Orthanc to store the users in DB (like Peers & Modalities).  Except for
+  one "admin" user that would be stored in the config file.  Note: In this case, we would need an API to store users.
+  Would be nice to have some type of users like: admin, read-only, read-write at API level but that would make more sense
+  to have dedicated roles in the oe2 plugin.
+  
+- User management in oe2 plugin: 
+  - CRUD routes for users -> would modify Global properties (need for revisions !).  A single json with all users definition.
+    Each CRUD operation only updates a node of the json (that's why we need revisions !).
+  - implement authorization checks at API level for all routes (deny all and handle all known routes, including known plugins route)
+  - a user could save its prefered searches in its user-settings (to be stored in global properties too)
+  - implement a "login page" instead of the brwoser login dialog -> some routes must be accessible for everyone -> check if compatible with Orthanc Core
+
+- Edit configuration through the oe2 UI:
+  - Some immutable configuration in a config file:
+    - DB + storage
+    - Admin user !
+    - HttpPort
+  - Check if we could store a config in Global Properties (probably too early in the Orthanc init process).  We would merge the file config with the config in DB
+  - Otherwise, store the config in a file and restart Orthanc 
+    -> in Windows Service: how to tell Orthanc to use another config file ?
+    -> would be nice to have a SDK route to implement /tools/reboot with a given config file
+  - Could be a combination of 2:
+    - start Orthanc with config from file
+    - plugin reads the config in DB, generates a tmp config file -> /tools/reboot with this file
+    - that's a bit "shaky" since each cold start is made of 2 starts
+
+Ideas bag:
+*********
+
+- allow users to choose the columns in the interface (store in browser LocalStorage ?)
+- browse orthanc peer (probably need to extend the Orthanc API to avoid CORS issues)
+- show statistics/event logs: e.g: would be nice to see how many instances
+  have been received recently (from where)
+
+

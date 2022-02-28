@@ -1,0 +1,12 @@
+# This is a version-script for Orthanc plugins
+
+{
+global:
+  OrthancPluginInitialize;
+  OrthancPluginFinalize;
+  OrthancPluginGetName;
+  OrthancPluginGetVersion;
+
+local:
+  *;
+};

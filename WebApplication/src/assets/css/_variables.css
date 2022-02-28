@@ -1,0 +1,14 @@
+:root {
+    --nav-bar-width: 260px;
+
+    --study-hover-color: rgb(225, 225, 255);
+    --study-selected-color: rgb(235, 235, 255);
+
+    --series-hover-color: rgb(205, 205, 235);
+    --series-selected-color: rgb(215, 215, 235);
+
+    --instance-hover-color: rgb(185, 185, 215);
+    --instance-selected-color: rgb(195, 195, 215);
+
+    --details-top-margin: 30px;
+}
