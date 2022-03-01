@@ -2,6 +2,7 @@
 import Uppie from "uppie/uppie.min.js"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
+import { compileTemplate } from "vue/compiler-sfc";
 
 // Drop handler function to get all files
 async function getAllFileEntries(dataTransferItemList) {
@@ -114,6 +115,8 @@ export default {
                 this.lastUploadReports[uploadId].uploadedStudiesMainDicomTags[studyId] = {};
                 const studyResponse = await api.getStudy(studyId);
                 this.lastUploadReports[uploadId].uploadedStudiesMainDicomTags[studyId] = studyResponse.data["MainDicomTags"];
+
+                this.$store.dispatch('studies/addStudy', {studyId: studyId});
             }
         },
         async uploadFiles(files) {

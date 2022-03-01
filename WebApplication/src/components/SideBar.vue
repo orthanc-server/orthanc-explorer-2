@@ -36,12 +36,6 @@ export default {
         <div class="brand">
             <img src="..//assets/images/orthanc.png" height="48" />
         </div>
-        <!-- <i
-      class="fa fa-bars fa-2x toggle-btn"
-      data-toggle="collapse"
-      data-target="#menu-content"
-        ></i>-->
-
         <div class="menu-list">
             <ul id="menu-content" class="menu-content collapse out">
                 <li class="d-flex align-items-center">
