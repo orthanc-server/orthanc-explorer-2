@@ -116,7 +116,7 @@ jobs:
 
 
   publish:
-    if: contains(github.ref, 'tags/v')
+    # if: contains(github.ref, 'tags/v')
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
@@ -166,4 +166,4 @@ jobs:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
         asset_path: ./${{ matrix.config.artifact }}
         asset_name: ${{ matrix.config.artifact }}
-        asset_content_type: application/x-gtar
+        #asset_content_type: application/x-gtar
