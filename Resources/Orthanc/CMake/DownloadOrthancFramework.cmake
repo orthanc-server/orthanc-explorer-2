@@ -2,6 +2,7 @@
 # Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
 # Department, University Hospital of Liege, Belgium
 # Copyright (C) 2017-2022 Osimis S.A., Belgium
+# Copyright (C) 2021-2022 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -71,7 +72,10 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
       if (NOT ORTHANC_FRAMEWORK_MAJOR MATCHES "^[0-9]+$" OR
           NOT ORTHANC_FRAMEWORK_MINOR MATCHES "^[0-9]+$" OR
           NOT ORTHANC_FRAMEWORK_REVISION MATCHES "^[0-9]+$")
-        message("Bad version of the Orthanc framework: ${ORTHANC_FRAMEWORK_VERSION}")
+        message("Bad version of the Orthanc framework, assuming a pre-release: ${ORTHANC_FRAMEWORK_VERSION}")
+        set(ORTHANC_FRAMEWORK_MAJOR 999)
+        set(ORTHANC_FRAMEWORK_MINOR 999)
+        set(ORTHANC_FRAMEWORK_REVISION 999)
       endif()
 
       if (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.3.1")
@@ -136,6 +140,10 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
         set(ORTHANC_FRAMEWORK_MD5 "10fc64de1254a095e5d3ed3931f0cfbb")
       elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.9.6")
         set(ORTHANC_FRAMEWORK_MD5 "4b5d05683d747c29b2860ad79d11e62e")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.9.7")
+        set(ORTHANC_FRAMEWORK_MD5 "c912bbb860d640d3ae3003b5c9698205")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.10.0")
+        set(ORTHANC_FRAMEWORK_MD5 "8610c82d9153f22e929f2110f8f60279")
 
       # Below this point are development snapshots that were used to
       # release some plugin, before an official release of the Orthanc
@@ -156,6 +164,9 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
       elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "23ad1b9c7800")
         # For "Toolbox::ReadJson()" and "Toolbox::Write{...}Json()" (pre-1.9.0)
         set(ORTHANC_FRAMEWORK_MD5 "9af92080e57c60dd288eba46ce606c00")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "b2e08d83e21d")
+        # WSI 1.1 (framework pre-1.10.0), to remove "-std=c++11"
+        set(ORTHANC_FRAMEWORK_MD5 "2eaa073cbb4b44ffba199ad93393b2b1")
       endif()
     endif()
   endif()
@@ -498,35 +509,6 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "system")
     message(FATAL_ERROR "Please install the libjsoncpp-dev package")
   endif()
 
-  # Switch to the C++11 standard if the version of JsonCpp is 1.y.z
-  # (same as variable JSONCPP_CXX11 in the source code of Orthanc)
-  if (EXISTS ${JSONCPP_INCLUDE_DIR}/json/version.h)
-    file(STRINGS
-      "${JSONCPP_INCLUDE_DIR}/json/version.h" 
-      JSONCPP_VERSION_MAJOR1 REGEX
-      ".*define JSONCPP_VERSION_MAJOR.*")
-
-    if (NOT JSONCPP_VERSION_MAJOR1)
-      message(FATAL_ERROR "Unable to extract the major version of JsonCpp")
-    endif()
-    
-    string(REGEX REPLACE
-      ".*JSONCPP_VERSION_MAJOR.*([0-9]+)$" "\\1" 
-      JSONCPP_VERSION_MAJOR ${JSONCPP_VERSION_MAJOR1})
-    message("JsonCpp major version: ${JSONCPP_VERSION_MAJOR}")
-
-    if (JSONCPP_VERSION_MAJOR GREATER 0)
-      message("Switching to C++11 standard, as version of JsonCpp is >= 1.0.0")
-      if (CMAKE_COMPILER_IS_GNUCXX)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-      endif()
-    endif()
-  else()
-    message("Unable to detect the major version of JsonCpp, assuming < 1.0.0")
-  endif()
-  
   # Look for Orthanc framework shared library
   include(CheckCXXSymbolExists)
 
