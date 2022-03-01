@@ -31,7 +31,7 @@ jobs:
           WebApplication/package-lock.json
 
     - run: npm install
-      working-directory: WebAppliction
+      working-directory: ../WebAppliction
 
     - run: npm run build
       working-directory: WebAppliction
