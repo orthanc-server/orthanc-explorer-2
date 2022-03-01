@@ -30,6 +30,10 @@ jobs:
         cache-dependency-path: |
           WebApplication/package-lock.json
 
+    - name: List directory
+      run: ls -al
+#  working-directory: ./temp
+ 
     - run: npm install
       working-directory: ../WebAppliction
 
