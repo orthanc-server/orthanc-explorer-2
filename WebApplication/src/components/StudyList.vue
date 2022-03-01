@@ -85,7 +85,7 @@ export default {
         '$route.params.filters': async function (filters) { // the watch is used when, e.g, clicking on an upload report link
             this.updateFilterFromRoute(filters);
         },
-        '$route': async function () { // the watch is used when, e.g, clicking on an upload report link
+        '$route': async function () { // the watch is used when, e.g, clicking on the back button
             console.log("route changed")
         },
         isConfigurationLoaded(newValue, oldValue) {
@@ -104,9 +104,7 @@ export default {
             }
         },
         filterPatientID(newValue, oldValue) {
-            console.log("filterPatientID 0", newValue);
             if (!this.clearingFilter) {
-                console.log("filterPatientID 1", newValue);
                 this.updateFilter('PatientID', newValue);
             }
         },
@@ -127,7 +125,6 @@ export default {
         },
     },
     async mounted() {
-        console.log("mounted");
         if (this.isConfigurationLoaded) {
             this.updateFilterFromRoute(this.$route.params.filters);
         }
@@ -223,9 +220,11 @@ export default {
 
             let newUrl = baseOe2Url;
             if (activeFilters.length > 0) {
-                newUrl = baseOe2Url + "/filtered-studies/" + activeFilters.join('/');
+                newUrl = baseOe2Url + "/#filtered-studies/" + activeFilters.join('/');
+            } else {
+                newUrl = newUrl + "/#";
             }
-            history.pushState({}, '', newUrl);
+            history.replaceState({}, '', newUrl);
         },
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });

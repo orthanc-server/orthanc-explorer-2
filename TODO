@@ -8,6 +8,12 @@ For this version:
 
 - remove pseudo responsive side menu
 
+- trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
+
+bugs:
+- if upload study, totalStudiesCount not updated (-> 1 / 0) and study list not updated !
+
+
 
 For next version:
 ****************
