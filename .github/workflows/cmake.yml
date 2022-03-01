@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - master
-      - github-actions
+      - github-actions-2
 
   pull_request:
     branches: [ master ]
@@ -89,7 +89,7 @@ jobs:
         name: ${{matrix.config.artifact}}
 
   release:
-    # TODO: put back !if: contains(github.ref, 'tags/v')
+    if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
     needs: build
 
@@ -116,7 +116,7 @@ jobs:
 
 
   publish:
-    # if: contains(github.ref, 'tags/v')
+    if: contains(github.ref, 'tags/v')
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
