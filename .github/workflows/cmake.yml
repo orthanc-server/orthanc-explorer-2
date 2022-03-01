@@ -20,17 +20,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - os: windows-latest
-            triplet: x64-windows
-            artifact: OrthancExplorer2.dll
-          - os: ubuntu-latest
-            triplet: x64-linux
-            artifact: OrthancExplorer2.so
-          - os: macos-latest
-            triplet: x64-osx
-            artifact: OrthancExplorer2.dylib
+        config:
+        - {
+            name: "Windows Latest DLL", 
+            artifact: "OrthancExplorer2.dll",
+            triplet: x64-windows,
+            os: ubuntu-latest
+          }
+        - {
+            name: "Ubuntu latest .so", 
+            artifact: "libOrthancExplorer2.so",
+            triplet: x64-linux,
+            os: ubuntu-latest
+          }
+        - {
+            name: "Mac OSX latest .dylib", 
+            artifact: "libOrthancExplorer2.dylib",
+            triplet: x64-osx,
+            os: ubuntu-latest
+          }
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        # include:
+        #   - os: windows-latest
+        #     triplet: x64-windows
+        #     artifact: OrthancExplorer2.dll
+        #   - os: ubuntu-latest
+        #     triplet: x64-linux
+        #     artifact: OrthancExplorer2.so
+        #   - os: macos-latest
+        #     triplet: x64-osx
+        #     artifact: OrthancExplorer2.dylib
 
     steps:
     - uses: actions/checkout@v2
