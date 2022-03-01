@@ -27,7 +27,7 @@ if (ORTHANC_OE2_VERSION STREQUAL "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
 else()
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.9.7")
+  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.10.0")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
 endif()
 
@@ -112,7 +112,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   execute_process(
     COMMAND 
     ${PYTHON_EXECUTABLE} ${ORTHANC_FRAMEWORK_ROOT}/../Resources/WindowsResources.py
-    ${ORTHANC_DICOM_WEB_VERSION} "Orthanc Explorer 2 plugin" OrthancExplorer2.dll
+    ${ORTHANC_OE2_VERSION} "Orthanc Explorer 2 plugin" OrthancExplorer2.dll
     "Advanced User Interface Plugin for Orthanc"
     ERROR_VARIABLE Failure
     OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/Version.rc
