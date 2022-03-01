@@ -22,19 +22,19 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows Latest DLL", 
+            name: "Windows", 
             artifact: "OrthancExplorer2.dll",
             triplet: x64-windows,
             os: ubuntu-latest
           }
         - {
-            name: "Ubuntu latest .so", 
+            name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
             triplet: x64-linux,
             os: ubuntu-latest
           }
         - {
-            name: "Mac OSX latest .dylib", 
+            name: "MacOSX", 
             artifact: "libOrthancExplorer2.dylib",
             triplet: x64-osx,
             os: ubuntu-latest
@@ -125,17 +125,17 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows Latest DLL", 
+            name: "Windows", 
             artifact: "OrthancExplorer2.dll",
             os: ubuntu-latest
           }
         - {
-            name: "Ubuntu latest .so", 
+            name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
             os: ubuntu-latest
           }
         - {
-            name: "Mac OSX latest .dylib", 
+            name: "MacOSX", 
             artifact: "libOrthancExplorer2.dylib",
             os: ubuntu-latest
           }
