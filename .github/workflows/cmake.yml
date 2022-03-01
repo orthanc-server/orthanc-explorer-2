@@ -34,8 +34,12 @@ jobs:
       working-directory: WebApplication
 
     - name: Pwd3
-      run: pwd3
+      run: pwd
       working-directory: ./WebApplication
+
+    - name: List directory WebApplication
+      run: ls -al
+      working-directory: WebApplication
 
     - uses: actions/setup-node@v2
       with:
@@ -45,7 +49,7 @@ jobs:
           WebApplication/package-lock.json
 
     - run: npm install
-      working-directory: ../WebAppliction
+      working-directory: WebAppliction
 
     - run: npm run build
       working-directory: WebAppliction
