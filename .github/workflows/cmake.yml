@@ -28,11 +28,14 @@ jobs:
 
     - name: Pwd
       run: pwd
-      working-directory: ./temp
 
     - name: Pwd2
       run: pwd
       working-directory: WebApplication
+
+    - name: Pwd3
+      run: pwd3
+      working-directory: ./WebApplication
 
     - uses: actions/setup-node@v2
       with:
