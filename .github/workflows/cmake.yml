@@ -24,18 +24,21 @@ jobs:
         - {
             name: "Windows", 
             artifact: "OrthancExplorer2.dll",
+            artifactPath: "Release\OrthancExplorer2.dll",
             triplet: x64-windows,
             os: windows-latest
           }
         - {
             name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
+            artifactPath: "libOrthancExplorer2.so",
             triplet: x64-linux,
             os: ubuntu-latest
           }
         - {
             name: "MacOSX", 
             artifact: "libOrthancExplorer2.dylib",
+            artifactPath: "libOrthancExplorer2.dylib",
             triplet: x64-osx,
             os: macos-latest
           }
@@ -82,7 +85,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v1
       with:
-        path: ${{github.workspace}}/build/${{matrix.config.artifact}}
+        path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
 
   release:
