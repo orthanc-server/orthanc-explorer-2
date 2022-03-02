@@ -1,0 +1,198 @@
+name: CMake
+
+on:
+  push:
+    branches: 
+      - master
+      - github-actions-2
+    tags:
+      - '*'
+
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  pre-build:
+    name: pre-build
+    runs-on: "ubuntu-latest"
+    outputs:
+      current_branch_tag: ${{steps.branch-name.outputs.current_branch}}
+      is_tag: ${{steps.branch-name.outputs.is_tag}}
+    steps:
+      - name: Get branch/tag name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.1
+        # output: steps.branch-name.outputs.current_branch contains the branch or the tag
+
+  build-web-app:
+    name: build-web-app
+    runs-on: "ubuntu-latest"
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: show gitref / tags
+      run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
+
+    - run: npm install
+      working-directory: WebApplication
+
+    - run: npm run build
+      working-directory: WebApplication
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: web-app-dist
+        path: WebApplication/dist/
+
+  build:
+    name: ${{ matrix.config.os }}-build
+    runs-on: ${{ matrix.config.os }}
+    needs: [pre-build, build-web-app]
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows", 
+            artifact: "OrthancExplorer2.dll",
+            artifactPath: "Release\\OrthancExplorer2.dll",
+            triplet: x64-windows,
+            os: windows-latest
+          }
+        - {
+            name: "Ubuntu", 
+            artifact: "libOrthancExplorer2.so",
+            artifactPath: "libOrthancExplorer2.so",
+            triplet: x64-linux,
+            os: ubuntu-latest
+          }
+        - {
+            name: "MacOSX", 
+            artifact: "libOrthancExplorer2.dylib",
+            artifactPath: "libOrthancExplorer2.dylib",
+            triplet: x64-osx,
+            os: macos-latest
+          }
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: show gitref / tags
+      run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
+
+    - uses: actions/download-artifact@v2
+      id: download
+      with:
+        name: web-app-dist
+        path: WebApplication/dist
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}"  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      env: 
+        MAKEFLAG: -j4
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      env: 
+        MAKEFLAG: -j4
+
+    - name: Upload
+      uses: actions/upload-artifact@v1
+      with:
+        path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
+        name: ${{matrix.config.artifact}}
+
+  release:
+    if: needs.pre-build.outputs.is_tag
+    runs-on: ubuntu-latest
+    needs: [build, pre-build]
+
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.pre-build.outputs.current_branch_tag }}
+        release_name: Release ${{ needs.pre-build.outputs.current_branch_tag }}
+        draft: false
+        prerelease: false
+
+    - name: Store Release url
+      run: |
+        echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
+
+    - uses: actions/upload-artifact@v1
+      with:
+        path: ./upload_url
+        name: upload_url
+
+
+  publish:
+    if: needs.pre-build.outputs.is_tag
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    needs: [pre-build, release]
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows", 
+            artifact: "OrthancExplorer2.dll",
+            artifact_name: "OrthancExplorer2-win64.dll",
+            os: ubuntu-latest
+          }
+        - {
+            name: "Ubuntu", 
+            artifact: "libOrthancExplorer2.so",
+            artifact_name: "OrthancExplorer2-ubuntu.so",
+            os: ubuntu-latest
+          }
+        - {
+            name: "MacOSX", 
+            artifact: "libOrthancExplorer2.dylib",
+            artifact_name: "OrthancExplorer2-x86_64.dylib",
+            os: ubuntu-latest
+          }
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./
+
+    - name: Download URL
+      uses: actions/download-artifact@v1
+      with:
+        name: upload_url
+        path: ./
+    - id: set_upload_url
+      run: |
+        upload_url=`cat ./upload_url`
+        echo ::set-output name=upload_url::$upload_url
+
+    - name: Upload to Release
+      id: upload_to_release
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
+        asset_path: ./${{ matrix.config.artifact }}
+        asset_name: ${{ matrix.config.artifact_name }}
+        asset_content_type: application/octet-stream

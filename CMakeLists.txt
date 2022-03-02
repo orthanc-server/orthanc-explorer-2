@@ -21,14 +21,16 @@ cmake_minimum_required(VERSION 2.8)
 
 project(OrthancExplorer2)
 
-set(ORTHANC_OE2_VERSION "mainline")
+set(PLUGIN_VERSION "mainline" OFF CACHE STRING "plugin version 'mainline' or '1.2.3'")
 
-if (ORTHANC_OE2_VERSION STREQUAL "mainline")
+if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
+  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.10.0")
+  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
+  set(ORTHANC_OE2_VERSION ${PLUGIN_VERSION})
+else()
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
-else()
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.9.7")
-  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
+  set(ORTHANC_OE2_VERSION "mainline")
 endif()
 
 
@@ -112,7 +114,7 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
   execute_process(
     COMMAND 
     ${PYTHON_EXECUTABLE} ${ORTHANC_FRAMEWORK_ROOT}/../Resources/WindowsResources.py
-    ${ORTHANC_DICOM_WEB_VERSION} "Orthanc Explorer 2 plugin" OrthancExplorer2.dll
+    ${ORTHANC_OE2_VERSION} "Orthanc Explorer 2 plugin" OrthancExplorer2.dll
     "Advanced User Interface Plugin for Orthanc"
     ERROR_VARIABLE Failure
     OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/Version.rc
