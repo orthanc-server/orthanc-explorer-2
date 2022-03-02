@@ -3,8 +3,7 @@ name: CMake
 on:
   push:
     branches: 
-      - master
-      - github-actions-2
+      - '*'
     tags:
       - '*'
 
