@@ -28,11 +28,34 @@ jobs:
         uses: tj-actions/branch-names@v5.1
         # output: steps.branch-name.outputs.current_branch contains the branch or the tag
 
+  build-web-app:
+    name: pre-build
+    runs-on: "ubuntu-latest"
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: show gitref / tags
+      run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
+
+    - run: npm install
+      working-directory: WebApplication
+
+    - run: npm run build
+      working-directory: WebApplication
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: web-app-dist
+        path: WebApplication/dist/
 
   build:
     name: ${{ matrix.config.os }}-build
     runs-on: ${{ matrix.config.os }}
-    needs: pre-build
+    needs: [pre-build, build-web-app]
     strategy:
       fail-fast: false
       matrix:
@@ -69,14 +92,23 @@ jobs:
     - name: show gitref / tags
       run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
 
-    - run: npm install
+    # - run: npm install
+    #   working-directory: WebApplication
+
+    # - run: npm run build
+    #   working-directory: WebApplication
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: web-app-dist
+        path: WebApplicaton/dist
+        
+    - name: Display structure of downloaded files
+      run: ls -R
       working-directory: WebApplication
 
-    - run: npm run build
-      working-directory: WebApplication
-      
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DPLUGIN_VERSION=${{needs.pre-build.outputs.current_branch_tag}}  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}"  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       env: 
         MAKEFLAG: -j4
 
