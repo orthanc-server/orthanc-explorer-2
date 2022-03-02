@@ -154,13 +154,13 @@ jobs:
         - {
             name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
-            artifact_name: "OrthancExplorer2-ubuntu.so",
+            artifact_name: "libOrthancExplorer2-ubuntu.so",
             os: ubuntu-latest
           }
         - {
             name: "MacOSX", 
             artifact: "libOrthancExplorer2.dylib",
-            artifact_name: "OrthancExplorer2-x86_64.dylib",
+            artifact_name: "libOrthancExplorer2-x86_64.dylib",
             os: ubuntu-latest
           }
 
