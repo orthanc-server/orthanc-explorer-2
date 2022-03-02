@@ -18,7 +18,6 @@ env:
 jobs:
   pre-build:
     name: pre-build
-    id: pre-build
     runs-on: "ubuntu-latest"
     outputs:
       current_branch_tag: ${{steps.branch-name.outputs.current_branch}}
@@ -33,6 +32,7 @@ jobs:
   build:
     name: ${{ matrix.config.os }}-build
     runs-on: ${{ matrix.config.os }}
+    needs: pre-build
     strategy:
       fail-fast: false
       matrix:
