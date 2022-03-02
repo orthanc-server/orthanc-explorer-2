@@ -21,14 +21,16 @@ cmake_minimum_required(VERSION 2.8)
 
 project(OrthancExplorer2)
 
-set(ORTHANC_OE2_VERSION "master")
+set(PLUGIN_VERSION "mainline" OFF CACHE STRING "plugin version 'mainline' or '1.2.3'")
 
-if (ORTHANC_OE2_VERSION STREQUAL "master")
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
-  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
-else()
+if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.10.0")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
+  set(ORTHANC_OE2_VERSION "0.0.0")
+else()
+  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
+  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
+  set(ORTHANC_OE2_VERSION ${PLUGIN_VERSION})
 endif()
 
 
