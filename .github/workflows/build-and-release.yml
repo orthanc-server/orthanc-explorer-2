@@ -30,7 +30,7 @@ jobs:
   build-web-app:
     # dummy if to remove later
     needs: [pre-build]
-    if: needs.pre-build.outputs.is_tag
+    if: always() && needs.pre-build.outputs.is_tag
     name: build-web-app
     runs-on: "ubuntu-latest"
     steps:
