@@ -101,6 +101,10 @@ jobs:
     - run: mkdir -p dist
       working-directory: WebApplication
 
+    - name: Display structure of Webapp
+      run: ls -R
+      working-directory: WebApplication
+
     - uses: actions/download-artifact@v2
       id: download
       with:
