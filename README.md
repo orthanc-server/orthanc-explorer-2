@@ -35,11 +35,11 @@ At minimum, you should provide this configuration file:
 }
 ```
 
-If you are using Docker, the easiest way to try the new Orthanc Explorer 2 is to run this command and then open a browser in http://localhost:8042/
+If you are using Docker, the easiest way to try the new Orthanc Explorer 2 is to run this command and then open a browser in http://localhost:8042/ (login: orthanc, pwd: orthanc)
 
 ```shell
 docker pull osimis/orthanc:orthanc-mainline
-docker run -p 8042:8042 --env OE2_ENABLED=true  --env  osimis/orthanc:orthanc-mainline
+docker run -p 8042:8042 --env OE2_ENABLED=true  osimis/orthanc:orthanc-mainline
 ```
 
 
