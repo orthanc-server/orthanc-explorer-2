@@ -17,7 +17,7 @@ env:
 
 jobs:
   pre-build:
-    name: pre-build:
+    name: pre-build
     runs-on: "ubuntu-latest"
     steps:
       - name: Get branch/tag name
