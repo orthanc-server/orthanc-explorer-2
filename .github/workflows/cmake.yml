@@ -101,7 +101,7 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: web-app-dist
-        path: WebApplicaton/dist
+        # path: WebApplicaton/dist
         
     - name: Display structure of downloaded files
       run: ls -R
