@@ -30,7 +30,7 @@ if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
 else()
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
-  set(ORTHANC_OE2_VERSION ) "mainline"
+  set(ORTHANC_OE2_VERSION "mainline")
 endif()
 
 
