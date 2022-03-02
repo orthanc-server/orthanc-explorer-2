@@ -123,9 +123,6 @@ jobs:
       run: pwd
       working-directory: WebApplication/dist
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}"  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       env: 
