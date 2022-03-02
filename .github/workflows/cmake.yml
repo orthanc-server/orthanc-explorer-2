@@ -98,9 +98,6 @@ jobs:
     # - run: npm run build
     #   working-directory: WebApplication
 
-    - run: mkdir -p dist
-      working-directory: WebApplication
-
     - name: Display structure of Webapp
       run: ls -R
       working-directory: WebApplication
@@ -109,7 +106,7 @@ jobs:
       id: download
       with:
         name: web-app-dist
-        path: WebApplicaton/dist
+        path: WebApplication/dist
 
     - name: 'Echo download path'
       run: echo ${{steps.download.outputs.download-path}}        
