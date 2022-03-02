@@ -21,9 +21,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(OrthancExplorer2)
 
-set(ORTHANC_OE2_VERSION "mainline")
+set(ORTHANC_OE2_VERSION "master")
 
-if (ORTHANC_OE2_VERSION STREQUAL "mainline")
+if (ORTHANC_OE2_VERSION STREQUAL "master")
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
 else()
