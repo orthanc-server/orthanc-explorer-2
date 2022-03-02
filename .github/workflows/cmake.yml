@@ -60,13 +60,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        # - {
-        #     name: "Windows", 
-        #     artifact: "OrthancExplorer2.dll",
-        #     artifactPath: "Release\\OrthancExplorer2.dll",
-        #     triplet: x64-windows,
-        #     os: windows-latest
-        #   }
+        - {
+            name: "Windows", 
+            artifact: "OrthancExplorer2.dll",
+            artifactPath: "Release\\OrthancExplorer2.dll",
+            triplet: x64-windows,
+            os: windows-latest
+          }
         - {
             name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
@@ -74,13 +74,13 @@ jobs:
             triplet: x64-linux,
             os: ubuntu-latest
           }
-        # - {
-        #     name: "MacOSX", 
-        #     artifact: "libOrthancExplorer2.dylib",
-        #     artifactPath: "libOrthancExplorer2.dylib",
-        #     triplet: x64-osx,
-        #     os: macos-latest
-        #   }
+        - {
+            name: "MacOSX", 
+            artifact: "libOrthancExplorer2.dylib",
+            artifactPath: "libOrthancExplorer2.dylib",
+            triplet: x64-osx,
+            os: macos-latest
+          }
 
     steps:
     - uses: actions/checkout@v2
@@ -92,36 +92,11 @@ jobs:
     - name: show gitref / tags
       run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
 
-    # - run: npm install
-    #   working-directory: WebApplication
-
-    # - run: npm run build
-    #   working-directory: WebApplication
-
-    - name: Display structure of Webapp
-      run: ls -R
-      working-directory: WebApplication
-
     - uses: actions/download-artifact@v2
       id: download
       with:
         name: web-app-dist
         path: WebApplication/dist
-
-    - name: 'Echo download path'
-      run: echo ${{steps.download.outputs.download-path}}        
-
-    - name: Display structure of downloaded files 0
-      run: ls -R
-      working-directory: ${{steps.download.outputs.download-path}}
-
-    - name: Display structure of downloaded files
-      run: ls -R
-      working-directory: WebApplication
-
-    - name: Display structure of downloaded files
-      run: pwd
-      working-directory: WebApplication/dist
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}"  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -217,4 +192,4 @@ jobs:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
         asset_path: ./${{ matrix.config.artifact }}
         asset_name: ${{ matrix.config.artifact }}
-        #asset_content_type: application/x-gtar
+        asset_content_type: application/octet-stream
