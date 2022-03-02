@@ -4,7 +4,9 @@ on:
   push:
     branches: 
       - master
-      - github-actions-2
+      # - github-actions-2
+    tags:
+      - '*'
 
   pull_request:
     branches: [ master ]
@@ -61,9 +63,13 @@ jobs:
       
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DORTHANC_OE2_VERSION=${{github.ref}}  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      env: 
+        MAKEFLAG: -j4
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build -DMAKEFLAGS=-j4 --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      env: 
+        MAKEFLAG: -j4
 
     - name: Upload
       uses: actions/upload-artifact@v1
