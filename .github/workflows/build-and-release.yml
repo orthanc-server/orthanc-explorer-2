@@ -35,6 +35,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
+      if: needs.pre-build.outputs.is_tag
 
     - uses: actions/setup-node@v2
       with:
