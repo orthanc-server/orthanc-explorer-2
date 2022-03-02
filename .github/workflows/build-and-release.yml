@@ -28,6 +28,9 @@ jobs:
         # output: steps.branch-name.outputs.current_branch contains the branch or the tag
 
   build-web-app:
+    # dummy if to remove later
+    needs: [pre-build]
+    if: needs.pre-build.outputs.is_tag
     name: build-web-app
     runs-on: "ubuntu-latest"
     steps:
@@ -110,9 +113,9 @@ jobs:
         name: ${{matrix.config.artifact}}
 
   release:
+    needs: [build, pre-build]
     if: needs.pre-build.outputs.is_tag
     runs-on: ubuntu-latest
-    needs: [build, pre-build]
 
     steps:
     - name: Create Release
@@ -137,10 +140,10 @@ jobs:
 
 
   publish:
-    if: needs.pre-build.outputs.is_tag
     name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
     needs: [pre-build, release]
+    if: needs.pre-build.outputs.is_tag
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
