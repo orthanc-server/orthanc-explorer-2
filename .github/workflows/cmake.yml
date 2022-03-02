@@ -60,13 +60,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Windows", 
-            artifact: "OrthancExplorer2.dll",
-            artifactPath: "Release\\OrthancExplorer2.dll",
-            triplet: x64-windows,
-            os: windows-latest
-          }
+        # - {
+        #     name: "Windows", 
+        #     artifact: "OrthancExplorer2.dll",
+        #     artifactPath: "Release\\OrthancExplorer2.dll",
+        #     triplet: x64-windows,
+        #     os: windows-latest
+        #   }
         - {
             name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
