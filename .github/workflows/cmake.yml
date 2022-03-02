@@ -98,6 +98,9 @@ jobs:
     # - run: npm run build
     #   working-directory: WebApplication
 
+    - run: mkdir -p dist
+      working-directory: WebApplication
+
     - uses: actions/download-artifact@v2
       id: download
       with:
