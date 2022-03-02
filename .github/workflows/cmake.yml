@@ -124,7 +124,9 @@ jobs:
     if: needs.pre-build.outputs.is_tag
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
-    needs: pre-build
+    needs: 
+      pre-build
+      release
     strategy:
       fail-fast: false
       matrix:
@@ -144,7 +146,6 @@ jobs:
             artifact: "libOrthancExplorer2.dylib",
             os: ubuntu-latest
           }
-    needs: release
 
     steps:
     - name: Download artifact
