@@ -30,12 +30,12 @@ jobs:
   build-web-app:
     # dummy if to remove later
     needs: [pre-build]
-    if: always() && needs.pre-build.outputs.is_tag
+    if: always() && needs.pre-build.outputs.is_tag == 'true'
     name: build-web-app
     runs-on: "ubuntu-latest"
     steps:
     - uses: actions/checkout@v2
-      if: needs.pre-build.outputs.is_tag
+      if: needs.pre-build.outputs.is_tag == 'true'
 
     - uses: actions/setup-node@v2
       with:
