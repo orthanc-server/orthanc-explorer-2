@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - master
-      # - github-actions-2
+      - github-actions-2
     tags:
       - '*'
 
