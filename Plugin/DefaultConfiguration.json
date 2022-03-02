@@ -3,6 +3,14 @@
         // enables or disables the plugin completely
         "Enable": true,
 
+        // Prefix URL of the OE2 application (and API)
+        // A value of '/oe2' means that the app will be available under /oe2/app/
+        // and the api will be available under /oe2/api/...
+        "Root" : "/oe2/",
+
+        // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
+        "IsDefaultOrthancUI": false,
+
         // This block of configuration is transmitted as is to the frontend application.
         // Make sure not to store any secret here
         "UiOptions" : {
@@ -43,14 +51,6 @@
                 "seriesCount"
             ]
 
-        },
-
-        // Prefix URL of the OE2 application (and API)
-        // A value of '/oe2' means that the app will be available under /oe2/app/...
-        // and the api will be available under /oe2/api/...
-        "Root" : "/oe2/",
-
-        // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
-        "ReplaceDefaultExplorer": false                  
+        }
     }
 }

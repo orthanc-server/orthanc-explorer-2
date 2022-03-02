@@ -414,7 +414,7 @@ extern "C"
         std::string pluginRootUri = oe2BaseUrl_ + "app/";
         OrthancPluginSetRootUri(context, pluginRootUri.c_str());
 
-        if (pluginJsonConfiguration_["ReplaceDefaultExplorer"].asBool())
+        if (pluginJsonConfiguration_["IsDefaultOrthancUI"].asBool())
         {
           OrthancPlugins::RegisterRestCallback<RedirectRoot>("/", true);
         }
