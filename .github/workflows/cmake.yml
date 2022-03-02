@@ -35,24 +35,13 @@ jobs:
             triplet: x64-linux,
             os: ubuntu-latest
           }
-        - {
-            name: "MacOSX", 
-            artifact: "libOrthancExplorer2.dylib",
-            artifactPath: "libOrthancExplorer2.dylib",
-            triplet: x64-osx,
-            os: macos-latest
-          }
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-        # include:
-        #   - os: windows-latest
-        #     triplet: x64-windows
-        #     artifact: OrthancExplorer2.dll
-        #   - os: ubuntu-latest
-        #     triplet: x64-linux
-        #     artifact: OrthancExplorer2.so
-        #   - os: macos-latest
-        #     triplet: x64-osx
-        #     artifact: OrthancExplorer2.dylib
+        # - {
+        #     name: "MacOSX", 
+        #     artifact: "libOrthancExplorer2.dylib",
+        #     artifactPath: "libOrthancExplorer2.dylib",
+        #     triplet: x64-osx,
+        #     os: macos-latest
+        #   }
 
     steps:
     - uses: actions/checkout@v2
@@ -71,20 +60,11 @@ jobs:
       working-directory: WebApplication
       
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DORTHANC_OE2_VERSION=${{github.ref}}  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build -DMAKEFLAGS=-j4 --config ${{env.BUILD_TYPE}}
 
-    # - name: Test
-    #   working-directory: ${{github.workspace}}/build
-    #   # Execute tests defined by the CMake configuration.  
-    #   # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-    #   run: ctest -C ${{env.BUILD_TYPE}}
-    
     - name: Upload
       uses: actions/upload-artifact@v1
       with:
