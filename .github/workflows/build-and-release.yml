@@ -160,7 +160,7 @@ jobs:
         - {
             name: "MacOSX", 
             artifact: "libOrthancExplorer2.dylib",
-            artifact_name: "libOrthancExplorer2-x86_64.dylib",
+            artifact_name: "libOrthancExplorer2-universal.dylib",
             os: ubuntu-latest
           }
 
