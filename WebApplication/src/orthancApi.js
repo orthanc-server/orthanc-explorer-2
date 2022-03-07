@@ -46,7 +46,14 @@ const _defaultConfig = {
             "ID" : "osimis-web-viewer",
             "Version" : "1.4.2.0-9d9eff4",
 			"Enabled" : false,
-        }
+        },
+		"stone-webviewer" : 
+		{
+			"Enabled" : true,
+			"ExtendsOrthancExplorer" : true,
+			"ID" : "stone-webviewer",
+			"Version" : "2.2"
+		}
     },
 }
 

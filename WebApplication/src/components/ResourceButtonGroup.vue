@@ -71,7 +71,7 @@ export default {
             return "stone-webviewer" in this.installedPlugins;
         },
         stoneViewerUrl() {
-            return api.getStoneViewerUrl(this.resourceLevel, this.resourceOrthancId);
+            return api.getStoneViewerUrl(this.resourceLevel, this.resourceDicomUid);
         },
         instancePreviewUrl() {
             return api.getInstancePreviewUrl(this.resourceOrthancId);
