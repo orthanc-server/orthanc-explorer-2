@@ -41,13 +41,13 @@
             //    - "modalities": the list of modalities in the study
             //    - "seriesCount": the number of series in the study
             "StudyListColumns" : [
-                "StudyDate",
-                "AccessionNumber",
-                "PatientID",
-                "PatientName",
                 "PatientBirthDate",
+                "PatientName",
+                "PatientID",
                 "StudyDescription",
+                "StudyDate",
                 "modalities",
+                "AccessionNumber",
                 "seriesCount"
             ]
 

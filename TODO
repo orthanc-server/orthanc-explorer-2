@@ -7,7 +7,7 @@ For this version:
 - add copy to clipboard buttons for study-details and series-details (https://codepen.io/nathanlong/pen/edVQjy)
 
 - trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
-- filter by modality
+- filter by modality (dropdown with check box)
 
 
 For next version:

@@ -21,15 +21,15 @@ const _defaultConfig = {
         ],
         "UploadReportMaxTags": 2,
         "StudyListColumns" : [
-            "StudyDate",
-            "AccessionNumber",
-            "PatientID",
-            "PatientName",
             "PatientBirthDate",
+            "PatientName",
+            "PatientID",
             "StudyDescription",
+            "StudyDate",
             "modalities",
+            "AccessionNumber",
             "seriesCount"
-        ]
+    ]
     },
     "Plugins": {
 		"dicom-web" : {
