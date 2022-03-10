@@ -7,13 +7,14 @@ For this version:
 - add copy to clipboard buttons for study-details and series-details (https://codepen.io/nathanlong/pen/edVQjy)
 
 - trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
-
+- filter by modality
 
 
 For next version:
 ****************
 - show jobs e.g. when sending a study to a remote modality/peer
   (jobs-registry -> use this.$bus.$on('new-job-created') ...)
+- filter by daterange - including date picker
 
 
 For next version:

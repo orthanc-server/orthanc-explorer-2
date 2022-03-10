@@ -102,5 +102,7 @@ export default {
 <style scoped>
 .router-link {
     margin-left: -10px;
+    width: 100%;
+    text-align: left;
 }
 </style>
