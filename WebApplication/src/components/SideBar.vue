@@ -41,18 +41,12 @@ export default {
                 <li class="d-flex align-items-center">
                     <router-link class="router-link" to="/">
                         <i class="fa fa-x-ray fa-lg menu-icon"></i>Studies
-                        <span
-                            class="ms-auto"
-                        >{{ displayedStudyCount }} / {{ statistics.CountStudies }}</span>
+                        <span class="ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies }}</span>
                     </router-link>
                 </li>
 
-                <li
-                    v-if="uiOptions.EnableUpload"
-                    class="d-flex align-items-center"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#upload-handler"
-                >
+                <li v-if="uiOptions.EnableUpload" class="d-flex align-items-center" data-bs-toggle="collapse"
+                    data-bs-target="#upload-handler">
                     <i class="fa fa-file-upload fa-lg menu-icon"></i>Upload
                     <span class="ms-auto"></span>
                 </li>
@@ -60,12 +54,8 @@ export default {
                     <UploadHandler />
                 </div>
 
-                <li
-                    v-if="hasQueryableDicomModalities"
-                    class="d-flex align-items-center"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#modalities-list"
-                >
+                <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"
+                    data-bs-target="#modalities-list">
                     <i class="fa fa-radiation fa-lg menu-icon"></i>DICOM Modalities
                     <span class="arrow ms-auto"></span>
                 </li>
@@ -75,12 +65,8 @@ export default {
                     </li>
                 </ul>
 
-                <li
-                    v-if="hasQueryableDicomWebServers"
-                    class="d-flex align-items-center"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#dicomweb-servers-list"
-                >
+                <li v-if="hasQueryableDicomWebServers" class="d-flex align-items-center" data-bs-toggle="collapse"
+                    data-bs-target="#dicomweb-servers-list">
                     <i class="fa fa-globe fa-lg menu-icon"></i>DICOM-Web Servers
                     <span class="arrow ms-auto"></span>
                 </li>
@@ -94,6 +80,12 @@ export default {
                     <router-link class="router-link" to="/settings">
                         <i class="fa fa-cogs fa-lg menu-icon"></i>Settings
                     </router-link>
+                </li>
+
+                <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center">
+                    <a href="app/explorer.html">
+                        <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>Legacy UI
+                    </a><span class="ms-auto"></span>
                 </li>
             </ul>
         </div>

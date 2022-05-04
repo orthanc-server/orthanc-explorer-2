@@ -8,7 +8,6 @@ For this version:
 
 - trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
 - filter by modality (dropdown with check box)
-- link to classic orthanc ui
 
 
 For next version:
