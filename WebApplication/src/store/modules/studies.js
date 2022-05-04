@@ -56,10 +56,12 @@ const mutations = {
     setStudies(state, { studies }) {
         state.studies = studies;
     },
-    addStudyId(state, { studyId }) {
+    addStudy(state, { studyId, study }) {
         if (!state.studiesIds.includes(studyId)) {
             state.studiesIds.push(studyId);
+            state.studies.push(study);
         }
+
     },
     setFilter(state, { dicomTagName, value }) {
         state.filters[dicomTagName] = value;
@@ -121,9 +123,10 @@ const actions = {
         commit('deleteStudy', { studyId });
         this.dispatch('studies/loadStatistics');
     },
-    async addStudyId({ commit }, payload) {
+    async addStudy({ commit }, payload) {
         const studyId = payload['studyId'];
-        commit('addStudyId', { studyId });
+        const study = payload['study'];
+        commit('addStudy', { studyId: studyId, study: study });
         this.dispatch('studies/loadStatistics');
     }
 

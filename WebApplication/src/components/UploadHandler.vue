@@ -111,13 +111,12 @@ export default {
         },
         async uploadedFile(uploadId, uploadedFileResponse) {
             let studyId = uploadedFileResponse["ParentStudy"];
-            if (!(studyId in this.lastUploadReports[uploadId].uploadedStudiesMainDicomTags)) {
-                this.lastUploadReports[uploadId].uploadedStudiesMainDicomTags[studyId] = {};
+            if (!(studyId in this.lastUploadReports[uploadId].uploadedStudiesIds)) {
+                this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
                 const studyResponse = await api.getStudy(studyId);
-                this.lastUploadReports[uploadId].uploadedStudiesMainDicomTags[studyId] = studyResponse.data["MainDicomTags"];
+                this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse.data;
 
-                // TODO tools/Find the study and add
-                this.$store.dispatch('studies/addStudyId', {studyId: studyId});
+                this.$store.dispatch('studies/addStudy', {study: studyResponse.data, studyId: studyId});
             }
         },
         async uploadFiles(files) {
@@ -130,7 +129,7 @@ export default {
                 failedFilesCount: 0,
                 skippedFilesCount: 0,
                 uploadedStudiesIds: new Set(),
-                uploadedStudiesMainDicomTags: {},
+                uploadedStudies: {},  // studies as returned by tools/find
                 errorMessages: {}
             };
             for (let file of files) {

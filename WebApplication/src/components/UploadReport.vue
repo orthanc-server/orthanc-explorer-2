@@ -113,12 +113,12 @@ export default {
                 <span class="upload-details">Uploaded studies:</span>
                 <br />
                 <span
-                    v-for="(studyTags, studyId) in report.uploadedStudiesMainDicomTags"
+                    v-for="(study, studyId) in report.uploadedStudies"
                     :key="studyId"
                 >
-                <router-link v-bind:to="'/filtered-studies/StudyInstanceUID='+studyTags['StudyInstanceUID'] + '/'"
+                <router-link v-bind:to="'/filtered-studies/StudyInstanceUID='+study.MainDicomTags['StudyInstanceUID'] + '/'"
                         class="upload-details-study"
-                    >{{ this.getStudyLine(studyId, studyTags) }}</router-link>
+                    >{{ this.getStudyLine(studyId, study.MainDicomTags) }}</router-link>
                     <br />
                 </span>
             </p>

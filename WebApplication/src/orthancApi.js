@@ -105,7 +105,8 @@ export default {
         return axios.post(orthancApiUrl + "instances", filecontent);
     },
     async getStudy(orthancId) {
-        return axios.get(orthancApiUrl + "studies/" + orthancId);
+        // returns the same result as a findStudies (including RequestedTags !)
+        return axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=ModalitiesInStudy");
     },
     async getStudySeries(orthancId) {
         return axios.get(orthancApiUrl + "studies/" + orthancId + "/series");
