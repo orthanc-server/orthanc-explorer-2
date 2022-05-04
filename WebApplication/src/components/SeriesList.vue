@@ -1,13 +1,14 @@
 <script>
 import axios from "axios"
+import api from "../orthancApi"
 import SeriesItem from "./SeriesItem.vue"
 
 export default {
-    props: ['studyId', 'seriesInfo'],
-    emits: ['deletedSeries'],
+    props: ['studyId'],
+    emits: ['deletedStudy'],
     data() {
         return {
-            // series: [],
+            seriesInfo: {},
         };
     },
     computed: {
@@ -20,8 +21,18 @@ export default {
     methods: {
         onDeletedSeries(seriesId) {
             delete this.seriesInfo[seriesId];
-            this.$emit("deletedSeries", seriesId);
+            if (Object.keys(this.seriesInfo).length == 0) {
+                this.$emit("deletedStudy", this.studyId);
+            }
         }
+    },
+    async mounted() {
+        const studyResponse = await api.getStudySeries(this.studyId);
+
+        for (const series of studyResponse.data) {
+            this.seriesInfo[series["ID"]] = series;
+        }
+
     },
     components: { SeriesItem }
 }

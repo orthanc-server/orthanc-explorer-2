@@ -4,7 +4,7 @@ import SeriesList from "./SeriesList.vue";
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 
 export default {
-    props: ['studyId', 'seriesInfo', 'studyMainDicomTags', 'patientMainDicomTags'],
+    props: ['studyId', 'studyMainDicomTags', 'patientMainDicomTags'],
     setup() {
     },
     data() {
@@ -15,12 +15,6 @@ export default {
     },
     components: { SeriesItem, SeriesList, ResourceButtonGroup },
     methods: {
-        onDeletedSeries(seriesId) {
-            delete this.seriesInfo[seriesId];
-            if (Object.keys(this.seriesInfo).length == 0) {
-                this.$emit("deletedStudy", this.studyId);
-            }
-        },
         onDeletedStudy() {
             this.$emit("deletedStudy", this.studyId);
         }
@@ -98,8 +92,7 @@ export default {
             <td colspan="100">
                 <SeriesList
                     :studyId="this.studyId"
-                    :seriesInfo="this.seriesInfo"
-                    @deletedSeries="onDeletedSeries"
+                    @deletedStudy="onDeletedStudy"
                 ></SeriesList>
             </td>
         </tr>

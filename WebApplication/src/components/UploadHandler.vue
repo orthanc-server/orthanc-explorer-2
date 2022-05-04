@@ -116,7 +116,8 @@ export default {
                 const studyResponse = await api.getStudy(studyId);
                 this.lastUploadReports[uploadId].uploadedStudiesMainDicomTags[studyId] = studyResponse.data["MainDicomTags"];
 
-                this.$store.dispatch('studies/addStudy', {studyId: studyId});
+                // TODO tools/Find the study and add
+                this.$store.dispatch('studies/addStudyId', {studyId: studyId});
             }
         },
         async uploadFiles(files) {

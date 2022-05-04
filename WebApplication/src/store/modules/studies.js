@@ -12,6 +12,7 @@ const _clearedFilter = {
 
 ///////////////////////////// STATE
 const state = () => ({
+    studies: [],  // studies as returned by tools/find
     studiesIds: [],
     filters: {..._clearedFilter},
     statistics: {},
@@ -52,7 +53,10 @@ const mutations = {
     setStudiesIds(state, { studiesIds }) {
         state.studiesIds = studiesIds;
     },
-    addStudy(state, { studyId }) {
+    setStudies(state, { studies }) {
+        state.studies = studies;
+    },
+    addStudyId(state, { studyId }) {
         if (!state.studiesIds.includes(studyId)) {
             state.studiesIds.push(studyId);
         }
@@ -68,6 +72,7 @@ const mutations = {
         if (pos >= 0) {
             state.studiesIds.splice(pos, 1);
         }
+        state.studies = state.studies.map(s => s["ID"] != studyId);
     },
     setStatistics(state, {statistics}) {
         state.statistics = statistics;
@@ -102,8 +107,10 @@ const actions = {
     },
     async reloadFilteredStudies({ commit, getters }) {
 
-        const studiesIds = (await api.findStudies(getters.filterQuery)).data;
+        const studies = (await api.findStudies(getters.filterQuery)).data;
+        let studiesIds = studies.map(s => s['ID']);
         commit('setStudiesIds', { studiesIds: studiesIds });
+        commit('setStudies', { studies: studies });
     },
     async loadStatistics({ commit }) {
         const statistics = (await api.getStatistics()).data;
@@ -114,9 +121,9 @@ const actions = {
         commit('deleteStudy', { studyId });
         this.dispatch('studies/loadStatistics');
     },
-    async addStudy({ commit }, payload) {
+    async addStudyId({ commit }, payload) {
         const studyId = payload['studyId'];
-        commit('addStudy', { studyId });
+        commit('addStudyId', { studyId });
         this.dispatch('studies/loadStatistics');
     }
 

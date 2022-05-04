@@ -155,14 +155,15 @@ export default {
         >
             <i class="bi bi-download"></i>
         </a>
-        <button
+        <!-- <button
+            v-if="uiOptions.EnableAnonymize"
             class="btn btn-sm btn-secondary m-1"
             type="button"
             data-bs-toggle="tooltip"
             title="Anonymize (TODO)"
         >
             <i class="bi bi-person-x"></i>
-        </button>
+        </button> -->
         <button
             v-if="uiOptions.EnableDeleteResources"
             class="btn btn-sm btn-secondary m-1"

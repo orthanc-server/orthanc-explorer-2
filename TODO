@@ -8,13 +8,14 @@ For this version:
 
 - trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
 - filter by modality (dropdown with check box)
+- link to classic orthanc ui
 
 
 For next version:
 ****************
 - show jobs e.g. when sending a study to a remote modality/peer
   (jobs-registry -> use this.$bus.$on('new-job-created') ...)
-- filter by daterange - including date picker
+- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 
 For next version:
@@ -23,16 +24,22 @@ For next version:
 - show attachments
 
 For next version:
+****************
+- allow sharing a link to a study (aka publication link.  Authorisation included in a JWT part of the url)
+
+
+For next version:
 **************
 - support multiple languages
 - support dicom-web plugin (QIDO-RS UI)
-- support modification of MainDicomTags via a UI (including anonymization):
+- support neur plugin (download nifti)
+- support modification of MainDicomTags via a UI (including anonymization) (add EnableAnonymize in UI options):
   - Config to list the dicom tags to display (possibly all)
   - option to keep the StudyInstanceUID or not
   - option to delete the original data or not
   - option to anonymize or not (if modification is an anonymization, it will remove many tags)
 
-- query-retrieve (DICOM modalities)
+- query-retrieve (DICOM modalities).  Allow multiple search on multiple fields (same fields as in study list)
 
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
 

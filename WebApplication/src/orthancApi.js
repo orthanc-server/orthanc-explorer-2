@@ -95,6 +95,10 @@ export default {
                 "Expand": false,
                 "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
                 "Query": filterQuery,
+                "RequestedTags": [
+                    "ModalitiesInStudy"
+                ],
+                "Expand": true
             });
     },
     async uploadFile(filecontent) {
@@ -102,6 +106,9 @@ export default {
     },
     async getStudy(orthancId) {
         return axios.get(orthancApiUrl + "studies/" + orthancId);
+    },
+    async getStudySeries(orthancId) {
+        return axios.get(orthancApiUrl + "studies/" + orthancId + "/series");
     },
     async getExpandedSeries(orthancId) {
         return axios.get(orthancApiUrl + "series/" + orthancId + "?expand");

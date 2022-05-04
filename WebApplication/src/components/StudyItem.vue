@@ -1,7 +1,6 @@
 <script>
 import SeriesList from "./SeriesList.vue"
 import StudyDetails from "./StudyDetails.vue";
-import api from "../orthancApi"
 import { mapState } from "vuex"
 
 export default {
@@ -11,24 +10,15 @@ export default {
         return {
             fields: {},
             loaded: false,
-            expanded: false,
-            modalitiesInStudy: [],
-            seriesInfo: {}
+            expanded: false
         };
     },
     async mounted() {
-        const studyResponse = await api.getStudy(this.studyId);
-        this.fields = studyResponse.data;
+        const study = this.studies.filter(s => s["ID"] == this.studyId)[0];
+        this.fields = study;
         this.loaded = true;
-        this.seriesIds = this.fields.Series;
+        this.seriesIds = study.Series;
 
-        for (const seriesId of this.seriesIds) {
-            const seriesResponse = await api.getExpandedSeries(seriesId);
-            this.seriesInfo[seriesResponse.data.ID] = seriesResponse.data;
-            if (seriesResponse.data.MainDicomTags.Modality && !this.modalitiesInStudy.includes(seriesResponse.data.MainDicomTags.Modality)) {
-                this.modalitiesInStudy.push(seriesResponse.data.MainDicomTags.Modality);
-            }
-        }
         if (!this.$refs['study-collapsible-details']) {
             console.log('no refs: ', studyResponse);
         }
@@ -51,9 +41,10 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            studies: state => state.studies.studies,
         }),        
         modalitiesInStudyForDisplay() {
-            return this.modalitiesInStudy.join(",");
+            return this.fields.RequestedTags.ModalitiesInStudy.split('\\').join(',');
         },
     },
     components: { SeriesList, StudyDetails }
@@ -131,10 +122,9 @@ export default {
             v-bind:id="'study-details-' + this.studyId"
             ref="study-collapsible-details"
         >
-            <td v-if="loaded" colspan="100">
+            <td v-if="loaded && expanded" colspan="100">
                 <StudyDetails
                     :studyId="this.studyId"
-                    :seriesInfo="this.seriesInfo"
                     :studyMainDicomTags="this.fields.MainDicomTags"
                     :patientMainDicomTags="this.fields.PatientMainDicomTags"
                     @deletedStudy="onDeletedStudy"
