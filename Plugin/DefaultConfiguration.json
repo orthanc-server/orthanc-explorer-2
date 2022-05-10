@@ -50,8 +50,13 @@
                 "modalities",
                 "AccessionNumber",
                 "seriesCount"
-            ]
+            ],
 
+            // The modalities to display in the Modalities filter dropdown in the Study List
+            "ModalitiesFilter": [
+                "CR", "CT", "DR", "DX", "MG", "MR", "NM", "OT", "PT", "PX", "SEG", "SR", "US", "XA"
+            ]
+          
         }
     }
 }

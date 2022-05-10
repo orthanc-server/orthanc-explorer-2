@@ -1,9 +1,8 @@
 <script>
-import axios from "axios"
 import StudyItem from "./StudyItem.vue"
-import api from "../orthancApi"
 import { mapState } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
+import $ from "jquery"
 
 document._studyColumns = {
     "StudyDate": {
@@ -63,6 +62,9 @@ export default {
             filterPatientName: '',
             filterPatientBirthDate: '',
             filterStudyDescription: '',
+            filterModalities: {},
+            allModalities: true,
+            noneModalities: false,
             clearingFilter: false,
             columns: document._studyColumns,
         };
@@ -79,7 +81,7 @@ export default {
                 return false;
             }
             return this.studiesIds.length == this.uiOptions.MaxStudiesDisplayed; // in this case, the result has been limited
-        },
+        }
     },
     watch: {
         '$route.params.filters': async function (filters) { // the watch is used when, e.g, clicking on an upload report link
@@ -90,8 +92,16 @@ export default {
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is used when opening the page directly from a url with filters
-            console.log("Configuration has been loaded, updating study filter: ",this.$route.params.filters);
+            console.log("Configuration has been loaded, updating study filter: ", this.$route.params.filters);
+            this.initModalityFilter();
             this.updateFilterFromRoute(this.$route.params.filters);
+        },
+        filterModalities: {
+            handler(newValue, oldValue) {
+               console.log("modality filter changed", newValue, oldValue);
+               this.updateFilter('ModalitiesInStudy', this.getModalityFilter());
+            },
+            deep: true
         },
         filterStudyDate(newValue, oldValue) {
             if (!this.clearingFilter) {
@@ -127,10 +137,47 @@ export default {
     async mounted() {
         if (this.isConfigurationLoaded) {
             this.updateFilterFromRoute(this.$route.params.filters);
+            this.initModalityFilter();
         }
-        
     },
     methods: {
+        initModalityFilter() {
+            console.log("init filterModalities", this.uiOptions.ModalitiesFilter);
+            this.filterModalities = {};
+            for (const modality of this.uiOptions.ModalitiesFilter) {
+                this.filterModalities[modality] = true;
+                console.log("init filterModalities: ", modality);
+            }
+        },
+        getModalityFilter() {
+            if (this.filterModalities === undefined) {
+                return "";
+            }
+
+            let modalityFilter = "";
+            let allSelected = true;
+            let selected = [];
+
+            for (const [key, value] of Object.entries(this.filterModalities)) {
+                allSelected &= value;
+                if (value) {
+                    selected.push(key);
+                }
+            }
+            if (allSelected) {
+                this.allModalities = true;
+                this.noneModalities = false;
+                return "";
+            } else if (selected.length == 0) {
+                this.allModalities = false;
+                this.noneModalities = true;
+                return "NONE"; // something that will not match !
+            } else {
+                this.allModalities = false;
+                this.noneModalities = false;
+                return selected.join('\\');
+            }
+        },
         updateFilter(dicomTagName, value) {
             this.$store.dispatch('studies/updateFilter', { dicomTagName: dicomTagName, value: value });
             this.updateUrl();
@@ -153,7 +200,7 @@ export default {
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
                 }
 
-                
+
                 await this.updateFilterForm(keyValueFilters);
                 await this.$store.dispatch('studies/reloadFilteredStudies');
                 this.clearingFilter = false;
@@ -196,6 +243,29 @@ export default {
             this.updateUrl();
 
             this.clearingFilter = false;
+        },
+        async toggleModalityFilter(ev) {
+            const modality = ev.srcElement.getAttribute("data-value");
+            let newValue = true;
+            if (modality == "all") {
+                newValue = true;
+            } else if (modality == "none") {
+                newValue = false;
+            }
+
+            for (const [key, value] of Object.entries(this.filterModalities)) {
+                this.filterModalities[key] = newValue;
+            }
+        },
+        modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
+            // console.log("click-drop-down", ev);
+            ev.stopPropagation();
+        },
+        closeModalityFilter(ev) {
+            // simulate a click on the dropdown toggle (TODO: fix error in console)
+            $("#dropdown-modalities-button").click();
+            ev.preventDefault();
+            ev.stopPropagation();
         },
         updateUrl() {
             let activeFilters = [];
@@ -240,84 +310,57 @@ export default {
         <table class="table table-responsive table-sm study-table">
             <thead>
                 <th width="2%" scope="col" class="study-table-header"></th>
-                <th
-                    v-for="columnTag in uiOptions.StudyListColumns"
-                    :key="columnTag"
-                    data-bs-toggle="tooltip"
-                    v-bind:title="columns[columnTag].tooltip"
-                    v-bind:width="columns[columnTag].width"
-                    v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses"
-                >{{ columns[columnTag].title }}</th>
+                <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
+                    v-bind:title="columns[columnTag].tooltip" v-bind:width="columns[columnTag].width"
+                    v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
+                            columns[columnTag].title
+                    }}</th>
             </thead>
             <thead class="study-filter">
                 <th scope="col" class="px-2">
-                    <button
-                        @click="clearFilters"
-                        type="button"
-                        class="form-control study-list-filter btn btn-shadow-none"
-                        data-bs-toggle="tooltip"
-                        title="Clear filter"
-                    >
+                    <button @click="clearFilters" type="button"
+                        class="form-control study-list-filter btn btn-shadow-none" data-bs-toggle="tooltip"
+                        title="Clear filter">
                         <i class="far fa-times-circle"></i>
                     </button>
                 </th>
-                <th
-                    v-for="columnTag in uiOptions.StudyListColumns"
-                    :key="columnTag"
-                >
-                    <input
-                        v-if="columnTag=='StudyDate'"
-                        type="text"
-                        class="form-control study-list-filter"
-                        v-model="filterStudyDate"
-                        placeholder="20220130"
-                    />
-                    <input
-                        v-if="columnTag=='AccessionNumber'"
-                        type="text"
-                        class="form-control study-list-filter"
-                        v-model="filterAccessionNumber"
-                        placeholder="1234"
-                    />
-                    <input
-                        v-if="columnTag=='PatientID'"
-                        type="text"
-                        class="form-control study-list-filter"
-                        v-model="filterPatientID"
-                        placeholder="1234"
-                    />
-                    <input
-                        v-if="columnTag=='PatientName'"
-                        type="text"
-                        class="form-control study-list-filter"
-                        v-model="filterPatientName"
-                        placeholder="John^Doe"
-                    />                    
-                    <input
-                        v-if="columnTag=='PatientBirthDate'"
-                        type="text"
-                        class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate"
-                        placeholder="19740815"
-                    />      
-                    <input
-                        v-if="columnTag=='StudyDescription'"
-                        type="text"
-                        class="form-control study-list-filter"
-                        v-model="filterStudyDescription"
-                        placeholder="Chest"
-                    />                                  
+                <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
+                    <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
+                        v-model="filterStudyDate" placeholder="20220130" />
+                    <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
+                        v-model="filterAccessionNumber" placeholder="1234" />
+                    <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
+                        v-model="filterPatientID" placeholder="1234" />
+                    <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
+                        v-model="filterPatientName" placeholder="John^Doe" />
+                    <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
+                        v-model="filterPatientBirthDate" placeholder="19740815" />
+                    <div v-if="columnTag == 'modalities'" class="dropdown">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                            id="dropdown-modalities-button" aria-expanded="false"><span
+                                class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button" @click="modalityFilterClicked" id="modality-filter-dropdown">
+                            <li><label class="dropdown-item"><input type="checkbox" data-value="all" @click="toggleModalityFilter" v-model="allModalities" />&nbsp;All</label></li>
+                            <li><label class="dropdown-item"><input type="checkbox" data-value="none" @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;None</label></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality" v-model="filterModalities[modality]" />&nbsp;{{modality}}</label>
+                            </li>
+                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter" data-bs-toggle="dropdown">Close</button></li>
+                        </ul>
+                    </div>
+                    <input v-if="columnTag == 'StudyDescription'" type="text" class="form-control study-list-filter"
+                        v-model="filterStudyDescription" placeholder="Chest" />
                 </th>
             </thead>
-            <StudyItem
-                v-for="studyId in studiesIds"
-                :key="studyId"
-                :studyId="studyId"
-                @deletedStudy="onDeletedStudy"
-            ></StudyItem>
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" @deletedStudy="onDeletedStudy">
+            </StudyItem>
         </table>
         <div v-if="notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">
-            <i class="bi bi-exclamation-triangle-fill"></i> Not showing all results. You should refine your search criteria !
+            <i class="bi bi-exclamation-triangle-fill"></i> Not showing all results. You should refine your search
+            criteria !
         </div>
     </div>
 </template>
@@ -339,6 +382,7 @@ input.form-control.study-list-filter {
 input.form-control.study-list-filter:not(:placeholder-shown) {
     background-color: white;
 }
+
 input.form-control.study-list-filter::placeholder {
     color: rgb(200, 200, 200);
 }
@@ -356,7 +400,7 @@ button.form-control.study-list-filter {
     padding-left: 10px;
 }
 
-.study-table > :not(:first-child) {
+.study-table> :not(:first-child) {
     border-top: 0px !important;
 }
 

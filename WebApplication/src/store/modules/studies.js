@@ -8,6 +8,7 @@ const _clearedFilter = {
     PatientBirthDate: "",
     StudyDescription: "",
     StudyInstanceUID: "",
+    ModalitiesInStudy: "",
 }
 
 ///////////////////////////// STATE
@@ -42,6 +43,9 @@ const getters = {
         }
         if (state.filters.StudyInstanceUID.length >= 1) {
             query["StudyInstanceUID"] = state.filters.StudyInstanceUID;
+        }
+        if (state.filters.ModalitiesInStudy.length >= 1) {
+            query["ModalitiesInStudy"] = state.filters.ModalitiesInStudy;
         }
         return query;
     }

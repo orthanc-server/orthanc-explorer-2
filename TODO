@@ -1,13 +1,11 @@
 For this version:
 ****************
 
-- implement login (https://router.vuejs.org/guide/advanced/meta.html)
-
 - show orthanc id somewhere (button to copy it or open the "api" view (ex: /studies/{id}) ?)
 - add copy to clipboard buttons for study-details and series-details (https://codepen.io/nathanlong/pen/edVQjy)
-
+- copy series orthanc id does not work !!!
 - trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
-- filter by modality (dropdown with check box)
+
 
 
 For next version:
