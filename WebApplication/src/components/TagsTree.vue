@@ -1,4 +1,5 @@
 <script>
+import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 
 export default {
     props: ['tags'],
@@ -12,7 +13,8 @@ export default {
 
     },
     methods: {
-    }
+    },
+    components : { CopyToClipboardButton }
 
 }
 </script>
@@ -34,6 +36,7 @@ export default {
             <span v-else class="d-flex w-100">
                 <span class="details-label">{{key}} - {{item.Name}}: </span>
                 <span v-if="item.Type=='String'" class="details">{{item.Value}}</span>
+                <CopyToClipboardButton :valueToCopy="item.Value" />
             </span>
         </li>
     </ul>

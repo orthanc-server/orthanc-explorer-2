@@ -1,32 +1,30 @@
 For this version:
 ****************
-
-- show orthanc id somewhere (button to copy it or open the "api" view (ex: /studies/{id}) ?)
-- add copy to clipboard buttons for study-details and series-details (https://codepen.io/nathanlong/pen/edVQjy)
-- copy series orthanc id does not work !!!
-- trigger tools/find only after a 300-400ms delay after the last key stroke in a search field
+BUGS:
+- search for PatientID 'SEA' show more patients !!!!  there are 2 calls to /tools/find !
 
 
 
 For next version:
 ****************
-- show jobs e.g. when sending a study to a remote modality/peer
-  (jobs-registry -> use this.$bus.$on('new-job-created') ...)
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 
-For next version:
-****************
+
+For later versions:
+******************
+
+- show jobs e.g. when sending a study to a remote modality/peer
+  (jobs-registry -> use this.$bus.$on('new-job-created') ...)
+
+
 - allow selection of multiple studies/series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
 - show attachments
 
-For next version:
-****************
+
 - allow sharing a link to a study (aka publication link.  Authorisation included in a JWT part of the url)
 
 
-For next version:
-**************
 - support multiple languages
 - support dicom-web plugin (QIDO-RS UI)
 - support neur plugin (download nifti)

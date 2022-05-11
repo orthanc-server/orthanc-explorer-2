@@ -196,7 +196,7 @@ export default {
         </button>
         <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId">
             <li>
-                <a class="dropdown-item" href="#">copy {{ this.resourceLevel }} orthanc id</a>
+                <button class="dropdown-item" href="#" v-clipboard:copy="this.resourceOrthancId">copy {{ this.resourceLevel }} orthanc id</button>
             </li>
             <li>
                 <a

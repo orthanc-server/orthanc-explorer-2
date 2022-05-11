@@ -1,6 +1,7 @@
 <script>
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import InstanceList from "./InstanceList.vue";
+import ResourceDetailText from "./ResourceDetailText.vue";
 
 export default {
     props: ['seriesId', 'seriesMainDicomTags', 'instancesIds'],
@@ -13,7 +14,7 @@ export default {
     },
     computed: {
     },
-    components: { ResourceButtonGroup, InstanceList },
+    components: { ResourceButtonGroup, InstanceList, ResourceDetailText },
     methods: {
         onDeletedInstance(instanceId) {
             const pos = this.instancesIds.indexOf(instanceId);
@@ -38,34 +39,14 @@ export default {
         <tr>
             <td width="70%" class="cut-text">
                 <ul>
-                    <li class="d-flex">
-                        <span class="details-label">Series Date:</span>
-                        <span class="details">{{ seriesMainDicomTags.SeriesDate }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Series Time:</span>
-                        <span class="details">{{ seriesMainDicomTags.SeriesTime }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Series Description:</span>
-                        <span class="details">{{ seriesMainDicomTags.SeriesDescription }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Series Number:</span>
-                        <span class="details">{{ seriesMainDicomTags.SeriesNumber }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Body Part Examined:</span>
-                        <span class="details">{{ seriesMainDicomTags.BodyPartExamined }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Protocol Name:</span>
-                        <span class="details">{{ seriesMainDicomTags.ProtocolName }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label d-inline-block text-truncate">Series Instance UID:</span>
-                        <span class="details">{{ seriesMainDicomTags.SeriesInstanceUID }}</span>
-                    </li>
+                    <ResourceDetailText :value="seriesMainDicomTags.SeriesDate">Series Date</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.SeriesTime">Series Time</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.SeriesDescription" :truncate="true">Series Description</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.SeriesNumber">Series Number</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.BodyPartExamined">Body Part Examined</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.ProtocolName">Protocol Name</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.SeriesInstanceUID" :truncate="true">Series Instance UID</ResourceDetailText>
+                    <ResourceDetailText :value="seriesMainDicomTags.SeriesDate">Series Date</ResourceDetailText>
                 </ul>
             </td>
             <td width="30%" class="series-button-group">
@@ -102,21 +83,6 @@ export default {
 
 .series-details-table td {
     vertical-align: top;
-}
-
-.details-label {
-    font-weight: 700;
-    max-width: 30%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.details {
-    margin-left: auto !important;
-    font-weight: 500;
-    max-width: 25vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 </style>

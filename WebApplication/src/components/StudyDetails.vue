@@ -2,6 +2,7 @@
 import SeriesItem from "./SeriesItem.vue"
 import SeriesList from "./SeriesList.vue";
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
+import ResourceDetailText from "./ResourceDetailText.vue";
 
 export default {
     props: ['studyId', 'studyMainDicomTags', 'patientMainDicomTags'],
@@ -13,7 +14,7 @@ export default {
     },
     computed: {
     },
-    components: { SeriesItem, SeriesList, ResourceButtonGroup },
+    components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText },
     methods: {
         onDeletedStudy() {
             this.$emit("deletedStudy", this.studyId);
@@ -29,71 +30,32 @@ export default {
         <tr>
             <td width="40%" class="cut-text">
                 <ul>
-                    <li class="d-flex">
-                        <span class="details-label">Study Date:</span>
-                        <span class="details">{{ studyMainDicomTags.StudyDate }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Study Time:</span>
-                        <span class="details">{{ studyMainDicomTags.StudyTime }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Study Description:</span>
-                        <span class="details">{{ studyMainDicomTags.StudyDescription }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Accession Number:</span>
-                        <span class="details">{{ studyMainDicomTags.AccessionNumber }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Study ID:</span>
-                        <span class="details">{{ studyMainDicomTags.StudyID }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label d-inline-block text-truncate">Study Instance UID:</span>
-                        <span class="details">{{ studyMainDicomTags.StudyInstanceUID }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">ReferringPhysicianName:</span>
-                        <span class="details">{{ studyMainDicomTags.ReferringPhysicianName }}</span>
-                    </li>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyDate">Study Date</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyTime">Study Time</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyDescription" :truncate="true">Study Description</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.AccessionNumber">Accession Number</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyID">Study ID</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyInstanceUID" :truncate="true">Study Instance UID</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyDate">ReferringPhysicianName</ResourceDetailText>
                 </ul>
             </td>
             <td width="40%" class="cut-text">
                 <ul>
-                    <li class="d-flex">
-                        <span class="details-label">Patient ID:</span>
-                        <span class="details">{{ patientMainDicomTags.PatientID }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Patient Name:</span>
-                        <span class="details">{{ patientMainDicomTags.PatientName }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Patient Birth Date:</span>
-                        <span class="details">{{ patientMainDicomTags.PatientBirthDate }}</span>
-                    </li>
-                    <li class="d-flex">
-                        <span class="details-label">Patient Sex:</span>
-                        <span class="details">{{ patientMainDicomTags.PatientSex }}</span>
-                    </li>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientID">Patient ID</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientName">Patient Name</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientBirthDate">Patient Birth Date</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientSex">Patient Sex</ResourceDetailText>
                 </ul>
             </td>
             <td width="20%" class="study-button-group">
-                <ResourceButtonGroup
-                :resourceOrthancId="this.studyId"
-                :resourceLevel="'study'"
-                :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID"
-                @deletedResource="onDeletedStudy"
-                ></ResourceButtonGroup>
+                <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
+                    :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" @deletedResource="onDeletedStudy">
+                </ResourceButtonGroup>
             </td>
         </tr>
         <tr>
             <td colspan="100">
-                <SeriesList
-                    :studyId="this.studyId"
-                    @deletedStudy="onDeletedStudy"
-                ></SeriesList>
+                <SeriesList :studyId="this.studyId" @deletedStudy="onDeletedStudy"></SeriesList>
             </td>
         </tr>
     </table>
@@ -112,25 +74,9 @@ export default {
     vertical-align: top;
 }
 
-.details-label {
-    font-weight: 700;
-    max-width: 30%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.details {
-    margin-left: auto !important;
-    font-weight: 500;
-    max-width: 25vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 </style>
 <style>
 .study-button-group i {
     font-size: 1.4rem;
 }
-
 </style>
