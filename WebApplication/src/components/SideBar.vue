@@ -82,7 +82,7 @@ export default {
                     </router-link>
                 </li>
 
-                <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center">
+                <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center router-link">
                     <a href="app/explorer.html">
                         <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>Legacy UI
                     </a><span class="ms-auto"></span>

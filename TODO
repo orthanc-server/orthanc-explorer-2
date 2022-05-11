@@ -61,6 +61,13 @@ For a further version (ideas):
 For a further version (ideas):
 ***************
 
+- Q&R on multiple modalities at a same time (select the modalities you want to Q&R and display the modality in the study list)
+  (same with Q&R for dicom-web and peers)
+- in local study list, display the number of studies that are present on a remote modality for this patient (e.g: a cold archive)
+  - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
+  - same with dicom-web and peers ?
+
+
 User & configuration management (ideas + implementation notes):
 -------------------------------
 

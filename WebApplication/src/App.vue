@@ -1,19 +1,3 @@
-<script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import StudyList from "./components/StudyList.vue";
-import UploadHandler from "./components/UploadHandler.vue"
-import Modal from "./components/Modal.vue";
-import SideBar from "./components/SideBar.vue";
-import api from "./orthancApi"
-
-
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl)
-})
-</script>
-
 <script>
 export default {
     async created() {
