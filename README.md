@@ -22,7 +22,7 @@ The binaries must be copied next to other Orthanc plugins (Windows: `C:\\Program
 ## Configuration
 
 Like any other Orthanc plugins, Orthanc Explorer 2 is configured through
-a json [configuration file](tree/master/Plugin/DefaultConfiguration.json) that is provided to Orthanc at startup.
+a json [configuration file](Plugin/DefaultConfiguration.json) that is provided to Orthanc at startup.
 
 At minimum, you should provide this configuration file:
 ```json
