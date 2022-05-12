@@ -9,21 +9,20 @@ Binaries are available:
 - [here on Github](https://github.com/orthanc-server/orthanc-explorer-2/releases), you'll find the plugin for
   - Windows 64bits
   - Ubuntu 20.04
-  - OSX (Universal binary)
-- in the Windows Installers (to come mid-March 2022),
+  - MacOS (Universal binary)
+- in the Windows Installers (to come mid-May 2022),
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
-- in the osimis/orthanc Docker images (to come mid-March 2022),
+- in the osimis/orthanc Docker images (to come mid-May 2022),
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
 
-The binaries must be copied next to other Orthanc plugins (Windows: `C:\\Program Files\\Orthanc Server\\Plugins`, ubuntu: `/usr/share/orthanc/plugins/`).  You should also possible make sure that the plugin is listed
-in the `"Plugins"` Orthanc configuration. 
+The binaries must be copied next to other Orthanc plugins (Windows: `C:\\Program Files\\Orthanc Server\\Plugins`, ubuntu: `/usr/share/orthanc/plugins/`).  You should also possible make sure that the plugin is listed in the `"Plugins"` Orthanc configuration. 
 
 ## Configuration
 
 Like any other Orthanc plugins, Orthanc Explorer 2 is configured through
-a json [configuration file](tree/mester/Plugin/DefaultConfiguration.json) that is provided to Orthanc at startup.
+a json [configuration file](tree/master/Plugin/DefaultConfiguration.json) that is provided to Orthanc at startup.
 
 At minimum, you should provide this configuration file:
 ```json
@@ -74,6 +73,13 @@ sudo ./scripts/start-nginx.sh
 
 This assumes you have an orhtanc listening on localhost:8044.  Edit scripts/nginx-dev.conf if needed.
 
+## Releasing
+
+```
+git tag -a 0.2.0 -m 0.2.0
+git push --tags
+git push
+```
 
 ### Contributions
 
