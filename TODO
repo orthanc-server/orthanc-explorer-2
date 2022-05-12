@@ -3,6 +3,8 @@ For this version:
 BUGS:
 - search for PatientID 'SEA' show more patients !!!!  there are 2 calls to /tools/find !
 
+TODO:
+- display version (and 'alpha' !)
 
 
 For next version:

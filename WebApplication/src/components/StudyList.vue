@@ -66,6 +66,7 @@ export default {
             allModalities: true,
             noneModalities: false,
             clearingFilter: false,
+            initializingModalityFilter: false,
             columns: document._studyColumns,
         };
     },
@@ -98,8 +99,10 @@ export default {
         },
         filterModalities: {
             handler(newValue, oldValue) {
-               console.log("modality filter changed", newValue, oldValue);
-               this.updateFilter('ModalitiesInStudy', this.getModalityFilter());
+                if (!this.clearingFilter && !this.initializingModalityFilter) {
+                   console.log("modality filter changed", newValue, oldValue);
+                   this.updateFilter('ModalitiesInStudy', this.getModalityFilter());
+                }
             },
             deep: true
         },
@@ -136,18 +139,19 @@ export default {
     },
     async mounted() {
         if (this.isConfigurationLoaded) {
-            this.updateFilterFromRoute(this.$route.params.filters);
             this.initModalityFilter();
+            this.updateFilterFromRoute(this.$route.params.filters);
         }
     },
     methods: {
         initModalityFilter() {
             console.log("init filterModalities", this.uiOptions.ModalitiesFilter);
+            this.initializingModalityFilter=true;
             this.filterModalities = {};
             for (const modality of this.uiOptions.ModalitiesFilter) {
                 this.filterModalities[modality] = true;
-                console.log("init filterModalities: ", modality);
             }
+            this.initializingModalityFilter=false;
         },
         getModalityFilter() {
             if (this.filterModalities === undefined) {
@@ -222,6 +226,11 @@ export default {
                     this.filterPatientBirthDate = value;
                 } else if (key == "StudyDescription") {
                     this.filterStudyDescription = value;
+                } else if (key == "ModalitiesInStudy") {
+                    const modalities = value.split('\\');
+                    for (const modality of this.uiOptions.ModalitiesFilter) {
+                        this.filterModalities[modality] = modalities.indexOf(modality) != -1;
+                    }
                 }
             }
         },
@@ -232,6 +241,7 @@ export default {
             this.filterPatientName = '';
             this.filterPatientBirthDate = '';
             this.filterStudyDescription = '';
+            this.initModalityFilter();
         },
         async clearFilters() {
             this.clearingFilter = true;
@@ -245,6 +255,7 @@ export default {
             this.clearingFilter = false;
         },
         async toggleModalityFilter(ev) {
+            // only for all/none, other values are binded with v-model !
             const modality = ev.srcElement.getAttribute("data-value");
             let newValue = true;
             if (modality == "all") {
@@ -286,6 +297,9 @@ export default {
             }
             if (this.filterStudyDescription) {
                 activeFilters.push('StudyDescription=' + this.filterStudyDescription);
+            }
+            if (this.getModalityFilter()) {
+                activeFilters.push('ModalitiesInStudy=' + this.getModalityFilter());
             }
 
             let newUrl = baseOe2Url;
