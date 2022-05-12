@@ -1,10 +1,6 @@
 For this version:
 ****************
-BUGS:
-- search for PatientID 'SEA' show more patients !!!!  there are 2 calls to /tools/find !
 
-TODO:
-- display version (and 'alpha' !)
 
 
 For next version:
@@ -12,9 +8,13 @@ For next version:
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 
-
-For later versions:
+For a later version:
 ******************
+
+- predefined filters in config file to display below Studies:
+  - "Today": {"StudyDate": "$today"}
+  - "CT Last month": {"ModalitiesInStudy": "CT", "StudyDate": "$oneMonthAgo-"}
+    predefined keywords: $today, $yesterday, $oneWeekAgo, $oneMonthAgo, $oneYearAgo
 
 - show jobs e.g. when sending a study to a remote modality/peer
   (jobs-registry -> use this.$bus.$on('new-job-created') ...)

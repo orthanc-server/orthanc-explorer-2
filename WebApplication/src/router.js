@@ -19,7 +19,7 @@ export const router = createRouter({
       },
     },
     {
-      path: '/filtered-studies/:filters+',
+      path: '/filtered-studies',
       components: {
         SideBarView: SideBar,
         ContentView: StudyList,

@@ -116,7 +116,7 @@ export default {
                     v-for="(study, studyId) in report.uploadedStudies"
                     :key="studyId"
                 >
-                <router-link v-bind:to="'/filtered-studies/StudyInstanceUID='+study.MainDicomTags['StudyInstanceUID'] + '/'"
+                <router-link v-bind:to="'/filtered-studies?StudyInstanceUID='+study.MainDicomTags['StudyInstanceUID']"
                         class="upload-details-study"
                     >{{ this.getStudyLine(studyId, study.MainDicomTags) }}</router-link>
                     <br />

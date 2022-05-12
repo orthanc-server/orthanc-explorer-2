@@ -4,6 +4,8 @@ import { mapState } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import $ from "jquery"
 
+document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
+
 document._studyColumns = {
     "StudyDate": {
         "width": "7%",
@@ -65,7 +67,7 @@ export default {
             filterModalities: {},
             allModalities: true,
             noneModalities: false,
-            clearingFilter: false,
+            updatingFilterUi: false,
             initializingModalityFilter: false,
             columns: document._studyColumns,
         };
@@ -85,67 +87,71 @@ export default {
         }
     },
     watch: {
-        '$route.params.filters': async function (filters) { // the watch is used when, e.g, clicking on an upload report link
-            this.updateFilterFromRoute(filters);
-        },
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
-            console.log("route changed")
+            // console.log("StudyList: route changed")
+            this.updateFilterFromRoute(this.$route.query);
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is used when opening the page directly from a url with filters
-            console.log("Configuration has been loaded, updating study filter: ", this.$route.params.filters);
+            // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
             this.initModalityFilter();
-            this.updateFilterFromRoute(this.$route.params.filters);
+            this.updateFilterFromRoute(this.$route.query);
         },
         filterModalities: {
             handler(newValue, oldValue) {
-                if (!this.clearingFilter && !this.initializingModalityFilter) {
-                   console.log("modality filter changed", newValue, oldValue);
+                if (!this.updatingFilterUi && !this.initializingModalityFilter) {
+                //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
                    this.updateFilter('ModalitiesInStudy', this.getModalityFilter());
                 }
             },
             deep: true
         },
         filterStudyDate(newValue, oldValue) {
-            if (!this.clearingFilter) {
+            if (!this.updatingFilterUi) {
                 this.updateFilter('StudyDate', newValue);
             }
         },
         filterAccessionNumber(newValue, oldValue) {
-            if (!this.clearingFilter) {
+            if (!this.updatingFilterUi) {
                 this.updateFilter('AccessionNumber', newValue);
             }
         },
         filterPatientID(newValue, oldValue) {
-            if (!this.clearingFilter) {
+            if (!this.updatingFilterUi) {
                 this.updateFilter('PatientID', newValue);
             }
         },
         filterPatientName(newValue, oldValue) {
-            if (!this.clearingFilter) {
+            if (!this.updatingFilterUi) {
                 this.updateFilter('PatientName', newValue);
             }
         },
         filterPatientBirthDate(newValue, oldValue) {
-            if (!this.clearingFilter) {
+            if (!this.updatingFilterUi) {
                 this.updateFilter('PatientBirthDate', newValue);
             }
         },
         filterStudyDescription(newValue, oldValue) {
-            if (!this.clearingFilter) {
+            if (!this.updatingFilterUi) {
                 this.updateFilter('StudyDescription', newValue);
             }
         },
     },
+    async created() {
+        // console.log("StudyList: created");
+    },
     async mounted() {
-        if (this.isConfigurationLoaded) {
-            this.initModalityFilter();
-            this.updateFilterFromRoute(this.$route.params.filters);
-        }
+        // console.log("StudyList: mounted");
     },
     methods: {
+        clearModalityFilter() {
+            // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
+            for (const modality of this.uiOptions.ModalitiesFilter) {
+                this.filterModalities[modality] = true;
+            }
+        },
         initModalityFilter() {
-            console.log("init filterModalities", this.uiOptions.ModalitiesFilter);
+            // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
             this.initializingModalityFilter=true;
             this.filterModalities = {};
             for (const modality of this.uiOptions.ModalitiesFilter) {
@@ -183,34 +189,38 @@ export default {
             }
         },
         updateFilter(dicomTagName, value) {
+            // console.log("StudyList: updateFilter", this.updatingFilterUi);
             this.$store.dispatch('studies/updateFilter', { dicomTagName: dicomTagName, value: value });
             this.updateUrl();
         },
         async updateFilterFromRoute(filters) {
-            console.log("updating filter from Route", filters);
+            // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
+
+            this.updatingFilterUi = true;
             if (filters === undefined) {
-                await this.clearFilters();
+                await this.clearFiltersUi();
             } else {
 
                 await this.$store.dispatch('studies/clearFilterNoReload');
                 var keyValueFilters = {};
-                this.clearingFilter = true;
 
-                for (const filter of filters) {
-                    const dicomTagName = filter.split('=')[0];
-                    const value = filter.split('=')[1];
-                    keyValueFilters[dicomTagName] = value;
+                for (const [filterKey, filterValue] of Object.entries(filters)) {
+                    if (document._allowedFilters.indexOf(filterKey) == -1) {
+                        console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
+                    } else {
+                        keyValueFilters[filterKey] = filterValue;
 
-                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
+                        await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
+                    }
                 }
-
 
                 await this.updateFilterForm(keyValueFilters);
                 await this.$store.dispatch('studies/reloadFilteredStudies');
-                this.clearingFilter = false;
             }
+            this.updatingFilterUi = false;
         },
         updateFilterForm(filters) {
+            // console.log("StudyList: updateFilterForm", this.updatingFilterUi);
             this.emptyFilterForm();
 
             for (const [key, value] of Object.entries(filters)) {
@@ -228,31 +238,45 @@ export default {
                     this.filterStudyDescription = value;
                 } else if (key == "ModalitiesInStudy") {
                     const modalities = value.split('\\');
-                    for (const modality of this.uiOptions.ModalitiesFilter) {
-                        this.filterModalities[modality] = modalities.indexOf(modality) != -1;
+                    if (modalities.length > 0) {
+                        let allModalitiesInFilter = true;
+                        let noneModalitiesInFilter = true;
+                        for (const modality of this.uiOptions.ModalitiesFilter) {
+                            const isInFilter = modalities.indexOf(modality) != -1
+                            this.filterModalities[modality] = isInFilter;
+                            allModalitiesInFilter &= isInFilter;
+                            noneModalitiesInFilter &= !isInFilter;
+                        }
+                        this.allModalities = allModalitiesInFilter;
+                        this.noneModalities = noneModalitiesInFilter;
                     }
                 }
             }
         },
         emptyFilterForm() {
+            // console.log("StudyList: emptyFilterForm", this.updatingFilterUi);
             this.filterStudyDate = '';
             this.filterAccessionNumber = '';
             this.filterPatientID = '';
             this.filterPatientName = '';
             this.filterPatientBirthDate = '';
             this.filterStudyDescription = '';
-            this.initModalityFilter();
+            this.clearModalityFilter();
         },
         async clearFilters() {
-            this.clearingFilter = true;
+            // console.log("StudyList: clearFilters", this.updatingFilterUi);
+            await this.clearFiltersUi();
+            await this.$store.dispatch('studies/clearFilter');
+        },
+        async clearFiltersUi() {
+            console.log("StudyList: clearFiltersUi IN");
+            this.updatingFilterUi = true;
 
             this.emptyFilterForm();
-
-            await this.$store.dispatch('studies/clearFilter');
-
             this.updateUrl();
 
-            this.clearingFilter = false;
+            this.updatingFilterUi = false;
+            // console.log("StudyList: clearFiltersUi OUT");
         },
         async toggleModalityFilter(ev) {
             // only for all/none, other values are binded with v-model !
@@ -269,7 +293,6 @@ export default {
             }
         },
         modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
-            // console.log("click-drop-down", ev);
             ev.stopPropagation();
         },
         closeModalityFilter(ev) {
@@ -304,7 +327,7 @@ export default {
 
             let newUrl = baseOe2Url;
             if (activeFilters.length > 0) {
-                newUrl = baseOe2Url + "/#filtered-studies/" + activeFilters.join('/');
+                newUrl = baseOe2Url + "/#filtered-studies?" + activeFilters.join('&');
             } else {
                 newUrl = newUrl + "/#";
             }
