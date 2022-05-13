@@ -144,13 +144,19 @@ export default {
                 try {
                     const uploadResponse = await api.uploadFile(fileContent);
 
-                    this.lastUploadReports[uploadId].successFilesCount++;
-
                     if (Array.isArray(uploadResponse.data)) { // we have uploaded a zip
-                        for (let uploadFileResponse of uploadResponse.data) {
-                            this.uploadedFile(uploadId, uploadFileResponse);
+
+                        if (uploadResponse.data.length > 0) {
+                            this.lastUploadReports[uploadId].successFilesCount++;
+                            for (let uploadFileResponse of uploadResponse.data) {
+                                this.uploadedFile(uploadId, uploadFileResponse);
+                            }
+                        } else {
+                            this.lastUploadReports[uploadId].failedFilesCount++;
+                            this.lastUploadReports[uploadId].errorMessages[filename] = "no valid DICOM files found in zip";
                         }
                     } else {
+                        this.lastUploadReports[uploadId].successFilesCount++;
                         this.uploadedFile(uploadId, uploadResponse.data);
                     }
                 }
