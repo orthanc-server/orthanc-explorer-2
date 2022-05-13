@@ -4,9 +4,9 @@
         "Enable": true,
 
         // Prefix URL of the OE2 application (and API)
-        // A value of '/oe2' means that the app will be available under /oe2/app/
-        // and the api will be available under /oe2/api/...
-        "Root" : "/oe2/",
+        // A value of '/my-ui' means that the app will be available under /my-ui/app/
+        // and the api will be available under /my-ui/api/...
+        "Root" : "/ui/",
 
         // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
         "IsDefaultOrthancUI": false,
@@ -16,7 +16,7 @@
         "UiOptions" : {
             "EnableUpload": true,                       // Enables the upload menu/interface
             "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances
-            "EnableApiViewMenu": true,                  // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
+            "EnableApiViewMenu": false,                  // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
@@ -26,11 +26,11 @@
             // Allowed values are: "StudyDate", "AccessionNumber", "PatientID",
             // "PatientName", "PatientBirthDate", "StudyDescription"
             "UploadReportTags" : [                      
-                "AccessionNumber", 
-                "StudyDate", 
                 "PatientName", 
-                "PatientID", 
-                "StudyDescription"
+                "StudyDescription",
+                "PatientID",
+                "AccessionNumber", 
+                "StudyDate" 
             ],
             "UploadReportMaxTags" : 2,                  // See above, the max number of tags displayed in the upload report
 

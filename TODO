@@ -24,12 +24,12 @@ For a later version:
 - show attachments
 
 
-- allow sharing a link to a study (aka publication link.  Authorisation included in a JWT part of the url)
+- allow sharing a link to a study (aka publication link.  Authorisation included in a JWT part of the url - likely with the help of an external web service)
 
 
 - support multiple languages
 - support dicom-web plugin (QIDO-RS UI)
-- support neur plugin (download nifti)
+- support neuro plugin (download nifti)
 - support modification of MainDicomTags via a UI (including anonymization) (add EnableAnonymize in UI options):
   - Config to list the dicom tags to display (possibly all)
   - option to keep the StudyInstanceUID or not
@@ -44,10 +44,7 @@ For a later version:
 For a further version (ideas):
 **************
 - UI customization:
- - use bootstrap-table: https://github.com/wenzhixin/bootstrap-table/issues/5477
-                       https://codepen.io/vlaem/pen/gNjGQE
  - add custom actions per study/series/instances
- - select fields to display/hide in tables
  - select default viewer
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
  - hide/show standard actions -> probably to be handled once user management is implemented

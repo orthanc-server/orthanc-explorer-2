@@ -58,7 +58,7 @@ npm install
 npm run dev
 ```
 
-To run the UI together with Orthanc on http://localhost:9999/oe2/app/
+To run the UI together with Orthanc on http://localhost:9999/ui/app/
 
 in a shell:
 ```shell

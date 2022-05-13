@@ -17,7 +17,7 @@ $('#lookup').live('pagebeforeshow', function() {
                       .text('Open Orthanc Explorer 2')
                       .button()
                       .click(function(e) {
-                        window.open('/oe2/index.html');
+                        window.open('/ui/app/index.html');
                       })));
   
   b.insertAfter($('#lookup-result'));
