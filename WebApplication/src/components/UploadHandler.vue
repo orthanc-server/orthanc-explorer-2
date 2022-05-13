@@ -111,7 +111,7 @@ export default {
         },
         async uploadedFile(uploadId, uploadedFileResponse) {
             let studyId = uploadedFileResponse["ParentStudy"];
-            if (!(studyId in this.lastUploadReports[uploadId].uploadedStudiesIds)) {
+            if (!this.lastUploadReports[uploadId].uploadedStudiesIds.has(studyId)) {
                 this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
                 const studyResponse = await api.getStudy(studyId);
                 this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse.data;

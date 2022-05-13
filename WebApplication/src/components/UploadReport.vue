@@ -30,16 +30,18 @@ export default {
         close(reportId) {
             this.$emit("deletedUploadReport", reportId);
         },
-        getStudyLine(studyId, studyMainDicomTags) {
+        getStudyLine(studyId, studyMainDicomTags, patientMainDicomTags) {
             // format the line to display for each study
             let infos = [];
 
             for (let tag of this.uiOptions.UploadReportTags) {
                 if (tag in studyMainDicomTags && studyMainDicomTags[tag] && studyMainDicomTags[tag].length > 0) {
                     infos.push(studyMainDicomTags[tag]);
+                } else if (tag in patientMainDicomTags && patientMainDicomTags[tag] && patientMainDicomTags[tag].length > 0) {
+                    infos.push(patientMainDicomTags[tag]);
                 }
             }
-            if (infos.length == 0) {
+            if (infos.length == 0) { // if nothing to display, display the study id
                 infos.push(studyId.slice(0, 20) + "...");
             }
             return infos.slice(0, this.uiOptions.UploadReportMaxTags).join(" - ");
@@ -118,7 +120,7 @@ export default {
                 >
                 <router-link v-bind:to="'/filtered-studies?StudyInstanceUID='+study.MainDicomTags['StudyInstanceUID']"
                         class="upload-details-study"
-                    >{{ this.getStudyLine(studyId, study.MainDicomTags) }}</router-link>
+                    >{{ this.getStudyLine(studyId, study.MainDicomTags, study.PatientMainDicomTags) }}</router-link>
                     <br />
                 </span>
             </p>
