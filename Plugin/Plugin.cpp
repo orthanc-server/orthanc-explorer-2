@@ -171,14 +171,14 @@ bool GetPluginConfiguration(Json::Value& pluginConfiguration, const std::string&
 }
 
 
-bool IsPluginEnabledInConfiguration(const std::string& sectionName, const std::string& enableValueName)
+bool IsPluginEnabledInConfiguration(const std::string& sectionName, const std::string& enableValueName, bool defaultValue)
 {
   if (orthancFullConfiguration_->IsSection(sectionName))
   {
     OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);    
     orthancFullConfiguration_->GetSection(pluginConfiguration_, sectionName);
 
-    return pluginConfiguration_.GetBooleanValue(enableValueName, false);
+    return pluginConfiguration_.GetBooleanValue(enableValueName, defaultValue);
   }
 
   return false;
@@ -238,35 +238,35 @@ Json::Value GetPluginsConfiguration()
     }
     else if (pluginName == "dicom-web")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("DicomWeb", "Enable");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("DicomWeb", "Enable", false);
     }
     else if (pluginName == "gdcm")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Gdcm", "Enable");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Gdcm", "Enable", true);
     }
     else if (pluginName == "mysql-index")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("MySQL", "EnableIndex");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("MySQL", "EnableIndex", false);
     }
     else if (pluginName == "mysql-storage")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("MySQL", "EnableStorage");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("MySQL", "EnableStorage", false);
     }
     else if (pluginName == "odbc-index")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("PostgreSQL", "EnableIndex");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Odbc", "EnableIndex", false);
     }
     else if (pluginName == "odbc-storage")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("PostgreSQL", "EnableStorage");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Odbc", "EnableStorage", false);
     }
     else if (pluginName == "postgresql-index")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Odbc", "EnableIndex");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("PostgreSQL", "EnableIndex", false);
     }
     else if (pluginName == "postgresql-storage")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Odbc", "EnableStorage");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("PostgreSQL", "EnableStorage", false);
     }
     else if (pluginName == "osimis-web-viewer")
     {
@@ -286,7 +286,7 @@ Json::Value GetPluginsConfiguration()
     }
     else if (pluginName == "tcia")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Tcia", "Enable");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Tcia", "Enable", false);
     }
     else if (pluginName == "transfers")
     {
@@ -298,7 +298,7 @@ Json::Value GetPluginsConfiguration()
     }
     else if (pluginName == "worklists")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Worklists", "Enable");
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Worklists", "Enable", false);
     }
     else if (pluginName == "wsi")
     {

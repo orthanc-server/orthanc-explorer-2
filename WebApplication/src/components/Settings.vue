@@ -70,6 +70,7 @@ export default {
         </div>
         <div>
             <h5>Installed plugins</h5>
+            <p class="m-2">Plugins that are loaded but not enabled or not configured correctly are <span style="text-decoration: line-through;">striked-through</span></p>
             <table class="table">
                 <tbody>
                     <tr v-for="(configuration, plugin) in installedPlugins" :key="plugin"
