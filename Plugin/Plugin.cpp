@@ -374,7 +374,7 @@ extern "C"
     {
       ReadConfiguration();
 
-      if (pluginJsonConfiguration_["Enable"])
+      if (pluginJsonConfiguration_["Enable"].asBool())
       {
         oe2BaseUrl_ = pluginJsonConfiguration_["Root"].asString();
 

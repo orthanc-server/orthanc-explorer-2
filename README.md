@@ -82,7 +82,7 @@ To build the frontend:
 ```shell
 cd WebApplication
 npm install
-npm build
+npm run build
 ```
 
 And then, to build the C++ plugin:
