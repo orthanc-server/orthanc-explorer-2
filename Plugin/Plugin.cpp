@@ -397,7 +397,7 @@ extern "C"
         oe2BaseUrl_ = pluginJsonConfiguration_["Root"].asString();
         orthancApiPublicUrl_ = pluginJsonConfiguration_["OrthancApiPublicRoot"].asString();
 
-        if (pluginJsonConfiguration_.isMember("PublicRoot") && pluginJsonConfiguration_["OrthancApiPublicRoot"].isString())
+        if (pluginJsonConfiguration_.isMember("PublicRoot") && pluginJsonConfiguration_["PublicRoot"].isString())
         {
           oe2BasePublicUrl_ = pluginJsonConfiguration_["PublicRoot"].asString();
         }
