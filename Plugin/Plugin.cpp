@@ -26,10 +26,18 @@
 
 #include <EmbeddedResources.h>
 
+// we are using Orthanc 1.11.0 API (RequestedTags in tools/find)
+#define ORTHANC_CORE_MINIMAL_MAJOR     1
+#define ORTHANC_CORE_MINIMAL_MINOR     11
+#define ORTHANC_CORE_MINIMAL_REVISION  0
+
+
 std::unique_ptr<OrthancPlugins::OrthancConfiguration> orthancFullConfiguration_;
 OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);
 Json::Value pluginJsonConfiguration_;
 std::string oe2BaseUrl_;
+std::string oe2BasePublicUrl_;
+std::string orthancApiPublicUrl_;
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
 void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
@@ -53,9 +61,9 @@ void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
 
     if (mimeType == Orthanc::MimeType_JavaScript && Orthanc::Toolbox::StartsWith(path, "/index.")) {
         std::map<std::string, std::string> dictionary;
-        dictionary["ORTHANC_API_BASE_URL"] = "/";
-        dictionary["OE2_BASE_URL"] = oe2BaseUrl_.substr(0, oe2BaseUrl_.size() - 1) + "/app";
-        dictionary["OE2_API_BASE_URL"] = oe2BaseUrl_.substr(0, oe2BaseUrl_.size() - 1) + "/api/";
+        dictionary["ORTHANC_API_BASE_URL"] = orthancApiPublicUrl_;
+        dictionary["OE2_BASE_URL"] = oe2BasePublicUrl_.substr(0, oe2BasePublicUrl_.size() - 1) + "/app";
+        dictionary["OE2_API_BASE_URL"] = oe2BasePublicUrl_.substr(0, oe2BasePublicUrl_.size() - 1) + "/api/";
 
         try 
         {
@@ -130,6 +138,7 @@ void MergeJson(Json::Value &a, const Json::Value &b) {
     } 
     else
     {
+      // const std::string& val = b[key].asString();
       a[key] = b[key];
     }
   }
@@ -342,6 +351,16 @@ static bool DisplayPerformanceWarning(OrthancPluginContext* context)
   return true;
 }
 
+static void CheckRootUrlIsValid(const std::string& value, const std::string& name)
+{
+  if (value.size() < 1 ||
+      value[0] != '/' ||
+      value[value.size() - 1] != '/')
+  {
+    OrthancPlugins::LogError("Orthanc-Explorer 2: '" + name + "' configuration shall start with a '/' and end with a '/': " + value);
+    throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
+  }
+}
 
 extern "C"
 {
@@ -355,16 +374,15 @@ extern "C"
 
     Orthanc::Logging::EnableInfoLevel(true);
 
+
     /* Check the version of the Orthanc core */
-    if (OrthancPluginCheckVersion(context) == 0)
+    if (!OrthancPlugins::CheckMinimalOrthancVersion(ORTHANC_CORE_MINIMAL_MAJOR,
+                                                    ORTHANC_CORE_MINIMAL_MINOR,
+                                                    ORTHANC_CORE_MINIMAL_REVISION))
     {
-      char info[1024];
-      sprintf(info, "Your version of Orthanc (%s) must be above %d.%d.%d to run this plugin",
-              context->orthancVersion,
-              ORTHANC_PLUGINS_MINIMAL_MAJOR_NUMBER,
-              ORTHANC_PLUGINS_MINIMAL_MINOR_NUMBER,
-              ORTHANC_PLUGINS_MINIMAL_REVISION_NUMBER);
-      OrthancPluginLogError(context, info);
+      OrthancPlugins::ReportMinimalOrthancVersion(ORTHANC_CORE_MINIMAL_MAJOR,
+                                                  ORTHANC_CORE_MINIMAL_MINOR,
+                                                  ORTHANC_CORE_MINIMAL_REVISION);
       return -1;
     }
 
@@ -377,17 +395,24 @@ extern "C"
       if (pluginJsonConfiguration_["Enable"].asBool())
       {
         oe2BaseUrl_ = pluginJsonConfiguration_["Root"].asString();
+        orthancApiPublicUrl_ = pluginJsonConfiguration_["OrthancApiPublicRoot"].asString();
 
-        if (oe2BaseUrl_.size() < 1 ||
-            oe2BaseUrl_[0] != '/' ||
-            oe2BaseUrl_[oe2BaseUrl_.size() - 1] != '/')
+        if (pluginJsonConfiguration_.isMember("PublicRoot") && pluginJsonConfiguration_["PublicRoot"].isString())
         {
-          OrthancPlugins::LogError("Orthanc-Explorer 2: 'Root' configuration shall start with a '/' and end with a '/': " + oe2BaseUrl_);
-          throw Orthanc::OrthancException(Orthanc::ErrorCode_InternalError);
+          oe2BasePublicUrl_ = pluginJsonConfiguration_["PublicRoot"].asString();
+        }
+        else
+        {
+          oe2BasePublicUrl_ = oe2BaseUrl_;
         }
 
-        OrthancPlugins::LogWarning("URI to the Orthanc-Explorer 2 application: " + oe2BaseUrl_);
+        CheckRootUrlIsValid(oe2BaseUrl_, "Root");
+        CheckRootUrlIsValid(oe2BasePublicUrl_, "PublicRoot");
+        CheckRootUrlIsValid(orthancApiPublicUrl_, "OrthancApiPublicRoot");
 
+        OrthancPlugins::LogWarning("Root URI to the Orthanc-Explorer 2 application: " + oe2BaseUrl_);
+        OrthancPlugins::LogWarning("Public Root URI to the Orthanc-Explorer 2 application: " + oe2BasePublicUrl_);
+        OrthancPlugins::LogWarning("Public Root URI to the Orthanc API for Orthanc-Explorer 2 application: " + orthancApiPublicUrl_);
 
         // we need to mix the "routing" between the server and the frontend (vue-router)
         // first part are the files that are 'static files' that must be served by the backend
@@ -411,7 +436,7 @@ extern "C"
 
         OrthancPlugins::RegisterRestCallback<GetOE2Configuration>(oe2BaseUrl_ + "api/configuration", true);
         
-        std::string pluginRootUri = oe2BaseUrl_ + "app/";
+        std::string pluginRootUri = oe2BasePublicUrl_ + "app/";
         OrthancPluginSetRootUri(context, pluginRootUri.c_str());
 
         if (pluginJsonConfiguration_["IsDefaultOrthancUI"].asBool())
