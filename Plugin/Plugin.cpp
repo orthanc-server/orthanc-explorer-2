@@ -26,6 +26,12 @@
 
 #include <EmbeddedResources.h>
 
+// we are using Orthanc 1.11.0 API (RequestedTags in tools/find)
+#define ORTHANC_CORE_MINIMAL_MAJOR     1
+#define ORTHANC_CORE_MINIMAL_MINOR     11
+#define ORTHANC_CORE_MINIMAL_REVISION  0
+
+
 std::unique_ptr<OrthancPlugins::OrthancConfiguration> orthancFullConfiguration_;
 OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);
 Json::Value pluginJsonConfiguration_;
@@ -355,16 +361,15 @@ extern "C"
 
     Orthanc::Logging::EnableInfoLevel(true);
 
+
     /* Check the version of the Orthanc core */
-    if (OrthancPluginCheckVersion(context) == 0)
+    if (!OrthancPlugins::CheckMinimalOrthancVersion(ORTHANC_CORE_MINIMAL_MAJOR,
+                                                    ORTHANC_CORE_MINIMAL_MINOR,
+                                                    ORTHANC_CORE_MINIMAL_REVISION))
     {
-      char info[1024];
-      sprintf(info, "Your version of Orthanc (%s) must be above %d.%d.%d to run this plugin",
-              context->orthancVersion,
-              ORTHANC_PLUGINS_MINIMAL_MAJOR_NUMBER,
-              ORTHANC_PLUGINS_MINIMAL_MINOR_NUMBER,
-              ORTHANC_PLUGINS_MINIMAL_REVISION_NUMBER);
-      OrthancPluginLogError(context, info);
+      OrthancPlugins::ReportMinimalOrthancVersion(ORTHANC_CORE_MINIMAL_MAJOR,
+                                                  ORTHANC_CORE_MINIMAL_MINOR,
+                                                  ORTHANC_CORE_MINIMAL_REVISION);
       return -1;
     }
 
