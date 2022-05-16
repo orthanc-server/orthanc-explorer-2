@@ -23,8 +23,6 @@ if (APPLE)
   set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 endif(APPLE)
 
-set (CMAKE_CXX_STANDARD 11)
-
 project(OrthancExplorer2)
 
 set(PLUGIN_VERSION "mainline" OFF CACHE STRING "plugin version 'mainline' or '1.2.3'")
