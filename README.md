@@ -73,6 +73,24 @@ sudo ./scripts/start-nginx.sh
 
 This assumes you have an orhtanc listening on localhost:8044.  Edit scripts/nginx-dev.conf if needed.
 
+## Compilation
+
+
+To build the frontend:
+
+```shell
+cd WebApplication
+npm install
+npm build
+```
+
+And then, to build the C++ plugin:
+```
+cd /build
+cmake -DALLOW_DOWNLOADS=ON -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_ORTHANC_SDK=OFF /sources/orthanc-explorer-2/
+make -j 4
+```
+
 ## Releasing
 
 ```
