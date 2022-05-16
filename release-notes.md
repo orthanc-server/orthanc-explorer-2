@@ -1,3 +1,11 @@
+pending changes
+==================
+
+Changes:
+- new configurations:
+  - "PublicRoot"
+  - "OrthancApiPublicRoot"
+
 0.2.1 (2022-05-13)
 ==================
 
