@@ -75,6 +75,7 @@ This assumes you have an orhtanc listening on localhost:8044.  Edit scripts/ngin
 
 ## Compilation
 
+Prerequisites to build the frontend: you need `nodejs` version 14 or higher and `npm` version 6 or higher.
 
 To build the frontend:
 
