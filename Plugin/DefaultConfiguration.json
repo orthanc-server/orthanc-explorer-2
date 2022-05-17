@@ -32,11 +32,12 @@
         "UiOptions" : {
             "EnableUpload": true,                       // Enables the upload menu/interface
             "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances
-            "EnableApiViewMenu": false,                  // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
+            "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
             
+            "ShowOrthancName": true,                    // display the Orthanc Name in the side menu
             // The list of tags to be displayed in the upload dialog result list
             // (the first N defined tags in the list are displayed on the UI)
             // Allowed values are: "StudyDate", "AccessionNumber", "PatientID",

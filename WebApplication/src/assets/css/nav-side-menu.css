@@ -1,3 +1,7 @@
+:root {
+    --nav-side-color: #ffffff;
+}
+
 .nav-side-menu {
     overflow: auto;
     font-family: verdana;
@@ -8,15 +12,7 @@
     top: 0px;
     width: var(--nav-bar-width);
     height: 100%;
-    color: #e1ffff;
-}
-
-.nav-side-menu .brand {
-    background-color: #23282e;
-    line-height: 50px;
-    display: block;
-    text-align: center;
-    font-size: 14px;
+    color: var(--nav-side-color);
 }
 
 .nav-side-menu .toggle-btn {
@@ -106,7 +102,7 @@
 
 .nav-side-menu li a {
     text-decoration: none;
-    color: #e1ffff;
+    color: var(--nav-side-color);
 }
 
 .nav-side-menu li a i {

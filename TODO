@@ -1,11 +1,11 @@
 For this version:
 ****************
-
+- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
+- show Orthanc Name in side bar
 
 
 For next version:
 ****************
-- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 
 For a later version:

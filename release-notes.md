@@ -2,9 +2,13 @@ pending changes
 ==================
 
 Changes:
+- show Orthanc "Name" in side bar
+- changed color of Orthanc logo to white
+
 - new configurations:
   - "PublicRoot"
   - "OrthancApiPublicRoot"
+  - "ShowOrthancName"
 
 0.2.1 (2022-05-13)
 ==================

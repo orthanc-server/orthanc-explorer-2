@@ -2,6 +2,8 @@
 
 import UploadHandler from "./UploadHandler.vue"
 import { mapState } from "vuex"
+import { orthancApiUrl, oe2ApiUrl } from "../globalConfigurations";
+
 
 export default {
     props: [],
@@ -9,6 +11,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            system: state => state.configuration.system,
             queryableDicomModalities: state => state.configuration.queryableDicomModalities,
             queryableDicomWebServers: state => state.configuration.queryableDicomWebServers,
             studiesIds: state => state.studies.studiesIds,
@@ -26,6 +29,9 @@ export default {
         },
         displayedStudyCount() {
             return this.studiesIds.length;
+        },
+        orthancApiUrl() {
+            return orthancApiUrl;
         }
     },
     components: { UploadHandler }
@@ -33,8 +39,11 @@ export default {
 </script>
 <template>
     <div>
-        <div class="brand">
-            <img src="..//assets/images/orthanc.png" height="48" />
+        <div>
+            <img class="orthanc-logo" src="..//assets/images/orthanc.png" height="48" />
+        </div>
+        <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
+            <p>{{ system.Name }}</p>
         </div>
         <div class="menu-list">
             <ul id="menu-content" class="menu-content collapse out">
@@ -83,7 +92,7 @@ export default {
                 </li>
 
                 <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center router-link">
-                    <a href="/app/explorer.html">
+                    <a v-bind:href="this.orthancApiUrl + 'app/explorer.html'">
                         <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>Legacy UI
                     </a><span class="ms-auto"></span>
                 </li>
@@ -96,5 +105,21 @@ export default {
     margin-left: -10px;
     width: 100%;
     text-align: left;
+}
+
+.orthanc-name {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+.orthanc-name p {
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+}
+
+.orthanc-logo {
+    filter: brightness(50);
 }
 </style>
