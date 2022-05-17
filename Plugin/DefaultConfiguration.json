@@ -6,6 +6,7 @@
         // Prefix URL of the OE2 application (and API)
         // A value of '/my-ui' means that the app will be available under /my-ui/app/
         // and the api will be available under /my-ui/api/...
+        // Should start and end with a '/'
         "Root" : "/ui/",
 
         // Prefix URL of the OE2 public application (and API)
@@ -15,10 +16,12 @@
         // A value of '/orthanc/ui/' means that the app will be available under /orthanc/ui/app/
         // and the api will be available under /orthanc/ui/api/ and we assume that the Orthanc API
         // is available at /orthanc/
+        // Should start and end with a '/' or be null
         "PublicRoot": null,
 
         // Prefix URL of the orthanc public API
         // This is useful if, e.g, your Orthanc is behind a reverse-proxy.
+        // Should start and end with a '/'
         "OrthancApiPublicRoot": "/",
 
         // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
