@@ -102,9 +102,9 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
   }
 }
 
-static void RedirectRoot(OrthancPluginRestOutput* output,
-                                           const char* url,
-                                           const OrthancPluginHttpRequest* request)
+void RedirectRoot(OrthancPluginRestOutput* output,
+                  const char* url,
+                  const OrthancPluginHttpRequest* request)
 {
   OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
 
