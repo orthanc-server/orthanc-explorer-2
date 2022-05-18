@@ -69,12 +69,6 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
 {
   OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
 
-  OrthancPlugins::LogInfo(std::string("Headers for: '") + url + "'");
-  for (uint32_t i = 0; i < request->headersCount; i++)
-  {
-    OrthancPlugins::LogInfo(std::string("Headers: ") + request->headersKeys[i] + " : " + request->headersValues[i]);
-  }
-
   if (request->method != OrthancPluginHttpMethod_Get)
   {
     OrthancPluginSendMethodNotAllowed(context, output, "GET");
