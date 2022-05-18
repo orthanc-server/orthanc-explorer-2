@@ -4,10 +4,9 @@ pending changes
 Changes:
 - show Orthanc "Name" in side bar
 - changed color of Orthanc logo to white
+- improved relative URL computation when running behind a reverse proxy
 
 - new configurations:
-  - "PublicRoot"
-  - "OrthancApiPublicRoot"
   - "ShowOrthancName"
 
 0.2.1 (2022-05-13)

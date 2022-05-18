@@ -36,8 +36,6 @@ std::unique_ptr<OrthancPlugins::OrthancConfiguration> orthancFullConfiguration_;
 OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);
 Json::Value pluginJsonConfiguration_;
 std::string oe2BaseUrl_;
-std::string oe2BasePublicUrl_;
-std::string orthancApiPublicUrl_;
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
 void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
@@ -59,23 +57,6 @@ void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
     std::string fileContent;
     Orthanc::EmbeddedResources::GetDirectoryResource(fileContent, folder, path.c_str());
 
-    if (mimeType == Orthanc::MimeType_JavaScript && Orthanc::Toolbox::StartsWith(path, "/index.")) {
-        std::map<std::string, std::string> dictionary;
-        dictionary["ORTHANC_API_BASE_URL"] = orthancApiPublicUrl_;
-        dictionary["OE2_BASE_URL"] = oe2BasePublicUrl_.substr(0, oe2BasePublicUrl_.size() - 1) + "/app";
-        dictionary["OE2_API_BASE_URL"] = oe2BasePublicUrl_.substr(0, oe2BasePublicUrl_.size() - 1) + "/api/";
-
-        try 
-        {
-          std::string replacedString = Orthanc::Toolbox::SubstituteVariables(fileContent, dictionary);
-          fileContent = replacedString;
-        } 
-        catch (Orthanc::OrthancException& ex)
-        {
-          OrthancPluginLogError(context, "Orthanc Explorer 2: index.js substitution error");
-        }
-    }
-
     const char* resource = fileContent.size() ? fileContent.c_str() : NULL;
     OrthancPluginAnswerBuffer(context, output, resource, fileContent.size(), mime);
   }
@@ -87,6 +68,12 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
                        const OrthancPluginHttpRequest* request)
 {
   OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
+
+  OrthancPlugins::LogInfo(std::string("Headers for: '") + url + "'");
+  for (uint32_t i = 0; i < request->headersCount; i++)
+  {
+    OrthancPlugins::LogInfo(std::string("Headers: ") + request->headersKeys[i] + " : " + request->headersValues[i]);
+  }
 
   if (request->method != OrthancPluginHttpMethod_Get)
   {
@@ -351,8 +338,13 @@ static bool DisplayPerformanceWarning(OrthancPluginContext* context)
   return true;
 }
 
-static void CheckRootUrlIsValid(const std::string& value, const std::string& name)
+static void CheckRootUrlIsValid(const std::string& value, const std::string& name, bool allowEmpty)
 {
+  if (allowEmpty && value.size() == 0)
+  {
+    return;
+  }
+
   if (value.size() < 1 ||
       value[0] != '/' ||
       value[value.size() - 1] != '/')
@@ -395,24 +387,10 @@ extern "C"
       if (pluginJsonConfiguration_["Enable"].asBool())
       {
         oe2BaseUrl_ = pluginJsonConfiguration_["Root"].asString();
-        orthancApiPublicUrl_ = pluginJsonConfiguration_["OrthancApiPublicRoot"].asString();
 
-        if (pluginJsonConfiguration_.isMember("PublicRoot") && pluginJsonConfiguration_["PublicRoot"].isString())
-        {
-          oe2BasePublicUrl_ = pluginJsonConfiguration_["PublicRoot"].asString();
-        }
-        else
-        {
-          oe2BasePublicUrl_ = oe2BaseUrl_;
-        }
-
-        CheckRootUrlIsValid(oe2BaseUrl_, "Root");
-        CheckRootUrlIsValid(oe2BasePublicUrl_, "PublicRoot");
-        CheckRootUrlIsValid(orthancApiPublicUrl_, "OrthancApiPublicRoot");
+        CheckRootUrlIsValid(oe2BaseUrl_, "Root", false);
 
         OrthancPlugins::LogWarning("Root URI to the Orthanc-Explorer 2 application: " + oe2BaseUrl_);
-        OrthancPlugins::LogWarning("Public Root URI to the Orthanc-Explorer 2 application: " + oe2BasePublicUrl_);
-        OrthancPlugins::LogWarning("Public Root URI to the Orthanc API for Orthanc-Explorer 2 application: " + orthancApiPublicUrl_);
 
         // we need to mix the "routing" between the server and the frontend (vue-router)
         // first part are the files that are 'static files' that must be served by the backend
@@ -436,7 +414,7 @@ extern "C"
 
         OrthancPlugins::RegisterRestCallback<GetOE2Configuration>(oe2BaseUrl_ + "api/configuration", true);
         
-        std::string pluginRootUri = oe2BasePublicUrl_ + "app/";
+        std::string pluginRootUri = oe2BaseUrl_ + "app/";
         OrthancPluginSetRootUri(context, pluginRootUri.c_str());
 
         if (pluginJsonConfiguration_["IsDefaultOrthancUI"].asBool())
