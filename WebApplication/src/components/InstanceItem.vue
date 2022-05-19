@@ -22,6 +22,14 @@ export default {
                 this.expanded = false;
             }
         });
+
+        for (const [k, v] of Object.entries(this.$route.query)) {
+            if (k === 'expand') {
+                if (v === 'instance') {
+                    this.expanded = true;
+                }
+            }
+        }
     },
     methods: {
         onDeletedInstance(instanceId) {
@@ -57,7 +65,7 @@ export default {
         </tr>
         <tr
             class="collapse"
-            :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded': expanded }"
+            :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded show': expanded }"
             v-bind:id="'instance-details-' + this.instanceId"
             ref="instance-collapsible-details"
         >

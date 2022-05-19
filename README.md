@@ -71,7 +71,7 @@ in another shell:
 sudo ./scripts/start-nginx.sh
 ``` 
 
-This assumes you have an orhtanc listening on localhost:8044.  Edit scripts/nginx-dev.conf if needed.
+This assumes you have an orhtanc listening on localhost:8043.  Edit scripts/nginx-dev.conf if needed.
 
 ## Compilation
 

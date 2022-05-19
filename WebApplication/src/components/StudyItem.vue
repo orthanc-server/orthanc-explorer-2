@@ -2,6 +2,7 @@
 import SeriesList from "./SeriesList.vue"
 import StudyDetails from "./StudyDetails.vue";
 import { mapState } from "vuex"
+import { $ } from "../../dist/assets/vendor.36e0e598";
 
 export default {
     props: ["studyId"],
@@ -10,7 +11,8 @@ export default {
         return {
             fields: {},
             loaded: false,
-            expanded: false
+            expanded: false,
+            forceExpand: false
         };
     },
     async mounted() {
@@ -32,6 +34,15 @@ export default {
                 this.expanded = false;
             }
         });
+
+        for (const [k, v] of Object.entries(this.$route.query)) {
+            if (k === 'expand') {
+                if (v == null || v === 'study' || v === 'series' || v === 'instance') {
+                    this.expanded = true;
+                }
+            }
+        }
+
     },
     methods: {
         onDeletedStudy(studyId) {
@@ -118,7 +129,7 @@ export default {
         <tr
             v-show="loaded"
             class="collapse"
-            :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded': expanded }"
+            :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded show': expanded }"
             v-bind:id="'study-details-' + this.studyId"
             ref="study-collapsible-details"
         >
