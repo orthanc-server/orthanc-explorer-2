@@ -1,4 +1,4 @@
-0.2.2 (2022-05-20)
+0.2.2 (2022-05-19)
 ==================
 
 Changes:
@@ -14,6 +14,9 @@ Changes:
   ```
 - new configurations:
   - "ShowOrthancName"
+  - "EnableDownloadZip"
+  - "EnableDownloadDicomDir"
+  - "EnableDownloadDicomFile"
 
 0.2.1 (2022-05-13)
 ==================
