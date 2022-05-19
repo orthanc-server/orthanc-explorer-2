@@ -2,7 +2,7 @@
 import SeriesList from "./SeriesList.vue"
 import StudyDetails from "./StudyDetails.vue";
 import { mapState } from "vuex"
-import { $ } from "../../dist/assets/vendor.36e0e598";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 
 export default {
     props: ["studyId"],
@@ -12,7 +12,7 @@ export default {
             fields: {},
             loaded: false,
             expanded: false,
-            forceExpand: false
+            collapseElement: null
         };
     },
     async mounted() {
@@ -35,10 +35,13 @@ export default {
             }
         });
 
+        var el = this.$refs['study-collapsible-details'];
+        this.collapseElement = new bootstrap.Collapse(el, {toggle: false});
+
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
                 if (v == null || v === 'study' || v === 'series' || v === 'instance') {
-                    this.expanded = true;
+                    this.collapseElement.show();
                 }
             }
         }
@@ -129,7 +132,7 @@ export default {
         <tr
             v-show="loaded"
             class="collapse"
-            :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded show': expanded }"
+            :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded': expanded }"
             v-bind:id="'study-details-' + this.studyId"
             ref="study-collapsible-details"
         >

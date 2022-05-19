@@ -1,5 +1,6 @@
 <script>
 import SeriesDetails from "./SeriesDetails.vue";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 
 export default {
     props: ["seriesId", "seriesInfo"],
@@ -8,6 +9,7 @@ export default {
         return {
             loaded: false,
             expanded: false,
+            collapseElement: null
         };
     },
     mounted() {
@@ -23,10 +25,13 @@ export default {
             }
         });
 
+        var el = this.$refs['series-collapsible-details'];
+        this.collapseElement = new bootstrap.Collapse(el, {toggle: false});
+
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
                 if (v === 'series' || v === 'instance') {
-                    this.expanded = true;
+                    this.collapseElement.show();
                 }
             }
         }
@@ -75,7 +80,7 @@ export default {
         </tr>
         <tr
             class="collapse"
-            :class="{ 'series-details-collapsed': !expanded, 'series-details-expanded show': expanded }"
+            :class="{ 'series-details-collapsed': !expanded, 'series-details-expanded': expanded }"
             v-bind:id="'series-details-' + this.seriesId"
             ref="series-collapsible-details"
         >

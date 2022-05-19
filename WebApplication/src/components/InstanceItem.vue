@@ -1,5 +1,7 @@
 <script>
 import InstanceDetails from "./InstanceDetails.vue";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+
 
 export default {
     props: ["instanceId", "instanceInfo"],
@@ -8,6 +10,7 @@ export default {
         return {
             loaded: false,
             expanded: false,
+            collapseElement: null
         };
     },
     mounted() {
@@ -23,10 +26,13 @@ export default {
             }
         });
 
+        var el = this.$refs['instance-collapsible-details'];
+        this.collapseElement = new bootstrap.Collapse(el, {toggle: false});
+
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
                 if (v === 'instance') {
-                    this.expanded = true;
+                    this.collapseElement.show();
                 }
             }
         }
@@ -65,7 +71,7 @@ export default {
         </tr>
         <tr
             class="collapse"
-            :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded show': expanded }"
+            :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded': expanded }"
             v-bind:id="'instance-details-' + this.instanceId"
             ref="instance-collapsible-details"
         >

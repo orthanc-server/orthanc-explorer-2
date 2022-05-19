@@ -68,6 +68,7 @@ export default {
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
+            updatingRoute: false,
             initializingModalityFilter: false,
             columns: document._studyColumns,
         };
@@ -89,7 +90,10 @@ export default {
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
             // console.log("StudyList: route changed")
-            this.updateFilterFromRoute(this.$route.query);
+            if (!this.updatingRoute) {
+                this.updateFilterFromRoute(this.$route.query);
+            }
+            this.updatingRoute = false;
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is used when opening the page directly from a url with filters
@@ -276,7 +280,7 @@ export default {
             this.updateUrl();
 
             this.updatingFilterUi = false;
-            // console.log("StudyList: clearFiltersUi OUT");
+            console.log("StudyList: clearFiltersUi OUT");
         },
         async toggleModalityFilter(ev) {
             // only for all/none, other values are binded with v-model !
@@ -325,13 +329,13 @@ export default {
                 activeFilters.push('ModalitiesInStudy=' + this.getModalityFilter());
             }
 
-            let newUrl = baseOe2Url;
+            let newUrl = "";
             if (activeFilters.length > 0) {
-                newUrl = baseOe2Url + "/#filtered-studies?" + activeFilters.join('&');
-            } else {
-                newUrl = newUrl + "/#";
+                newUrl = "/filtered-studies?" + activeFilters.join('&');
             }
-            history.replaceState({}, '', newUrl);
+
+            this.updatingRoute = true;  // cleared in watcher
+            this.$router.replace(newUrl);
         },
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });

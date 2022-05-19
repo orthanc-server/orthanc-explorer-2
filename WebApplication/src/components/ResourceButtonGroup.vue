@@ -126,27 +126,27 @@ export default {
             <i class="bi bi-binoculars"></i>
         </a>
         <a
-            v-if="this.resourceLevel != 'instance'"
+            v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
             class="btn btn-sm btn-secondary m-1"
             type="button"
             data-bs-toggle="tooltip"
             title="Download ZIP"
             v-bind:href="downloadZipUrl"
         >
-            <i class="bi bi-file-earmark-zip"></i>
+            <i class="bi bi-download"></i>
         </a>
         <a
-            v-if="this.resourceLevel != 'instance'"
+            v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
             class="btn btn-sm btn-secondary m-1"
             type="button"
             data-bs-toggle="tooltip"
             title="Download DICOMDIR"
             v-bind:href="downloadDicomDirUrl"
         >
-            <i class="bi bi-download"></i>
+            <i class="bi bi-box-arrow-down"></i>
         </a>
         <a
-            v-if="this.resourceLevel == 'instance'"
+            v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
             class="btn btn-sm btn-secondary m-1"
             type="button"
             data-bs-toggle="tooltip"

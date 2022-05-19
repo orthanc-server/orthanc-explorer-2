@@ -17,6 +17,9 @@
         "UiOptions" : {
             "EnableUpload": true,                       // Enables the upload menu/interface
             "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances
+            "EnableDownloadZip": true,                  // Enables the download zip button for Studies/Series
+            "EnableDownloadDicomDir": false,            // Enables the download DICOM DIR button for Studies/Series
+            "EnableDownloadDicomFile": true,            // Enables the download DICOM file button for Instances
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
