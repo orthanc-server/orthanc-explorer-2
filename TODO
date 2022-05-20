@@ -1,15 +1,17 @@
 For this version:
 ****************
-- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
-- enable download zip/media (2 configs)
+- optimize search: https://groups.google.com/d/msgid/orthanc-users/0d27fb10-7fa1-48a3-9eeb-272afe2f988en%40googlegroups.com?utm_medium=email&utm_source=footer
 
 
 For next version:
 ****************
 
 
+
 For a later version:
 ******************
+
+- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 - predefined filters in config file to display below Studies:
   - "Today": {"StudyDate": "$today"}
