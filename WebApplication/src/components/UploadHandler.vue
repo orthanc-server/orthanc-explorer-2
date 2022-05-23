@@ -2,7 +2,6 @@
 import Uppie from "uppie/uppie.min.js"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
-import { compileTemplate } from "vue/compiler-sfc";
 
 // Drop handler function to get all files
 async function getAllFileEntries(dataTransferItemList) {

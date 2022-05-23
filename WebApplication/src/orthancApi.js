@@ -84,7 +84,7 @@ export default {
             "Synchronous": false
         }));
         
-        console.log("TODO: job for dicom-web stow", response);
+        return response.data['ID'];
     },
     async sendToOrthancPeer(resourcesIds, destination) {
         const response = (await axios.post(orthancApiUrl + "peers/" + destination + "/store", {
@@ -92,7 +92,7 @@ export default {
             "Synchronous": false
         }));
         
-        console.log("TODO: job for orthanc-peer store", response);
+        return response.data['ID'];
     },
     async sendToDicomModality(resourcesIds, destination) {
         const response = (await axios.post(orthancApiUrl + "modalities/" + destination + "/store", {
@@ -100,7 +100,11 @@ export default {
             "Synchronous": false
         }));
         
-        console.log("TODO: job for DICOM store", response);
+        return response.data['ID'];
+    },
+    async getJobStatus(jobId) {
+        const response = (await axios.get(orthancApiUrl + "jobs/" + jobId));
+        return response.data;
     },
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);

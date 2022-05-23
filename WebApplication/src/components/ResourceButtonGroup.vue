@@ -41,14 +41,17 @@ export default {
         getApiUrl(subRoute) {
             return api.getApiUrl(this.resourceLevel, this.resourceOrthancId, subRoute);
         },
-        sendToDicomWebServer(server) {
-            return api.sendToDicomWebServer([this.resourceOrthancId], server);
+        async sendToDicomWebServer(server) {
+            const jobId = await api.sendToDicomWebServer([this.resourceOrthancId], server);
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DicomWeb (' + server + ')'});
         },
-        sendToOrthancPeer(peer) {
-            return api.sendToOrthancPeer([this.resourceOrthancId], peer);
+        async sendToOrthancPeer(peer) {
+            const jobId = await api.sendToOrthancPeer([this.resourceOrthancId], peer);
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to Peer (' + peer + ')'});
         },
-        sendToDicomModality(modality) {
-            return api.sendToDicomModality([this.resourceOrthancId], modality);
+        async sendToDicomModality(modality) {
+            const jobId = await api.sendToDicomModality([this.resourceOrthancId], modality);
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DICOM (' + modality + ')'});
         }
     },
     computed: {

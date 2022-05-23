@@ -1,6 +1,7 @@
 <script>
 
 import UploadHandler from "./UploadHandler.vue"
+import JobsList from "./JobsList.vue";
 import { mapState } from "vuex"
 import { orthancApiUrl, oe2ApiUrl } from "../globalConfigurations";
 
@@ -16,6 +17,7 @@ export default {
             queryableDicomWebServers: state => state.configuration.queryableDicomWebServers,
             studiesIds: state => state.studies.studiesIds,
             statistics: state => state.studies.statistics,
+            jobs: state => state.jobs.jobsIds,
         }),
 
         hasQueryableDicomWebServers() {
@@ -27,6 +29,9 @@ export default {
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;
         },
+        hasJobs() {
+            return this.jobs.length > 0;
+        },
         displayedStudyCount() {
             return this.studiesIds.length;
         },
@@ -34,7 +39,7 @@ export default {
             return orthancApiUrl;
         }
     },
-    components: { UploadHandler }
+    components: { UploadHandler, JobsList }
 }
 </script>
 <template>
@@ -96,6 +101,15 @@ export default {
                         <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>Legacy UI
                     </a><span class="ms-auto"></span>
                 </li>
+                <li v-if="hasJobs" class="d-flex align-items-center router-link">
+                    <a href="#">
+                        <i class="fa fa-solid fa-flask fa-lg menu-icon"></i>My jobs
+                    </a><span class="ms-auto"></span>
+                </li>
+                <div v-if="hasJobs" class="collapse show" id="jobs-list">
+                    <JobsList />
+                </div>
+
             </ul>
         </div>
     </div>
