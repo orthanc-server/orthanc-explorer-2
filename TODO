@@ -18,9 +18,6 @@ For a later version:
   - "CT Last month": {"ModalitiesInStudy": "CT", "StudyDate": "$oneMonthAgo-"}
     predefined keywords: $today, $yesterday, $oneWeekAgo, $oneMonthAgo, $oneYearAgo
 
-- show jobs e.g. when sending a study to a remote modality/peer
-  (jobs-registry -> use this.$bus.$on('new-job-created') ...)
-
 
 - allow selection of multiple studies/series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
 - show attachments
@@ -41,6 +38,8 @@ For a later version:
 - query-retrieve (DICOM modalities).  Allow multiple search on multiple fields (same fields as in study list)
 
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
+
+- show job details (need improvement in Orthanc API itself)
 
 
 For a further version (ideas):

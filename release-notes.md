@@ -1,6 +1,13 @@
+0.3.0 (2022-05-23)
+==================
+
 Changes:
 - fixed 'send to peer'
 - added 'send to modality'
+- now displaying the transfer jobs created by 'send to peer', 'send to modality', 'send to dicom-web'
+
+- new configuration:
+  - "MaxMyJobsHistorySize"
 
 0.2.2 (2022-05-19)
 ==================

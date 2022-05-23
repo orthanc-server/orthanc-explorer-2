@@ -103,7 +103,7 @@ export default {
                 </li>
                 <li v-if="hasJobs" class="d-flex align-items-center router-link">
                     <a href="#">
-                        <i class="fa fa-solid fa-flask fa-lg menu-icon"></i>My jobs
+                        <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>My jobs
                     </a><span class="ms-auto"></span>
                 </li>
                 <div v-if="hasJobs" class="collapse show" id="jobs-list">

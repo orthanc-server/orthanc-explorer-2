@@ -48,8 +48,10 @@ const actions = {
         const name = payload['name'];
         commit('addJob', { jobId: jobId, name: name });
 
-        while (state.jobsIds.length > state.maxJobsInHistory) {
-            commit('removeJob', { jobId: state.jobsIds[0] })
+        if (this.state.configuration.uiOptions.MaxMyJobsHistorySize > 0) {
+            while (state.jobsIds.length >  this.state.configuration.uiOptions.MaxMyJobsHistorySize) {
+                commit('removeJob', { jobId: state.jobsIds[0] })
+            }
         }
     },
     removeJob({ commit }, payload) {
