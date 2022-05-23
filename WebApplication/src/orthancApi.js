@@ -86,6 +86,22 @@ export default {
         
         console.log("TODO: job for dicom-web stow", response);
     },
+    async sendToOrthancPeer(resourcesIds, destination) {
+        const response = (await axios.post(orthancApiUrl + "peers/" + destination + "/store", {
+            "Resources" : resourcesIds,
+            "Synchronous": false
+        }));
+        
+        console.log("TODO: job for orthanc-peer store", response);
+    },
+    async sendToDicomModality(resourcesIds, destination) {
+        const response = (await axios.post(orthancApiUrl + "modalities/" + destination + "/store", {
+            "Resources" : resourcesIds,
+            "Synchronous": false
+        }));
+        
+        console.log("TODO: job for DICOM store", response);
+    },
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },

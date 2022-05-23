@@ -43,6 +43,12 @@ export default {
         },
         sendToDicomWebServer(server) {
             return api.sendToDicomWebServer([this.resourceOrthancId], server);
+        },
+        sendToOrthancPeer(peer) {
+            return api.sendToOrthancPeer([this.resourceOrthancId], peer);
+        },
+        sendToDicomModality(modality) {
+            return api.sendToDicomModality([this.resourceOrthancId], modality);
         }
     },
     computed: {
@@ -50,6 +56,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             installedPlugins: state => state.configuration.installedPlugins,
             targetDicomWebServers: state => state.configuration.targetDicomWebServers,
+            targetDicomModalities: state => state.configuration.targetDicomModalities,
             orthancPeers: state => state.configuration.orthancPeers
         }),
         hasSendTo() {
@@ -60,6 +67,9 @@ export default {
         },
         hasSendToDicomWeb() {
             return this.targetDicomWebServers.length > 0;
+        },
+        hasSendToDicomModalities() {
+            return this.targetDicomModalities.length > 0;
         },
         hasOsimisViewer() {
             return "osimis-web-viewer" in this.installedPlugins;
@@ -247,7 +257,9 @@ export default {
                 </a>
                 <ul class="dropdown-menu bg-dropdown">
                     <li v-for="peer in orthancPeers" :key="peer">
-                        <a class="dropdown-item">{{ peer }}</a>
+                        <a class="dropdown-item"
+                        @click="sendToOrthancPeer(peer)"
+                        >{{ peer }}</a>
                     </li>
                 </ul>
             </li>
@@ -262,6 +274,20 @@ export default {
                             class="dropdown-item"
                             @click="sendToDicomWebServer(dwServer)"
                         >{{ dwServer }}</a>
+                    </li>
+                </ul>
+            </li>
+            <li v-if="hasSendToDicomModalities" class="dropdown-submenu">
+                <a class="dropdown-item" @click="toggleSubMenu" href="#">
+                    DICOM
+                    <i class="bi bi-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu bg-dropdown">
+                    <li v-for="modality in targetDicomModalities" :key="modality">
+                        <a
+                            class="dropdown-item"
+                            @click="sendToDicomModality(modality)"
+                        >{{ modality }}</a>
                     </li>
                 </ul>
             </li>

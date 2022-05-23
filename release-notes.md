@@ -1,3 +1,7 @@
+Changes:
+- fixed 'send to peer'
+- added 'send to modality'
+
 0.2.2 (2022-05-19)
 ==================
 
