@@ -2,14 +2,16 @@ For this version:
 ****************
 - optimize search: https://groups.google.com/d/msgid/orthanc-users/0d27fb10-7fa1-48a3-9eeb-272afe2f988en%40googlegroups.com?utm_medium=email&utm_source=footer
 
+For "soon":
+**********
 
-For next version:
-****************
+- check gdcm plugin status in settings
+- add a button in /settings to change the verbosity level on the fly !
+- add send-to via the transfer accelerator plugin
+- add "open in MedDream" button
 
-
-
-For a later version:
-******************
+For "later":
+***********
 
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
@@ -53,6 +55,9 @@ For a further version (ideas):
   - only for studies.  with a few indexed tags (the ones from the UI table)
   - plugin monitors /changes route to see changes from all orthancs (instead of reacting to change events)
   - to monitor deleted studies, react to change event + call other oe2 plugin API ?  (need to list all orthanc urls somewhere)
+  - from OHIF doc for their study list: When the Study List is opened, the application queries the PACS for 101 studies by default. If there are greater than 100 studies    
+       returned, the default sort for the study list is dictated by the image archive that hosts these studies for the viewer and study list sorting will be disabled. If there are less than or equal to 100 studies returned, they will be sorted by study date (most recent to oldest) and study list sorting will be enabled. Whenever a query returns greater than 100 studies, use filters to narrow results below 100 studies to enable Study List sorting.
+
 
 - list last studies received (through DICOM or upload)
 

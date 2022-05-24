@@ -86,6 +86,12 @@ export default {
         stoneViewerUrl() {
             return api.getStoneViewerUrl(this.resourceLevel, this.resourceDicomUid);
         },
+        hasOhifViewer() {
+            return this.uiOptions.EnableOpenInOhifViewer;
+        },
+        ohifViewerUrl() {
+            return this.uiOptions.OhifViewerPublicRoot + this.resourceDicomUid;
+        },
         instancePreviewUrl() {
             return api.getInstancePreviewUrl(this.resourceOrthancId);
         },
@@ -126,6 +132,17 @@ export default {
             v-bind:href="stoneViewerUrl"
         >
             <i class="bi bi-eye-fill"></i>
+        </a>
+        <a
+            v-if="hasOhifViewer && this.resourceLevel == 'study'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="View in OHIF"
+            target="blank"
+            v-bind:href="ohifViewerUrl"
+        >
+            <i class="bi bi-grid"></i>
         </a>
         <a
             v-if="this.resourceLevel == 'instance'"

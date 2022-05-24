@@ -1,3 +1,11 @@
+Changes:
+- added a button 'open in OHIF Viewer'
+
+- new configurations
+  - "EnableOpenInOhifViewer"
+  - "OhifViewerPublicRoot"
+
+
 0.3.0 (2022-05-23)
 ==================
 
