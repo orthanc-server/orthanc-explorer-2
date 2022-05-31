@@ -30,7 +30,12 @@
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
             "MaxMyJobsHistorySize": 5,                  // The maximum number of jobs appearing under 'my jobs' in side bar (0 = unlimited)
 
+            "StudyListSearchMode": "search-as-you-type",// mode to trigger a search in the StudyList.  Accepted values: 'search-as-you-type' or 'search-button'
+            "StudyListSearchAsYouTypeMinChars": 3,      // minimum number of characters to enter in a text search field before it starts searching the DB
+            "StudyListSearchAsYouTypeDelay": 400,       // Delay [ms] between the last key stroke and the trigger of the search
+
             "ShowOrthancName": true,                    // display the Orthanc Name in the side menu
+            
             // The list of tags to be displayed in the upload dialog result list
             // (the first N defined tags in the list are displayed on the UI)
             // Allowed values are: "StudyDate", "AccessionNumber", "PatientID",

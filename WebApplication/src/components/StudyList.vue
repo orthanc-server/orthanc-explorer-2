@@ -70,6 +70,7 @@ export default {
             updatingFilterUi: false,
             updatingRoute: false,
             initializingModalityFilter: false,
+            searchTimerHandler: {},
             columns: document._studyColumns,
         };
     },
@@ -85,6 +86,12 @@ export default {
                 return false;
             }
             return this.studiesIds.length == this.uiOptions.MaxStudiesDisplayed; // in this case, the result has been limited
+        },
+        isSearchAsYouTypeEnabled() {
+            return this.uiOptions.StudyListSearchMode == "search-as-you-type";
+        },
+        isSearchButtonEnabled() {
+            return this.uiOptions.StudyListSearchMode == "search-button";
         }
     },
     watch: {
@@ -105,40 +112,28 @@ export default {
             handler(newValue, oldValue) {
                 if (!this.updatingFilterUi && !this.initializingModalityFilter) {
                 //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
-                   this.updateFilter('ModalitiesInStudy', this.getModalityFilter());
+                   this.updateFilter('ModalitiesInStudy', this.getModalityFilter(), null);
                 }
             },
             deep: true
         },
         filterStudyDate(newValue, oldValue) {
-            if (!this.updatingFilterUi) {
-                this.updateFilter('StudyDate', newValue);
-            }
+            this.updateFilter('StudyDate', newValue, oldValue);
         },
         filterAccessionNumber(newValue, oldValue) {
-            if (!this.updatingFilterUi) {
-                this.updateFilter('AccessionNumber', newValue);
-            }
+            this.updateFilter('AccessionNumber', newValue, oldValue);
         },
         filterPatientID(newValue, oldValue) {
-            if (!this.updatingFilterUi) {
-                this.updateFilter('PatientID', newValue);
-            }
+            this.updateFilter('PatientID', newValue, oldValue);
         },
         filterPatientName(newValue, oldValue) {
-            if (!this.updatingFilterUi) {
-                this.updateFilter('PatientName', newValue);
-            }
+            this.updateFilter('PatientName', newValue, oldValue);
         },
         filterPatientBirthDate(newValue, oldValue) {
-            if (!this.updatingFilterUi) {
-                this.updateFilter('PatientBirthDate', newValue);
-            }
+            this.updateFilter('PatientBirthDate', newValue, oldValue);
         },
         filterStudyDescription(newValue, oldValue) {
-            if (!this.updatingFilterUi) {
-                this.updateFilter('StudyDescription', newValue);
-            }
+            this.updateFilter('StudyDescription', newValue, oldValue);
         },
     },
     async created() {
@@ -192,8 +187,79 @@ export default {
                 return selected.join('\\');
             }
         },
-        updateFilter(dicomTagName, value) {
+        updateFilter(dicomTagName, newValue, oldValue) {
+            
+            if (this.updatingFilterUi) {
+                return;
+            }
+
             // console.log("StudyList: updateFilter", this.updatingFilterUi);
+
+            if (oldValue == null) { // not text: e.g. modalities in study -> update directly
+                this._updateFilter(dicomTagName, newValue);
+                return;
+            }
+
+            if (!this.isSearchAsYouTypeEnabled) {
+                return;
+            }
+
+            if (newValue.length >= this.uiOptions.StudyListSearchAsYouTypeMinChars) {
+                // calls updateFilter only after a delay without any key pressed and if there are enough characters entered
+                if (this.searchTimerHandler[dicomTagName]) {
+                    clearTimeout(this.searchTimerHandler[dicomTagName]);
+                }
+                this.searchTimerHandler[dicomTagName] = setTimeout(() => {this._updateFilter(dicomTagName, newValue)}, this.uiOptions.StudyListSearchAsYouTypeDelay);
+            } else if (newValue.length < oldValue.length && oldValue.length >= this.uiOptions.StudyListSearchAsYouTypeMinChars) { // when deleting filter
+                this.searchTimerHandler[dicomTagName] = setTimeout(() => {this._updateFilter(dicomTagName, "")}, this.uiOptions.StudyListSearchAsYouTypeDelay);
+            }
+        },
+        clipFilter(dicomTagName, value) {
+            if (this.isFilterLongEnough(dicomTagName, value)) {
+                return value;
+            } else {
+                return "";
+            }
+        },
+        getMinimalFilterLength(dicomTagName) {
+            if (["AccessionNumber", "PatientName", "PatientID", "StudyDescription"].indexOf(dicomTagName) != -1) {
+                if (this.isSearchAsYouTypeEnabled) {
+                    return this.uiOptions.StudyListSearchAsYouTypeMinChars;
+                }
+            } else if (["PatientBirthDate", "StudyDate"].indexOf(dicomTagName) != -1) {
+                return 8;
+            }
+            return 0;
+        },
+        isFilterLongEnough(dicomTagName, value) {
+            return value.length >= this.getMinimalFilterLength(dicomTagName);
+        },
+        getFilterClass(dicomTagName) {
+            const value = this.getFilterValue(dicomTagName)
+            if (value.length > 0 && !this.isFilterLongEnough(dicomTagName, value)) {
+                return "is-invalid-filter";
+            }
+            return "";
+        },
+        getFilterValue(dicomTagName) {
+            if (dicomTagName == "StudyDate") {
+                return this.filterStudyDate;
+            } else if (dicomTagName == "AccessionNumber") {
+                return this.filterAccessionNumber;
+            } else if (dicomTagName == "PatientID") {
+                return this.filterPatientID;
+            } else if (dicomTagName == "PatientName") {
+                return this.filterPatientName;
+            } else if (dicomTagName == "PatientBirthDate") {
+                return this.filterPatientBirthDate;
+            } else if (dicomTagName == "StudyDescription") {
+                return this.filterStudyDescription;
+            } else if (dicomTagName == "ModalitiesInStudy") {
+                console.error("getFilterValue ModalitiesInStudy");
+            }
+        },
+        _updateFilter(dicomTagName, value) {
+            this.searchTimerHandler[dicomTagName] = null;
             this.$store.dispatch('studies/updateFilter', { dicomTagName: dicomTagName, value: value });
             this.updateUrl();
         },
@@ -267,6 +333,17 @@ export default {
             this.filterStudyDescription = '';
             this.clearModalityFilter();
         },
+        async search() {
+            await this.$store.dispatch('studies/clearFilterNoReload');
+            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDate", value: this.filterStudyDate });
+            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "AccessionNumber", value: this.filterAccessionNumber });
+            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientID", value: this.filterPatientID });
+            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientName", value: this.filterPatientName });
+            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientBirthDate", value: this.filterPatientBirthDate });
+            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDescription", value: this.filterStudyDescription });
+            await this.$store.dispatch('studies/reloadFilteredStudies');
+            this.updateUrl();
+        },
         async clearFilters() {
             // console.log("StudyList: clearFilters", this.updatingFilterUi);
             await this.clearFiltersUi();
@@ -307,22 +384,22 @@ export default {
         },
         updateUrl() {
             let activeFilters = [];
-            if (this.filterStudyDate) {
+            if (this.clipFilter("StudyDate", this.filterStudyDate)) {
                 activeFilters.push('StudyDate=' + this.filterStudyDate);
             }
-            if (this.filterAccessionNumber) {
+            if (this.clipFilter("AccessionNumber", this.filterAccessionNumber)) {
                 activeFilters.push('AccessionNumber=' + this.filterAccessionNumber);
             }
-            if (this.filterPatientID) {
+            if (this.clipFilter("PatientID", this.filterPatientID)) {
                 activeFilters.push('PatientID=' + this.filterPatientID);
             }
-            if (this.filterPatientName) {
+            if (this.clipFilter("PatientName", this.filterPatientName)) {
                 activeFilters.push('PatientName=' + this.filterPatientName);
             }
-            if (this.filterPatientBirthDate) {
+            if (this.clipFilter("PatientBirthDate", this.filterPatientBirthDate)) {
                 activeFilters.push('PatientBirthDate=' + this.filterPatientBirthDate);
             }
-            if (this.filterStudyDescription) {
+            if (this.clipFilter("StudyDescription", this.filterStudyDescription)) {
                 activeFilters.push('StudyDescription=' + this.filterStudyDescription);
             }
             if (this.getModalityFilter()) {
@@ -351,33 +428,41 @@ export default {
         <table class="table table-responsive table-sm study-table">
             <thead>
                 <th width="2%" scope="col" class="study-table-header"></th>
+                <th v-if="isSearchButtonEnabled" width="5%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                     v-bind:title="columns[columnTag].tooltip" v-bind:width="columns[columnTag].width"
                     v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
                             columns[columnTag].title
                     }}</th>
             </thead>
-            <thead class="study-filter">
+            <thead class="study-filter" v-on:keyup.enter="search">
                 <th scope="col" class="px-2">
                     <button @click="clearFilters" type="button"
-                        class="form-control study-list-filter btn btn-shadow-none" data-bs-toggle="tooltip"
+                        class="form-control study-list-filter btn filter-button" data-bs-toggle="tooltip"
                         title="Clear filter">
-                        <i class="far fa-times-circle"></i>
+                        <i class="fa-regular fa-circle-xmark"></i>
+                    </button>
+                </th>
+                <th v-if="isSearchButtonEnabled" scope="col" class="search-button">
+                    <button @click="search" type="submit"
+                        class="form-control study-list-filter btn filter-button btn-secondary" data-bs-toggle="tooltip"
+                        title="Search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" placeholder="20220130" />
+                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')"/>
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
-                        v-model="filterAccessionNumber" placeholder="1234" />
+                        v-model="filterAccessionNumber" placeholder="1234" v-bind:class="getFilterClass('AccessionNumber')"/>
                     <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientID" placeholder="1234" />
+                        v-model="filterPatientID" placeholder="1234" v-bind:class="getFilterClass('PatientID')"/>
                     <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientName" placeholder="John^Doe" />
+                        v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
                     <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate" placeholder="19740815" />
+                        v-model="filterPatientBirthDate" placeholder="19740815" v-bind:class="getFilterClass('PatientBirthDate')"/>
                     <div v-if="columnTag == 'modalities'" class="dropdown">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
                             id="dropdown-modalities-button" aria-expanded="false"><span
                                 class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button" @click="modalityFilterClicked" id="modality-filter-dropdown">
@@ -396,7 +481,7 @@ export default {
                         v-model="filterStudyDescription" placeholder="Chest" />
                 </th>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" @deletedStudy="onDeletedStudy">
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
         <div v-if="notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">
@@ -418,6 +503,19 @@ input.form-control.study-list-filter {
     margin-bottom: var(--filter-margin);
     padding-top: var(--filter-padding);
     padding-bottom: var(--filter-padding);
+}
+
+.filter-button {
+    border: 1px solid #ced4da;
+}
+
+.search-button {
+    padding-left: 0px !important;
+}
+
+.search-button button {
+    background-color: #0d6dfd86 !important;
+    border-color: #0d6dfd86 !important;
 }
 
 input.form-control.study-list-filter:not(:placeholder-shown) {
@@ -466,5 +564,11 @@ button.form-control.study-list-filter {
     font-weight: 600;
     text-align: left;
     padding-left: 50px !important;
+}
+
+.is-invalid-filter {
+    /* background-color: #f7dddf !important; */
+    border-color: red !important;
+    box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25) !important;
 }
 </style>

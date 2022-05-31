@@ -5,7 +5,7 @@ import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 
 export default {
-    props: ["studyId"],
+    props: ["studyId", "isSearchButtonEnabled"],
     emits: ["deletedStudy"],
     data() {
         return {
@@ -73,6 +73,7 @@ export default {
             :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded }"
         >
             <td></td>
+            <td v-if="isSearchButtonEnabled"></td>
             <td
                 v-for="columnTag in uiOptions.StudyListColumns"
                 :key="columnTag"

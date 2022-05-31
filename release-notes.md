@@ -1,9 +1,16 @@
+0.3.1 (2022-05-31)
+==================
+
 Changes:
 - added a button 'open in OHIF Viewer'
+- introduced two search modes "search-as-you-type" (suitable for small DBs) or "search-button" (suitable for large DB)
 
 - new configurations
   - "EnableOpenInOhifViewer"
   - "OhifViewerPublicRoot"
+  - "StudyListSearchMode"
+  - "StudyListSearchAsYouTypeMinChars"
+  - "StudyListSearchAsYouTypeDelay"
 
 
 0.3.0 (2022-05-23)
