@@ -79,6 +79,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
+            isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics
         }),
         notShowingAllResults() {
@@ -334,15 +335,19 @@ export default {
             this.clearModalityFilter();
         },
         async search() {
-            await this.$store.dispatch('studies/clearFilterNoReload');
-            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDate", value: this.filterStudyDate });
-            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "AccessionNumber", value: this.filterAccessionNumber });
-            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientID", value: this.filterPatientID });
-            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientName", value: this.filterPatientName });
-            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientBirthDate", value: this.filterPatientBirthDate });
-            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDescription", value: this.filterStudyDescription });
-            await this.$store.dispatch('studies/reloadFilteredStudies');
-            this.updateUrl();
+            if (this.isSearching) {
+                await this.$store.dispatch('studies/cancelSearch');    
+            } else {
+                await this.$store.dispatch('studies/clearFilterNoReload');
+                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDate", value: this.filterStudyDate });
+                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "AccessionNumber", value: this.filterAccessionNumber });
+                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientID", value: this.filterPatientID });
+                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientName", value: this.filterPatientName });
+                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientBirthDate", value: this.filterPatientBirthDate });
+                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDescription", value: this.filterStudyDescription });
+                await this.$store.dispatch('studies/reloadFilteredStudies');
+                this.updateUrl();
+            }
         },
         async clearFilters() {
             // console.log("StudyList: clearFilters", this.updatingFilterUi);
@@ -446,8 +451,10 @@ export default {
                 <th v-if="isSearchButtonEnabled" scope="col" class="search-button">
                     <button @click="search" type="submit"
                         class="form-control study-list-filter btn filter-button btn-secondary" data-bs-toggle="tooltip"
+                        :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
                         title="Search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+                        <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
@@ -484,9 +491,12 @@ export default {
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
-        <div v-if="notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">
+        <div v-if="!isSearching && notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">
             <i class="bi bi-exclamation-triangle-fill"></i> Not showing all results. You should refine your search
             criteria !
+        </div>
+        <div v-if="isSearching" class="alert alert-secondary bottom-fixed-alert" role="alert">
+             <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Searching !
         </div>
     </div>
 </template>
@@ -513,9 +523,14 @@ input.form-control.study-list-filter {
     padding-left: 0px !important;
 }
 
-.search-button button {
+.is-not-searching {
     background-color: #0d6dfd86 !important;
     border-color: #0d6dfd86 !important;
+}
+
+.is-searching {
+    background-color: #fda90d86 !important;
+    border-color: #fda90d86 !important;
 }
 
 input.form-control.study-list-filter:not(:placeholder-shown) {
@@ -571,4 +586,5 @@ button.form-control.study-list-filter {
     border-color: red !important;
     box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25) !important;
 }
+
 </style>

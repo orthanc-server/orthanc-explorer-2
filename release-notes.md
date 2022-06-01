@@ -1,3 +1,7 @@
+Changes:
+- showing 'searching' status and allow cancelling search
+
+
 0.3.1 (2022-05-31)
 ==================
 

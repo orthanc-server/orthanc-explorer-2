@@ -1,6 +1,9 @@
 For this version:
 ****************
 - optimize search: https://groups.google.com/d/msgid/orthanc-users/0d27fb10-7fa1-48a3-9eeb-272afe2f988en%40googlegroups.com?utm_medium=email&utm_source=footer
+- mode to display no results if search is empty
+- define a fast DB mode and an small DB mode (= alias to other fields)
+
 
 For "soon":
 **********
@@ -9,7 +12,7 @@ For "soon":
 - add a button in /settings to change the verbosity level on the fly !
 - add send-to via the transfer accelerator plugin
 
-- open OHIF viewer with a "?token=1234" to avoid entering credentials when opening OHIF (since its another server) 
+- open OHIF viewer with a "?token=1234" to avoid entering credentials when opening OHIF (since it's another server) 
   -> need authorization plugin to check auth 
   -> need API to generate the token (API in OE2 that forwards to ext web-service).
   -> Probably required for MedDream too + required for creating shares in OsimisViewer

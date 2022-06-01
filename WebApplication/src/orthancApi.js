@@ -109,7 +109,16 @@ export default {
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },
+    async cancelFindStudies() {
+        if (window.axioFindStudiesAbortController) {
+            window.axioFindStudiesAbortController.abort();
+            window.axioFindStudiesAbortController = null;
+        }
+    },
     async findStudies(filterQuery) {
+        await this.cancelFindStudies();
+        window.axioFindStudiesAbortController = new AbortController();
+
         return axios.post(orthancApiUrl + "tools/find", {
                 "Level": "Study",
                 "Expand": false,
@@ -119,6 +128,9 @@ export default {
                     "ModalitiesInStudy"
                 ],
                 "Expand": true
+            }, 
+            {
+                signal: window.axioFindStudiesAbortController.signal
             });
     },
     async uploadFile(filecontent) {

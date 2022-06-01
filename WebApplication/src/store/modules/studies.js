@@ -17,6 +17,7 @@ const state = () => ({
     studiesIds: [],
     filters: {..._clearedFilter},
     statistics: {},
+    isSearching: false
 })
 
 ///////////////////////////// GETTERS
@@ -82,6 +83,9 @@ const mutations = {
     },
     setStatistics(state, {statistics}) {
         state.statistics = statistics;
+    },
+    setIsSearching(state, {isSearching}) {
+        state.isSearching = isSearching;
     }
 }
 
@@ -112,11 +116,20 @@ const actions = {
         commit('clearFilter');
     },
     async reloadFilteredStudies({ commit, getters }) {
-
-        const studies = (await api.findStudies(getters.filterQuery)).data;
-        let studiesIds = studies.map(s => s['ID']);
-        commit('setStudiesIds', { studiesIds: studiesIds });
-        commit('setStudies', { studies: studies });
+        try {
+            commit('setIsSearching', { isSearching: true});
+            const studies = (await api.findStudies(getters.filterQuery)).data;
+            let studiesIds = studies.map(s => s['ID']);
+            commit('setStudiesIds', { studiesIds: studiesIds });
+            commit('setStudies', { studies: studies });
+        } catch (err) {
+            console.log("Find studies cancelled");
+        } finally {
+            commit('setIsSearching', { isSearching: false});
+        }
+    },
+    async cancelSearch() {
+        await api.cancelFindStudies();
     },
     async loadStatistics({ commit }) {
         const statistics = (await api.getStatistics()).data;
