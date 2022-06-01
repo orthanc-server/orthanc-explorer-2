@@ -33,6 +33,11 @@
             "StudyListSearchMode": "search-as-you-type",// mode to trigger a search in the StudyList.  Accepted values: 'search-as-you-type' or 'search-button'
             "StudyListSearchAsYouTypeMinChars": 3,      // minimum number of characters to enter in a text search field before it starts searching the DB
             "StudyListSearchAsYouTypeDelay": 400,       // Delay [ms] between the last key stroke and the trigger of the search
+            "StudyListEmptyIfNoSearch": false,          // Show an empty study list if no search criteria has been entered (to use together with StudyListSearchMode="search-button")
+
+            // Default settings are ok for "small" Orthanc Databases.  For large databases, it is recommended to use these settings:
+            // "StudyListSearchMode": "search-button"
+            // "StudyListEmptyIfNoSearch": true
 
             "ShowOrthancName": true,                    // display the Orthanc Name in the side menu
             

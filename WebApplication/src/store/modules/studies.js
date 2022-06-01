@@ -22,7 +22,7 @@ const state = () => ({
 
 ///////////////////////////// GETTERS
 const getters = {
-    filterQuery: (state, getters) => {
+    filterQuery: (state) => {
         let query = {};
         if (state.filters.StudyDate.length >= 8) {
             query["StudyDate"] = state.filters.StudyDate;
@@ -49,6 +49,9 @@ const getters = {
             query["ModalitiesInStudy"] = state.filters.ModalitiesInStudy;
         }
         return query;
+    },
+    isFilterEmpty: (state, getters) => {
+        return Object.keys(getters.filterQuery).length == 0;
     }
 }
 
@@ -116,16 +119,21 @@ const actions = {
         commit('clearFilter');
     },
     async reloadFilteredStudies({ commit, getters }) {
-        try {
-            commit('setIsSearching', { isSearching: true});
-            const studies = (await api.findStudies(getters.filterQuery)).data;
-            let studiesIds = studies.map(s => s['ID']);
-            commit('setStudiesIds', { studiesIds: studiesIds });
-            commit('setStudies', { studies: studies });
-        } catch (err) {
-            console.log("Find studies cancelled");
-        } finally {
-            commit('setIsSearching', { isSearching: false});
+        if (getters.isFilterEmpty && this.state.configuration.uiOptions.StudyListEmptyIfNoSearch) {
+            commit('setStudiesIds', { studiesIds: [] });
+            commit('setStudies', { studies: {} });
+        } else {
+            try {
+                commit('setIsSearching', { isSearching: true});
+                const studies = (await api.findStudies(getters.filterQuery)).data;
+                let studiesIds = studies.map(s => s['ID']);
+                commit('setStudiesIds', { studiesIds: studiesIds });
+                commit('setStudies', { studies: studies });
+            } catch (err) {
+                console.log("Find studies cancelled");
+            } finally {
+                commit('setIsSearching', { isSearching: false});
+            }
         }
     },
     async cancelSearch() {

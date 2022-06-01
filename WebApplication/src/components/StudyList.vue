@@ -1,6 +1,6 @@
 <script>
 import StudyItem from "./StudyItem.vue"
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import $ from "jquery"
 
@@ -82,6 +82,9 @@ export default {
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics
         }),
+        ...mapGetters([
+            'studies/isFilterEmpty' // -> this['studies/isFilterEmpty']
+        ]),
         notShowingAllResults() {
             if (this.studiesIds.length >= this.statistics.CountStudies) {
                 return false;
@@ -93,6 +96,12 @@ export default {
         },
         isSearchButtonEnabled() {
             return this.uiOptions.StudyListSearchMode == "search-button";
+        },
+        showEmptyStudyListIfNoSearch() {
+            return this.uiOptions.StudyListEmptyIfNoSearch;
+        },
+        isStudyListEmpty() {
+            return this.studiesIds.length == 0;
         }
     },
     watch: {
@@ -104,7 +113,7 @@ export default {
             this.updatingRoute = false;
         },
         isConfigurationLoaded(newValue, oldValue) {
-            // this is used when opening the page directly from a url with filters
+            // this is called when opening the page (with a filter or not)
             // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
             this.initModalityFilter();
             this.updateFilterFromRoute(this.$route.query);
@@ -270,6 +279,7 @@ export default {
             this.updatingFilterUi = true;
             if (filters === undefined) {
                 await this.clearFiltersUi();
+                console.log("updateFilterFromRoute ... I think this code is not used anymore ...");  // filters=={} when default url
             } else {
 
                 await this.$store.dispatch('studies/clearFilterNoReload');
@@ -495,7 +505,13 @@ export default {
             <i class="bi bi-exclamation-triangle-fill"></i> Not showing all results. You should refine your search
             criteria !
         </div>
-        <div v-if="isSearching" class="alert alert-secondary bottom-fixed-alert" role="alert">
+        <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']" class="alert alert-warning bottom-fixed-alert" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> Enter a search criteria to show results !
+        </div>
+        <div v-else-if="!isSearching && isStudyListEmpty" class="alert alert-warning bottom-fixed-alert" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> No result found !
+        </div>
+        <div v-else-if="isSearching" class="alert alert-secondary bottom-fixed-alert" role="alert">
              <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Searching !
         </div>
     </div>
