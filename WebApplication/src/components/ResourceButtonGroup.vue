@@ -63,7 +63,7 @@ export default {
             orthancPeers: state => state.configuration.orthancPeers
         }),
         hasSendTo() {
-            return this.hasSendToDicomWeb || this.hasSendToPeers;
+            return this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities;
         },
         hasSendToPeers() {
             return this.orthancPeers.length > 0;
