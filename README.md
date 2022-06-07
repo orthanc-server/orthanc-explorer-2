@@ -27,7 +27,7 @@ a json [configuration file](Plugin/DefaultConfiguration.json) that is provided t
 At minimum, you should provide this configuration file:
 ```json
 {
-    "OrthancExplorer2" {
+    "OrthancExplorer2": {
         "Enable": true,
         "IsDefaultOrthancUI": false
     }
