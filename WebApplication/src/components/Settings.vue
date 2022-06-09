@@ -1,10 +1,26 @@
 <script>
 
 import { mapState } from "vuex"
+import api from "../orthancApi"
+
 
 export default {
     props: [],
     emits: [],
+    data() {
+        return {
+            verboseLevel: "default"
+        };
+    },
+    async mounted() {
+        this.verboseLevel = await api.getVerboseLevel();
+    },
+    methods: {
+        async setVerboseLevel(level) {
+            this.verboseLevel = level;
+            await api.setVerboseLevel(level);
+        }
+    },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
@@ -65,8 +81,32 @@ export default {
                         <th scope="row" class="header">Orthanc Name</th>
                         <td class="value">{{ system.Name }}</td>
                     </tr>
+                    <tr>
+                        <th scope="row" class="header">Dicom Port</th>
+                        <td class="value">{{ system.DicomPort }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="header">Ingest Transcoding</th>
+                        <td class="value">{{ system.IngestTranscoding }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="header">Overwrite Instances</th>
+                        <td class="value">{{ system.OverwriteInstances }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="header">Storage Compression</th>
+                        <td class="value">{{ system.StorageCompression }}</td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+        <div>
+            <h5>Verbosity level</h5>
+            <div>
+            <button type="button" class="btn mx-2" @click="setVerboseLevel('default')" :class="{'btn-primary': verboseLevel=='default', 'btn-secondary': verboseLevel != 'default'}">Default</button>
+            <button type="button" class="btn mx-2" @click="setVerboseLevel('verbose')" :class="{'btn-primary': verboseLevel=='verbose', 'btn-secondary': verboseLevel != 'verbose'}">Verbose</button>
+            <button type="button" class="btn mx-2" @click="setVerboseLevel('trace')" :class="{'btn-primary': verboseLevel=='trace', 'btn-secondary': verboseLevel != 'trace'}">Trace</button>
+            </div>
         </div>
         <div>
             <h5>Installed plugins</h5>

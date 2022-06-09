@@ -159,6 +159,14 @@ export default {
         return axios.get(orthancApiUrl + "statistics");
     },
 
+    async setVerboseLevel(level) {
+        await axios.put(orthancApiUrl + "tools/log-level", level);
+    },
+
+    async getVerboseLevel() {
+        return (await axios.get(orthancApiUrl + "tools/log-level")).data;
+    },
+
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
         return orthancApiUrl + 'osimis-viewer/app/index.html?' + level + '=' + resourceOrthancId;

@@ -1,3 +1,14 @@
+Changes:
+- added a button 'open in MedDream Viewer'
+
+- new configurations:
+  - "EnableOpenInMedDreamViewer"
+  - "MedDreamViewerPublicRoot"
+
+Fixes:
+- display ReferringPhyisician, RequestingPhysician and InstitutionName in study list
+- fix GDCM plugin status in settings page
+
 0.3.2 (2022-06-01)
 ==================
 
