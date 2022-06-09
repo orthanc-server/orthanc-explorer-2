@@ -171,7 +171,7 @@ bool IsPluginEnabledInConfiguration(const std::string& sectionName, const std::s
     return pluginConfiguration_.GetBooleanValue(enableValueName, defaultValue);
   }
 
-  return false;
+  return defaultValue;
 }
 
 Json::Value GetPluginInfo(const std::string& pluginName)
