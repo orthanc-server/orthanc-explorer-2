@@ -36,7 +36,9 @@ export default {
                     <ResourceDetailText :value="studyMainDicomTags.AccessionNumber">Accession Number</ResourceDetailText>
                     <ResourceDetailText :value="studyMainDicomTags.StudyID">Study ID</ResourceDetailText>
                     <ResourceDetailText :value="studyMainDicomTags.StudyInstanceUID" :truncate="true">Study Instance UID</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyDate">ReferringPhysicianName</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.RequestingPhysician">RequestingPhysician</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.ReferringPhysicianName">ReferringPhysicianName</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.InstitutionName">InstitutionName</ResourceDetailText>
                 </ul>
             </td>
             <td width="40%" class="cut-text">
