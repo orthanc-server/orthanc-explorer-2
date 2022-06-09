@@ -1,5 +1,7 @@
 Changes:
 - added a button 'open in MedDream Viewer'
+- added buttons to change log levels in settings page
+- added 'transfer to peer' using the Transfers plugin
 
 - new configurations:
   - "EnableOpenInMedDreamViewer"

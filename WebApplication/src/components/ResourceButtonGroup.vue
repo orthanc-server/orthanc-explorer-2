@@ -49,9 +49,16 @@ export default {
             const jobId = await api.sendToOrthancPeer([this.resourceOrthancId], peer);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to Peer (' + peer + ')'});
         },
+        async sendToOrthancPeerWithTransfers(peer) {
+            const jobId = await api.sendToOrthancPeerWithTransfers([{"Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId}], peer);
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Transfer to Peer (' + peer + ')'});
+        },
         async sendToDicomModality(modality) {
             const jobId = await api.sendToDicomModality([this.resourceOrthancId], modality);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DICOM (' + modality + ')'});
+        },
+        capitalizeFirstLetter(level) {
+            return level.charAt(0).toUpperCase() + level.slice(1);
         }
     },
     computed: {
@@ -63,10 +70,13 @@ export default {
             orthancPeers: state => state.configuration.orthancPeers
         }),
         hasSendTo() {
-            return this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities;
+            return this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities || this.hasSendToPeersWithTransfer;
         },
         hasSendToPeers() {
             return this.orthancPeers.length > 0;
+        },
+        hasSendToPeersWithTransfer() {
+            return this.hasSendToPeers && "transfers" in this.installedPlugins;
         },
         hasSendToDicomWeb() {
             return this.targetDicomWebServers.length > 0;
@@ -296,6 +306,19 @@ export default {
                     <li v-for="peer in orthancPeers" :key="peer">
                         <a class="dropdown-item"
                         @click="sendToOrthancPeer(peer)"
+                        >{{ peer }}</a>
+                    </li>
+                </ul>
+            </li>
+            <li v-if="hasSendToPeersWithTransfer" class="dropdown-submenu">
+                <a class="dropdown-item" @click="toggleSubMenu" href="#">
+                    Advanced transfers
+                    <i class="bi bi-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu bg-dropdown">
+                    <li v-for="peer in orthancPeers" :key="peer">
+                        <a class="dropdown-item"
+                        @click="sendToOrthancPeerWithTransfers(peer)"
                         >{{ peer }}</a>
                     </li>
                 </ul>

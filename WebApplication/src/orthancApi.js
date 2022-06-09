@@ -94,6 +94,16 @@ export default {
         
         return response.data['ID'];
     },
+    async sendToOrthancPeerWithTransfers(resources, destination) {
+        const response = (await axios.post(orthancApiUrl + "transfers/send", {
+            "Resources" : resources,
+            "Compression": "gzip",
+            "Peer": destination,
+            "Synchronous": false
+        }));
+        
+        return response.data['ID'];
+    },
     async sendToDicomModality(resourcesIds, destination) {
         const response = (await axios.post(orthancApiUrl + "modalities/" + destination + "/store", {
             "Resources" : resourcesIds,
@@ -200,5 +210,5 @@ export default {
         } else if (level == "series") {
             return "series"
         }
-    },
+    }
 }
