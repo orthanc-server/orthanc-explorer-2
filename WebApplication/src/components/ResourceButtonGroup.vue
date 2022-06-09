@@ -92,6 +92,12 @@ export default {
         ohifViewerUrl() {
             return this.uiOptions.OhifViewerPublicRoot + this.resourceDicomUid;
         },
+        hasMedDreamViewer() {
+            return this.uiOptions.EnableOpenInMedDreamViewer;
+        },
+        medDreamViewerUrl() {
+            return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
+        },
         instancePreviewUrl() {
             return api.getInstancePreviewUrl(this.resourceOrthancId);
         },
@@ -143,6 +149,17 @@ export default {
             v-bind:href="ohifViewerUrl"
         >
             <i class="bi bi-grid"></i>
+        </a>
+        <a
+            v-if="hasMedDreamViewer && this.resourceLevel == 'study'"
+            class="btn btn-sm btn-secondary m-1"
+            type="button"
+            data-bs-toggle="tooltip"
+            title="View in MedDream"
+            target="blank"
+            v-bind:href="medDreamViewerUrl"
+        >
+            <i class="bi bi-columns-gap"></i>
         </a>
         <a
             v-if="this.resourceLevel == 'instance'"

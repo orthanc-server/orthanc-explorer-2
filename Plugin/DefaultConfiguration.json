@@ -27,6 +27,9 @@
             "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button
             "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/Viewer/" means that link to OHIF will look like http://ohif.my.site/Viewer/1.2.3.444.5555....
 
+            "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
+            "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
+
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
             "MaxMyJobsHistorySize": 5,                  // The maximum number of jobs appearing under 'my jobs' in side bar (0 = unlimited)
 
