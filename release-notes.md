@@ -1,3 +1,6 @@
+0.3.3 (2022-06-09)
+==================
+
 Changes:
 - added a button 'open in MedDream Viewer'
 - added buttons to change log levels in settings page
