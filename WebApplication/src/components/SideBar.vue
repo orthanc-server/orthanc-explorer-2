@@ -136,4 +136,20 @@ export default {
 .orthanc-logo {
     filter: brightness(50);
 }
+
+.nav-side-menu .menu-list .menu-content {
+    display: block;
+}
+
+.menu-list {
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.menu-icon {
+    width: 20px;
+    margin-right: 10px;
+}
+
 </style>
