@@ -131,7 +131,6 @@ export default {
 
         return axios.post(orthancApiUrl + "tools/find", {
                 "Level": "Study",
-                "Expand": false,
                 "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
                 "Query": filterQuery,
                 "RequestedTags": [
@@ -142,6 +141,47 @@ export default {
             {
                 signal: window.axioFindStudiesAbortController.signal
             });
+    },
+    async cancelRemoteDicomFindStudies() {
+        if (window.axioRemoteDicomFindStudiesAbortController) {
+            window.axioRemoteDicomFindStudiesAbortController.abort();
+            window.axioRemoteDicomFindStudiesAbortController = null;
+        }
+    },
+    async remoteDicomFindStudies(remoteModality, filterQuery) {
+        await this.cancelRemoteDicomFindStudies();
+        window.axioRemoteDicomFindStudiesAbortController = new AbortController();
+
+        try {
+            const queryResponse = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/query", {
+                    "Level": "Study",
+                    "Query": filterQuery
+                }, 
+                {
+                    signal: window.axioRemoteDicomFindStudiesAbortController.signal
+                })).data;
+            console.log(queryResponse);
+            const answers = (await axios.get(orthancApiUrl + "queries/" + queryResponse["ID"] + "/answers?expand&simplify")).data;
+            console.log(answers);
+            return answers;
+        } catch (err)
+        {
+            console.log("Error during query:", err);  // TODO: display error to user
+            return {};
+        }
+
+    },
+    async remoteDicomRetrieveStudy(remoteModality, filterQuery, targetAet, level) {
+        const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/move", {
+            "Level": level,
+            "Resources" : [
+                filterQuery
+            ],
+            "TargetAet": targetAet,
+            "Synchronous": false
+        }));
+        
+        return response.data['ID'];
     },
     async uploadFile(filecontent) {
         return axios.post(orthancApiUrl + "instances", filecontent);

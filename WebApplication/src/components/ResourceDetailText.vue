@@ -27,7 +27,7 @@ export default {
     <li class="d-flex">
         <span class="details-label" :class="{'d-inline-block text-truncate': this.truncate}"><slot></slot>: </span>
         <span class="details">{{ value }}</span>
-        <CopyToClipboardButton v-if="!this.copy" :valueToCopy="this.value" />
+        <CopyToClipboardButton v-if="!this.copy && this.value && this.value.length > 0" :valueToCopy="this.value" />
     </li>
 
 </template>

@@ -1,10 +1,13 @@
 For this version:
 ****************
 
+- delayed-deletion enabled status !
+
 
 For "soon":
 **********
 
+- implement exactmatch (for patient id) + button show all patient studies
 
 - open OHIF viewer with a "?token=1234" to avoid entering credentials when opening OHIF (since it's another server) 
   -> need authorization plugin to check auth 
@@ -30,7 +33,7 @@ For "later":
 - allow sharing a link to a study (aka publication link.  Authorisation included in a JWT part of the url - likely with the help of an external web service)
 
 
-- support multiple languages
+- support multiple languages (https://groups.google.com/g/orthanc-users/c/hiPNVapHygA/m/BJj8lHSDCQAJ)
 - support dicom-web plugin (QIDO-RS UI)
 - support neuro plugin (download nifti)
 - support modification of MainDicomTags via a UI (including anonymization) (add EnableAnonymize in UI options):
@@ -72,6 +75,7 @@ For a further version (ideas):
   - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
   - same with dicom-web and peers ?
 
+- provide LSB binaries
 
 User & configuration management (ideas + implementation notes):
 -------------------------------

@@ -24,7 +24,7 @@ export default {
             return false; // TODO this.queryableDicomWebServers.length > 0;
         },
         hasQueryableDicomModalities() {
-            return false; // TODO this.queryableDicomModalities.length > 0;
+            return this.queryableDicomModalities.length > 0;
         },
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;
@@ -54,7 +54,7 @@ export default {
             <ul id="menu-content" class="menu-content collapse out">
                 <li class="d-flex align-items-center">
                     <router-link class="router-link" to="/">
-                        <i class="fa fa-x-ray fa-lg menu-icon"></i>Studies
+                        <i class="fa fa-x-ray fa-lg menu-icon"></i>Local studies
                         <span class="ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies }}</span>
                     </router-link>
                 </li>
@@ -75,7 +75,9 @@ export default {
                 </li>
                 <ul class="sub-menu collapse" id="modalities-list">
                     <li v-for="modality in queryableDicomModalities" :key="modality" class="active">
-                        <a href="#">{{ modality }} (TODO)</a>
+                        <router-link class="router-link" :to="{ path: '/filtered-remote-studies', query : { remoteMode: 'dicom', remoteSource: modality}}">
+                            {{ modality }}
+                        </router-link>
                     </li>
                 </ul>
 

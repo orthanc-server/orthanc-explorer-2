@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Settings from './components/Settings.vue'
 import StudyList from './components/StudyList.vue'
+import RemoteStudyList from './components/RemoteStudyList.vue'
 import SideBar from './components/SideBar.vue'
 import NotFound from './components/NotFound.vue'
 import { baseOe2Url } from "./globalConfigurations"
@@ -23,6 +24,13 @@ export const router = createRouter({
       components: {
         SideBarView: SideBar,
         ContentView: StudyList,
+      },
+    },
+    {
+      path: '/filtered-remote-studies',
+      components: {
+        SideBarView: SideBar,
+        ContentView: RemoteStudyList,
       },
     },
     {
