@@ -1,6 +1,7 @@
 Changes:
-- new simplified interface to query distant DICOM modalities and retrieve study.
+- new simplified interface to query DICOM modalities and retrieve study.
   It does not allow yet browsing distant series/instances.
+- show C-Echo status of DICOM modalities.
 
 
 0.3.3 (2022-06-09)
