@@ -183,6 +183,9 @@ export default {
         
         return response.data['ID'];
     },
+    async remoteModalityEcho(remoteModality) {
+        return axios.post(orthancApiUrl + "modalities/" + remoteModality + "/echo", {});
+    },
     async uploadFile(filecontent) {
         return axios.post(orthancApiUrl + "instances", filecontent);
     },

@@ -11,4 +11,11 @@
     --instance-selected-color: rgb(195, 195, 215);
 
     --details-top-margin: 30px;
+
+    --nav-side-color: rgb(255, 255, 255);
+    --nav-side-bg-color: #2e353d;
+    --nav-side-selected-bg-color: #4f5b69;
+    --nav-side-hover-bg-color: #3e454d;
+    --nav-side-submenu-color: rgb(255, 255, 255);
+
 }
