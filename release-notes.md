@@ -3,6 +3,9 @@ Changes:
   It does not allow yet browsing distant series/instances.
 - show C-Echo status of DICOM modalities.
 
+Fixes:
+- improved redirection when running behind a reverse-proxy
+
 
 0.3.3 (2022-06-09)
 ==================
