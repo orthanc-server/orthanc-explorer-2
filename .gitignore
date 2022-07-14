@@ -1,7 +1,6 @@
 WebApplication/node_modules
 ThirdPartyDownloads/
 .DS_Store
-dist
 dist-ssr
 *.local
 .vscode/
