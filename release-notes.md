@@ -5,6 +5,8 @@ Changes:
 
 Fixes:
 - improved redirection when running behind a reverse-proxy
+- support of dynamic linking against the system-wide Orthanc framework library
+- support of LSB (Linux Standard Base) compilation
 
 
 0.3.3 (2022-06-09)
