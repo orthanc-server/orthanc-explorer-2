@@ -100,6 +100,8 @@ make -j 4
 
 ### LSB (Linux Standard Base)
 
+Here are the build instructions for LSB:
+
 ```
 cd WebApplication
 npm install
@@ -111,7 +113,12 @@ LSB_CC=gcc-4.8 LSB_CXX=g++-4.8 cmake -DCMAKE_TOOLCHAIN_FILE=../Resources/Orthanc
 make -j4
 ```
 
+Pre-compiled LSB binaries can be found at: https://lsb.orthanc-server.com/plugin-orthanc-explorer-2/
+
 ### Linking against system-wide Orthanc Framework
+
+Here are the build instructions to dynamic link against the
+system-wide Orthanc Framework:
 
 ```
 cd WebApplication

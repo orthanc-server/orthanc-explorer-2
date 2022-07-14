@@ -75,8 +75,6 @@ For a further version (ideas):
   - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
   - same with dicom-web and peers ?
 
-- provide LSB binaries
-
 User & configuration management (ideas + implementation notes):
 -------------------------------
 
