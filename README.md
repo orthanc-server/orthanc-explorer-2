@@ -27,12 +27,18 @@ a json [configuration file](Plugin/DefaultConfiguration.json) that is provided t
 At minimum, you should provide this configuration file:
 ```json
 {
+    "Plugins": [ "." ],
     "OrthancExplorer2": {
         "Enable": true,
         "IsDefaultOrthancUI": false
     }
 }
 ```
+
+Using this minimal configuration file, Orthanc Explorer 2 is
+accessible at http://localhost:8042/ui/app/ . If `IsDefaultOrthancUI`
+is set to `true`, Orthanc Explorer 2 will replace the built-in Orthanc
+Explorer.
 
 If you are using Docker, the easiest way to try the new Orthanc Explorer 2 is to run this command and then open a browser in http://localhost:8042/ (login: orthanc, pwd: orthanc)
 
@@ -91,6 +97,40 @@ cd /build
 cmake -DALLOW_DOWNLOADS=ON -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_ORTHANC_SDK=OFF /sources/orthanc-explorer-2/
 make -j 4
 ```
+
+### LSB (Linux Standard Base)
+
+Here are the build instructions for LSB:
+
+```
+cd WebApplication
+npm install
+npm run build
+cd ..
+mkdir build-lsb
+cd build-lsb
+LSB_CC=gcc-4.8 LSB_CXX=g++-4.8 cmake -DCMAKE_TOOLCHAIN_FILE=../Resources/Orthanc/Toolchains/LinuxStandardBaseToolchain.cmake -DALLOW_DOWNLOADS=ON -DSTATIC_BUILD=ON -DUSE_LEGACY_JSONCPP=ON ..
+make -j4
+```
+
+Pre-compiled LSB binaries can be found at: https://lsb.orthanc-server.com/plugin-orthanc-explorer-2/
+
+### Linking against system-wide Orthanc Framework
+
+Here are the build instructions to dynamic link against the
+system-wide Orthanc Framework:
+
+```
+cd WebApplication
+npm install
+npm run build
+cd ..
+mkdir build-system
+cd build-system
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DORTHANC_FRAMEWORK_SOURCE=system -DUSE_SYSTEM_GOOGLE_TEST=OFF -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF
+make -j4
+```
+
 
 ## Releasing
 
