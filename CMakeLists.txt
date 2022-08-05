@@ -27,7 +27,7 @@ endif(APPLE)
 
 project(OrthancExplorer2)
 
-set(PLUGIN_VERSION "mainline" OFF CACHE STRING "plugin version 'mainline' or '1.2.3'")
+set(PLUGIN_VERSION "mainline" CACHE STRING "plugin version 'mainline' or '1.2.3'")
 
 if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.10.0")
@@ -48,7 +48,10 @@ set(ORTHANC_FRAMEWORK_SOURCE "${ORTHANC_FRAMEWORK_DEFAULT_SOURCE}" CACHE STRING 
 set(ORTHANC_FRAMEWORK_VERSION "${ORTHANC_FRAMEWORK_DEFAULT_VERSION}" CACHE STRING "Version of the Orthanc framework")
 set(ORTHANC_FRAMEWORK_ARCHIVE "" CACHE STRING "Path to the Orthanc archive, if ORTHANC_FRAMEWORK_SOURCE is \"archive\"")
 set(ORTHANC_FRAMEWORK_ROOT "" CACHE STRING "Path to the Orthanc source directory, if ORTHANC_FRAMEWORK_SOURCE is \"path\"")
-
+set(WEBAPP_DIST_PATH "${CMAKE_SOURCE_DIR}/WebApplication/dist" CACHE STRING "Path to the WebApplication/dist folder (the output of 'npm run build')")
+set(WEBAPP_DIST_SOURCE "WEB" CACHE STRING "Source for the WebApplication/dist folder ('LOCAL' = assume it is build localy, 'WEB' = download it from web)")
+set(WEBAPP_DIST_VERSION "${PLUGIN_VERSION}" CACHE STRING "Version of WebApplication/dist folder to download")
+file(TO_CMAKE_PATH "${WEBAPP_DIST_PATH}" WEBAPP_DIST_PATH)
 
 # Advanced parameters to fine-tune linking against system libraries
 set(USE_SYSTEM_ORTHANC_SDK ON CACHE BOOL "Use the system version of the Orthanc plugin SDK")
@@ -59,6 +62,7 @@ mark_as_advanced(ORTHANC_FRAMEWORK_STATIC)
 
 # Download and setup the Orthanc framework
 include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/CMake/DownloadOrthancFramework.cmake)
+include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/CMake/DownloadPackage.cmake)
 
 if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "system")
   if (ORTHANC_FRAMEWORK_USE_SHARED)
@@ -139,15 +143,17 @@ if (APPLE)
   SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework CoreFoundation")
 endif()
 
-
+if (${WEBAPP_DIST_SOURCE} STREQUAL "WEB")
+  DownloadPackage(no-check "https://orthanc.osimis.io/public/oe2/web-app-dist/${WEBAPP_DIST_VERSION}.zip" ${WEBAPP_DIST_PATH})
+endif()
 
 if (STANDALONE_BUILD)
   add_definitions(-DORTHANC_STANDALONE=1)
   set(ADDITIONAL_RESOURCES
     DEFAULT_CONFIGURATION  ${CMAKE_SOURCE_DIR}/Plugin/DefaultConfiguration.json
-    WEB_APPLICATION_ASSETS   ${CMAKE_SOURCE_DIR}/WebApplication/dist/assets
-    WEB_APPLICATION_FAVICON   ${CMAKE_SOURCE_DIR}/WebApplication/dist/favicon.ico
-    WEB_APPLICATION_INDEX   ${CMAKE_SOURCE_DIR}/WebApplication/dist/index.html
+    WEB_APPLICATION_ASSETS   ${WEBAPP_DIST_PATH}/assets
+    WEB_APPLICATION_FAVICON   ${WEBAPP_DIST_PATH}/favicon.ico
+    WEB_APPLICATION_INDEX   ${WEBAPP_DIST_PATH}/index.html
     )
 else()
   add_definitions(-DORTHANC_STANDALONE=0)
@@ -156,7 +162,6 @@ endif()
 EmbedResources(
   --no-upcase-check
   ${ADDITIONAL_RESOURCES}
-  # JAVASCRIPT_LIBS   ${JAVASCRIPT_LIBS_DIR}
   )
 
 
