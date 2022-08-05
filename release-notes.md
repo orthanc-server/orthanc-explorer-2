@@ -2,6 +2,10 @@ Changes:
 - new simplified interface to query DICOM modalities and retrieve study.
   It does not allow yet browsing distant series/instances.
 - show C-Echo status of DICOM modalities.
+- allow controling wildcards in text search to implement exact or partial match.
+  The default remains a partial match -> if you enter a `filterValue` text in a filter,
+  Orthanc will search for `*filterValue*`.  By adding a `"` at the beginning or at the end of the text, you force an exact match at the beggining or at the end of the text.
+  
 
 Fixes:
 - improved redirection when running behind a reverse-proxy

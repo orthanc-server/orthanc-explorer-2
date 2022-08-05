@@ -1,9 +1,10 @@
 For this version:
 ****************
 
-- implement exactmatch (for patient id) + button show all patient studies
+- implement button show all patient studies
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
+- ui/app (with missing /) shall open the interface too
 
 For "soon":
 **********

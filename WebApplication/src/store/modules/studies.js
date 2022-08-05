@@ -20,6 +20,15 @@ const state = () => ({
     isSearching: false
 })
 
+function insert_wildcards(initialValue) {
+    // 'filter'   -> *filter* (by default, adds the wildcard before and after)
+    // '"filter'  -> filter*  (a double quote means "no wildcard")
+    // 'filter"'  -> *filter  (a double quote means "no wildcard")
+    // '"filter"' -> filter  (= exact match)
+    let finalValue = '*' + initialValue.replaceAll('"', '*') + '*';
+    return finalValue.replaceAll('**', '');
+}
+
 ///////////////////////////// GETTERS
 const getters = {
     filterQuery: (state) => {
@@ -28,19 +37,19 @@ const getters = {
             query["StudyDate"] = state.filters.StudyDate;
         }
         if (state.filters.AccessionNumber.length >= 1) {
-            query["AccessionNumber"] = "*" + state.filters.AccessionNumber + "*";
+            query["AccessionNumber"] = insert_wildcards(state.filters.AccessionNumber);
         }
         if (state.filters.PatientID.length >= 1) {
-            query["PatientID"] = "*" + state.filters.PatientID + "*";
+            query["PatientID"] = insert_wildcards(state.filters.PatientID);
         }
         if (state.filters.PatientName.length >= 1) {
-            query["PatientName"] = "*" + state.filters.PatientName + "*";
+            query["PatientName"] = insert_wildcards(state.filters.PatientName);
         }
         if (state.filters.PatientBirthDate.length >= 8) {
             query["PatientBirthDate"] = state.filters.PatientBirthDate;
         }
         if (state.filters.StudyDescription.length >= 1) {
-            query["StudyDescription"] = "*" + state.filters.StudyDescription + "*";
+            query["StudyDescription"] = insert_wildcards(state.filters.StudyDescription);
         }
         if (state.filters.StudyInstanceUID.length >= 1) {
             query["StudyInstanceUID"] = state.filters.StudyInstanceUID;
