@@ -30,6 +30,7 @@ jobs:
   build-web-app:
     name: build-web-app
     runs-on: "ubuntu-latest"
+    needs: [pre-build]
     steps:
     - uses: actions/checkout@v2
 
