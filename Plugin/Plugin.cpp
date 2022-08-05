@@ -231,6 +231,10 @@ Json::Value GetPluginsConfiguration()
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
     }
+    else if (pluginName == "delayed-deletion")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("DelayedDeletion", "Enable", false);
+    }
     else if (pluginName == "dicom-web")
     {
       pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("DicomWeb", "Enable", false);

@@ -1,13 +1,13 @@
 For this version:
 ****************
 
-- delayed-deletion enabled status !
+- implement exactmatch (for patient id) + button show all patient studies
+- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 
 For "soon":
 **********
 
-- implement exactmatch (for patient id) + button show all patient studies
 
 - open OHIF viewer with a "?token=1234" to avoid entering credentials when opening OHIF (since it's another server) 
   -> need authorization plugin to check auth 
@@ -18,7 +18,6 @@ For "soon":
 For "later":
 ***********
 
-- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 - predefined filters in config file to display below Studies:
   - "Today": {"StudyDate": "$today"}
@@ -65,6 +64,8 @@ For a further version (ideas):
 
 
 - list last studies received (through DICOM or upload)
+- add an "attach PDF button" at study level
+- orthanc-share should generate QR code with publication links
 
 For a further version (ideas):
 ***************
