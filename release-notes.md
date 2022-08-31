@@ -12,6 +12,8 @@ Fixes:
 - support of dynamic linking against the system-wide Orthanc framework library
 - support of LSB (Linux Standard Base) compilation
 
+Maintenance:
+- upgraded all npm dependencies
 
 0.3.3 (2022-06-09)
 ==================
