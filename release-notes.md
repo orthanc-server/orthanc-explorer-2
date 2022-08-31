@@ -1,3 +1,6 @@
+0.4.0 (2022-08-30)
+==================
+
 Changes:
 - new simplified interface to query DICOM modalities and retrieve study.
   It does not allow yet browsing distant series/instances.  Still a work in progress !
