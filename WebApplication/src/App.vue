@@ -14,7 +14,6 @@ export default {
     <div class="full-page">
         <div class="nav-side-layout">
             <router-view name="SideBarView"></router-view>
-            <div class="mt-5">This is a beta version !</div>
         </div>
         <div class="content">
             <router-view name="ContentView"></router-view>
