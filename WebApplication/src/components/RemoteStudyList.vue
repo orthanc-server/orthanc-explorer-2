@@ -505,7 +505,6 @@ export default {
 <template>
     <div>
         <table class="table table-responsive table-sm study-table">
-            <p>{{this.remoteMode}} {{this.remoteSource}}</p>
             <thead>
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th width="5%" scope="col" class="study-table-header"></th>

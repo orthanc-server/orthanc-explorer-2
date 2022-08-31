@@ -30,7 +30,7 @@ export default {
             return false; // TODO this.queryableDicomWebServers.length > 0;
         },
         hasQueryableDicomModalities() {
-            return this.queryableDicomModalities.length > 0;
+            return this.uiOptions.EnableDicomModalities && this.queryableDicomModalities.length > 0;
         },
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;

@@ -1,6 +1,6 @@
 Changes:
 - new simplified interface to query DICOM modalities and retrieve study.
-  It does not allow yet browsing distant series/instances.
+  It does not allow yet browsing distant series/instances.  Still a work in progress !
 - show C-Echo status of DICOM modalities.
 - allow controling wildcards in text search to implement exact or partial match.
   The default remains a partial match -> if you enter a `filterValue` text in a filter,
