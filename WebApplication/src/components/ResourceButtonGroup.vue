@@ -43,19 +43,19 @@ export default {
         },
         async sendToDicomWebServer(server) {
             const jobId = await api.sendToDicomWebServer([this.resourceOrthancId], server);
-            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DicomWeb (' + server + ')'});
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DicomWeb (' + server + ')' });
         },
         async sendToOrthancPeer(peer) {
             const jobId = await api.sendToOrthancPeer([this.resourceOrthancId], peer);
-            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to Peer (' + peer + ')'});
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to Peer (' + peer + ')' });
         },
         async sendToOrthancPeerWithTransfers(peer) {
-            const jobId = await api.sendToOrthancPeerWithTransfers([{"Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId}], peer);
-            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Transfer to Peer (' + peer + ')'});
+            const jobId = await api.sendToOrthancPeerWithTransfers([{ "Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId }], peer);
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Transfer to Peer (' + peer + ')' });
         },
         async sendToDicomModality(modality) {
             const jobId = await api.sendToDicomModality([this.resourceOrthancId], modality);
-            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DICOM (' + modality + ')'});
+            this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DICOM (' + modality + ')' });
         },
         capitalizeFirstLetter(level) {
             return level.charAt(0).toUpperCase() + level.slice(1);
@@ -70,13 +70,14 @@ export default {
             orthancPeers: state => state.configuration.orthancPeers
         }),
         hasSendTo() {
-            return this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities || this.hasSendToPeersWithTransfer;
+            return this.uiOptions.EnableSendTo &&
+                (this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities || this.hasSendToPeersWithTransfer);
         },
         hasSendToPeers() {
             return this.orthancPeers.length > 0;
         },
         hasSendToPeersWithTransfer() {
-            return this.hasSendToPeers && "transfers" in this.installedPlugins;
+            return this.hasSendToPeers && ("transfers" in this.installedPlugins);
         },
         hasSendToDicomWeb() {
             return this.targetDicomWebServers.length > 0;
@@ -127,89 +128,39 @@ export default {
 
 <template>
     <div class="d-grid d-lg-block gap-2">
-        <a
-            v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="View in OsimisViewer"
-            target="blank"
-            v-bind:href="osimisViewerUrl"
-        >
+        <a v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+            class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="View in OsimisViewer"
+            target="blank" v-bind:href="osimisViewerUrl">
             <i class="bi bi-eye"></i>
         </a>
-        <a
-            v-if="hasStoneViewer && this.resourceLevel == 'study'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="View in StoneViewer"
-            target="blank"
-            v-bind:href="stoneViewerUrl"
-        >
+        <a v-if="hasStoneViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+            data-bs-toggle="tooltip" title="View in StoneViewer" target="blank" v-bind:href="stoneViewerUrl">
             <i class="bi bi-eye-fill"></i>
         </a>
-        <a
-            v-if="hasOhifViewer && this.resourceLevel == 'study'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="View in OHIF"
-            target="blank"
-            v-bind:href="ohifViewerUrl"
-        >
+        <a v-if="hasOhifViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+            data-bs-toggle="tooltip" title="View in OHIF" target="blank" v-bind:href="ohifViewerUrl">
             <i class="bi bi-grid"></i>
         </a>
-        <a
-            v-if="hasMedDreamViewer && this.resourceLevel == 'study'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="View in MedDream"
-            target="blank"
-            v-bind:href="medDreamViewerUrl"
-        >
+        <a v-if="hasMedDreamViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+            data-bs-toggle="tooltip" title="View in MedDream" target="blank" v-bind:href="medDreamViewerUrl">
             <i class="bi bi-columns-gap"></i>
         </a>
-        <a
-            v-if="this.resourceLevel == 'instance'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="Preview"
-            target="blank"
-            v-bind:href="instancePreviewUrl"
-        >
+        <a v-if="this.resourceLevel == 'instance'" class="btn btn-sm btn-secondary m-1" type="button"
+            data-bs-toggle="tooltip" title="Preview" target="blank" v-bind:href="instancePreviewUrl">
             <i class="bi bi-binoculars"></i>
         </a>
-        <a
-            v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="Download ZIP"
-            v-bind:href="downloadZipUrl"
-        >
+        <a v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'" class="btn btn-sm btn-secondary m-1"
+            type="button" data-bs-toggle="tooltip" title="Download ZIP" v-bind:href="downloadZipUrl">
             <i class="bi bi-download"></i>
         </a>
-        <a
-            v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="Download DICOMDIR"
-            v-bind:href="downloadDicomDirUrl"
-        >
+        <a v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
+            class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="Download DICOMDIR"
+            v-bind:href="downloadDicomDirUrl">
             <i class="bi bi-box-arrow-down"></i>
         </a>
-        <a
-            v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            title="Download DICOM file"
-            v-bind:href="instanceDownloadUrl"
-        >
+        <a v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
+            class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="Download DICOM file"
+            v-bind:href="instanceDownloadUrl">
             <i class="bi bi-download"></i>
         </a>
         <!-- <button
@@ -221,82 +172,45 @@ export default {
         >
             <i class="bi bi-person-x"></i>
         </button> -->
-        <button
-            v-if="uiOptions.EnableDeleteResources"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="modal"
-            v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId"
-        >
+        <button v-if="uiOptions.EnableDeleteResources" class="btn btn-sm btn-secondary m-1" type="button"
+            data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId">
             <i class="bi bi-trash" data-bs-toggle="tooltip" title="Delete"></i>
         </button>
-        <Modal
-            v-if="uiOptions.EnableDeleteResources"
-            :id="'delete-modal-' + this.resourceOrthancId"
-            :headerText="'Delete ' + this.resourceLevel + ' ?'"
-            :okText="'Delete'"
-            :cancelText="'Cancel'"
+        <Modal v-if="uiOptions.EnableDeleteResources" :id="'delete-modal-' + this.resourceOrthancId"
+            :headerText="'Delete ' + this.resourceLevel + ' ?'" :okText="'Delete'" :cancelText="'Cancel'"
             :bodyText="'Are you sure you want to delete this ' + this.resourceLevel + ' ?<br/>  This action can not be undone !'"
-            @ok="deleteResource($event)"
-        ></Modal>
-        <button
-            v-if="uiOptions.EnableApiViewMenu"
-            class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
-            type="button"
-            id="apiDropdownMenuId"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
+            @ok="deleteResource($event)"></Modal>
+        <button v-if="uiOptions.EnableApiViewMenu" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
+            type="button" id="apiDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
             <span data-bs-toggle="tooltip" title="API">
                 <i class="bi bi-code-slash"></i>
             </span>
         </button>
-        <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId">
+        <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId" v-if="uiOptions.EnableApiViewMenu">
             <li>
-                <button class="dropdown-item" href="#" v-clipboard:copy="this.resourceOrthancId">copy {{ this.resourceLevel }} orthanc id</button>
+                <button class="dropdown-item" href="#" v-clipboard:copy="this.resourceOrthancId">copy {{
+                this.resourceLevel }} orthanc id</button>
             </li>
             <li>
-                <a
-                    class="dropdown-item"
-                    target="blank"
-                    v-bind:href="getApiUrl('')"
-                >/</a>
+                <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('')">/</a>
             </li>
             <li v-if="this.resourceLevel == 'instance'">
-                <a
-                    class="dropdown-item"
-                    target="blank"
-                    v-bind:href="getApiUrl('/tags?simplify')"
-                >/tags?simplify</a>
+                <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('/tags?simplify')">/tags?simplify</a>
             </li>
             <li>
-                <a
-                    class="dropdown-item"
-                    target="blank"
-                    v-bind:href="getApiUrl('/metadata?expand')"
-                >/metadata</a>
+                <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('/metadata?expand')">/metadata</a>
             </li>
             <li>
-                <a
-                    class="dropdown-item"
-                    target="blank"
-                    v-bind:href="getApiUrl('/attachments?expand')"
-                >/attachments</a>
+                <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('/attachments?expand')">/attachments</a>
             </li>
         </ul>
-        <button
-            v-if="hasSendTo"
-            class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
-            type="button"
-            id="dropdownMenuId"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
+        <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
+            id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
             <span data-bs-toggle="tooltip" title="Send">
                 <i class="bi bi-send"></i>
             </span>
         </button>
-        <ul class="dropdown-menu bg-dropdown" aria-labelledby="dropdownMenuId">
+        <ul class="dropdown-menu bg-dropdown" aria-labelledby="sendToDropdownMenuId" v-if="hasSendTo">
             <li v-if="hasSendToPeers" class="dropdown-submenu">
                 <a class="dropdown-item" @click="toggleSubMenu" href="#">
                     Orthanc peers
@@ -304,9 +218,7 @@ export default {
                 </a>
                 <ul class="dropdown-menu bg-dropdown">
                     <li v-for="peer in orthancPeers" :key="peer">
-                        <a class="dropdown-item"
-                        @click="sendToOrthancPeer(peer)"
-                        >{{ peer }}</a>
+                        <a class="dropdown-item" @click="sendToOrthancPeer(peer)">{{ peer }}</a>
                     </li>
                 </ul>
             </li>
@@ -317,9 +229,7 @@ export default {
                 </a>
                 <ul class="dropdown-menu bg-dropdown">
                     <li v-for="peer in orthancPeers" :key="peer">
-                        <a class="dropdown-item"
-                        @click="sendToOrthancPeerWithTransfers(peer)"
-                        >{{ peer }}</a>
+                        <a class="dropdown-item" @click="sendToOrthancPeerWithTransfers(peer)">{{ peer }}</a>
                     </li>
                 </ul>
             </li>
@@ -330,10 +240,7 @@ export default {
                 </a>
                 <ul class="dropdown-menu bg-dropdown">
                     <li v-for="dwServer in targetDicomWebServers" :key="dwServer">
-                        <a
-                            class="dropdown-item"
-                            @click="sendToDicomWebServer(dwServer)"
-                        >{{ dwServer }}</a>
+                        <a class="dropdown-item" @click="sendToDicomWebServer(dwServer)">{{ dwServer }}</a>
                     </li>
                 </ul>
             </li>
@@ -344,10 +251,7 @@ export default {
                 </a>
                 <ul class="dropdown-menu bg-dropdown">
                     <li v-for="modality in targetDicomModalities" :key="modality">
-                        <a
-                            class="dropdown-item"
-                            @click="sendToDicomModality(modality)"
-                        >{{ modality }}</a>
+                        <a class="dropdown-item" @click="sendToDicomModality(modality)">{{ modality }}</a>
                     </li>
                 </ul>
             </li>
@@ -359,6 +263,7 @@ export default {
 .bg-dropdown {
     background-color: rgb(220, 220, 220);
 }
+
 .dropdown-submenu {
     position: relative;
 }
