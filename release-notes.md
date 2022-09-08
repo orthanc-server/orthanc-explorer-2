@@ -1,3 +1,8 @@
+
+Fixes:
+- SendTo and ApiView dropdown menu mixed up when both enabled
+
+
 0.4.1 (2022-09-07)
 ==================
 
@@ -5,7 +10,7 @@ Changes:
 - new `EnableSendTo` option to enable/disable the `SendTo` button
 
 Fixes:
-- SendTo and ApiView dropdown menu where mixed up
+- SendTo and ApiView dropdown menu were mixed up
 
 
 
