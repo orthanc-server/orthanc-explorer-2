@@ -116,5 +116,6 @@ Ideas bag:
 - browse orthanc peer (probably need to extend the Orthanc API to avoid CORS issues)
 - show statistics/event logs: e.g: would be nice to see how many instances
   have been received recently (from where)
+- add a button to export a whole series to jpeg (Chamrousse)
 
 
