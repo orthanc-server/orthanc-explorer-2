@@ -90,6 +90,7 @@ else()
   set(ENABLE_PUGIXML ON)
   set(ENABLE_MODULE_JOBS OFF)
   set(USE_BOOST_ICONV ON)
+  set(ENABLE_WEB_CLIENT ON)
   
   include(${ORTHANC_FRAMEWORK_ROOT}/../Resources/CMake/OrthancFrameworkConfiguration.cmake)
   include_directories(${ORTHANC_FRAMEWORK_ROOT})

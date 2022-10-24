@@ -24,6 +24,7 @@
 #include <Logging.h>
 #include <SystemToolbox.h>
 #include <Toolbox.h>
+#include <HttpClient.h>
 
 #include <EmbeddedResources.h>
 
@@ -37,6 +38,14 @@ std::unique_ptr<OrthancPlugins::OrthancConfiguration> orthancFullConfiguration_;
 OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);
 Json::Value pluginJsonConfiguration_;
 std::string oe2BaseUrl_;
+
+bool enableShares_ = false;
+std::unique_ptr<Orthanc::WebServiceParameters> sharesWebService_;
+std::set<std::string> allowedShareTypes_;
+int defaultShareDuration_ = 0;
+bool enableAnonymizedShares_ = false;
+bool enableStandardShares_ = false;
+
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
 void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
@@ -150,6 +159,27 @@ void ReadConfiguration()
 
     MergeJson(pluginJsonConfiguration_, pluginConfiguration_.GetJson());
   }
+
+  enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
+  if (enableShares_)
+  {
+    const Json::Value& sharesConfiguration = pluginJsonConfiguration_["Shares"];
+    for (size_t i = 0; i < sharesConfiguration["AllowedTypes"].size(); ++i)
+    {
+      allowedShareTypes_.insert(sharesConfiguration["AllowedTypes"][static_cast<int>(i)].asString());
+    }
+    enableAnonymizedShares_ = sharesConfiguration["EnableAnonymizedShares"].asBool();
+    enableStandardShares_ = sharesConfiguration["EnableStandardShares"].asBool();
+
+    // Extend the UI options from the Share configuration
+    pluginJsonConfiguration_["UiOptions"]["AllowedShareTypes"] = sharesConfiguration["AllowedTypes"];
+    pluginJsonConfiguration_["UiOptions"]["EnableAnonymizedShares"] = enableAnonymizedShares_;
+    pluginJsonConfiguration_["UiOptions"]["EnableStandardShares"] = enableStandardShares_;
+
+    // Token service
+    sharesWebService_.reset(new Orthanc::WebServiceParameters(sharesConfiguration["TokenService"]));
+  }
+
 }
 
 bool GetPluginConfiguration(Json::Value& pluginConfiguration, const std::string& sectionName)
@@ -334,6 +364,70 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
 }
 
 
+// This method implements a reverse proxy to the orthanc-token-service.
+// This solves CORS issue + check authorizations on Orthanc side.
+void SharesReverseProxy(OrthancPluginRestOutput* output,
+                         const char* url,
+                         const OrthancPluginHttpRequest* request)
+{
+  OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
+
+  if (request->method != OrthancPluginHttpMethod_Put)
+  {
+    OrthancPluginSendMethodNotAllowed(context, output, "PUT");
+  }
+  else
+  {
+    // validate/transform the payload
+    Json::Value incomingPayload;
+    if (Orthanc::Toolbox::ReadJson(incomingPayload, request->body, request->bodySize))
+    {
+      Json::Value outgoingPayload;
+      outgoingPayload["id"] = incomingPayload["id"];
+      outgoingPayload["dicom-uid"] = incomingPayload["dicom-uid"];
+      outgoingPayload["orthanc-id"] = incomingPayload["orthanc-id"];
+      if (enableAnonymizedShares_ && incomingPayload["anonymized"].asBool())
+      {
+        outgoingPayload["anonymized"] = true;
+      }
+      else
+      {
+        outgoingPayload["anonymized"] = false;
+      }
+
+      std::string type = incomingPayload["type"].asString();
+      if (allowedShareTypes_.find(type) == allowedShareTypes_.end())
+      {
+        OrthancPluginSendHttpStatusCode(context, output, 400);
+        return;
+      }
+      else
+      {
+        outgoingPayload["type"] = incomingPayload["type"];
+      }
+
+      outgoingPayload["expiration-date"] = incomingPayload["expiration-date"];
+
+      Orthanc::HttpClient shareClient(*(sharesWebService_.get()), "");
+      std::string outgoingBody;
+      Json::Value answerPayload;
+      Orthanc::Toolbox::WriteFastJson(outgoingBody, outgoingPayload);
+
+      shareClient.AssignBody(outgoingBody);
+      shareClient.SetMethod(Orthanc::HttpMethod_Put);
+      shareClient.AddHeader("Content-Type", "application/json");
+      shareClient.ApplyAndThrowException(answerPayload);
+
+      OrthancPlugins::AnswerJson(answerPayload, output);
+    }
+    else
+    {
+      OrthancPluginSendHttpStatusCode(context, output, 400);
+      return;
+    }
+  }
+}
+
 static bool DisplayPerformanceWarning(OrthancPluginContext* context)
 {
   (void) DisplayPerformanceWarning;   // Disable warning about unused function
@@ -417,6 +511,11 @@ extern "C"
           (oe2BaseUrl_ + "app", true);
 
         OrthancPlugins::RegisterRestCallback<GetOE2Configuration>(oe2BaseUrl_ + "api/configuration", true);
+
+        if (enableShares_)
+        {
+          OrthancPlugins::RegisterRestCallback<SharesReverseProxy>(oe2BaseUrl_ + "api/shares", true);
+        }
         
         std::string pluginRootUri = oe2BaseUrl_ + "app/";
         OrthancPluginSetRootUri(context, pluginRootUri.c_str());

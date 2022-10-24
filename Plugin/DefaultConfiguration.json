@@ -25,7 +25,12 @@
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
-            
+
+            "EnableShares": false,                      // Enables sharing studies (to be released after OrthancCon).  See "Shares" section below.
+            "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
+            "ShareDurations": [0, 7, 15, 30, 90, 365],  // The share durations proposed in the UI
+            "AnonymizeSharesByDefault": false,          // Are shares anonymized by default or not (check the "Shares" section below)      
+
             "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button
             "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/Viewer/" means that link to OHIF will look like http://ohif.my.site/Viewer/1.2.3.444.5555....
 
@@ -82,6 +87,21 @@
                 "CR", "CT", "DR", "DX", "MG", "MR", "NM", "OT", "PT", "PX", "SEG", "SR", "US", "XA"
             ]
           
+        },
+
+        "Shares" : {
+            "TokenService" : {
+                "Url": "http://change-me:8000/shares",
+                "Username": "change-me",
+                "Password": "change-me"
+            },
+            "AllowedTypes": [
+                "osimis-viewer-publication",
+                "meddream-instant-link",        // will generate short term links when opening the MedDreamViewer -> no need to enter credentials to login MedDream
+                "meddream-viewer-publication"
+            ],
+            "EnableAnonymizedShares": false,    // Propose anonymized shares.  Do not use in a production environment, the orthanc-anonymizer service is still in development !
+            "EnableStandardShares": true        // Propose non-anonymized shares.
         }
     }
 }
