@@ -41,10 +41,11 @@ std::string oe2BaseUrl_;
 
 bool enableShares_ = false;
 std::unique_ptr<Orthanc::WebServiceParameters> sharesWebService_;
-std::set<std::string> allowedShareTypes_;
+std::string shareType_;
 int defaultShareDuration_ = 0;
 bool enableAnonymizedShares_ = false;
 bool enableStandardShares_ = false;
+bool enableMedDreamInstantLinks_ = false;
 
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
@@ -164,17 +165,16 @@ void ReadConfiguration()
   if (enableShares_)
   {
     const Json::Value& sharesConfiguration = pluginJsonConfiguration_["Shares"];
-    for (size_t i = 0; i < sharesConfiguration["AllowedTypes"].size(); ++i)
-    {
-      allowedShareTypes_.insert(sharesConfiguration["AllowedTypes"][static_cast<int>(i)].asString());
-    }
+
+    shareType_ = sharesConfiguration["Type"].asString();
     enableAnonymizedShares_ = sharesConfiguration["EnableAnonymizedShares"].asBool();
     enableStandardShares_ = sharesConfiguration["EnableStandardShares"].asBool();
+    enableMedDreamInstantLinks_ = sharesConfiguration["EnableMedDreamInstantLinks"].asBool();
 
     // Extend the UI options from the Share configuration
-    pluginJsonConfiguration_["UiOptions"]["AllowedShareTypes"] = sharesConfiguration["AllowedTypes"];
     pluginJsonConfiguration_["UiOptions"]["EnableAnonymizedShares"] = enableAnonymizedShares_;
     pluginJsonConfiguration_["UiOptions"]["EnableStandardShares"] = enableStandardShares_;
+    pluginJsonConfiguration_["UiOptions"]["EnableMedDreamInstantLinks"] = enableMedDreamInstantLinks_;
 
     // Token service
     sharesWebService_.reset(new Orthanc::WebServiceParameters(sharesConfiguration["TokenService"]));
@@ -395,17 +395,7 @@ void SharesReverseProxy(OrthancPluginRestOutput* output,
         outgoingPayload["anonymized"] = false;
       }
 
-      std::string type = incomingPayload["type"].asString();
-      if (allowedShareTypes_.find(type) == allowedShareTypes_.end())
-      {
-        OrthancPluginSendHttpStatusCode(context, output, 400);
-        return;
-      }
-      else
-      {
-        outgoingPayload["type"] = incomingPayload["type"];
-      }
-
+      outgoingPayload["type"] = shareType_;
       outgoingPayload["expiration-date"] = incomingPayload["expiration-date"];
 
       Orthanc::HttpClient shareClient(*(sharesWebService_.get()), "");
