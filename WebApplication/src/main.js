@@ -8,15 +8,12 @@ import "./assets/css/_variables.css"
 import "./assets/css/layout.css"
 import "./assets/css/common.css"
 import store from "./store"
-// import resourceHelpers from "./helpers"
 import { router } from './router'
-import { VueClipboard } from '@soerenmartius/vue3-clipboard'
 
 const app = createApp(App)
 
 app.use(router)
 app.use(store)
-// app.use(helpers)
-app.use(VueClipboard)
+
 
 app.mount('#app')

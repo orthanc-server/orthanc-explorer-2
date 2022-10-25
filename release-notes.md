@@ -1,4 +1,7 @@
 
+Changes:
+- implement study sharing UI for orthanc-share project (still confidential, will be presented at OrthancCon 2022)
+
 Fixes:
 - SendTo and ApiView dropdown menu mixed up when both enabled
 

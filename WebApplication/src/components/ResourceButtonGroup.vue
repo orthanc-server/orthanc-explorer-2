@@ -5,6 +5,7 @@ import $ from "jquery"
 import { mapState } from "vuex"
 import api from "../orthancApi"
 import resourceHelpers from "../helpers/resource-helpers"
+import clipboardHelpers from "../helpers/clipboard-helpers"
 
 
 export default {
@@ -43,9 +44,6 @@ export default {
         getApiUrl(subRoute) {
             return api.getApiUrl(this.resourceLevel, this.resourceOrthancId, subRoute);
         },
-        getResourceTitle() {
-            return resourceHelpers.getToto();
-        },
         async sendToDicomWebServer(server) {
             const jobId = await api.sendToDicomWebServer([this.resourceOrthancId], server);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DicomWeb (' + server + ')' });
@@ -64,6 +62,9 @@ export default {
         },
         capitalizeFirstLetter(level) {
             return level.charAt(0).toUpperCase() + level.slice(1);
+        },
+        copyIdToClipboard() {
+            clipboardHelpers.copyToClipboard(this.resourceOrthancId);
         }
     },
     computed: {
@@ -196,16 +197,19 @@ export default {
                 :bodyText="'Are you sure you want to delete this ' + this.resourceLevel + ' ?<br/>  This action can not be undone !'"
                 @ok="deleteResource($event)">
                 <template #modalBody>
-                    <p>Are you sure you want to delete this {{ this.resourceLevel }} ?<br/>This action can not be undone !</p>
+                    <p>Are you sure you want to delete this {{ this.resourceLevel }} ?<br />This action can not be
+                        undone !</p>
                 </template>
-                </Modal>
+            </Modal>
         </div>
         <div class="btn-group">
             <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
                 <i class="bi bi-share" data-bs-toggle="tooltip" title="Share"></i>
             </button>
-            <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"></ShareModal>
+            <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"
+                :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags"></ShareModal>
         </div>
         <div class="btn-group">
             <div class="dropdown">
@@ -218,8 +222,9 @@ export default {
                 <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId"
                     v-if="uiOptions.EnableApiViewMenu">
                     <li>
-                        <button class="dropdown-item" href="#" v-clipboard:copy="this.resourceOrthancId">copy {{
-                        this.resourceLevel }} orthanc id</button>
+                        <button class="dropdown-item" href="#" @click="copyIdToClipboard">copy {{
+                                this.resourceLevel
+                        }} orthanc id</button>
                     </li>
                     <li>
                         <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('')">/</a>

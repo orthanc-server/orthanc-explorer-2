@@ -9,7 +9,6 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.0",
     "@popperjs/core": "^2.11.6",
-    "@soerenmartius/vue3-clipboard": "^0.1.2",
     "axios": "^0.24.0",
     "bootstrap": "^5.2.0",
     "bootstrap-icons": "^1.9.1",

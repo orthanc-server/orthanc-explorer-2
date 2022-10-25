@@ -1,4 +1,6 @@
 <script>
+import clipboardHelpers from "../helpers/clipboard-helpers"
+
 export default {
     props: ["valueToCopy"],
     setup() {
@@ -23,7 +25,7 @@ export default {
                 this.isSuccess = false;
             }, 2500)
         },
-        onError() {
+        onFailure() {
             console.log('failed to copy to clipboard');
             this.isSuccess = false;
             this.isError = true;
@@ -31,6 +33,12 @@ export default {
             setTimeout(() => {
                 this.isError = false;
             }, 2500)
+        },
+        click() {
+            clipboardHelpers.copyToClipboard(this.valueToCopy,
+                () => this.onSuccess(),
+                () => this.onFailure()
+            )
         }
     },
     computed: {
@@ -42,8 +50,7 @@ export default {
 <template>
     <button v-if="this.valueToCopy !== undefined" class="btn-clipboard"
         :class="{ 'success': isSuccess, 'error': isError }" type="button" data-bs-toggle="tooltip"
-        title="Copy to clipboard" v-clipboard:copy="this.valueToCopy" v-clipboard:success="onSuccess"
-        v-clipboard:error="onError">
+        title="Copy to clipboard" @click="click">
         <i v-if="this.isSuccess" class="bi-check"></i>
         <i v-if="this.isError" class="bi-bug"></i>
         <i v-if="!this.isSuccess && !this.isError" class="bi-clipboard"></i>

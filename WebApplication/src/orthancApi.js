@@ -220,6 +220,25 @@ export default {
         return (await axios.get(orthancApiUrl + "tools/log-level")).data;
     },
 
+    async shareStudy(orthancId, dicomId, anonymized, expirationInDays) {
+        let expirationDate = null;
+        
+        if (expirationInDays > 0) {
+            let today = new Date();
+            expirationDate = new Date();
+            expirationDate.setDate(today.getDate() + expirationInDays);
+        }
+                
+        const response = (await axios.put(oe2ApiUrl + "shares", {
+            "dicom-uid": dicomId,
+            "orthanc-id" : orthancId,
+            "anonymized": anonymized,
+            "expiration-date": expirationDate
+        }));
+        
+        return response.data['url'];
+    },
+
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
         return orthancApiUrl + 'osimis-viewer/app/index.html?' + level + '=' + resourceOrthancId;
