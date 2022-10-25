@@ -4,7 +4,7 @@ import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import TagsTree from "./TagsTree.vue";
 
 export default {
-    props: ['instanceId'],
+    props: ['instanceId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedInstance'],
     data() {
         return {
@@ -44,6 +44,10 @@ export default {
                 <ResourceButtonGroup
                 :resourceOrthancId="this.instanceId"
                 :resourceLevel="'instance'"
+                :studyMainDicomTags="this.studyMainDicomTags"
+                :seriesMainDicomTags="this.seriesMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags"
+                :instanceTags="this.tags"
                 @deletedResource="onDeletedInstance"
                 ></ResourceButtonGroup>
             </td>

@@ -3,7 +3,7 @@ import InstanceItem from "./InstanceItem.vue"
 import api from "../orthancApi"
 
 export default {
-    props: ['seriesId'],
+    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedInstance'],
     data() {
         return {
@@ -70,6 +70,9 @@ export default {
             :key="instanceId"
             :instanceId="instanceId"
             :instanceInfo="instancesInfo[instanceId]"
+            :studyMainDicomTags="this.studyMainDicomTags"
+            :seriesMainDicomTags="this.seriesMainDicomTags"
+            :patientMainDicomTags="this.patientMainDicomTags"
             @deletedInstance="onDeletedInstance"
         ></InstanceItem>
     </table>

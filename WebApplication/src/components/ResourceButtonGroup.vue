@@ -1,12 +1,14 @@
 <script>
 import Modal from "./Modal.vue"
+import ShareModal from "./ShareModal.vue"
 import $ from "jquery"
 import { mapState } from "vuex"
 import api from "../orthancApi"
+import resourceHelpers from "../helpers/resource-helpers"
 
 
 export default {
-    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass"],
+    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags"],
     setup() {
         return {
         }
@@ -40,6 +42,9 @@ export default {
         },
         getApiUrl(subRoute) {
             return api.getApiUrl(this.resourceLevel, this.resourceOrthancId, subRoute);
+        },
+        getResourceTitle() {
+            return resourceHelpers.getToto();
         },
         async sendToDicomWebServer(server) {
             const jobId = await api.sendToDicomWebServer([this.resourceOrthancId], server);
@@ -121,8 +126,11 @@ export default {
         downloadDicomDirUrl() {
             return api.getDownloadDicomDirUrl(this.resourceLevel, this.resourceOrthancId);
         },
+        resourceTitle() {
+            return resourceHelpers.getResourceTitle(this.resourceLevel, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags);
+        }
     },
-    components: { Modal }
+    components: { Modal, ShareModal }
 }
 </script>
 
@@ -184,9 +192,20 @@ export default {
                 <i class="bi bi-trash" data-bs-toggle="tooltip" title="Delete"></i>
             </button>
             <Modal v-if="uiOptions.EnableDeleteResources" :id="'delete-modal-' + this.resourceOrthancId"
-                :headerText="'Delete ' + this.resourceLevel + ' ?'" :okText="'Delete'" :cancelText="'Cancel'"
+                :headerText="'Delete ' + this.resourceTitle + ' ?'" :okText="'Delete'" :cancelText="'Cancel'"
                 :bodyText="'Are you sure you want to delete this ' + this.resourceLevel + ' ?<br/>  This action can not be undone !'"
-                @ok="deleteResource($event)"></Modal>
+                @ok="deleteResource($event)">
+                <template #modalBody>
+                    <p>Are you sure you want to delete this {{ this.resourceLevel }} ?<br/>This action can not be undone !</p>
+                </template>
+                </Modal>
+        </div>
+        <div class="btn-group">
+            <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="modal" v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
+                <i class="bi bi-share" data-bs-toggle="tooltip" title="Share"></i>
+            </button>
+            <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"></ShareModal>
         </div>
         <div class="btn-group">
             <div class="dropdown">

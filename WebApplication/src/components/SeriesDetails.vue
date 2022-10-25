@@ -4,7 +4,7 @@ import InstanceList from "./InstanceList.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
 
 export default {
-    props: ['seriesId', 'seriesMainDicomTags', 'instancesIds'],
+    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'instancesIds'],
     emits: ['deletedSeries'],
     setup() {
     },
@@ -54,6 +54,9 @@ export default {
                 :resourceOrthancId="this.seriesId"
                 :resourceLevel="'series'"
                 :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
+                :studyMainDicomTags="this.studyMainDicomTags"
+                :seriesMainDicomTags="this.seriesMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags"
                 :customClass="'instance-button-group'"
                 @deletedResource="onDeletedSeries"
                 ></ResourceButtonGroup>
@@ -64,6 +67,8 @@ export default {
                 <InstanceList
                     :seriesId="this.seriesId"
                     :seriesMainDicomTags="this.seriesMainDicomTags"
+                    :patientMainDicomTags="this.patientMainDicomTags"
+                    :studyMainDicomTags="this.studyMainDicomTags"
                     :instancesIds="this.instancesIds"
                     @deletedInstance="onDeletedInstance"
                 ></InstanceList>

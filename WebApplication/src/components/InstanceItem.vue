@@ -4,7 +4,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 
 
 export default {
-    props: ["instanceId", "instanceInfo"],
+    props: ["instanceId", "instanceInfo", 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedInstance'],
     data() {
         return {
@@ -79,6 +79,9 @@ export default {
                 <InstanceDetails
                     v-if="this.expanded"
                     :instanceId="this.instanceId"
+                    :studyMainDicomTags="this.studyMainDicomTags"
+                    :seriesMainDicomTags="this.seriesMainDicomTags"
+                    :patientMainDicomTags="this.patientMainDicomTags"
                     @deletedInstance="onDeletedInstance"
                 ></InstanceDetails>
             </td>

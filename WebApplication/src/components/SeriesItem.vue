@@ -3,7 +3,7 @@ import SeriesDetails from "./SeriesDetails.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 
 export default {
-    props: ["seriesId", "seriesInfo"],
+    props: ["seriesId", "seriesInfo", 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedSeries'],
     data() {
         return {
@@ -90,6 +90,8 @@ export default {
                     :seriesId="this.seriesId"
                     :instancesIds="this.seriesInfo.Instances"
                     :seriesMainDicomTags="this.seriesInfo.MainDicomTags"
+                    :studyMainDicomTags="this.studyMainDicomTags"
+                    :patientMainDicomTags="this.patientMainDicomTags"
                     @deletedSeries="onDeletedSeries"
                 ></SeriesDetails>
             </td>
