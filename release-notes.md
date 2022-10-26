@@ -1,6 +1,7 @@
 
 Changes:
 - implement study sharing UI for orthanc-share project (still confidential, will be presented at OrthancCon 2022)
+- open MedDream with a one time token if connected with orthanc-share project
 
 Fixes:
 - SendTo and ApiView dropdown menu mixed up when both enabled
