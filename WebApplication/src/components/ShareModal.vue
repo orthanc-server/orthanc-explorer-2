@@ -80,7 +80,7 @@ export default {
                         <div class="col-md-6">
                             Expiration
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <select class="form-select" v-model="expirationInDays">
                                 <option v-for="duration in uiOptions.ShareDurations" :key="duration" :value="duration">
                                     {{ getDurationText(duration) }}</option>
@@ -91,8 +91,8 @@ export default {
                         <div class="col-md-6">
                             Anonymize ?
                         </div>
-                        <div class="col-md-6">
-                            <label class="switch">
+                        <div class="col-md-5">
+                            <label class="switch float-end">
                                 <input type="checkbox" v-model="anonymized" true-value="yes" false-value="no">
                                 <span class="slider round"></span>
                             </label>                            
@@ -102,12 +102,20 @@ export default {
                         <div class="col-md-3">
                             Link
                         </div>
-                        <div class="col-md-9">
-                            <div class="float-end">
-                            <input type="text" v-model="shareLink">
-                            <CopyToClipboardButton :valueToCopy="this.shareLink" />
+                        <div class="col-md-8">
+                            <!-- <div class="float-end">
+                                <input type="text" v-model="shareLink">
+                            </div> -->
+
+                            <div id="parent" style="width:100%">
+                                <input type="text" id="txt_input" v-model="shareLink" style="min-width: 100%!important;" />
+                            </div>                            
                         </div>
-                        </div>
+                        <div class="col-md-1">
+                            <div class="d-flex flex-row-reverse">
+                                <CopyToClipboardButton :valueToCopy="this.shareLink" />
+                            </div>
+                            </div>
                     </div>
                 </div>
                 </div>
