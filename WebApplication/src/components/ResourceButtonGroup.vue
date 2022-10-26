@@ -74,6 +74,40 @@ export default {
                 let link = await api.getMedDreamInstantLink(this.resourceDicomUid);
                 window.open(link, 'blank');
             }
+        },
+        getViewerIcon(viewer) {
+            const orderedIconList = ["bi bi-eye", "bi bi-eye-fill", "bi bi-grid", "bi-columns-gap"];
+            let installedViewersCount = 0;
+            
+            if (this.hasMedDreamViewer) {
+                if (viewer == "meddream") {
+                    return orderedIconList[installedViewersCount];
+                }
+                installedViewersCount++;
+            }
+
+            if (this.hasOsimisViewer) {
+                if (viewer == "osimis-web-viewer") {
+                    return orderedIconList[installedViewersCount];
+                }
+                installedViewersCount++;
+            }
+
+            if (this.hasStoneViewer) {
+                if (viewer == "stone-webviewer") {
+                    return orderedIconList[installedViewersCount];
+                }
+                installedViewersCount++;
+            }
+
+            if (this.hasOhifViewer) {
+                if (viewer == "ohif") {
+                    return orderedIconList[installedViewersCount];
+                }
+                installedViewersCount++;
+            }
+
+            return "bi bi-eye";
         }
     },
     computed: {
@@ -142,6 +176,20 @@ export default {
         },
         resourceTitle() {
             return resourceHelpers.getResourceTitle(this.resourceLevel, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags);
+        },
+        osimisViewerIcon() {
+            return this.getViewerIcon("osimis-web-viewer");
+        },
+        stoneViewerIcon() {
+            return this.getViewerIcon("stone-webviewer");
+
+        },
+        medDreamViewerIcon() {
+            return this.getViewerIcon("meddream");
+
+        },
+        ohifViewerIcon() {
+            return this.getViewerIcon("ohif");
         }
     },
     components: { Modal, ShareModal }
@@ -151,23 +199,23 @@ export default {
 <template>
     <div>
         <div class="btn-group">
-            <a v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="View in OsimisViewer"
-                target="blank" v-bind:href="osimisViewerUrl">
-                <i class="bi bi-eye"></i>
-            </a>
-            <a v-if="hasStoneViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="View in StoneViewer" target="blank" v-bind:href="stoneViewerUrl">
-                <i class="bi bi-eye-fill"></i>
-            </a>
-            <a v-if="hasOhifViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="View in OHIF" target="blank" v-bind:href="ohifViewerUrl">
-                <i class="bi bi-grid"></i>
-            </a>
             <a v-if="hasMedDreamViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
                 type="button" data-bs-toggle="tooltip" title="View in MedDream" target="blank" @click="openMedDream"
                 v-bind:href="medDreamViewerUrl">
-                <i class="bi bi-columns-gap"></i>
+                <i :class="medDreamViewerIcon"></i>
+            </a>
+            <a v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="View in OsimisViewer"
+                target="blank" v-bind:href="osimisViewerUrl">
+                <i :class="osimisViewerIcon"></i>
+            </a>
+            <a v-if="hasStoneViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="tooltip" title="View in StoneViewer" target="blank" v-bind:href="stoneViewerUrl">
+                <i :class="stoneViewerIcon"></i>
+            </a>
+            <a v-if="hasOhifViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="tooltip" title="View in OHIF" target="blank" v-bind:href="ohifViewerUrl">
+                <i :class="ohifViewerIcon"></i>
             </a>
             <a v-if="this.resourceLevel == 'instance'" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="tooltip" title="Preview" target="blank" v-bind:href="instancePreviewUrl">
