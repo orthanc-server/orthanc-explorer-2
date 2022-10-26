@@ -395,7 +395,16 @@ void SharesReverseProxy(OrthancPluginRestOutput* output,
         outgoingPayload["anonymized"] = false;
       }
 
-      outgoingPayload["type"] = shareType_;
+      // keep the "meddream-instant-link" type only if defined and allowed
+      if (incomingPayload.isMember("type") && incomingPayload["type"].asString() == "meddream-instant-link" && enableMedDreamInstantLinks_)
+      {
+        outgoingPayload["type"] = "meddream-instant-link";
+      }
+      else
+      {
+        outgoingPayload["type"] = shareType_;
+      }
+
       outgoingPayload["expiration-date"] = incomingPayload["expiration-date"];
 
       Orthanc::HttpClient shareClient(*(sharesWebService_.get()), "");

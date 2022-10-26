@@ -103,10 +103,6 @@ export default {
                             Link
                         </div>
                         <div class="col-md-8">
-                            <!-- <div class="float-end">
-                                <input type="text" v-model="shareLink">
-                            </div> -->
-
                             <div id="parent" style="width:100%">
                                 <input type="text" id="txt_input" v-model="shareLink" style="min-width: 100%!important;" />
                             </div>                            

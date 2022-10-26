@@ -239,6 +239,18 @@ export default {
         return response.data['url'];
     },
 
+    async getMedDreamInstantLink(dicomId) {
+        const response = (await axios.put(oe2ApiUrl + "shares", {
+            "dicom-uid": dicomId,
+            "orthanc-id" : null,
+            "anonymized": false,
+            "expiration-date": null,
+            "type": "meddream-instant-link"
+        }));
+        
+        return response.data['url'];
+    },
+
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
         return orthancApiUrl + 'osimis-viewer/app/index.html?' + level + '=' + resourceOrthancId;

@@ -65,6 +65,15 @@ export default {
         },
         copyIdToClipboard() {
             clipboardHelpers.copyToClipboard(this.resourceOrthancId);
+        },
+        async openMedDream(event) {
+            if (this.uiOptions.EnableMedDreamInstantLinks) {
+                event.preventDefault();
+
+                console.log("opening MedDream, requesting an instant link token");
+                let link = await api.getMedDreamInstantLink(this.resourceDicomUid);
+                window.open(link, 'blank');
+            }
         }
     },
     computed: {
@@ -113,7 +122,11 @@ export default {
             return this.uiOptions.EnableOpenInMedDreamViewer;
         },
         medDreamViewerUrl() {
-            return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
+            if (this.uiOptions.EnableMedDreamInstantLinks) {
+                return "#";
+            } else {
+                return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
+            }
         },
         instancePreviewUrl() {
             return api.getInstancePreviewUrl(this.resourceOrthancId);
@@ -152,7 +165,7 @@ export default {
                 <i class="bi bi-grid"></i>
             </a>
             <a v-if="hasMedDreamViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
-                type="button" data-bs-toggle="tooltip" title="View in MedDream" target="blank"
+                type="button" data-bs-toggle="tooltip" title="View in MedDream" target="blank" @click="openMedDream"
                 v-bind:href="medDreamViewerUrl">
                 <i class="bi bi-columns-gap"></i>
             </a>
