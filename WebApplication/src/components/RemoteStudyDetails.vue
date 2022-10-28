@@ -42,23 +42,23 @@ export default {
         <tr>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="studyFields.StudyDate">Study Date</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyTime">Study Time</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyDescription" :truncate="true">Study Description</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.AccessionNumber">Accession Number</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyID">Study ID</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.StudyDate">{{$t('study_date')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.StudyTime">{{$t('study_time')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.StudyDescription" :truncate="true">{{$t('study_description')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.AccessionNumber">{{$t('accession_number')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.StudyID">{{$t('study_id')}}</ResourceDetailText>
                     <ResourceDetailText :value="studyFields.StudyInstanceUID" :truncate="true">Study Instance UID</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.RequestingPhysician">RequestingPhysician</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.ReferringPhysicianName">ReferringPhysicianName</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.InstitutionName">InstitutionName</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.RequestingPhysician">{{$t('requesting_physician')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.ReferringPhysicianName">{{$t('referring_physician_name')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.InstitutionName">{{$t('institution_name')}}</ResourceDetailText>
                 </ul>
             </td>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="studyFields.PatientID">Patient ID</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.PatientName">Patient Name</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.PatientBirthDate">Patient Birth Date</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.PatientSex">Patient Sex</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.PatientID">{{$t('patient_id')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.PatientName">{{$t('patient_name')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.PatientBirthDate">{{$t('patient_birth_date')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyFields.PatientSex">{{$t('patient_sex')}}</ResourceDetailText>
                 </ul>
             </td>
             <td width="20%" class="study-button-group">

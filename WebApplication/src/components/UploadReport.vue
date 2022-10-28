@@ -54,73 +54,51 @@ export default {
 <template>
     <div class="card border-secondary job-card">
         <div class="card-header jobs-header">
-            Upload {{ report.filesCount }} files
-            <button
-                type="button"
-                class="btn-close job-card-close"
-                aria-label="Close"
-                @click="close(report.id)"
-            ></button>
+            {{ $t('upload') }} {{ report.filesCount }} {{ $t('files') }}
+            <button type="button" class="btn-close job-card-close" aria-label="Close"
+                @click="close(report.id)"></button>
             <div class="progress" style="width:90%">
-                <div
-                    class="progress-bar bg-success"
-                    role="progressbar"
-                    v-bind:style="'width: ' + this.pctSuccess + '%'"
-                ></div>
-                <div
-                    class="progress-bar bg-secondary"
-                    role="progressbar"
-                    v-bind:style="'width: ' + this.pctSkipped + '%'"
-                ></div>
-                <div
-                    class="progress-bar bg-danger"
-                    role="progressbar"
-                    v-bind:style="'width: ' + this.pctFailed + '%'"
-                ></div>
+                <div class="progress-bar bg-success" role="progressbar"
+                    v-bind:style="'width: ' + this.pctSuccess + '%'"></div>
+                <div class="progress-bar bg-secondary" role="progressbar"
+                    v-bind:style="'width: ' + this.pctSkipped + '%'"></div>
+                <div class="progress-bar bg-danger" role="progressbar" v-bind:style="'width: ' + this.pctFailed + '%'">
+                </div>
             </div>
             <div v-show="Object.keys(report.errorMessages).length > 0">
-                <button
-                    class="btn btn-sm btn-secondary m-1"
-                    type="button"
-                    data-bs-toggle="modal"
-                    v-bind:data-bs-target="'#upload-errors-modal-' + this.report.id"
-                >show errors</button>
-                <Modal
-                    :id="'upload-errors-modal-' + this.report.id"
-                    :headerText="'Upload error report'"
-                    :okText="'Close'"
-                    @ok="close($event)"
-                >
-                <template #modalBody>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th width="50%">File</th>
-                                <th width="50%">Error</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(error, file) in report.errorMessages" :key="error">
-                                <td>{{ file }}</td>
-                                <td class="text-right">{{ error }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                    v-bind:data-bs-target="'#upload-errors-modal-' + this.report.id">{{ $t('show_errors') }}</button>
+                <Modal :id="'upload-errors-modal-' + this.report.id" :headerText="'Upload error report'"
+                    :okText="'Close'" @ok="close($event)">
+                    <template #modalBody>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th width="50%">{{ $t('file') }}</th>
+                                    <th width="50%">{{ $t('error') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(error, file) in report.errorMessages" :key="error">
+                                    <td>{{ file }}</td>
+                                    <td class="text-right">{{ error }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </template>
                 </Modal>
             </div>
         </div>
         <div class="card-body text-secondary jobs-body">
             <p class="card-text">
-                <span class="upload-details">Uploaded studies:</span>
+                <span class="upload-details">{{ $t('uploaded_studies') }}:</span>
                 <br />
-                <span
-                    v-for="(study, studyId) in report.uploadedStudies"
-                    :key="studyId"
-                >
-                <router-link v-bind:to="'/filtered-studies?StudyInstanceUID='+study.MainDicomTags['StudyInstanceUID']+'&expand=study'"
-                        class="upload-details-study"
-                    >{{ this.getStudyLine(studyId, study.MainDicomTags, study.PatientMainDicomTags) }}</router-link>
+                <span v-for="(study, studyId) in report.uploadedStudies" :key="studyId">
+                    <router-link
+                        v-bind:to="'/filtered-studies?StudyInstanceUID=' + study.MainDicomTags['StudyInstanceUID'] + '&expand=study'"
+                        class="upload-details-study">{{ this.getStudyLine(studyId, study.MainDicomTags,
+                                study.PatientMainDicomTags)
+                        }}</router-link>
                     <br />
                 </span>
             </p>
@@ -140,6 +118,7 @@ export default {
     line-height: 1.6;
     text-align: left;
 }
+
 .jobs-body a {
     color: black;
     text-decoration: underline;
@@ -154,6 +133,7 @@ export default {
     border-color: gray;
     border-style: solid;
 }
+
 .job-card {
     margin-bottom: 2px;
     color: black;
@@ -168,6 +148,7 @@ export default {
     top: 5px;
     right: 5px;
 }
+
 .job-pct-pill {
     width: 50px;
     margin-right: 5px;

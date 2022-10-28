@@ -43,74 +43,74 @@ export default {
 <template>
     <div class="settings">
         <div>
-            <h5>Statistics</h5>
+            <h5>{{$t('statistics')}}</h5>
             <table class="table">
                 <tbody>
                     <tr>
-                        <th scope="row" class="w-50 header"># Studies</th>
+                        <th scope="row" class="w-50 header"># {{$t('studies')}}</th>
                         <td class="value">{{ statistics.CountStudies }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header"># Series</th>
+                        <th scope="row" class="header"># {{$t('series_plural')}}</th>
                         <td class="value">{{ statistics.CountSeries }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header"># Instances</th>
+                        <th scope="row" class="header"># {{$t('instances')}}</th>
                         <td class="value">{{ statistics.CountInstances }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">Storage size</th>
+                        <th scope="row" class="header">{{$t('storage_size')}}</th>
                         <td class="value">{{ totalDiskSize }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div>
-            <h5>Orthanc System info</h5>
+            <h5>{{$t('orthanc_system_info')}}</h5>
             <table class="table">
                 <tbody>
                     <tr>
-                        <th scope="row" class="w-50 header">Orthanc version</th>
+                        <th scope="row" class="w-50 header">{{$t('orthanc_version')}}</th>
                         <td class="value">{{ system.Version }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">DICOM AET</th>
+                        <th scope="row" class="header">{{$t('dicom_AET')}}</th>
                         <td class="value">{{ system.DicomAet }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">Orthanc Name</th>
+                        <th scope="row" class="header">{{$t('orthanc_name')}}</th>
                         <td class="value">{{ system.Name }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">Dicom Port</th>
+                        <th scope="row" class="header">{{$t('dicom_port')}}</th>
                         <td class="value">{{ system.DicomPort }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">Ingest Transcoding</th>
+                        <th scope="row" class="header">{{$t('ingest_transcoding')}}</th>
                         <td class="value">{{ system.IngestTranscoding }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">Overwrite Instances</th>
+                        <th scope="row" class="header">{{$t('overwrite_instances')}}</th>
                         <td class="value">{{ system.OverwriteInstances }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">Storage Compression</th>
+                        <th scope="row" class="header">{{$t('storage_compression')}}</th>
                         <td class="value">{{ system.StorageCompression }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div>
-            <h5>Verbosity level</h5>
+            <h5>{{$t('verbosity_level')}}</h5>
             <div>
-            <button type="button" class="btn mx-2" @click="setVerboseLevel('default')" :class="{'btn-primary': verboseLevel=='default', 'btn-secondary': verboseLevel != 'default'}">Default</button>
-            <button type="button" class="btn mx-2" @click="setVerboseLevel('verbose')" :class="{'btn-primary': verboseLevel=='verbose', 'btn-secondary': verboseLevel != 'verbose'}">Verbose</button>
-            <button type="button" class="btn mx-2" @click="setVerboseLevel('trace')" :class="{'btn-primary': verboseLevel=='trace', 'btn-secondary': verboseLevel != 'trace'}">Trace</button>
+            <button type="button" class="btn mx-2" @click="setVerboseLevel('default')" :class="{'btn-primary': verboseLevel=='default', 'btn-secondary': verboseLevel != 'default'}">{{$t('default')}}</button>
+            <button type="button" class="btn mx-2" @click="setVerboseLevel('verbose')" :class="{'btn-primary': verboseLevel=='verbose', 'btn-secondary': verboseLevel != 'verbose'}">{{$t('verbose')}}</button>
+            <button type="button" class="btn mx-2" @click="setVerboseLevel('trace')" :class="{'btn-primary': verboseLevel=='trace', 'btn-secondary': verboseLevel != 'trace'}">{{$t('trace')}}</button>
             </div>
         </div>
         <div>
-            <h5>Installed plugins</h5>
-            <p class="m-2">Plugins that are loaded but not enabled or not configured correctly are <span style="text-decoration: line-through;">striked-through</span></p>
+            <h5>{{$t('installed_plugins')}}</h5>
+            <p class="m-2">{{$t('plugins_not_enabled')}} <span style="text-decoration: line-through;">{{$t('striked_through')}}</span></p>
             <table class="table">
                 <tbody>
                     <tr v-for="(configuration, plugin) in installedPlugins" :key="plugin"
@@ -119,7 +119,7 @@ export default {
                         <td class="w-50 value">{{ configuration.Description }}</td>
                         <td class="w-15 value">{{ configuration.Version }}</td>
                         <td class="w-10 value">
-                            <a v-if="configuration.RootUri && configuration.Enabled" type="button" class="btn btn-primary" v-bind:href="configuration.RootUri">Open</a>
+                            <a v-if="configuration.RootUri && configuration.Enabled" type="button" class="btn btn-primary" v-bind:href="configuration.RootUri">{{$t('open')}}</a>
                         </td>
                     </tr>
                 </tbody>
