@@ -1,3 +1,5 @@
+0.4.2 (2022-10-28)
+==================
 
 Changes:
 - implement study sharing UI for orthanc-share project (still confidential, will be presented at OrthancCon 2022)
