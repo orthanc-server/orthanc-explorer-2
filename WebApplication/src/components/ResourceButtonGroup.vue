@@ -75,38 +75,30 @@ export default {
                 window.open(link, 'blank');
             }
         },
-        getViewerIcon(viewer) {
-            const orderedIconList = ["bi bi-eye", "bi bi-eye-fill", "bi bi-grid", "bi-columns-gap"];
-            let installedViewersCount = 0;
+        getViewerIcon(forViewer) {
+            const orderedViewerList = this.uiOptions.ViewersOrdering;
+            const viewerIcons = this.uiOptions.ViewerIcons;
             
-            if (this.hasMedDreamViewer) {
-                if (viewer == "meddream") {
-                    return orderedIconList[installedViewersCount];
-                }
-                installedViewersCount++;
-            }
+            for (let viewer of orderedViewerList)
+            {
+                if (viewer == forViewer) {
+                    if (this.hasOsimisViewer && forViewer == "osimis-web-viewer") {
+                        return viewerIcons[viewer];
+                    }
 
-            if (this.hasOsimisViewer) {
-                if (viewer == "osimis-web-viewer") {
-                    return orderedIconList[installedViewersCount];
-                }
-                installedViewersCount++;
-            }
+                    if (this.hasStoneViewer && forViewer == "stone-webviewer") {
+                        return viewerIcons[viewer];
+                    }
 
-            if (this.hasStoneViewer) {
-                if (viewer == "stone-webviewer") {
-                    return orderedIconList[installedViewersCount];
-                }
-                installedViewersCount++;
-            }
+                    if (this.hasOhifViewer && forViewer == "ohif") {
+                        return viewerIcons[viewer];
+                    }
 
-            if (this.hasOhifViewer) {
-                if (viewer == "ohif") {
-                    return orderedIconList[installedViewersCount];
+                    if (this.hasMedDreamViewer && forViewer == "meddream") {
+                        return viewerIcons[viewer];
+                    }
                 }
-                installedViewersCount++;
             }
-
             return "bi bi-eye";
         }
     },
@@ -199,24 +191,26 @@ export default {
 <template>
     <div>
         <div class="btn-group">
-            <a v-if="hasMedDreamViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
+            <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
+            <a v-if="hasMedDreamViewer && viewer=='meddream' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
                 type="button" data-bs-toggle="tooltip" title="View in MedDream" target="blank" @click="openMedDream"
                 v-bind:href="medDreamViewerUrl">
                 <i :class="medDreamViewerIcon"></i>
             </a>
-            <a v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+            <a v-if="hasOsimisViewer && viewer=='osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
                 class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="View in OsimisViewer"
                 target="blank" v-bind:href="osimisViewerUrl">
                 <i :class="osimisViewerIcon"></i>
             </a>
-            <a v-if="hasStoneViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+            <a v-if="hasStoneViewer && viewer=='stone-webviewer' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="tooltip" title="View in StoneViewer" target="blank" v-bind:href="stoneViewerUrl">
                 <i :class="stoneViewerIcon"></i>
             </a>
-            <a v-if="hasOhifViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+            <a v-if="hasOhifViewer && viewer=='ohif' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="tooltip" title="View in OHIF" target="blank" v-bind:href="ohifViewerUrl">
                 <i :class="ohifViewerIcon"></i>
             </a>
+            </span>
             <a v-if="this.resourceLevel == 'instance'" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="tooltip" title="Preview" target="blank" v-bind:href="instancePreviewUrl">
                 <i class="bi bi-binoculars"></i>
