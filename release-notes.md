@@ -3,8 +3,8 @@
 
 Changes:
 - added 2 configurations to chose the viewer icons and the order in which they appear:
-  'ViewersOrdering' and 'ViewerIcons'.  The default configuration is identical to the 0.4.1 behaviour.
-- 
+  'ViewersOrdering' and 'ViewersIcons'.  The default configuration is identical to the 0.4.1 behaviour.
+ 
 
 0.4.2 (2022-10-28)
 ==================

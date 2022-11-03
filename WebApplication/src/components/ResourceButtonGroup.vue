@@ -77,25 +77,25 @@ export default {
         },
         getViewerIcon(forViewer) {
             const orderedViewerList = this.uiOptions.ViewersOrdering;
-            const viewerIcons = this.uiOptions.ViewerIcons;
+            const viewersIcons = this.uiOptions.ViewersIcons;
             
             for (let viewer of orderedViewerList)
             {
                 if (viewer == forViewer) {
                     if (this.hasOsimisViewer && forViewer == "osimis-web-viewer") {
-                        return viewerIcons[viewer];
+                        return viewersIcons[viewer];
                     }
 
                     if (this.hasStoneViewer && forViewer == "stone-webviewer") {
-                        return viewerIcons[viewer];
+                        return viewersIcons[viewer];
                     }
 
                     if (this.hasOhifViewer && forViewer == "ohif") {
-                        return viewerIcons[viewer];
+                        return viewersIcons[viewer];
                     }
 
                     if (this.hasMedDreamViewer && forViewer == "meddream") {
-                        return viewerIcons[viewer];
+                        return viewersIcons[viewer];
                     }
                 }
             }

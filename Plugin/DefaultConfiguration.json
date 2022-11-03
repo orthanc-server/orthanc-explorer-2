@@ -40,7 +40,7 @@
             // Defines which icons is used by which enabled viewer.
             // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif"
             // Allowed values: CSS class that defines the viewer icons (only from bootstrap icons)
-            "ViewerIcons" : {
+            "ViewersIcons" : {
                 "osimis-web-viewer": "bi bi-eye",
                 "stone-webviewer": "bi bi-eye-fill",
                 "ohif": "bi bi-grid",
