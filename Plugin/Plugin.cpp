@@ -384,8 +384,7 @@ void SharesReverseProxy(OrthancPluginRestOutput* output,
     {
       Json::Value outgoingPayload;
       outgoingPayload["id"] = incomingPayload["id"];
-      outgoingPayload["dicom-uid"] = incomingPayload["dicom-uid"];
-      outgoingPayload["orthanc-id"] = incomingPayload["orthanc-id"];
+      outgoingPayload["studies"] = incomingPayload["studies"];
       if (enableAnonymizedShares_ && incomingPayload["anonymized"].asBool())
       {
         outgoingPayload["anonymized"] = true;
