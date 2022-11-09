@@ -112,9 +112,9 @@
                 "Username": "change-me",
                 "Password": "change-me"
             },
-            "Type": "osimis-viewer-publication", // allowed values: "osimis-viewer-publication", "meddream-viewer-publication"
+            "Type": "osimis-viewer-publication", // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication"
             "EnableMedDreamInstantLinks": false, // will generate short term links when opening the MedDreamViewer -> no need to enter credentials to log into MedDream
-            "EnableAnonymizedShares": false,     // Propose anonymized shares.  Do not use in a production environment, the orthanc-anonymizer service is still in development !
+            "EnableAnonymizedShares": false,     // Propose anonymized shares (only for 'osimis-viewer-publication').  Do not use in a production environment, the orthanc-anonymizer service is still in development !
             "EnableStandardShares": true         // Propose non-anonymized shares.
         }
     }

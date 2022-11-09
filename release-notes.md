@@ -1,3 +1,13 @@
+Pending changes
+===============
+
+
+Changes:
+- shares: allow "stone-viewer-publication"
+
+Fixes:
+- WO-63: instant-link only works if EnableShares is true
+
 0.4.3 (2022-11-03)
 ==================
 
