@@ -1,3 +1,23 @@
+Pending changes
+===============
+
+
+Changes:
+- shares: allow "stone-viewer-publication"
+
+Fixes:
+- WO-63: instant-link only works if EnableShares is true
+
+0.4.3 (2022-11-03)
+==================
+
+Changes:
+- added 2 configurations to chose the viewer icons and the order in which they appear:
+  'ViewersOrdering' and 'ViewersIcons'.  The default configuration is identical to the 0.4.1 behaviour.
+- adapted orthanc-share API
+
+0.4.2 (2022-10-28)
+==================
 
 Changes:
 - implement study sharing UI for orthanc-share project (still confidential, will be presented at OrthancCon 2022)

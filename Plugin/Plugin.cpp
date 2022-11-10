@@ -162,22 +162,27 @@ void ReadConfiguration()
   }
 
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
-  if (enableShares_)
+
+  if (pluginJsonConfiguration_.isMember("Shares"))
   {
     const Json::Value& sharesConfiguration = pluginJsonConfiguration_["Shares"];
 
-    shareType_ = sharesConfiguration["Type"].asString();
-    enableAnonymizedShares_ = sharesConfiguration["EnableAnonymizedShares"].asBool();
-    enableStandardShares_ = sharesConfiguration["EnableStandardShares"].asBool();
+    if (enableShares_)
+    {
+      shareType_ = sharesConfiguration["Type"].asString();
+      enableAnonymizedShares_ = sharesConfiguration["EnableAnonymizedShares"].asBool();
+      enableStandardShares_ = sharesConfiguration["EnableStandardShares"].asBool();
+
+      // Extend the UI options from the Share configuration
+      pluginJsonConfiguration_["UiOptions"]["EnableAnonymizedShares"] = enableAnonymizedShares_;
+      pluginJsonConfiguration_["UiOptions"]["EnableStandardShares"] = enableStandardShares_;
+
+      // Token service
+      sharesWebService_.reset(new Orthanc::WebServiceParameters(sharesConfiguration["TokenService"]));
+    }
+
     enableMedDreamInstantLinks_ = sharesConfiguration["EnableMedDreamInstantLinks"].asBool();
-
-    // Extend the UI options from the Share configuration
-    pluginJsonConfiguration_["UiOptions"]["EnableAnonymizedShares"] = enableAnonymizedShares_;
-    pluginJsonConfiguration_["UiOptions"]["EnableStandardShares"] = enableStandardShares_;
     pluginJsonConfiguration_["UiOptions"]["EnableMedDreamInstantLinks"] = enableMedDreamInstantLinks_;
-
-    // Token service
-    sharesWebService_.reset(new Orthanc::WebServiceParameters(sharesConfiguration["TokenService"]));
   }
 
 }
@@ -384,8 +389,7 @@ void SharesReverseProxy(OrthancPluginRestOutput* output,
     {
       Json::Value outgoingPayload;
       outgoingPayload["id"] = incomingPayload["id"];
-      outgoingPayload["dicom-uid"] = incomingPayload["dicom-uid"];
-      outgoingPayload["orthanc-id"] = incomingPayload["orthanc-id"];
+      outgoingPayload["studies"] = incomingPayload["studies"];
       if (enableAnonymizedShares_ && incomingPayload["anonymized"].asBool())
       {
         outgoingPayload["anonymized"] = true;

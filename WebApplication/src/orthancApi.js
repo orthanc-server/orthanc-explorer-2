@@ -230,8 +230,10 @@ export default {
         }
                 
         const response = (await axios.put(oe2ApiUrl + "shares", {
-            "dicom-uid": dicomId,
-            "orthanc-id" : orthancId,
+            "studies" : [{
+                "dicom-uid": dicomId,
+                "orthanc-id" : orthancId
+            }],
             "anonymized": anonymized,
             "expiration-date": expirationDate
         }));
@@ -241,8 +243,10 @@ export default {
 
     async getMedDreamInstantLink(dicomId) {
         const response = (await axios.put(oe2ApiUrl + "shares", {
-            "dicom-uid": dicomId,
-            "orthanc-id" : null,
+            "studies" : [{
+                "dicom-uid": dicomId,
+                "orthanc-id" : null
+            }],
             "anonymized": false,
             "expiration-date": null,
             "type": "meddream-instant-link"

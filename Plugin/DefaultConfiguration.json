@@ -37,6 +37,23 @@
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
             "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
 
+            // Defines which icons is used by which enabled viewer.
+            // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif"
+            // Allowed values: CSS class that defines the viewer icons (only from bootstrap icons)
+            "ViewersIcons" : {
+                "osimis-web-viewer": "bi bi-eye",
+                "stone-webviewer": "bi bi-eye-fill",
+                "ohif": "bi bi-grid",
+                "meddream": "bi bi-columns-gap"
+            },
+            // Defines the order in which the viewer icons should appear in the interface
+            "ViewersOrdering" : [
+                "osimis-web-viewer",
+                "stone-webviewer",
+                "ohif",
+                "meddream"
+            ],
+
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
             "MaxMyJobsHistorySize": 5,                  // The maximum number of jobs appearing under 'my jobs' in side bar (0 = unlimited)
 
@@ -95,9 +112,9 @@
                 "Username": "change-me",
                 "Password": "change-me"
             },
-            "Type": "osimis-viewer-publication", // allowed values: "osimis-viewer-publication", "meddream-viewer-publication"
+            "Type": "osimis-viewer-publication", // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication"
             "EnableMedDreamInstantLinks": false, // will generate short term links when opening the MedDreamViewer -> no need to enter credentials to log into MedDream
-            "EnableAnonymizedShares": false,     // Propose anonymized shares.  Do not use in a production environment, the orthanc-anonymizer service is still in development !
+            "EnableAnonymizedShares": false,     // Propose anonymized shares (only for 'osimis-viewer-publication').  Do not use in a production environment, the orthanc-anonymizer service is still in development !
             "EnableStandardShares": true         // Propose non-anonymized shares.
         }
     }
