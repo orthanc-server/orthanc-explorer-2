@@ -4,7 +4,7 @@ import api from "../orthancApi"
 import SeriesItem from "./SeriesItem.vue"
 
 export default {
-    props: ['studyId'],
+    props: ['studyId', 'patientMainDicomTags', 'studyMainDicomTags'],
     emits: ['deletedStudy'],
     data() {
         return {
@@ -76,6 +76,8 @@ export default {
             :key="seriesId"
             :seriesId="seriesId"
             :seriesInfo="seriesInfo[seriesId]"
+            :studyMainDicomTags="this.studyMainDicomTags"
+            :patientMainDicomTags="this.patientMainDicomTags"
             @deletedSeries="onDeletedSeries"
         ></SeriesItem>
     </table>

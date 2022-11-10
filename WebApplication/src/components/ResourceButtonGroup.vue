@@ -207,22 +207,23 @@ export default {
 <template>
     <div>
         <div class="btn-group">
-            <a v-if="hasMedDreamViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
-                type="button" data-bs-toggle="tooltip" title="$t('view_in_meddream')" target="blank" @click="openMedDream"
+            <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
+            <a v-if="hasMedDreamViewer && viewer=='meddream' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
+                type="button" data-bs-toggle="tooltip" :title="$t('view_in_meddream')" target="blank" @click="openMedDream"
                 v-bind:href="medDreamViewerUrl">
                 <i :class="medDreamViewerIcon"></i>
             </a>
-            <a v-if="hasOsimisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="$t('view_in_osimis')"
+            <a v-if="hasOsimisViewer && viewer=='osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="$t('view_in_osimis')"
                 target="blank" v-bind:href="osimisViewerUrl">
                 <i :class="osimisViewerIcon"></i>
             </a>
-            <a v-if="hasStoneViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="$t('view_in_stone')" target="blank" v-bind:href="stoneViewerUrl">
+            <a v-if="hasStoneViewer && viewer=='stone-webviewer' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="tooltip" :title="$t('view_in_stone')" target="blank" v-bind:href="stoneViewerUrl">
                 <i :class="stoneViewerIcon"></i>
             </a>
-            <a v-if="hasOhifViewer && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="$t('view_in_ohif')}" target="blank" v-bind:href="ohifViewerUrl">
+            <a v-if="hasOhifViewer && viewer=='ohif' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="tooltip" :title="$t('view_in_ohif')" target="blank" v-bind:href="ohifViewerUrl">
                 <i :class="ohifViewerIcon"></i>
             </a>
             </span>
@@ -319,7 +320,7 @@ export default {
                 <ul class="dropdown-menu bg-dropdown" aria-labelledby="sendToDropdownMenuId" v-if="hasSendTo">
                     <li v-if="hasSendToPeers" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            {{ $('via_orthanc_peer') }}
+                            {{ $t('via_orthanc_peer') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">

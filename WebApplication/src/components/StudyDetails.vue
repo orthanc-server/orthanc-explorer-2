@@ -51,13 +51,14 @@ export default {
             </td>
             <td width="20%" class="study-button-group">
                 <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
+                    :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                     :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" @deletedResource="onDeletedStudy">
                 </ResourceButtonGroup>
             </td>
         </tr>
         <tr>
             <td colspan="100">
-                <SeriesList :studyId="this.studyId" @deletedStudy="onDeletedStudy"></SeriesList>
+                <SeriesList :studyId="this.studyId" :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags" @deletedStudy="onDeletedStudy"></SeriesList>
             </td>
         </tr>
     </table>
