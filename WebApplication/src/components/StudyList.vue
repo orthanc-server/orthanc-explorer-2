@@ -486,7 +486,7 @@ export default {
                             <li><label class="dropdown-item"><input type="checkbox" data-value="all" @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{$t('all_modalities')}}</label></li>
                             <li><label class="dropdown-item"><input type="checkbox" data-value="none"
                                         @click="toggleModalityFilter"
-                                        v-model="noneModalities" />&nbsp;{{$t('none')}}</label></li>
+                                        v-model="noneModalities" />&nbsp;{{$t('no_modalities')}}</label></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>

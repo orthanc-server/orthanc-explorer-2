@@ -26,7 +26,7 @@ export default {
       aria-expanded="false">
       <i class="bi bi-translate"></i> {{option}}
     </button>
-    <ul class="dropdown-menu">
+    <ul class="dropdown-menu language-picker">
       <li v-for="(lang, i) in languages" :key="`lang-${i}`" :value="lang"><a class="dropdown-item" href="#"
           @click="changeLanguage(`${lang.abbreviation}`,`${lang.name}`)">{{lang.name}}</a></li>
     </ul>
@@ -34,9 +34,8 @@ export default {
 </template>
 
 <style>
-.dropdown-menu {
+.language-picker {
     margin-top: var(--details-top-margin);
-    background-color: var(--study-selected-color);
     font-size: 0.9rem;
     --bs-dropdown-item-padding-y: 0.05rem;
 }

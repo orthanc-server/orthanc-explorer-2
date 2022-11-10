@@ -17,6 +17,7 @@ import { localeConf } from "../globalConfigurations"
 
 const i18n = createI18n({
   locale: localeConf,
+  fallbackLocale: 'en',  
   messages: {
     en,
     es,

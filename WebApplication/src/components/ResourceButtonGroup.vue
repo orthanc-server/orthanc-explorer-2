@@ -264,7 +264,7 @@ export default {
                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
             </button>
             <Modal v-if="uiOptions.EnableDeleteResources" :id="'delete-modal-' + this.resourceOrthancId"
-            :headerText="$t(this.deleteResourceTitle) + ' ' + this.resourceTitle" :okText="$t('delete')" :cancelText="$t('cancel')"
+                :headerText="$t(this.deleteResourceTitle) + ' ' + this.resourceTitle" :okText="$t('delete')" :cancelText="$t('cancel')"
                 :bodyText="$t(this.deleteResourceBody)"
                 @ok="deleteResource($event)">
             </Modal>
@@ -272,7 +272,7 @@ export default {
         <div class="btn-group">
             <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
-                <i class="bi bi-share" data-bs-toggle="tooltip" title="Share"></i>
+                <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
             <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
@@ -313,14 +313,14 @@ export default {
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span data-bs-toggle="tooltip" :title="$t('send')">
+                    <span data-bs-toggle="tooltip" :title="$t('send_to.button_title')">
                         <i class="bi bi-send"></i>
                     </span>
                 </button>
                 <ul class="dropdown-menu bg-dropdown" aria-labelledby="sendToDropdownMenuId" v-if="hasSendTo">
                     <li v-if="hasSendToPeers" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            {{ $t('via_orthanc_peer') }}
+                            {{ $t('send_to.orthanc_peer') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
@@ -331,7 +331,7 @@ export default {
                     </li>
                     <li v-if="hasSendToPeersWithTransfer" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            Advanced transfers
+                            {{ $t('send_to.transfers') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
@@ -342,7 +342,7 @@ export default {
                     </li>
                     <li v-if="hasSendToDicomWeb" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            Dicom WEB
+                            {{ $t('send_to.dicom_web') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
@@ -353,7 +353,7 @@ export default {
                     </li>
                     <li v-if="hasSendToDicomModalities" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            DICOM
+                            {{ $t('send_to.dicom') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
