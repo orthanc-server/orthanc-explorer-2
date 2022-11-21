@@ -105,7 +105,7 @@ jobs:
         path: WebApplication/dist
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build  ${{matrix.config.extraCMakeFlags}} -DORTHANC_FRAMEWORK_SOURCE=web -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}" -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build  ${{matrix.config.extraCMakeFlags}} -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION=1.11.2 -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}" -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       env: 
         MAKEFLAG: -j4
 
