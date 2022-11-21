@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Get branch/tag name
         id: branch-name
-        uses: tj-actions/branch-names@v5.1
+        uses: tj-actions/branch-names@v6
         # output: steps.branch-name.outputs.current_branch contains the branch or the tag
 
   build-web-app:
