@@ -70,6 +70,8 @@
     "series_time": "Hora de la serie",
     "series": "Serie",
     "settings": "Configuraciones",
+    "share": {
+    },
     "show_errors": "Mostrar errores",
     "statistics": "Estadísticas",
     "storage_compression": "Compresión de almacenamiento",
