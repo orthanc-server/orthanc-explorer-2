@@ -55,7 +55,7 @@ file(TO_CMAKE_PATH "${WEBAPP_DIST_PATH}" WEBAPP_DIST_PATH)
 
 # Advanced parameters to fine-tune linking against system libraries
 set(USE_SYSTEM_ORTHANC_SDK ON CACHE BOOL "Use the system version of the Orthanc plugin SDK")
-set(ORTHANC_SDK_VERSION "1.9.7" CACHE STRING "Version of the Orthanc plugin SDK to use, if not using the system version (can be \"1.9.7\")")
+set(ORTHANC_SDK_VERSION "1.11.2" CACHE STRING "Version of the Orthanc plugin SDK to use, if not using the system version (can be \"1.11.2\")")
 set(ORTHANC_FRAMEWORK_STATIC OFF CACHE BOOL "If linking against the Orthanc framework system library, indicates whether this library was statically linked")
 mark_as_advanced(ORTHANC_FRAMEWORK_STATIC)
 
@@ -101,8 +101,8 @@ include(${CMAKE_SOURCE_DIR}/Resources/Orthanc/Plugins/OrthancPluginsExports.cmak
 
 
 if (STATIC_BUILD OR NOT USE_SYSTEM_ORTHANC_SDK)
-  if (ORTHANC_SDK_VERSION STREQUAL "1.9.7")
-    include_directories(${CMAKE_SOURCE_DIR}/Resources/Orthanc/Sdk-1.9.7)
+  if (ORTHANC_SDK_VERSION STREQUAL "1.11.2")
+    include_directories(${CMAKE_SOURCE_DIR}/Resources/Orthanc/Sdk-1.11.2)
   else()
     message(FATAL_ERROR "Unsupported version of the Orthanc plugin SDK: ${ORTHANC_SDK_VERSION}")
   endif()
