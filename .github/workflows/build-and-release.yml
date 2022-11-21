@@ -89,7 +89,7 @@ jobs:
             artifactPath: "libOrthancExplorer2.dylib",
             triplet: x64-osx,
             os: macos-latest,
-            extraCMakeFlags: "-DUSE_LEGACY_BOOST"
+            extraCMakeFlags: "-DUSE_LEGACY_BOOST=ON"
           }
 
     steps:
