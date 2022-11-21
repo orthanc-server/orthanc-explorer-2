@@ -117,6 +117,13 @@ jobs:
         path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
 
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
+
+
   check-translations:
     name: check-translations
     runs-on: "ubuntu-latest"
