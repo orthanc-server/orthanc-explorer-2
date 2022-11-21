@@ -1,6 +1,5 @@
 {
     "accession_number": "Número de acceso",
-    "advanced_transfers": "Transferencias avanzadas",
     "all_modalities": "Todos",
     "anonymize": "Anonimizar",
     "are_you_sure_you_want_to_delete_this": "¿Estás seguro de que quieres eliminar esto",
@@ -59,10 +58,13 @@
     "searching": "Buscando...",
     "select_files": "Seleccionar archivos",
     "select_folder": "Seleccionar Carpeta",
-    "send_to_dicom": "Enviar a DICOM",
-    "send_to_dicomWeb": "Enviar a DICOM-Web",
-    "send_to_peer": "Enviar a un par",
-    "send": "Enviar",
+    "send_to": {
+        "button_title": "Enviar",
+        "orthanc_peer": "Enviar a un par",
+        "dicom": "Enviar a DICOM",
+        "dicom_web": "Enviar a DICOM-Web",
+        "transfers": "Enviar a un par (Transferencias avanzadas)"
+    },
     "series_date": "Fecha de la serie",
     "series_description": "Descripción de la serie",
     "series_number": "Número de serie",
