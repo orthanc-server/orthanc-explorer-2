@@ -13,10 +13,9 @@ import fr from "./fr.json";
 // import hi from "./hi.json";
 // import sw from "./sw.json";
 // import zh from "./zh.json";
-import { localeConf } from "../globalConfigurations"
 
 const i18n = createI18n({
-  locale: localeConf,
+  locale: 'en',    // when the list of availableLanguages is loaded, this value is updated in LanguagePicker.isConfigurationLoaded
   fallbackLocale: 'en',  
   messages: {
     en,

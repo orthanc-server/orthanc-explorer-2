@@ -152,8 +152,8 @@ export default {
                 <div v-if="hasJobs" class="collapse show" id="jobs-list">
                     <JobsList />
                 </div>
-                <div>
-                    <LanguagePicker />
+                <div class="mt-5">
+                    <LanguagePicker/>
                 </div>
             </ul>
         </div>
