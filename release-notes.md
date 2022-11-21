@@ -3,6 +3,7 @@ Pending changes
 
 
 Changes:
+- added multi-language support
 - shares: allow "stone-viewer-publication"
 
 Fixes:

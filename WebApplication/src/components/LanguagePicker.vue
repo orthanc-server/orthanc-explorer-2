@@ -47,9 +47,14 @@ export default {
                 done = this.changeLanguage(languageKey);
             } else if (this.availableLanguages.length > 1) {
 
-                if (localStorage.getItem("languageKey") != null) {
+                if (localStorage.getItem("OE2.languageKey") != null) {
                     console.log("language picker: selecting language from the local storage");
-                    done = this.changeLanguage(localStorage.getItem("languageKey"));
+                    done = this.changeLanguage(localStorage.getItem("OE2.languageKey"));
+                }
+
+                if (!done && this.uiOptions.DefaultLanguage != null) {
+                    console.log("language picker: selecting language from DefaultLanguage configuration");
+                    done = this.changeLanguage(this.uiOptions.DefaultLanguage);
                 }
 
                 if (!done) {
@@ -87,7 +92,7 @@ export default {
                 this.$i18n.locale = key;
                 this.selectedLanguageName = languageName;
 
-                localStorage.setItem("languageKey", key);
+                localStorage.setItem("OE2.languageKey", key);
                 return true;
             } else {
                 return false;
