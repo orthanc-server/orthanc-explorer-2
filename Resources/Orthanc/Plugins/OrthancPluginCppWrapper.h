@@ -755,53 +755,65 @@ namespace OrthancPlugins
 
     bool DoGet(MemoryBuffer& target,
                size_t index,
-               const std::string& uri) const;
+               const std::string& uri,
+               const std::map<std::string, std::string>& headers) const;
 
     bool DoGet(MemoryBuffer& target,
                const std::string& name,
-               const std::string& uri) const;
+               const std::string& uri,
+               const std::map<std::string, std::string>& headers) const;
 
     bool DoGet(Json::Value& target,
                size_t index,
-               const std::string& uri) const;
+               const std::string& uri,
+               const std::map<std::string, std::string>& headers) const;
 
     bool DoGet(Json::Value& target,
                const std::string& name,
-               const std::string& uri) const;
+               const std::string& uri,
+               const std::map<std::string, std::string>& headers) const;
 
     bool DoPost(MemoryBuffer& target,
                 size_t index,
                 const std::string& uri,
-                const std::string& body) const;
+                const std::string& body,
+                const std::map<std::string, std::string>& headers) const;
 
     bool DoPost(MemoryBuffer& target,
                 const std::string& name,
                 const std::string& uri,
-                const std::string& body) const;
+                const std::string& body,
+                const std::map<std::string, std::string>& headers) const;
 
     bool DoPost(Json::Value& target,
                 size_t index,
                 const std::string& uri,
-                const std::string& body) const;
+                const std::string& body,
+                const std::map<std::string, std::string>& headers) const;
 
     bool DoPost(Json::Value& target,
                 const std::string& name,
                 const std::string& uri,
-                const std::string& body) const;
+                const std::string& body,
+                const std::map<std::string, std::string>& headers) const;
 
     bool DoPut(size_t index,
                const std::string& uri,
-               const std::string& body) const;
+               const std::string& body,
+               const std::map<std::string, std::string>& headers) const;
 
     bool DoPut(const std::string& name,
                const std::string& uri,
-               const std::string& body) const;
+               const std::string& body,
+               const std::map<std::string, std::string>& headers) const;
 
     bool DoDelete(size_t index,
-                  const std::string& uri) const;
+                  const std::string& uri,
+                  const std::map<std::string, std::string>& headers) const;
 
     bool DoDelete(const std::string& name,
-                  const std::string& uri) const;
+                  const std::string& uri,
+                  const std::map<std::string, std::string>& headers) const;
   };
 #endif
 

@@ -102,7 +102,17 @@
             // The modalities to display in the Modalities filter dropdown in the Study List
             "ModalitiesFilter": [
                 "CR", "CT", "DR", "DX", "MG", "MR", "NM", "OT", "PT", "PX", "SEG", "SR", "US", "XA"
-            ]
+            ],
+
+            // Defines the list of languages available in the language picker
+            // if null (default), all available languages are listed in the language picker
+            // ex: "AvailableLanguages" : ["en", "fr"],
+            // ex: "AvailableLanguages" : []  -> this won't show the language picker at all and force usage of the DefaultLanguage
+            "AvailableLanguages": null,
+            
+            // Force the default language.  If null (default), the language is the language from the visitor's browser.
+            // ex: "DefaultLanguage" : "en"
+            "DefaultLanguage" : null
           
         },
 

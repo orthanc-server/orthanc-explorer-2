@@ -43,43 +43,22 @@ export default {
     <table class="table table-responsive table-sm instance-table">
         <thead>
             <th width="2%" scope="col" class="instance-table-header"></th>
-            <th
-                width="7%"
-                scope="col"
-                class="instance-table-header cut-text"
-                data-bs-toggle="tooltip"
-                title="Instance Number"
-            >Instance Number</th>
-            <th
-                width="40%"
-                scope="col"
-                class="instance-table-header cut-text"
-                data-bs-toggle="tooltip"
-                title="SOP Instance UID"
-            >SOP Instance UID</th>
-            <th
-                width="5%"
-                scope="col"
-                class="series-table-header cut-text text-center"
-                data-bs-toggle="tooltip"
-                title="Number of Frames"
-            ># frames</th>
+            <th width="7%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
+                :title="$t('instance_number')">{{ $t('instance_number') }}</th>
+            <th width="40%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
+                title="SOP Instance UID">SOP Instance UID</th>
+            <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
+                :title="$t('number_of_frames')"># {{$t('frames')}}</th>
         </thead>
-        <InstanceItem
-            v-for="instanceId in sortedInstancesIds"
-            :key="instanceId"
-            :instanceId="instanceId"
-            :instanceInfo="instancesInfo[instanceId]"
-            :studyMainDicomTags="this.studyMainDicomTags"
-            :seriesMainDicomTags="this.seriesMainDicomTags"
-            :patientMainDicomTags="this.patientMainDicomTags"
-            @deletedInstance="onDeletedInstance"
-        ></InstanceItem>
+        <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
+            :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"
+            :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+            @deletedInstance="onDeletedInstance"></InstanceItem>
     </table>
 </template>
 
 <style>
-.instance-table > :not(:first-child) {
+.instance-table> :not(:first-child) {
     border-top: 0px !important;
 }
 

@@ -1885,7 +1885,8 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoGet(MemoryBuffer& target,
                            size_t index,
-                           const std::string& uri) const
+                           const std::string& uri,
+                           const std::map<std::string, std::string>& headers) const
   {
     if (index >= index_.size())
     {
@@ -1894,10 +1895,12 @@ namespace OrthancPlugins
 
     OrthancPlugins::MemoryBuffer answer;
     uint16_t status;
+    PluginHttpHeaders pluginHeaders(headers);
+
     OrthancPluginErrorCode code = OrthancPluginCallPeerApi
       (GetGlobalContext(), *answer, NULL, &status, peers_,
        static_cast<uint32_t>(index), OrthancPluginHttpMethod_Get, uri.c_str(),
-       0, NULL, NULL, NULL, 0, timeout_);
+       pluginHeaders.GetSize(), pluginHeaders.GetKeys(), pluginHeaders.GetValues(), NULL, 0, timeout_);
 
     if (code == OrthancPluginErrorCode_Success)
     {
@@ -1913,21 +1916,23 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoGet(MemoryBuffer& target,
                            const std::string& name,
-                           const std::string& uri) const
+                           const std::string& uri,
+                           const std::map<std::string, std::string>& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
-            DoGet(target, index, uri));
+            DoGet(target, index, uri, headers));
   }
 
 
   bool OrthancPeers::DoGet(Json::Value& target,
                            size_t index,
-                           const std::string& uri) const
+                           const std::string& uri,
+                           const std::map<std::string, std::string>& headers) const
   {
     MemoryBuffer buffer;
 
-    if (DoGet(buffer, index, uri))
+    if (DoGet(buffer, index, uri, headers))
     {
       buffer.ToJson(target);
       return true;
@@ -1941,11 +1946,12 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoGet(Json::Value& target,
                            const std::string& name,
-                           const std::string& uri) const
+                           const std::string& uri,
+                           const std::map<std::string, std::string>& headers) const
   {
     MemoryBuffer buffer;
 
-    if (DoGet(buffer, name, uri))
+    if (DoGet(buffer, name, uri, headers))
     {
       buffer.ToJson(target);
       return true;
@@ -1960,22 +1966,24 @@ namespace OrthancPlugins
   bool OrthancPeers::DoPost(MemoryBuffer& target,
                             const std::string& name,
                             const std::string& uri,
-                            const std::string& body) const
+                            const std::string& body,
+                            const std::map<std::string, std::string>& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
-            DoPost(target, index, uri, body));
+            DoPost(target, index, uri, body, headers));
   }
 
 
   bool OrthancPeers::DoPost(Json::Value& target,
                             size_t index,
                             const std::string& uri,
-                            const std::string& body) const
+                            const std::string& body,
+                            const std::map<std::string, std::string>& headers) const
   {
     MemoryBuffer buffer;
 
-    if (DoPost(buffer, index, uri, body))
+    if (DoPost(buffer, index, uri, body, headers))
     {
       buffer.ToJson(target);
       return true;
@@ -1990,11 +1998,12 @@ namespace OrthancPlugins
   bool OrthancPeers::DoPost(Json::Value& target,
                             const std::string& name,
                             const std::string& uri,
-                            const std::string& body) const
+                            const std::string& body,
+                            const std::map<std::string, std::string>& headers) const
   {
     MemoryBuffer buffer;
 
-    if (DoPost(buffer, name, uri, body))
+    if (DoPost(buffer, name, uri, body, headers))
     {
       buffer.ToJson(target);
       return true;
@@ -2009,7 +2018,8 @@ namespace OrthancPlugins
   bool OrthancPeers::DoPost(MemoryBuffer& target,
                             size_t index,
                             const std::string& uri,
-                            const std::string& body) const
+                            const std::string& body,
+                            const std::map<std::string, std::string>& headers) const
   {
     if (index >= index_.size())
     {
@@ -2024,10 +2034,12 @@ namespace OrthancPlugins
 
     OrthancPlugins::MemoryBuffer answer;
     uint16_t status;
+    PluginHttpHeaders pluginHeaders(headers);
+
     OrthancPluginErrorCode code = OrthancPluginCallPeerApi
       (GetGlobalContext(), *answer, NULL, &status, peers_,
        static_cast<uint32_t>(index), OrthancPluginHttpMethod_Post, uri.c_str(),
-       0, NULL, NULL, body.empty() ? NULL : body.c_str(), body.size(), timeout_);
+       pluginHeaders.GetSize(), pluginHeaders.GetKeys(), pluginHeaders.GetValues(), body.empty() ? NULL : body.c_str(), body.size(), timeout_);
 
     if (code == OrthancPluginErrorCode_Success)
     {
@@ -2043,7 +2055,8 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoPut(size_t index,
                            const std::string& uri,
-                           const std::string& body) const
+                           const std::string& body,
+                           const std::map<std::string, std::string>& headers) const
   {
     if (index >= index_.size())
     {
@@ -2058,10 +2071,12 @@ namespace OrthancPlugins
 
     OrthancPlugins::MemoryBuffer answer;
     uint16_t status;
+    PluginHttpHeaders pluginHeaders(headers);
+
     OrthancPluginErrorCode code = OrthancPluginCallPeerApi
       (GetGlobalContext(), *answer, NULL, &status, peers_,
        static_cast<uint32_t>(index), OrthancPluginHttpMethod_Put, uri.c_str(),
-       0, NULL, NULL, body.empty() ? NULL : body.c_str(), body.size(), timeout_);
+       pluginHeaders.GetSize(), pluginHeaders.GetKeys(), pluginHeaders.GetValues(), body.empty() ? NULL : body.c_str(), body.size(), timeout_);
 
     if (code == OrthancPluginErrorCode_Success)
     {
@@ -2076,16 +2091,18 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoPut(const std::string& name,
                            const std::string& uri,
-                           const std::string& body) const
+                           const std::string& body,
+                           const std::map<std::string, std::string>& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
-            DoPut(index, uri, body));
+            DoPut(index, uri, body, headers));
   }
 
 
   bool OrthancPeers::DoDelete(size_t index,
-                              const std::string& uri) const
+                              const std::string& uri,
+                              const std::map<std::string, std::string>& headers) const
   {
     if (index >= index_.size())
     {
@@ -2094,10 +2111,12 @@ namespace OrthancPlugins
 
     OrthancPlugins::MemoryBuffer answer;
     uint16_t status;
+    PluginHttpHeaders pluginHeaders(headers);
+
     OrthancPluginErrorCode code = OrthancPluginCallPeerApi
       (GetGlobalContext(), *answer, NULL, &status, peers_,
        static_cast<uint32_t>(index), OrthancPluginHttpMethod_Delete, uri.c_str(),
-       0, NULL, NULL, NULL, 0, timeout_);
+       pluginHeaders.GetSize(), pluginHeaders.GetKeys(), pluginHeaders.GetValues(), NULL, 0, timeout_);
 
     if (code == OrthancPluginErrorCode_Success)
     {
@@ -2111,11 +2130,12 @@ namespace OrthancPlugins
 
 
   bool OrthancPeers::DoDelete(const std::string& name,
-                              const std::string& uri) const
+                              const std::string& uri,
+                              const std::map<std::string, std::string>& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
-            DoDelete(index, uri));
+            DoDelete(index, uri, headers));
   }
 #endif
 

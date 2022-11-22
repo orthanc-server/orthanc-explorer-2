@@ -182,6 +182,22 @@ export default {
         },
         ohifViewerIcon() {
             return this.getViewerIcon("ohif");
+        },
+        deleteResourceTitle() {
+            const texts = {
+                "study" : "delete_study_title",
+                "series" : "delete_series_title",
+                "instance": "delete_instance_title"
+            }
+            return texts[this.resourceLevel];
+        },
+        deleteResourceBody() {
+            const texts = {
+                "study" : "delete_study_body",
+                "series" : "delete_series_body",
+                "instance": "delete_instance_body"
+            }
+            return texts[this.resourceLevel];
         }
     },
     components: { Modal, ShareModal }
@@ -193,42 +209,42 @@ export default {
         <div class="btn-group">
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
             <a v-if="hasMedDreamViewer && viewer=='meddream' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1"
-                type="button" data-bs-toggle="tooltip" title="View in MedDream" target="blank" @click="openMedDream"
+                type="button" data-bs-toggle="tooltip" :title="$t('view_in_meddream')" target="blank" @click="openMedDream"
                 v-bind:href="medDreamViewerUrl">
                 <i :class="medDreamViewerIcon"></i>
             </a>
             <a v-if="hasOsimisViewer && viewer=='osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="View in OsimisViewer"
+                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="$t('view_in_osimis')"
                 target="blank" v-bind:href="osimisViewerUrl">
                 <i :class="osimisViewerIcon"></i>
             </a>
             <a v-if="hasStoneViewer && viewer=='stone-webviewer' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="View in StoneViewer" target="blank" v-bind:href="stoneViewerUrl">
+                data-bs-toggle="tooltip" :title="$t('view_in_stone')" target="blank" v-bind:href="stoneViewerUrl">
                 <i :class="stoneViewerIcon"></i>
             </a>
             <a v-if="hasOhifViewer && viewer=='ohif' && this.resourceLevel == 'study'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="View in OHIF" target="blank" v-bind:href="ohifViewerUrl">
+                data-bs-toggle="tooltip" :title="$t('view_in_ohif')" target="blank" v-bind:href="ohifViewerUrl">
                 <i :class="ohifViewerIcon"></i>
             </a>
             </span>
             <a v-if="this.resourceLevel == 'instance'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" title="Preview" target="blank" v-bind:href="instancePreviewUrl">
+                data-bs-toggle="tooltip" :title="`${$t('preview')}`" target="blank" v-bind:href="instancePreviewUrl">
                 <i class="bi bi-binoculars"></i>
             </a>
         </div>
         <div class="btn-group">
             <a v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="Download ZIP"
+                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="`${$t('download_zip')}`"
                 v-bind:href="downloadZipUrl">
                 <i class="bi bi-download"></i>
             </a>
             <a v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="Download DICOMDIR"
+                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="`${$t('download_dicomdir')}`"
                 v-bind:href="downloadDicomDirUrl">
                 <i class="bi bi-box-arrow-down"></i>
             </a>
             <a v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" title="Download DICOM file"
+                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="`${$t('download_dicom_file')}`"
                 v-bind:href="instanceDownloadUrl">
                 <i class="bi bi-download"></i>
             </a>
@@ -239,28 +255,24 @@ export default {
             class="btn btn-sm btn-secondary m-1"
             type="button"
             data-bs-toggle="tooltip"
-            title="Anonymize (TODO)"
+            :title="`${$t('anonymize')}`"
         >
             <i class="bi bi-person-x"></i>
         </button> -->
             <button v-if="uiOptions.EnableDeleteResources" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId">
-                <i class="bi bi-trash" data-bs-toggle="tooltip" title="Delete"></i>
+                <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
             </button>
             <Modal v-if="uiOptions.EnableDeleteResources" :id="'delete-modal-' + this.resourceOrthancId"
-                :headerText="'Delete ' + this.resourceTitle + ' ?'" :okText="'Delete'" :cancelText="'Cancel'"
-                :bodyText="'Are you sure you want to delete this ' + this.resourceLevel + ' ?<br/>  This action can not be undone !'"
+                :headerText="$t(this.deleteResourceTitle) + ' ' + this.resourceTitle" :okText="$t('delete')" :cancelText="$t('cancel')"
+                :bodyText="$t(this.deleteResourceBody)"
                 @ok="deleteResource($event)">
-                <template #modalBody>
-                    <p>Are you sure you want to delete this {{ this.resourceLevel }} ?<br />This action can not be
-                        undone !</p>
-                </template>
             </Modal>
         </div>
         <div class="btn-group">
             <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
-                <i class="bi bi-share" data-bs-toggle="tooltip" title="Share"></i>
+                <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
             <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
@@ -277,9 +289,7 @@ export default {
                 <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId"
                     v-if="uiOptions.EnableApiViewMenu">
                     <li>
-                        <button class="dropdown-item" href="#" @click="copyIdToClipboard">copy {{
-                                this.resourceLevel
-                        }} orthanc id</button>
+                        <button class="dropdown-item" href="#" @click="copyIdToClipboard">{{$t('copy_orthanc_id')}}</button>
                     </li>
                     <li>
                         <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('')">/</a>
@@ -303,14 +313,14 @@ export default {
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span data-bs-toggle="tooltip" title="Send">
+                    <span data-bs-toggle="tooltip" :title="$t('send_to.button_title')">
                         <i class="bi bi-send"></i>
                     </span>
                 </button>
                 <ul class="dropdown-menu bg-dropdown" aria-labelledby="sendToDropdownMenuId" v-if="hasSendTo">
                     <li v-if="hasSendToPeers" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            Orthanc peers
+                            {{ $t('send_to.orthanc_peer') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
@@ -321,7 +331,7 @@ export default {
                     </li>
                     <li v-if="hasSendToPeersWithTransfer" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            Advanced transfers
+                            {{ $t('send_to.transfers') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
@@ -332,7 +342,7 @@ export default {
                     </li>
                     <li v-if="hasSendToDicomWeb" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            Dicom WEB
+                            {{ $t('send_to.dicom_web') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">
@@ -343,7 +353,7 @@ export default {
                     </li>
                     <li v-if="hasSendToDicomModalities" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
-                            DICOM
+                            {{ $t('send_to.dicom') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu bg-dropdown">

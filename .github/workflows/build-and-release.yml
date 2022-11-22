@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Get branch/tag name
         id: branch-name
-        uses: tj-actions/branch-names@v5.1
+        uses: tj-actions/branch-names@v6
         # output: steps.branch-name.outputs.current_branch contains the branch or the tag
 
   build-web-app:
@@ -32,9 +32,9 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: [pre-build]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/setup-node@v2
+    - uses: actions/setup-node@v3
       with:
         node-version: '14'
 
@@ -54,7 +54,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: web-app-dist
         path: WebApplication/dist/
@@ -72,37 +72,40 @@ jobs:
             artifact: "OrthancExplorer2.dll",
             artifactPath: "Release\\OrthancExplorer2.dll",
             triplet: x64-windows,
-            os: windows-latest
+            os: windows-latest,
+            extraCMakeFlags: ""
           }
         - {
             name: "Ubuntu", 
             artifact: "libOrthancExplorer2.so",
             artifactPath: "libOrthancExplorer2.so",
             triplet: x64-linux,
-            os: ubuntu-latest
+            os: ubuntu-latest,
+            extraCMakeFlags: ""
           }
         - {
             name: "MacOSX", 
             artifact: "libOrthancExplorer2.dylib",
             artifactPath: "libOrthancExplorer2.dylib",
             triplet: x64-osx,
-            os: macos-latest
+            os: macos-latest,
+            extraCMakeFlags: "-DUSE_LEGACY_BOOST=ON"
           }
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: show gitref / tags
       run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
       id: download
       with:
         name: web-app-dist
         path: WebApplication/dist
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}"  -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.10.0" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build  ${{matrix.config.extraCMakeFlags}} -DORTHANC_FRAMEWORK_SOURCE=web -DORTHANC_FRAMEWORK_VERSION="1.11.2" -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}" -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       env: 
         MAKEFLAG: -j4
 
@@ -112,10 +115,27 @@ jobs:
         MAKEFLAG: -j4
 
     - name: Upload
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
+
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
+
+
+  check-translations:
+    name: check-translations
+    runs-on: "ubuntu-latest"
+    needs: [pre-build]
+    steps:
+    - uses: actions/checkout@v3
+
+    - run: python3 ./scripts/check-translations.py
+
 
   release:
     needs: [build, pre-build]
@@ -138,7 +158,7 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v3
       with:
         path: ./upload_url
         name: upload_url
@@ -174,13 +194,13 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: ${{ matrix.config.artifact }}
         path: ./
 
     - name: Download URL
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: upload_url
         path: ./

@@ -115,7 +115,7 @@ export default {
                 const studyResponse = await api.getStudy(studyId);
                 this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse.data;
 
-                this.$store.dispatch('studies/addStudy', {study: studyResponse.data, studyId: studyId});
+                this.$store.dispatch('studies/addStudy', { study: studyResponse.data, studyId: studyId });
             }
         },
         async uploadFiles(files) {
@@ -181,25 +181,22 @@ export default {
 <template>
     <div>
         <div class="upload-handler-drop-zone" @drop="this.onDrop" @dragover="this.onDragOver">
-            <div class="mb-3">Drop files here or</div>
-                <div class="mb-3">
+            <div class="mb-3">{{ $t('drop_files') }}</div>
+            <div class="mb-3">
                 <label class="btn btn-primary btn-file">
-                Select folder <input type="file" style="display: none;" id="foldersUpload" required multiple directory webkitdirectory allowdirs>
+                    {{ $t('select_folder') }} <input type="file" style="display: none;" id="foldersUpload" required
+                        multiple directory webkitdirectory allowdirs>
                 </label>
             </div>
             <div class="mb-3">
                 <label class="btn btn-primary btn-file">
-                Select files <input type="file" style="display: none;" id="filesUpload" required multiple>
+                    {{ $t('select_files') }} <input type="file" style="display: none;" id="filesUpload" required multiple>
                 </label>
             </div>
         </div>
         <div class="upload-report-list">
-            <UploadReport
-                v-for="(upload, key) in lastUploadReports"
-                :report="upload"
-                :key="key"
-                @deletedUploadReport="onDeletedUploadReport"
-            ></UploadReport>
+            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key"
+                @deletedUploadReport="onDeletedUploadReport"></UploadReport>
         </div>
     </div>
 </template>
@@ -225,6 +222,7 @@ export default {
     line-height: 1.6;
     text-align: left;
 }
+
 .jobs-body a {
     color: black;
     text-decoration: underline;
@@ -239,6 +237,7 @@ export default {
     border-color: gray;
     border-style: solid;
 }
+
 .job-card {
     margin-bottom: 2px;
 }

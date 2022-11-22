@@ -47,29 +47,29 @@ export default {
                 scope="col"
                 class="series-table-header cut-text"
                 data-bs-toggle="tooltip"
-                title="Series Number"
-            >Series Number</th>
-            <th
+                :title="$t('number_of_series')"
+                >{{$t('series_number')}}</th>
+                <th
                 width="40%"
                 scope="col"
                 class="series-table-header cut-text"
                 data-bs-toggle="tooltip"
-                title="Series Description"
-            >Series Description</th>
-            <th
+                :title="$t('series_description')"
+                >{{$t('series_description')}}</th>
+                <th
                 width="11%"
                 scope="col"
                 class="series-table-header cut-text text-center"
                 data-bs-toggle="tooltip"
-                title="Modality"
-            >Modality</th>
-            <th
+                :title="$t('modality')"
+                >{{$t('modality')}}</th>
+                <th
                 width="5%"
                 scope="col"
                 class="series-table-header cut-text text-center"
                 data-bs-toggle="tooltip"
-                title="Number of Instances"
-            ># instances</th>
+                :title="$t('instances_number')"
+                ># {{$t('instances')}}</th>
         </thead>
         <SeriesItem
             v-for="seriesId in sortedSeriesIds"

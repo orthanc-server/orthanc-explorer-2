@@ -30,23 +30,23 @@ export default {
         <tr>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyDate">Study Date</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyTime">Study Time</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyDescription" :truncate="true">Study Description</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.AccessionNumber">Accession Number</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyID">Study ID</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyDate">{{$t('study_date')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyTime">{{$t('study_time')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyDescription" :truncate="true">{{$t('study_description')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.AccessionNumber">{{$t('accession_number')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.StudyID">{{$t('study_id')}}</ResourceDetailText>
                     <ResourceDetailText :value="studyMainDicomTags.StudyInstanceUID" :truncate="true">Study Instance UID</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.RequestingPhysician">RequestingPhysician</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.ReferringPhysicianName">ReferringPhysicianName</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.InstitutionName">InstitutionName</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.RequestingPhysician">{{$t('requesting_physician')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.ReferringPhysicianName">{{$t('referring_physician_name')}}</ResourceDetailText>
+                    <ResourceDetailText :value="studyMainDicomTags.InstitutionName">{{$t('institution_name')}}</ResourceDetailText>
                 </ul>
             </td>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientID">Patient ID</ResourceDetailText>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientName">Patient Name</ResourceDetailText>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientBirthDate">Patient Birth Date</ResourceDetailText>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientSex">Patient Sex</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientID">{{$t('patient_id')}}</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientName">{{$t('patient_name')}}</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientBirthDate">{{$t('patient_birth_date')}}</ResourceDetailText>
+                    <ResourceDetailText :value="patientMainDicomTags.PatientSex">{{$t('patient_sex')}}</ResourceDetailText>
                 </ul>
             </td>
             <td width="20%" class="study-button-group">

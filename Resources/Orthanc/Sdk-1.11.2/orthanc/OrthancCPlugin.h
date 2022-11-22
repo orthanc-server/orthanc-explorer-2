@@ -27,8 +27,10 @@
  *    - Possibly register a callback to refresh its metrics using OrthancPluginRegisterRefreshMetricsCallback().
  *    - Possibly register a callback to answer chunked HTTP transfers using ::OrthancPluginRegisterChunkedRestCallback().
  *    - Possibly register a callback for Storage Commitment SCP using ::OrthancPluginRegisterStorageCommitmentScpCallback().
- *    - Possibly register a callback to filter incoming DICOM instance using OrthancPluginRegisterIncomingDicomInstanceFilter().
+ *    - Possibly register a callback to keep/discard/modify incoming DICOM instances using OrthancPluginRegisterReceivedInstanceCallback().
  *    - Possibly register a custom transcoder for DICOM images using OrthancPluginRegisterTranscoderCallback().
+ *    - Possibly register a callback to discard instances received through DICOM C-STORE using OrthancPluginRegisterIncomingCStoreInstanceFilter().
+ *    - Possibly register a callback to branch a WebDAV virtual filesystem using OrthancPluginRegisterWebDavCollection().
  * -# <tt>void OrthancPluginFinalize()</tt>:
  *    This function is invoked by Orthanc during its shutdown. The plugin
  *    must free all its memory.
@@ -83,7 +85,7 @@
  * Orthanc - A Lightweight, RESTful DICOM Store
  * Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
  * Department, University Hospital of Liege, Belgium
- * Copyright (C) 2017-2021 Osimis S.A., Belgium
+ * Copyright (C) 2017-2022 Osimis S.A., Belgium
  * Copyright (C) 2021-2022 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
  *
  * This program is free software: you can redistribute it and/or
@@ -117,7 +119,7 @@
 #endif
 
 #define ORTHANC_PLUGINS_MINIMAL_MAJOR_NUMBER     1
-#define ORTHANC_PLUGINS_MINIMAL_MINOR_NUMBER     9
+#define ORTHANC_PLUGINS_MINIMAL_MINOR_NUMBER     11
 #define ORTHANC_PLUGINS_MINIMAL_REVISION_NUMBER  2
 
 
@@ -242,6 +244,7 @@ extern "C"
     OrthancPluginErrorCode_BadRange = 41    /*!< Incorrect range request */,
     OrthancPluginErrorCode_DatabaseCannotSerialize = 42    /*!< Database could not serialize access due to concurrent update, the transaction should be retried */,
     OrthancPluginErrorCode_Revision = 43    /*!< A bad revision number was provided, which might indicate conflict between multiple writers */,
+    OrthancPluginErrorCode_MainDicomTagsMultiplyDefined = 44    /*!< A main DICOM Tag has been defined multiple times for the same resource level */,
     OrthancPluginErrorCode_SQLiteNotOpened = 1000    /*!< SQLite: The database is not opened */,
     OrthancPluginErrorCode_SQLiteAlreadyOpened = 1001    /*!< SQLite: Connection is already open */,
     OrthancPluginErrorCode_SQLiteCannotOpen = 1002    /*!< SQLite: Unable to open the database */,
@@ -443,7 +446,8 @@ extern "C"
     _OrthancPluginService_GenerateRestApiAuthorizationToken = 39,   /* New in Orthanc 1.8.1 */
     _OrthancPluginService_CreateMemoryBuffer64 = 40, /* New in Orthanc 1.9.0 */
     _OrthancPluginService_CreateDicom2 = 41,         /* New in Orthanc 1.9.0 */
-    
+    _OrthancPluginService_GetDatabaseServerIdentifier = 42,         /* New in Orthanc 1.11.1 */
+
     /* Registration of callbacks */
     _OrthancPluginService_RegisterRestCallback = 1000,
     _OrthancPluginService_RegisterOnStoredInstanceCallback = 1001,
@@ -462,7 +466,10 @@ extern "C"
     _OrthancPluginService_RegisterIncomingDicomInstanceFilter = 1014,
     _OrthancPluginService_RegisterTranscoderCallback = 1015,   /* New in Orthanc 1.7.0 */
     _OrthancPluginService_RegisterStorageArea2 = 1016,         /* New in Orthanc 1.9.0 */
-    
+    _OrthancPluginService_RegisterIncomingCStoreInstanceFilter = 1017,  /* New in Orthanc 1.10.0 */
+    _OrthancPluginService_RegisterReceivedInstanceCallback = 1018,  /* New in Orthanc 1.10.0 */
+    _OrthancPluginService_RegisterWebDavCollection = 1019,     /* New in Orthanc 1.10.1 */
+
     /* Sending answers to REST calls */
     _OrthancPluginService_AnswerBuffer = 2000,
     _OrthancPluginService_CompressAndAnswerPngImage = 2001,  /* Unused as of Orthanc 0.9.4 */
@@ -1000,7 +1007,19 @@ extern "C"
       is already in use */
   } OrthancPluginStorageCommitmentFailureReason;
 
-  
+
+  /**
+   * The action to be taken after ReceivedInstanceCallback is triggered
+   **/
+  typedef enum
+  {
+    OrthancPluginReceivedInstanceAction_KeepAsIs = 1, /*!< Keep the instance as is */
+    OrthancPluginReceivedInstanceAction_Modify = 2,   /*!< Modify the instance */
+    OrthancPluginReceivedInstanceAction_Discard = 3,  /*!< Discard the instance */
+
+    _OrthancPluginReceivedInstanceAction_INTERNAL = 0x7fffffff
+  } OrthancPluginReceivedInstanceAction;
+
 
   /**
    * @brief A 32-bit memory buffer allocated by the core system of Orthanc.
@@ -1049,7 +1068,7 @@ extern "C"
 
   /**
    * @brief Opaque structure that represents the HTTP connection to the client application.
-   * @ingroup Callback
+   * @ingroup Callbacks
    **/
   typedef struct _OrthancPluginRestOutput_t OrthancPluginRestOutput;
 
@@ -1356,7 +1375,7 @@ extern "C"
    * @param headersKeys The keys of the HTTP headers (always converted to low-case).
    * @param headersValues The values of the HTTP headers.
    * @return 0 if forbidden access, 1 if allowed access, -1 if error.
-   * @ingroup Callback
+   * @ingroup Callbacks
    * @deprecated Please instead use OrthancPluginIncomingHttpRequestFilter2()
    **/
   typedef int32_t (*OrthancPluginIncomingHttpRequestFilter) (
@@ -1392,7 +1411,7 @@ extern "C"
    * @param getArgumentsKeys The keys of the GET arguments (only for the GET HTTP method).
    * @param getArgumentsValues The values of the GET arguments (only for the GET HTTP method).
    * @return 0 if forbidden access, 1 if allowed access, -1 if error.
-   * @ingroup Callback
+   * @ingroup Callbacks
    **/
   typedef int32_t (*OrthancPluginIncomingHttpRequestFilter2) (
     OrthancPluginHttpMethod  method,
@@ -1842,7 +1861,8 @@ extern "C"
         sizeof(int32_t) != sizeof(OrthancPluginConstraintType) ||
         sizeof(int32_t) != sizeof(OrthancPluginMetricsType) ||
         sizeof(int32_t) != sizeof(OrthancPluginDicomWebBinaryMode) ||
-        sizeof(int32_t) != sizeof(OrthancPluginStorageCommitmentFailureReason))
+        sizeof(int32_t) != sizeof(OrthancPluginStorageCommitmentFailureReason) ||
+        sizeof(int32_t) != sizeof(OrthancPluginReceivedInstanceAction))
     {
       /* Mismatch in the size of the enumerations */
       return 0;
@@ -2105,7 +2125,7 @@ extern "C"
    * @warning Your callback function will be called synchronously with
    * the core of Orthanc. This implies that deadlocks might emerge if
    * you call other core primitives of Orthanc in your callback (such
-   * deadlocks are particular visible in the presence of other plugins
+   * deadlocks are particularly visible in the presence of other plugins
    * or Lua scripts). It is thus strongly advised to avoid any call to
    * the REST API of Orthanc in the callback. If you have to call
    * other primitives of Orthanc, you should make these calls in a
@@ -3283,7 +3303,7 @@ extern "C"
    * @warning Your callback function will be called synchronously with
    * the core of Orthanc. This implies that deadlocks might emerge if
    * you call other core primitives of Orthanc in your callback (such
-   * deadlocks are particular visible in the presence of other plugins
+   * deadlocks are particularly visible in the presence of other plugins
    * or Lua scripts). It is thus strongly advised to avoid any call to
    * the REST API of Orthanc in the callback. If you have to call
    * other primitives of Orthanc, you should make these calls in a
@@ -3810,7 +3830,7 @@ extern "C"
   {
     OrthancPluginRestOutput* output;
     uint16_t                 status;
-    const char*              body;
+    const void*              body;
     uint32_t                 bodySize;
   } _OrthancPluginSendHttpStatus;
 
@@ -3840,7 +3860,7 @@ extern "C"
     OrthancPluginContext*    context,
     OrthancPluginRestOutput* output,
     uint16_t                 status,
-    const char*              body,
+    const void*              body,
     uint32_t                 bodySize)
   {
     _OrthancPluginSendHttpStatus params;
@@ -7393,7 +7413,7 @@ extern "C"
 
   /**
    * @brief Opaque structure that reads the content of a HTTP request body during a chunked HTTP transfer.
-   * @ingroup Callback
+   * @ingroup Callbacks
    **/
   typedef struct _OrthancPluginServerChunkedRequestReader_t OrthancPluginServerChunkedRequestReader;
 
@@ -7688,7 +7708,7 @@ extern "C"
    * @param factory Factory function that creates the handler object
    * for incoming storage commitment requests.
    * @param destructor Destructor function to destroy the handler object.
-   * @param lookup Callback method to get the status of one DICOM instance.
+   * @param lookup Callback function to get the status of one DICOM instance.
    * @return 0 if success, other value if error.
    * @ingroup DicomCallbacks
    **/
@@ -7718,9 +7738,19 @@ extern "C"
    * Note that the metadata information is not available
    * (i.e. GetInstanceMetadata() should not be used on "instance").
    *
+   * @warning Your callback function will be called synchronously with
+   * the core of Orthanc. This implies that deadlocks might emerge if
+   * you call other core primitives of Orthanc in your callback (such
+   * deadlocks are particularly visible in the presence of other plugins
+   * or Lua scripts). It is thus strongly advised to avoid any call to
+   * the REST API of Orthanc in the callback. If you have to call
+   * other primitives of Orthanc, you should make these calls in a
+   * separate thread, passing the pending events to be processed
+   * through a message queue.
+   * 
    * @param instance The received DICOM instance.
    * @return 0 to discard the instance, 1 to store the instance, -1 if error.
-   * @ingroup Callback
+   * @ingroup Callbacks
    **/
   typedef int32_t (*OrthancPluginIncomingDicomInstanceFilter) (
     const OrthancPluginDicomInstance* instance);
@@ -7738,16 +7768,6 @@ extern "C"
    * DICOM instances received by Orthanc (either through the REST API
    * or through the DICOM protocol).
    *
-   * @warning Your callback function will be called synchronously with
-   * the core of Orthanc. This implies that deadlocks might emerge if
-   * you call other core primitives of Orthanc in your callback (such
-   * deadlocks are particular visible in the presence of other plugins
-   * or Lua scripts). It is thus strongly advised to avoid any call to
-   * the REST API of Orthanc in the callback. If you have to call
-   * other primitives of Orthanc, you should make these calls in a
-   * separate thread, passing the pending events to be processed
-   * through a message queue.
-   * 
    * @param context The Orthanc plugin context, as received by OrthancPluginInitialize().
    * @param callback The callback.
    * @return 0 if success, other value if error.
@@ -7763,6 +7783,145 @@ extern "C"
     return context->InvokeService(context, _OrthancPluginService_RegisterIncomingDicomInstanceFilter, &params);
   }
 
+
+  /**
+   * @brief Callback to filter incoming DICOM instances received by 
+   * Orthanc through C-STORE.
+   *
+   * Signature of a callback function that is triggered whenever
+   * Orthanc receives a new DICOM instance using DICOM C-STORE, and
+   * that answers whether this DICOM instance should be accepted or
+   * discarded by Orthanc. If the instance is discarded, the callback
+   * can specify the DIMSE error code answered by the Orthanc C-STORE
+   * SCP.
+   *
+   * Note that the metadata information is not available
+   * (i.e. GetInstanceMetadata() should not be used on "instance").
+   *
+   * @warning Your callback function will be called synchronously with
+   * the core of Orthanc. This implies that deadlocks might emerge if
+   * you call other core primitives of Orthanc in your callback (such
+   * deadlocks are particularly visible in the presence of other plugins
+   * or Lua scripts). It is thus strongly advised to avoid any call to
+   * the REST API of Orthanc in the callback. If you have to call
+   * other primitives of Orthanc, you should make these calls in a
+   * separate thread, passing the pending events to be processed
+   * through a message queue.
+   *
+   * @param dimseStatus If the DICOM instance is discarded, 
+   * DIMSE status to be sent by the C-STORE SCP of Orthanc
+   * @param instance The received DICOM instance.
+   * @return 0 to discard the instance, 1 to store the instance, -1 if error.
+   * @ingroup Callbacks
+   **/
+  typedef int32_t (*OrthancPluginIncomingCStoreInstanceFilter) (
+    uint16_t* dimseStatus /* out */,
+    const OrthancPluginDicomInstance* instance);
+
+
+  typedef struct
+  {
+    OrthancPluginIncomingCStoreInstanceFilter callback;
+  } _OrthancPluginIncomingCStoreInstanceFilter;
+
+  /**
+   * @brief Register a callback to filter incoming DICOM instances
+   * received by Orthanc through C-STORE.
+   *
+   * This function registers a custom callback to filter incoming
+   * DICOM instances received by Orthanc through the DICOM protocol.
+   *
+   * @param context The Orthanc plugin context, as received by OrthancPluginInitialize().
+   * @param callback The callback.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  ORTHANC_PLUGIN_INLINE OrthancPluginErrorCode OrthancPluginRegisterIncomingCStoreInstanceFilter(
+    OrthancPluginContext*                      context,
+    OrthancPluginIncomingCStoreInstanceFilter  callback)
+  {
+    _OrthancPluginIncomingCStoreInstanceFilter params;
+    params.callback = callback;
+
+    return context->InvokeService(context, _OrthancPluginService_RegisterIncomingCStoreInstanceFilter, &params);
+  }
+
+  /**
+   * @brief Callback to keep/discard/modify a DICOM instance received
+   * by Orthanc from any source (C-STORE or REST API)
+   *
+   * Signature of a callback function that is triggered whenever
+   * Orthanc receives a new DICOM instance (through DICOM protocol or
+   * REST API), and that specifies an action to be applied to this
+   * newly received instance. The instance can be kept as it is, can
+   * be modified by the plugin, or can be discarded.
+   *
+   * This callback is invoked immediately after reception, i.e. before
+   * transcoding and before filtering
+   * (cf. OrthancPluginRegisterIncomingDicomInstanceFilter()).
+   *
+   * @warning Your callback function will be called synchronously with
+   * the core of Orthanc. This implies that deadlocks might emerge if
+   * you call other core primitives of Orthanc in your callback (such
+   * deadlocks are particularly visible in the presence of other plugins
+   * or Lua scripts). It is thus strongly advised to avoid any call to
+   * the REST API of Orthanc in the callback. If you have to call
+   * other primitives of Orthanc, you should make these calls in a
+   * separate thread, passing the pending events to be processed
+   * through a message queue.
+   *
+   * @param modifiedDicomBuffer A buffer containing the modified DICOM (output).
+   * This buffer must be allocated using OrthancPluginCreateMemoryBuffer64()
+   * and will be freed by the Orthanc core.
+   * @param receivedDicomBuffer A buffer containing the received DICOM (input).
+   * @param receivedDicomBufferSize The size of the received DICOM (input).
+   * @param origin The origin of the DICOM instance (input).
+   * @return `OrthancPluginReceivedInstanceAction_KeepAsIs` to accept the instance as is,<br/>
+   *         `OrthancPluginReceivedInstanceAction_Modify` to store the modified DICOM contained in `modifiedDicomBuffer`,<br/>
+   *         `OrthancPluginReceivedInstanceAction_Discard` to tell Orthanc to discard the instance.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginReceivedInstanceAction (*OrthancPluginReceivedInstanceCallback) (
+    OrthancPluginMemoryBuffer64* modifiedDicomBuffer,
+    const void* receivedDicomBuffer,
+    uint64_t receivedDicomBufferSize,
+    OrthancPluginInstanceOrigin origin);
+
+
+  typedef struct
+  {
+    OrthancPluginReceivedInstanceCallback callback;
+  } _OrthancPluginReceivedInstanceCallback;
+
+  /**
+   * @brief Register a callback to keep/discard/modify a DICOM instance received
+   * by Orthanc from any source (C-STORE or REST API)
+   *
+   * This function registers a custom callback to keep/discard/modify
+   * incoming DICOM instances received by Orthanc from any source
+   * (C-STORE or REST API).
+   * 
+   * @warning Contrarily to
+   * OrthancPluginRegisterIncomingCStoreInstanceFilter() and
+   * OrthancPluginRegisterIncomingDicomInstanceFilter() that can be
+   * called by multiple plugins,
+   * OrthancPluginRegisterReceivedInstanceCallback() can only be used
+   * by one single plugin.
+   *
+   * @param context The Orthanc plugin context, as received by OrthancPluginInitialize().
+   * @param callback The callback.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  ORTHANC_PLUGIN_INLINE OrthancPluginErrorCode OrthancPluginRegisterReceivedInstanceCallback(
+    OrthancPluginContext*                     context,
+    OrthancPluginReceivedInstanceCallback     callback)
+  {
+    _OrthancPluginReceivedInstanceCallback params;
+    params.callback = callback;
+
+    return context->InvokeService(context, _OrthancPluginService_RegisterReceivedInstanceCallback, &params);
+  }
 
   /**
    * @brief Get the transfer syntax of a DICOM file.
@@ -8318,7 +8477,7 @@ extern "C"
   
 
   /**
-   * @brief Generate a token to grant full access to the REST API of Orthanc
+   * @brief Generate a token to grant full access to the REST API of Orthanc.
    *
    * This function generates a token that can be set in the HTTP
    * header "Authorization" so as to grant full access to the REST API
@@ -8570,6 +8729,308 @@ extern "C"
     params.afterPlugins = afterPlugins;
 
     return context->InvokeService(context, _OrthancPluginService_CallRestApi, &params);
+  }
+
+
+
+  /**
+   * @brief Opaque structure that represents a WebDAV collection.
+   * @ingroup Callbacks
+   **/
+  typedef struct _OrthancPluginWebDavCollection_t OrthancPluginWebDavCollection;
+
+
+  /**
+   * @brief Declare a file while returning the content of a folder.
+   *
+   * This function declares a file while returning the content of a
+   * WebDAV folder.
+   *
+   * @param collection Context of the collection.
+   * @param name Base name of the file.
+   * @param dateTime The date and time of creation of the file.
+   * Check out the documentation of OrthancPluginWebDavRetrieveFile() for more information.
+   * @param size Size of the file.
+   * @param mimeType The MIME type of the file. If empty or set to `NULL`,
+   * Orthanc will do a best guess depending on the file extension.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavAddFile) (
+    OrthancPluginWebDavCollection*  collection,
+    const char*                     name,
+    uint64_t                        size,
+    const char*                     mimeType,
+    const char*                     dateTime);
+
+  
+  /**
+   * @brief Declare a subfolder while returning the content of a folder.
+   *
+   * This function declares a subfolder while returning the content of a
+   * WebDAV folder.
+   *
+   * @param collection Context of the collection.
+   * @param name Base name of the subfolder.
+   * @param dateTime The date and time of creation of the subfolder.
+   * Check out the documentation of OrthancPluginWebDavRetrieveFile() for more information.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavAddFolder) (
+    OrthancPluginWebDavCollection*  collection,
+    const char*                     name,
+    const char*                     dateTime);
+
+
+  /**
+   * @brief Retrieve the content of a file.
+   *
+   * This function is used to forward the content of a file from a
+   * WebDAV collection, to the core of Orthanc.
+   *
+   * @param collection Context of the collection.
+   * @param data Content of the file.
+   * @param size Size of the file.
+   * @param mimeType The MIME type of the file. If empty or set to `NULL`,
+   * Orthanc will do a best guess depending on the file extension.
+   * @param dateTime The date and time of creation of the file.
+   * It must be formatted as an ISO string of form
+   * `YYYYMMDDTHHMMSS,fffffffff` where T is the date-time
+   * separator. It must be expressed in UTC (it is the responsibility
+   * of the plugin to do the possible timezone
+   * conversions). Internally, this string will be parsed using
+   * `boost::posix_time::from_iso_string()`.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavRetrieveFile) (
+    OrthancPluginWebDavCollection*  collection,
+    const void*                     data,
+    uint64_t                        size,
+    const char*                     mimeType,
+    const char*                     dateTime);
+
+  
+  /**
+   * @brief Callback for testing the existence of a folder.
+   *
+   * Signature of a callback function that tests whether the given
+   * path in the WebDAV collection exists and corresponds to a folder.
+   *
+   * @param isExisting Pointer to a Boolean that must be set to `1` if the folder exists, or `0` otherwise.
+   * @param pathSize Number of levels in the path.
+   * @param pathItems Items making the path.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavIsExistingFolderCallback) (
+    uint8_t*                        isExisting, /* out */
+    uint32_t                        pathSize,
+    const char* const*              pathItems,
+    void*                           payload);
+
+  
+  /**
+   * @brief Callback for listing the content of a folder.
+   *
+   * Signature of a callback function that lists the content of a
+   * folder in the WebDAV collection. The callback must call the
+   * provided `addFile()` and `addFolder()` functions to emit the
+   * content of the folder.
+   *
+   * @param isExisting Pointer to a Boolean that must be set to `1` if the folder exists, or `0` otherwise.
+   * @param collection Context to be provided to `addFile()` and `addFolder()` functions.
+   * @param addFile Function to add a file to the list.
+   * @param addFolder Function to add a folder to the list.
+   * @param pathSize Number of levels in the path.
+   * @param pathItems Items making the path.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavListFolderCallback) (
+    uint8_t*                        isExisting, /* out */
+    OrthancPluginWebDavCollection*  collection,
+    OrthancPluginWebDavAddFile      addFile,
+    OrthancPluginWebDavAddFolder    addFolder,
+    uint32_t                        pathSize,
+    const char* const*              pathItems,
+    void*                           payload);
+
+  
+  /**
+   * @brief Callback for retrieving the content of a file.
+   *
+   * Signature of a callback function that retrieves the content of a
+   * file in the WebDAV collection. The callback must call the
+   * provided `retrieveFile()` function to emit the actual content of
+   * the file.
+   *
+   * @param collection Context to be provided to `retrieveFile()` function.
+   * @param retrieveFile Function to return the content of the file.
+   * @param pathSize Number of levels in the path.
+   * @param pathItems Items making the path.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavRetrieveFileCallback) (
+    OrthancPluginWebDavCollection*  collection,
+    OrthancPluginWebDavRetrieveFile retrieveFile,
+    uint32_t                        pathSize,
+    const char* const*              pathItems,
+    void*                           payload);
+
+  
+  /**
+   * @brief Callback to store a file.
+   *
+   * Signature of a callback function that stores a file into the
+   * WebDAV collection.
+   *
+   * @param isReadOnly Pointer to a Boolean that must be set to `1` if the collection is read-only, or `0` otherwise.
+   * @param pathSize Number of levels in the path.
+   * @param pathItems Items making the path.
+   * @param data Content of the file to be stored.
+   * @param size Size of the file to be stored.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavStoreFileCallback) (
+    uint8_t*                        isReadOnly, /* out */
+    uint32_t                        pathSize,
+    const char* const*              pathItems,
+    const void*                     data,
+    uint64_t                        size,
+    void*                           payload);
+
+  
+  /**
+   * @brief Callback to create a folder.
+   *
+   * Signature of a callback function that creates a folder in the
+   * WebDAV collection.
+   *
+   * @param isReadOnly Pointer to a Boolean that must be set to `1` if the collection is read-only, or `0` otherwise.
+   * @param pathSize Number of levels in the path.
+   * @param pathItems Items making the path.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavCreateFolderCallback) (
+    uint8_t*                        isReadOnly, /* out */
+    uint32_t                        pathSize,
+    const char* const*              pathItems,
+    void*                           payload);
+
+  
+  /**
+   * @brief Callback to remove a file or a folder.
+   *
+   * Signature of a callback function that removes a file or a folder
+   * from the WebDAV collection.
+   *
+   * @param isReadOnly Pointer to a Boolean that must be set to `1` if the collection is read-only, or `0` otherwise.
+   * @param pathSize Number of levels in the path.
+   * @param pathItems Items making the path.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  typedef OrthancPluginErrorCode (*OrthancPluginWebDavDeleteItemCallback) (
+    uint8_t*                        isReadOnly, /* out */
+    uint32_t                        pathSize,
+    const char* const*              pathItems,
+    void*                           payload);
+
+  
+  typedef struct
+  {
+    const char*                                  uri;
+    OrthancPluginWebDavIsExistingFolderCallback  isExistingFolder;
+    OrthancPluginWebDavListFolderCallback        listFolder;
+    OrthancPluginWebDavRetrieveFileCallback      retrieveFile;
+    OrthancPluginWebDavStoreFileCallback         storeFile;
+    OrthancPluginWebDavCreateFolderCallback      createFolder;
+    OrthancPluginWebDavDeleteItemCallback        deleteItem;
+    void*                                        payload;
+  } _OrthancPluginRegisterWebDavCollection;
+
+  /**
+   * @brief Register a WebDAV virtual filesystem.
+   *
+   * This function maps a WebDAV collection onto the given URI in the
+   * REST API of Orthanc. This function must be called during the
+   * initialization of the plugin, i.e. inside the
+   * OrthancPluginInitialize() public function.
+   * 
+   * @param context The Orthanc plugin context, as received by OrthancPluginInitialize().
+   * @param uri URI where to map the WebDAV collection (must start with a `/` character).
+   * @param isExistingFolder Callback method to test for the existence of a folder.
+   * @param listFolder Callback method to list the content of a folder.
+   * @param retrieveFile Callback method to retrieve the content of a file.
+   * @param storeFile Callback method to store a file into the WebDAV collection.
+   * @param createFolder Callback method to create a folder.
+   * @param deleteItem Callback method to delete a file or a folder.
+   * @param payload The user payload.
+   * @return 0 if success, other value if error.
+   * @ingroup Callbacks
+   **/
+  ORTHANC_PLUGIN_INLINE OrthancPluginErrorCode OrthancPluginRegisterWebDavCollection(
+    OrthancPluginContext*                        context,
+    const char*                                  uri,
+    OrthancPluginWebDavIsExistingFolderCallback  isExistingFolder,
+    OrthancPluginWebDavListFolderCallback        listFolder,
+    OrthancPluginWebDavRetrieveFileCallback      retrieveFile,
+    OrthancPluginWebDavStoreFileCallback         storeFile,
+    OrthancPluginWebDavCreateFolderCallback      createFolder,
+    OrthancPluginWebDavDeleteItemCallback        deleteItem,
+    void*                                        payload)
+  {
+    _OrthancPluginRegisterWebDavCollection params;
+    params.uri = uri;
+    params.isExistingFolder = isExistingFolder;
+    params.listFolder = listFolder;
+    params.retrieveFile = retrieveFile;
+    params.storeFile = storeFile;
+    params.createFolder = createFolder;
+    params.deleteItem = deleteItem;
+    params.payload = payload;
+
+    return context->InvokeService(context, _OrthancPluginService_RegisterWebDavCollection, &params);
+  }
+
+
+  /**
+   * @brief Gets the DatabaseServerIdentifier.
+   *
+   * @param context The Orthanc plugin context, as received by OrthancPluginInitialize().
+   * @return the database server identifier.  This is a statically-allocated
+   * string, do not free it.
+   * @ingroup Toolbox
+   **/
+  ORTHANC_PLUGIN_INLINE const char* OrthancPluginGetDatabaseServerIdentifier(
+    OrthancPluginContext*  context)
+  {
+    const char* result;
+
+    _OrthancPluginRetrieveStaticString params;
+    params.result = &result;
+    params.argument = NULL;
+
+    if (context->InvokeService(context, _OrthancPluginService_GetDatabaseServerIdentifier, &params) != OrthancPluginErrorCode_Success)
+    {
+      /* Error */
+      return NULL;
+    }
+    else
+    {
+      return result;
+    }
   }
 
 

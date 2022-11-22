@@ -17,13 +17,7 @@ export default {
 </script>
 
 <template>
-  <div
-    class="modal fade"
-    :id="this.id"
-    tabindex="-1"
-    aria-labelledby="modalLabel"
-    ref="modal-main-div"
-  >
+  <div class="modal fade" :id="this.id" tabindex="-1" aria-labelledby="modalLabel" ref="modal-main-div">
     <!-- aria-hidden="true" -->
     <div class="modal-dialog">
       <div class="modal-content">
@@ -32,21 +26,14 @@ export default {
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-        <slot name="modalBody"></slot>
+          <slot name="modalBody">
+            <span v-html="bodyText"></span>
+          </slot>
         </div>
         <div class="modal-footer">
-          <button
-            v-if="cancelText"
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >{{ cancelText }}</button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-dismiss="modal"
-            @click="ok()"
-          >{{ okText }}</button>
+          <button v-if="cancelText" type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ cancelText
+          }}</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="ok()">{{ okText }}</button>
         </div>
       </div>
     </div>
@@ -54,4 +41,5 @@ export default {
 </template>
 
 <style>
+
 </style>
