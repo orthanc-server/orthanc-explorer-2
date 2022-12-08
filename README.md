@@ -50,6 +50,11 @@ docker run -p 8042:8042 --env OE2_ENABLED=true  osimis/orthanc:orthanc-mainline
 
 ## Development
 
+Prerequisites:
+```
+apt install nginx
+```
+
 This project has been bootstrapped with:
 
 ```shell

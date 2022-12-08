@@ -14,6 +14,7 @@
     "bootstrap-icons": "^1.10.0",
     "jquery": "^3.6.3",
     "uuid": "^9.0.0",
+    "keycloak-js": "^20.0.1",
     "uppie": "^1.1.4",
     "vue": "^3.2.45",
     "vue-i18n": "^9.2.2",
