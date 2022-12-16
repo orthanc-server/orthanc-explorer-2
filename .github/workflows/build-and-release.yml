@@ -19,7 +19,7 @@ jobs:
     name: pre-build
     runs-on: "ubuntu-latest"
     outputs:
-      current_branch_tag: ${{steps.branch_name.outputs.current_branch}}
+      current_branch_tag: ${{steps.branch_name.outputs.current_branch_tag}}
       is_tag: ${{steps.branch_name.outputs.is_tag}}
     steps:
     - name: Get branch/tag name
