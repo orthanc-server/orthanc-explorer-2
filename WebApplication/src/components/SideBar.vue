@@ -72,7 +72,7 @@ export default {
                     this.modalitiesEchoStatus[modality] = false;
                 })
             }
-    });
+        });
     },
     components: { UploadHandler, JobsList, LanguagePicker },
 }
@@ -89,14 +89,15 @@ export default {
             <ul id="menu-content" class="menu-content collapse out">
                 <li class="d-flex align-items-center fix-router-link">
                     <router-link class="router-link" to="/">
-                        <i class="fa fa-x-ray fa-lg menu-icon"></i>{{$t('local_studies')}}
-                        <span class="study-count ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies }}</span>
+                        <i class="fa fa-x-ray fa-lg menu-icon"></i>{{ $t('local_studies') }}
+                        <span class="study-count ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies
+                        }}</span>
                     </router-link>
                 </li>
 
                 <li v-if="uiOptions.EnableUpload" class="d-flex align-items-center" data-bs-toggle="collapse"
                     data-bs-target="#upload-handler">
-                    <i class="fa fa-file-upload fa-lg menu-icon"></i>{{$t('upload')}}
+                    <i class="fa fa-file-upload fa-lg menu-icon"></i>{{ $t('upload') }}
                     <span class="ms-auto"></span>
                 </li>
                 <div v-if="uiOptions.EnableUpload" class="collapse" id="upload-handler">
@@ -105,26 +106,29 @@ export default {
 
                 <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"
                     data-bs-target="#modalities-list">
-                    <i class="fa fa-radiation fa-lg menu-icon"></i>{{$t('dicom_modalities')}}
+                    <i class="fa fa-radiation fa-lg menu-icon"></i>{{ $t('dicom_modalities') }}
                     <span class="arrow ms-auto"></span>
                 </li>
                 <ul class="sub-menu collapse" id="modalities-list" ref="modalities-collapsible">
-                    <li v-for="modality in queryableDicomModalities" :key="modality" v-bind:class="{'active': this.isSelectedModality(modality)}" @click="selectModality(modality)">
-                        <router-link class="router-link" :to="{ path: '/filtered-remote-studies', query : { remoteMode: 'dicom', remoteSource: modality}}">
+                    <li v-for="modality in queryableDicomModalities" :key="modality"
+                        v-bind:class="{ 'active': this.isSelectedModality(modality) }" @click="selectModality(modality)">
+                        <router-link class="router-link"
+                            :to="{ path: '/filtered-remote-studies', query: { remoteMode: 'dicom', remoteSource: modality } }">
                             {{ modality }}
                         </router-link>
-                        <span v-if="this.isEchoRunning(modality)" class="ms-auto spinner-border spinner-border-sm" data-bs-toggle="tooltip"
-                        title="Checking connectivity"></span>
-                        <span v-else-if="this.isEchoSuccess(modality)" class="ms-auto"><i class="bi bi-check2 text-success echo-status" data-bs-toggle="tooltip"
-                        title="C-Echo succeeded"></i></span>
-                        <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status" data-bs-toggle="tooltip"
-                        title="C-Echo failed"></i></span>
+                        <span v-if="this.isEchoRunning(modality)" class="ms-auto spinner-border spinner-border-sm"
+                            data-bs-toggle="tooltip" title="Checking connectivity"></span>
+                        <span v-else-if="this.isEchoSuccess(modality)" class="ms-auto"><i
+                                class="bi bi-check2 text-success echo-status" data-bs-toggle="tooltip"
+                                title="C-Echo succeeded"></i></span>
+                        <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status"
+                                data-bs-toggle="tooltip" title="C-Echo failed"></i></span>
                     </li>
                 </ul>
 
                 <li v-if="hasQueryableDicomWebServers" class="d-flex align-items-center" data-bs-toggle="collapse"
                     data-bs-target="#dicomweb-servers-list">
-                    <i class="fa fa-globe fa-lg menu-icon"></i>{{$t('dicom_web_servers')}}
+                    <i class="fa fa-globe fa-lg menu-icon"></i>{{ $t('dicom_web_servers') }}
                     <span class="arrow ms-auto"></span>
                 </li>
                 <ul class="sub-menu collapse" id="dicomweb-servers-list">
@@ -135,28 +139,28 @@ export default {
 
                 <li v-if="hasAccessToSettings" class="d-flex align-items-center fix-router-link">
                     <router-link class="router-link" to="/settings">
-                        <i class="fa fa-cogs fa-lg menu-icon"></i>{{$t('settings')}}
+                        <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings') }}
                     </router-link>
                 </li>
 
                 <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center fix-router-link">
                     <a v-bind:href="this.orthancApiUrl + 'app/explorer.html'">
-                        <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{$t('legacy_ui')}}
+                        <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t('legacy_ui') }}
                     </a><span class="ms-auto"></span>
                 </li>
                 <li v-if="hasJobs" class="d-flex align-items-center">
                     <a href="#">
-                        <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{$t('my_jobs')}}
+                        <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{ $t('my_jobs') }}
                     </a><span class="ms-auto"></span>
                 </li>
                 <div v-if="hasJobs" class="collapse show" id="jobs-list">
                     <JobsList />
                 </div>
-                <div class="mt-5">
-                    <LanguagePicker/>
-                </div>
             </ul>
         </div>
+        <div class="language-picker">
+                <LanguagePicker />
+            </div>
     </div>
 </template>
 <style scoped>
@@ -164,9 +168,11 @@ export default {
     width: 100%;
     text-align: left;
 }
+
 .fix-router-link {
     margin-left: -20px !important;
 }
+
 .echo-status {
     font-size: 17px;
 }
@@ -193,6 +199,7 @@ export default {
     font-weight: 200;
     background-color: var(--nav-side-bg-color);
     color: var(--nav-side-color);
+    height: 100%;
 }
 
 
@@ -221,6 +228,7 @@ export default {
     padding-right: 0px;
     float: right;
 }
+
 .nav-side-menu ul .active,
 .nav-side-menu li .active {
     border-left: 3px solid #d19b3d;
@@ -291,6 +299,7 @@ export default {
 .nav-side-menu .menu-list .menu-content {
     display: block;
 }
+
 .nav-side-menu .menu-list .menu-content {
     display: block;
 }
@@ -306,4 +315,9 @@ export default {
     margin-right: 10px;
 }
 
+.language-picker {
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+}
 </style>

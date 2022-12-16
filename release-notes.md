@@ -1,10 +1,10 @@
-Pending changes
-===============
-
+0.5.0 (2022-12-16)
+==================
 
 Changes:
 - added multi-language support
-- shares: allow "stone-viewer-publication"
+- new configurations: 'AvailableLanguages', 'DefaultLanguage'
+- shares: enable "stone-viewer-publication" type
 
 Fixes:
 - WO-63: instant-link only works if EnableShares is true
