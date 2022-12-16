@@ -22,10 +22,17 @@ jobs:
       current_branch_tag: ${{steps.branch-name.outputs.current_branch}}
       is_tag: ${{steps.branch-name.outputs.is_tag}}
     steps:
-      - name: Get branch/tag name
-        id: branch-name
-        uses: tj-actions/branch-names@v6
-        # output: steps.branch-name.outputs.current_branch contains the branch or the tag
+    - name: Get branch/tag name
+      id: branch_name
+      run: |
+        echo "current_branch_tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+        [[ "${GITHUB_REF_TYPE}" == "tag" ]] && echo "is_tag=true" >> $GITHUB_OUTPUT || echo "is_tag=false" >> $GITHUB_OUTPUT
+
+    - name: Echo pre_build
+      run: |
+        echo ${{ steps.branch_name.outputs.is_tag }} ${{ steps.branch_name.outputs.current_branch_tag }}
+        echo ${{ github.ref}}
+
 
   build-web-app:
     name: build-web-app
