@@ -263,6 +263,14 @@ Json::Value GetPluginsConfiguration()
     {
       pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "Authorization") && pluginConfiguration.isMember("WebService");
     }
+    else if (pluginName == "AWS S3 Storage")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "AwsS3Storage");
+    }
+    else if (pluginName == "Azure Blob Storage")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "AzureBlobStorage");
+    }
     else if (pluginName == "connectivity-checks")
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
@@ -278,6 +286,10 @@ Json::Value GetPluginsConfiguration()
     else if (pluginName == "gdcm")
     {
       pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Gdcm", "Enable", true);
+    }
+    else if (pluginName == "Google Cloud Storage")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "GoogleCloudStorage");
     }
     else if (pluginName == "mysql-index")
     {

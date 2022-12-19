@@ -1,3 +1,6 @@
+Changes:
+- report correct status for object storage plugins
+
 0.5.0 (2022-12-16)
 ==================
 
