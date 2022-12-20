@@ -71,6 +71,7 @@
         "dicom_web": "Send to DICOMWeb server",
         "transfers": "Send to Orthanc Peer (advanced-transfers)"
     },
+    "series_count_header": "# series",
     "series_date": "Series Date",
     "series_description": "Series Description",
     "series_number": "Series number",

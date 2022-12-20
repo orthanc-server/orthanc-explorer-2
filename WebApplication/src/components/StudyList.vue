@@ -45,7 +45,7 @@ document._studyColumns = {
     },
     "seriesCount": {
         "width": "4%",
-        "title": "series",
+        "title": "series_count_header",
         "tooltip": "number_of_series",
         "extraClasses": "text-center"
     },

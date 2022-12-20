@@ -71,6 +71,7 @@
         "dicom_web": "Enviar a DICOM-Web",
         "transfers": "Enviar a un par (Transferencias avanzadas)"
     },
+    "series_count_header": "# serie",
     "series_date": "Fecha de la serie",
     "series_description": "Descripción de la serie",
     "series_number": "Número de serie",

@@ -3,6 +3,7 @@
 
 Changes:
 - report correct status for object storage plugins
+- improved french translations
 
 Fixes:
 - fix default values for AvailableLanguages to all languages
