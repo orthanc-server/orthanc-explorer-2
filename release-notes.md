@@ -1,5 +1,11 @@
+0.5.1 (2022-12-20)
+==================
+
 Changes:
 - report correct status for object storage plugins
+
+Fixes:
+- fix default values for AvailableLanguages to all languages
 
 0.5.0 (2022-12-16)
 ==================
