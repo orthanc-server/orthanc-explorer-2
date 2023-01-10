@@ -2,6 +2,7 @@
 import axios from "axios"
 import api from "../orthancApi"
 import SeriesItem from "./SeriesItem.vue"
+import { translateDicomTag } from "../locales/i18n"
 
 export default {
     props: ['studyId', 'patientMainDicomTags', 'studyMainDicomTags'],
@@ -19,6 +20,20 @@ export default {
         }
     },
     methods: {
+        columnTitle(tagName) {
+            if (tagName == "instances_number") {
+                return "# " + this.$i18n.t('instances');
+            } else {
+                return translateDicomTag(this.$i18n.t, tagName);
+            }
+        },
+        columnTooltip(tagName) {
+            if (tagName == "instances_number") {
+                return this.$i18n.t("instances_number");
+            } else {
+                return translateDicomTag(this.$i18n.t, tagName);
+            }
+        },
         onDeletedSeries(seriesId) {
             delete this.seriesInfo[seriesId];
             if (Object.keys(this.seriesInfo).length == 0) {
@@ -47,29 +62,29 @@ export default {
                 scope="col"
                 class="series-table-header cut-text"
                 data-bs-toggle="tooltip"
-                :title="$t('number_of_series')"
-                >{{$t('series_number')}}</th>
+                :title="columnTooltip('SeriesNumber')"
+                >{{columnTitle('SeriesNumber')}}</th>
                 <th
                 width="40%"
                 scope="col"
                 class="series-table-header cut-text"
                 data-bs-toggle="tooltip"
-                :title="$t('series_description')"
-                >{{$t('series_description')}}</th>
+                :title="columnTooltip('SeriesDescription')"
+                >{{columnTitle('SeriesDescription')}}</th>
                 <th
                 width="11%"
                 scope="col"
                 class="series-table-header cut-text text-center"
                 data-bs-toggle="tooltip"
-                :title="$t('modality')"
-                >{{$t('modality')}}</th>
+                :title="columnTooltip('Modality')"
+                >{{columnTitle('Modality')}}</th>
                 <th
                 width="5%"
                 scope="col"
                 class="series-table-header cut-text text-center"
                 data-bs-toggle="tooltip"
-                :title="$t('instances_number')"
-                ># {{$t('instances')}}</th>
+                :title="columnTooltip('instances_number')"
+                >{{columnTitle('instances_number')}}</th>
         </thead>
         <SeriesItem
             v-for="seriesId in sortedSeriesIds"

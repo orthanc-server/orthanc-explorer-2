@@ -35,4 +35,17 @@ const i18n = createI18n({
   },
 });
 
-export default i18n;
+document._mustTranslateDicomTags = false;
+
+function translateDicomTag($t, tagName) {
+  if (document._mustTranslateDicomTags) {
+    return $t('dicom_tags.' + tagName);
+  } else {
+    return tagName;
+  }
+}
+
+export {
+  i18n as default,
+  translateDicomTag
+};

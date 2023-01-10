@@ -2,52 +2,40 @@
 import RemoteStudyItem from "./RemoteStudyItem.vue"
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
+import { translateDicomTag } from "../locales/i18n"
 import $ from "jquery"
 import api from "../orthancApi"
 
-document._remoteStudyAllowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
+document._remoteStudyAllowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"];
+
+document._remoteStudyMainStudyTags = ["StudyDate", "StudyTime", "StudyID", "AccessionNumber", "StudyDescription", "StudyInstanceUID", "ModalitiesInStudy", "NumberOfStudyRelatedSeries", "RequestingPhysician", "ReferringPhysicianName", "InstitutionName"];
+document._remoteStudyMainPatientTags = ["PatientID", "PatientName","PatientBirthDate", "PatientSex"];
 
 document._remoteStudyColumns = {
     "StudyDate": {
-        "width": "7%",
-        "title": "study_date",
-        "tooltip": "study_date"
+        "width": "7%"
     },
     "AccessionNumber": {
-        "width": "11%",
-        "title": "accession_number",
-        "tooltip": "accession_number"
+        "width": "11%"
     },
     "PatientID": {
-        "width": "11%",
-        "title": "patient_id",
-        "tooltip": "patient_id"
+        "width": "11%"
     },
     "PatientName": {
-        "width": "15%",
-        "title": "patient_name",
-        "tooltip": "patient_name"
+        "width": "15%"
     },
     "PatientBirthDate": {
-        "width": "7%",
-        "title": "patient_birth_date",
-        "tooltip": "patient_birth_date"
+        "width": "7%"
     },
     "StudyDescription": {
-        "width": "25%",
-        "title": "description",
-        "tooltip": "study_description"
+        "width": "25%"
     },
     "modalities": {
         "width": "6%",
-        "title": "modalities_in_study",
-        "tooltip": "modalities_in_study",
         "extraClasses": "text-center"
     },
     "seriesCount": {
         "width": "4%",
-        "title": "series",
-        "tooltip": "number_of_series",
         "extraClasses": "text-center"
     },
 }
@@ -81,10 +69,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
-            isConfigurationLoaded: state => state.configuration.loaded,
-            // studiesIds: state => state.studies.studiesIds,
-            // isSearching: state => state.studies.isSearching,
-            // statistics: state => state.studies.statistics
+            isConfigurationLoaded: state => state.configuration.loaded
         }),
         isFilterEmpty() {
             return this.filterStudyDate.length == 0 && this.filterAccessionNumber.length == 0 && this.filterPatientID.length == 0 && this.filterPatientName.length == 0
@@ -93,24 +78,6 @@ export default {
         isStudyListEmpty() {
             return this.studies.length == 0;
         }
-        // ...mapGetters([
-        //     'studies/isFilterEmpty' // -> this['studies/isFilterEmpty']
-        // ]),
-        // notShowingAllResults() {
-        //     if (this.studiesIds.length >= this.statistics.CountStudies) {
-        //         return false;
-        //     }
-        //     return this.studiesIds.length == this.uiOptions.MaxStudiesDisplayed; // in this case, the result has been limited
-        // },
-        // isSearchAsYouTypeEnabled() {
-        //     return this.uiOptions.StudyListSearchMode == "search-as-you-type";
-        // },
-        // isSearchButtonEnabled() {
-        //     return this.uiOptions.StudyListSearchMode == "search-button";
-        // },
-        // showEmptyStudyListIfNoSearch() {
-        //     return this.uiOptions.StudyListEmptyIfNoSearch;
-        // },
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -162,6 +129,22 @@ export default {
         this.updateFilterFromRoute(this.$route.query);
     },
     methods: {
+        columnTitle(tagName) {
+            if (tagName == "seriesCount") {
+                return this.$i18n.t('series_count_header');
+            } else if (tagName == "modalities") {
+                return translateDicomTag(this.$i18n.t, "ModalitiesInStudy");
+            } else {
+                return translateDicomTag(this.$i18n.t, tagName);
+            }
+        },
+        columnTooltip(tagName) {
+            if (tagName == "modalities") {
+                return translateDicomTag(this.$i18n.t, "ModalitiesInStudy");
+            } else {
+                return translateDicomTag(this.$i18n.t, tagName);
+            }
+        },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
             for (const modality of this.uiOptions.ModalitiesFilter) {
@@ -217,16 +200,6 @@ export default {
                 this._updateFilter(dicomTagName, newValue);
                 return;
             }
-
-            // if (newValue.length >= this.uiOptions.StudyListSearchAsYouTypeMinChars) {
-            //     // calls updateFilter only after a delay without any key pressed and if there are enough characters entered
-            //     if (this.searchTimerHandler[dicomTagName]) {
-            //         clearTimeout(this.searchTimerHandler[dicomTagName]);
-            //     }
-            //     this.searchTimerHandler[dicomTagName] = setTimeout(() => {this._updateFilter(dicomTagName, newValue)}, this.uiOptions.StudyListSearchAsYouTypeDelay);
-            // } else if (newValue.length < oldValue.length && oldValue.length >= this.uiOptions.StudyListSearchAsYouTypeMinChars) { // when deleting filter
-            //     this.searchTimerHandler[dicomTagName] = setTimeout(() => {this._updateFilter(dicomTagName, "")}, this.uiOptions.StudyListSearchAsYouTypeDelay);
-            // }
         },
         clipFilter(dicomTagName, value) {
             if (this.isFilterLongEnough(dicomTagName, value)) {
@@ -271,7 +244,6 @@ export default {
             }
         },
         _updateFilter(dicomTagName, value) {
-            // this.$store.dispatch('studies/updateFilter', { dicomTagName: dicomTagName, value: value });
             this.updateUrl();
         },
         async updateFilterFromRoute(filters) {
@@ -301,7 +273,6 @@ export default {
                 }
 
                 await this.updateFilterForm(keyValueFilters);
-                // await this.$store.dispatch('studies/reloadFilteredStudies');
             }
             this.updatingFilterUi = false;
         },
@@ -355,23 +326,11 @@ export default {
                 this.isSearching = false;
             }
             if (this.remoteMode == 'dicom') {
-                let query = { // list all fields that we want to retrieve (for the RemoteStudyList and the RemoteStudyDetails)
-                    "StudyDate" : "",
-                    "StudyTime": "",
-                    "StudyID": "",
-                    "AccessionNumber": "",
-                    "PatientID": "",
-                    "PatientName" : "",
-                    "PatientBirthDate": "",
-                    "PatientSex": "",
-                    "StudyDescription": "",
-                    "StudyInstanceUID": "",
-                    "ModalitiesInStudy": "",
-                    "NumberOfStudyRelatedSeries": "",
-                    "RequestingPhysician": "",
-                    "ReferringPhysicianName": "",
-                    "InstitutionName": ""
-                };
+                let query = {}; // list all fields that we want to retrieve (for the RemoteStudyList and the RemoteStudyDetails)
+                for (let tag of document._remoteStudyMainStudyTags.concat(document._remoteStudyMainPatientTags)) {
+                    query[tag] = ""
+                }
+
                 if (this.filterStudyDate.length >= 8) {
                     query["StudyDate"] = this.filterStudyDate;
                 }
@@ -407,20 +366,6 @@ export default {
                 })
             }
             
-
-            // if (this.isSearching) {
-            //     await this.$store.dispatch('studies/cancelSearch');    
-            // } else {
-            //     await this.$store.dispatch('studies/clearFilterNoReload');
-            //     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDate", value: this.filterStudyDate });
-            //     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "AccessionNumber", value: this.filterAccessionNumber });
-            //     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientID", value: this.filterPatientID });
-            //     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientName", value: this.filterPatientName });
-            //     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientBirthDate", value: this.filterPatientBirthDate });
-            //     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDescription", value: this.filterStudyDescription });
-            //     await this.$store.dispatch('studies/reloadFilteredStudies');
-            //     this.updateUrl();
-            // }
             this.updateUrl();
         },
         async clearFilters() {
@@ -509,9 +454,9 @@ export default {
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th width="5%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
-                    v-bind:title="`${$t(`${columns[columnTag].tooltip}`)}`" v-bind:width="columns[columnTag].width"
+                    v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
                     v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
-                    $t(`${columns[columnTag].title}`)
+                    columnTitle(columnTag)
                     }}</th>
             </thead>
             <thead class="study-filter" v-on:keyup.enter="search">

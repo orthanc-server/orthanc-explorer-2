@@ -1,6 +1,7 @@
 <script>
 import Modal from "./Modal.vue"
 import ShareModal from "./ShareModal.vue"
+import ModifyModal from "./ModifyModal.vue"
 import $ from "jquery"
 import { mapState } from "vuex"
 import api from "../orthancApi"
@@ -200,7 +201,7 @@ export default {
             return texts[this.resourceLevel];
         }
     },
-    components: { Modal, ShareModal }
+    components: { Modal, ShareModal, ModifyModal }
 }
 </script>
 
@@ -277,6 +278,15 @@ export default {
             <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"></ShareModal>
+        </div>
+        <div class="btn-group">
+            <button v-if="true" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
+                <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.button_title')"></i>
+            </button>
+            <ModifyModal v-if="true" :id="'modify-modal-' + this.resourceOrthancId"
+                :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags"></ModifyModal>
         </div>
         <div class="btn-group">
             <div class="dropdown">

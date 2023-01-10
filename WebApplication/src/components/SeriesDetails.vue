@@ -2,6 +2,7 @@
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import InstanceList from "./InstanceList.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
+import { mapState, mapGetters } from "vuex"
 
 export default {
     props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'instancesIds'],
@@ -13,6 +14,9 @@ export default {
         };
     },
     computed: {
+        ...mapState({
+            uiOptions: state => state.configuration.uiOptions,
+        }),
     },
     components: { ResourceButtonGroup, InstanceList, ResourceDetailText },
     methods: {
@@ -39,14 +43,7 @@ export default {
         <tr>
             <td width="70%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="seriesMainDicomTags.SeriesDate">{{$t('series_date')}}</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.SeriesTime">{{$t('series_time')}}</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.SeriesDescription" :truncate="true">{{$t('series_description')}}</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.SeriesNumber">{{$t('series_number')}}</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.BodyPartExamined">{{$t('body_part_examined')}}</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.ProtocolName">{{$t('protocol_name')}}</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.SeriesInstanceUID" :truncate="true">Series Instance UID</ResourceDetailText>
-                    <ResourceDetailText :value="seriesMainDicomTags.SeriesDate">{{$t('series_date')}}</ResourceDetailText>
+                    <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag" :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                 </ul>
             </td>
             <td width="30%" class="series-button-group">
