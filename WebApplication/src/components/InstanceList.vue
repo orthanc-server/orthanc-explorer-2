@@ -24,7 +24,7 @@ export default {
     },
     async mounted() {
         const response = await api.getSeriesInstances(this.seriesId)
-        for (const instanceInfo of response.data) {
+        for (const instanceInfo of response) {
             this.instancesInfo[instanceInfo.ID] = instanceInfo;
         }
         this.loaded = true;

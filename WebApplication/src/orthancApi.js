@@ -70,7 +70,7 @@ export default {
         await this.cancelFindStudies();
         window.axioFindStudiesAbortController = new AbortController();
 
-        return axios.post(orthancApiUrl + "tools/find", {
+        return (await axios.post(orthancApiUrl + "tools/find", {
                 "Level": "Study",
                 "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
                 "Query": filterQuery,
@@ -81,7 +81,27 @@ export default {
             }, 
             {
                 signal: window.axioFindStudiesAbortController.signal
-            });
+            })).data;
+    },
+    async getSamePatientStudies(patientId) {
+        const response = (await axios.post(orthancApiUrl + "tools/find", {
+            "Level": "Study",
+            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+            "Query": {
+                "PatientID": patientId
+            },
+            "Expand": false
+        }));
+        return response.data;
+    },
+    async findPatient(patientId) {
+        const response = (await axios.post(orthancApiUrl + "tools/lookup", patientId));
+        if (response.data.length == 1) {
+            const patient = (await axios.get(orthancApiUrl + "patients/" + response.data[0]['ID']));
+            return patient.data;
+        } else {
+            return null;
+        }
     },
     async cancelRemoteDicomFindStudies() {
         if (window.axioRemoteDicomFindStudiesAbortController) {
@@ -128,29 +148,29 @@ export default {
         return axios.post(orthancApiUrl + "modalities/" + remoteModality + "/echo", {});
     },
     async uploadFile(filecontent) {
-        return axios.post(orthancApiUrl + "instances", filecontent);
+        return (await axios.post(orthancApiUrl + "instances", filecontent)).data;
+    },
+    async getPatient(orthancId) {
+        return (await axios.get(orthancApiUrl + "patients/" + orthancId)).data;
     },
     async getStudy(orthancId) {
         // returns the same result as a findStudies (including RequestedTags !)
-        return axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=ModalitiesInStudy");
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=ModalitiesInStudy")).data;
     },
     async getStudySeries(orthancId) {
-        return axios.get(orthancApiUrl + "studies/" + orthancId + "/series");
-    },
-    async getExpandedSeries(orthancId) {
-        return axios.get(orthancApiUrl + "series/" + orthancId + "?expand");
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/series")).data;
     },
     async getSeriesInstances(orthancId) {
-        return axios.get(orthancApiUrl + "series/" + orthancId + "/instances");
+        return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
     },
     async getInstanceTags(orthancId) {
-        return axios.get(orthancApiUrl + "instances/" + orthancId + "/tags");
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags")).data;
     },
     async getInstanceHeader(orthancId) {
-        return axios.get(orthancApiUrl + "instances/" + orthancId + "/header");
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/header")).data;
     },
     async getStatistics() {
-        return axios.get(orthancApiUrl + "statistics");
+        return (await axios.get(orthancApiUrl + "statistics")).data;
     },
 
     async setVerboseLevel(level) {
@@ -196,15 +216,27 @@ export default {
         return response.data['url'];
     },
 
-    async modifyStudy(orthancId, replaceTags, removeTags) {
+    async modifyStudy(orthancId, replaceTags, removeTags, keepSource) {
         const response = (await axios.post(orthancApiUrl + "studies/" + orthancId + "/modify", {
             "Replace" : replaceTags,
             "Remove" : removeTags,
+            "KeepSource": keepSource,
             "Force": true,
-            "Synchronous": true
+            "Synchronous": false
         }))
 
-        return response.data;
+        return response.data['ID'];
+    },
+
+    async modifyPatient(orthancId, replaceTags, removeTags) {
+        const response = (await axios.post(orthancApiUrl + "patients/" + orthancId + "/modify", {
+            "Replace" : replaceTags,
+            "Remove" : removeTags,
+            "Force": true,
+            "Synchronous": false
+        }))
+
+        return response.data['ID'];
     },
 
     ////////////////////////////////////////// HELPERS

@@ -16,9 +16,9 @@ export default {
     computed: {
     },
     async mounted() {
-        this.tags = (await api.getInstanceTags(this.instanceId)).data;
+        this.tags = (await api.getInstanceTags(this.instanceId));
 
-        this.headers = (await api.getInstanceHeader(this.instanceId)).data;
+        this.headers = (await api.getInstanceHeader(this.instanceId));
         this.loaded = true;
     },
     components: { ResourceButtonGroup, TagsTree },

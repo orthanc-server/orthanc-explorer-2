@@ -134,7 +134,7 @@ const actions = {
         } else {
             try {
                 commit('setIsSearching', { isSearching: true});
-                const studies = (await api.findStudies(getters.filterQuery)).data;
+                const studies = (await api.findStudies(getters.filterQuery));
                 let studiesIds = studies.map(s => s['ID']);
                 commit('setStudiesIds', { studiesIds: studiesIds });
                 commit('setStudies', { studies: studies });
@@ -149,7 +149,7 @@ const actions = {
         await api.cancelFindStudies();
     },
     async loadStatistics({ commit }) {
-        const statistics = (await api.getStatistics()).data;
+        const statistics = (await api.getStatistics());
         commit('setStatistics', { statistics: statistics });
     },
     async deleteStudy({ commit }, payload) {

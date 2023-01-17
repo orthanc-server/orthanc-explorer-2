@@ -44,7 +44,7 @@ export default {
     async mounted() {
         const studyResponse = await api.getStudySeries(this.studyId);
 
-        for (const series of studyResponse.data) {
+        for (const series of studyResponse) {
             this.seriesInfo[series["ID"]] = series;
         }
 
