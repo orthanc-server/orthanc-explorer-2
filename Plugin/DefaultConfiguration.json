@@ -155,11 +155,12 @@
 
             // modifications dialog options
             "Modifications": {
-                // Shall we create a new study when modifying a study (if yes, it generates a new StudyInstanceUID.  If not, it keeps the 
-                // same StudyInstanceUID but will generate new SeriesInstanceUID and SOPInstanceUID for child resources).
-                // Allowed values are "Always", "Never", "DefaultYes", "DefaultNo"
-                "CreateNewStudy": "DefaultYes"
-
+                // Modes define options to the /modify route:
+                // "modify-keep-uids" is equivalent to KeepSource=True and Keep=["StudyInstanceUID", "SeriesInstanceUID", "SOPInstanceUID"]
+                // "modify-new-uids" is equivalent to KeepSource=False
+                // "duplicate" is equivalent to KeepSource=True
+                "AllowedModes": ["modify-new-uids", "modify-keep-uids", "duplicate"],
+                "DefaultMode": "modify-new-uids"
 
             }
         },

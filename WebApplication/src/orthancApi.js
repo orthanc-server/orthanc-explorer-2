@@ -216,10 +216,11 @@ export default {
         return response.data['url'];
     },
 
-    async modifyStudy(orthancId, replaceTags, removeTags, keepSource) {
+    async modifyStudy({orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
         const response = (await axios.post(orthancApiUrl + "studies/" + orthancId + "/modify", {
-            "Replace" : replaceTags,
-            "Remove" : removeTags,
+            "Replace": replaceTags,
+            "Remove": removeTags,
+            "Keep": keepTags,
             "KeepSource": keepSource,
             "Force": true,
             "Synchronous": false
@@ -228,10 +229,12 @@ export default {
         return response.data['ID'];
     },
 
-    async modifyPatient(orthancId, replaceTags, removeTags) {
+    async modifyPatient({orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
         const response = (await axios.post(orthancApiUrl + "patients/" + orthancId + "/modify", {
-            "Replace" : replaceTags,
-            "Remove" : removeTags,
+            "Replace": replaceTags,
+            "Remove": removeTags,
+            "Keep": keepTags,
+            "KeepSource": keepSource,
             "Force": true,
             "Synchronous": false
         }))

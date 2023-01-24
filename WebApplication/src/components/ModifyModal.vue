@@ -5,6 +5,13 @@ import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import api from "../orthancApi"
 
+// these tags can not be removed
+document.requiredTags = [
+    'PatientID', 'PatientBirthDate', 'PatientSex', , 'PatientName',
+    'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber', 'ReferringPhysicianName', 'StudyID',
+    'SeriesInstanceUID', 'Modality', 'ContrastBolusAgent', 'SeriesNumber', 'ImageOrientationPatient', 'SeriesType'
+];
+
 
 export default {
     props: ["orthancId", "studyMainDicomTags", "patientMainDicomTags"],
@@ -14,13 +21,13 @@ export default {
     },
     data() {
         return {
-            keepSource: "no",
-            keepStudyInstanceUid: "no",
             tags: {},                                       // the tag values entered in the dialog
             originalTags: {},                              // the original tag values
+            removedTags: {},
+            insertedTags: new Set(),
             samePatientStudiesCount: 0,
             hasLoadedSamePatientsStudiesCount: false,
-            areTagsModified: false,
+            // areTagsModified: false,
             warningMessageId: null,
             jobProgressComplete: 0,
             jobProgressFailed: 0,
@@ -31,6 +38,7 @@ export default {
             jobIsSuccess: false,
             showModifiedResourceKey: null,
             showModifiedResourceValue: null,
+            modificationMode: null,
             //            createNewStudy: true,
             //            showCreateNewStudyOption: true,
             step: 'init', // allowed values: 'init', 'tags', 'warning', 'error', 'progress', 'done'
@@ -53,19 +61,8 @@ export default {
         tags: {
             handler(newValue, oldValue) {
                 console.log("tags changed", this.tags);
-                this.areTagsModified = Object.keys(this.modifiedTags).length > 0;
             },
             deep: true
-        },
-        keepStudyInstanceUid(newValue, oldValue) {
-            if (newValue == 'yes') {
-                this.keepSource = 'no';
-            }
-        },
-        keepSource(newValue, oldValue) {
-            if (newValue == 'yes') {
-                this.keepStudyInstanceUid = 'no';
-            }
         },
     },
     methods: {
@@ -77,16 +74,22 @@ export default {
             this.tags = {};
             this.originalTags = {};
             this.modifiedTags = {};
+            this.removedTags = {};
+            this.insertedTags = new Set();
             for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
                 this.originalTags[k] = v;
+                this.removedTags[k] = false;
             }
             for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
                 this.originalTags[k] = v;
+                this.removedTags[k] = false;
             }
 
             this.jobProgressComplete = 0;
             this.jobProgressFailed = 0;
             this.jobProgressRemaining = 100;
+
+            this.modificationMode = this.uiOptions.Modifications.DefaultMode;
         },
         back() {
             if (this.step == 'tags') {
@@ -152,85 +155,84 @@ export default {
             }
         },
         async modify() {
-            // perform checks before modification
-            if (this.action == 'attach-study-to-existing-patient') {
-                // make sure we use an existing PatientID
-                const targetPatient = await api.findPatient(this.tags['PatientID']);
-                if (targetPatient) {
-                    let replaceTags = targetPatient.MainDicomTags;
-                    if (this.keepStudyInstanceUid) {
-                        replaceTags['StudyInstanceUID'] = this.originalTags['StudyInstanceUID'];
-                    }
-                    const jobId = await api.modifyStudy(this.orthancId, replaceTags, [], this.keepSource == 'yes');
-                    console.log("attach-study-to-existing-patient: created job ", jobId);
-                    this.startMonitoringJob(jobId);
-                } else {
-                    console.error("Error while changing patient, the new PatientID does not exist ", this.tags['PatientID']);
-                    this.setError('modify.error_attach_study_to_existing_patient_target_does_not_exist_html');
-                    return;
-                }
-            } else if (this.action == 'modify-any-tags-in-one-study') {
-
-                if ('PatientID' in this.modifiedTags) {
-                    console.log("modify-any-tags-in-one-study: PatientID has changed");
+            try {
+                // perform checks before modification
+                if (this.action == 'attach-study-to-existing-patient') {
+                    // make sure we use an existing PatientID
                     const targetPatient = await api.findPatient(this.tags['PatientID']);
                     if (targetPatient) {
-                        console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
-                        this.setError('modify.error_modify_any_study_tags_patient_exists_html');
-                        return;
-                    }
-                } else if ('PatientName' in this.modifiedTags || 'PatientBirthDate' in this.modifiedTags || 'PatientSex' in this.modifiedTags) {
-                    console.log("modify-any-tags-in-one-study: Patient tags have changed");
-                    this.samePatientStudiesCount = (await api.getSamePatientStudies(this.originalTags['PatientID'])).length;
-                    if (this.samePatientStudiesCount > 1) {
-                        console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, this patient has other studies, you can not modify patient tags ", this.originalTags['PatientID'], this.modifiedTags);
-                        this.setError('modify.error_modify_any_study_tags_can_not_modify_patient_tags_because_of_other_studies_html');
-                        return;
+                        const jobId = await api.modifyStudy({
+                            orthancId: this.orthancId,
+                            replaceTags: targetPatient.MainDicomTags,
+                            keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
+                            keepSource: this.keepSource,
+                            removeTags: this.removedTagsList
+                        });
+                        console.log("attach-study-to-existing-patient: created job ", jobId);
+                        this.startMonitoringJob(jobId);
                     } else {
-                        console.log("modify-any-tags-in-one-study: this is the only patient study, we can modify all tags");
-                    }
-                }
-
-                // at this point, it is safe to modify any tags
-                let replaceTags = this.modifiedTags;
-                if (this.keepStudyInstanceUid == 'yes') {
-                    replaceTags['StudyInstanceUID'] = this.originalTags['StudyInstanceUID'];
-                }
-                const jobId = await api.modifyStudy(this.orthancId, replaceTags, [], this.keepSource == 'yes');
-                console.log("modify-any-tags-in-one-study: created job ", jobId);
-                this.startMonitoringJob(jobId);
-
-            } else if (this.action == 'modify-patient-tags-in-all-studies') {
-                // if we try to change the PatientID, make sure we do not reuse an existing PatientID
-                if (this.tags['PatientID'] != this.originalTags['PatientID']) {
-                    const targetPatient = await api.findPatient(this.tags['PatientID']);
-                    if (targetPatient) {
-                        console.error("modify-patient-tags-in-all-studies: Error while modifying patient tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
-                        this.setError('modify.error_modify_patient_tags_another_patient_exists_with_same_patient_id_html');
+                        console.error("Error while changing patient, the new PatientID does not exist ", this.tags['PatientID']);
+                        this.setError('modify.error_attach_study_to_existing_patient_target_does_not_exist_html');
                         return;
-                    } 
+                    }
+                } else if (this.action == 'modify-any-tags-in-one-study') {
+
+                    if ('PatientID' in this.modifiedTags) {
+                        console.log("modify-any-tags-in-one-study: PatientID has changed");
+                        const targetPatient = await api.findPatient(this.tags['PatientID']);
+                        if (targetPatient) {
+                            console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
+                            this.setError('modify.error_modify_any_study_tags_patient_exists_html');
+                            return;
+                        }
+                    } else if ('PatientName' in this.modifiedTags || 'PatientBirthDate' in this.modifiedTags || 'PatientSex' in this.modifiedTags) {
+                        console.log("modify-any-tags-in-one-study: Patient tags have changed");
+                        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.originalTags['PatientID'])).length;
+                        if (this.samePatientStudiesCount > 1) {
+                            console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, this patient has other studies, you can not modify patient tags ", this.originalTags['PatientID'], this.modifiedTags);
+                            this.setError('modify.error_modify_any_study_tags_can_not_modify_patient_tags_because_of_other_studies_html');
+                            return;
+                        } else {
+                            console.log("modify-any-tags-in-one-study: this is the only patient study, we can modify all tags");
+                        }
+                    }
+
+                    // at this point, it is safe to modify any tags
+                    const jobId = await api.modifyStudy({
+                        orthancId: this.orthancId,
+                        replaceTags: this.modifiedTags,
+                        keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
+                        keepSource: this.keepSource,
+                        removeTags: this.removedTagsList
+                    });
+                    console.log("modify-any-tags-in-one-study: created job ", jobId);
+                    this.startMonitoringJob(jobId);
+
+                } else if (this.action == 'modify-patient-tags-in-all-studies') {
+                    // if we try to change the PatientID, make sure we do not reuse an existing PatientID
+                    if (this.tags['PatientID'] != this.originalTags['PatientID']) {
+                        const targetPatient = await api.findPatient(this.tags['PatientID']);
+                        if (targetPatient) {
+                            console.error("modify-patient-tags-in-all-studies: Error while modifying patient tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
+                            this.setError('modify.error_modify_patient_tags_another_patient_exists_with_same_patient_id_html');
+                            return;
+                        }
+                    }
+
+                    const originalPatient = await api.findPatient(this.originalTags['PatientID']);
+                    const jobId = await api.modifyPatient({
+                        orthancId: originalPatient['ID'],
+                        replaceTags: this.tags,
+                        keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
+                        keepSource: this.keepSource,
+                        removeTags: this.removedTagsList
+                    });
+                    console.log("modify-patient-tags-in-all-studies: created job ", jobId);
+                    this.startMonitoringJob(jobId);
                 }
-
-                const originalPatient = await api.findPatient(this.originalTags['PatientID']);
-                const jobId = await api.modifyPatient(originalPatient['ID'], this.tags, [], this.keepSource == 'yes');
-                console.log("modify-patient-tags-in-all-studies: created job ", jobId);
-                this.startMonitoringJob(jobId);
+            } catch (err) {
+                this.setError('modify.error_modify_unexpected_error_html');
             }
-            // } else if (this.action == 'modify-study-tags') {
-            //     // make sure we do not reuse an existing PatientID
-            //     const targetPatient = await api.findPatient(this.tags['PatientID']);
-            //     if (targetPatient) {
-            //         console.error("Error while modifying study tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
-            //     } else {
-
-            //         if (this.keepStudyInstanceUid) {
-            //             replaceTags['StudyInstanceUID'] = this.originalTags['StudyInstanceUID'];
-            //         }
-
-            //         const jobId = await api.modifyStudy(this.orthancId, this.tags, []); // TODO: keepSource + keepStudyInstanceUID
-            //         console.log("modify-study-tags created job ", jobId);
-            //         this.startMonitoringJob(jobId);
-            //     }
         },
         goToNextStep(step, action) {
             if (step == 'init') {
@@ -247,11 +249,6 @@ export default {
                     for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
                         this.tags[k] = v;
                     }
-                // } else if (action == 'modify-study-tags') {
-                //     this.tags = {};
-                //     for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
-                //         this.tags[k] = v;
-                //     }
                 } else if (action == 'modify-patient-tags-in-all-studies') {
                     this.tags = {};
                     for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
@@ -269,23 +266,150 @@ export default {
             }
 
             this.$router.replace(newUrl);
+        },
+        isFrozenTag(tag) {
+            if (this.isRemovedTag(tag)) {
+                return true;
+            }
+            if (this.isDicomUid(tag)) {
+                return this.keepDicomUids;
+            } else {
+                return false;
+            }
+        },
+        isDicomUid(tag) {
+            return ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'].indexOf(tag) != -1;
+        },
+        isAutogeneratedDicomUid(tag) {
+            if (this.isDicomUid(tag)) {
+                return !this.keepDicomUids;
+            }
+            return false;
+        },
+        isRemovable(tag) {
+
+            if (document.requiredTags.indexOf(tag) != -1) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+        // clearTag(tag) {
+        //     this.tags[tag] = '';
+        // },
+        isRemovedTag(tag) {
+            // console.log("isRemovedTag", this.removedTags[tag]);
+            if (this.removedTags[tag] === undefined) {
+                console.log("undefined");
+            }
+            return this.removedTags[tag];
+        },
+        toggleRemovedTag(tag) {
+            this.removedTags[tag] = !this.removedTags[tag];
+            if (this.removedTags[tag] && this.insertedTags.has(tag)) {
+                // the tag has been inserted, remove it completely
+                delete this.tags[tag];
+                delete this.originalTags[tag];
+                delete this.removedTags[tag];
+                this.insertedTags.delete(tag);
+            }
+
+            if (this.removedTags) {
+                console.log(tag + " will be removed")
+            } else {
+                console.log(tag + " will not be removed")
+            }
+        },
+        insertTag(ev, tag) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            console.log("insert tag " + tag, this.tags, this.removedTags);
+            this.tags[tag] = "";
+            this.removedTags[tag] = false;
+            this.originalTags[tag] = null;
+            this.insertedTags.add(tag);
+            console.log("insert tag " + tag, this.tags, this.removedTags);
+        },
+        isModeAllowed(mode) {
+            return this.uiOptions.Modifications.AllowedModes.indexOf(mode) != -1;
         }
+
     },
     computed: {
         ...mapState({
-            uiOptions: state => state.configuration.uiOptions,
+            uiOptions: state => state.configuration.uiOptions
         }),
         resourceTitle() {
             return resourceHelpers.getResourceTitle("study", this.patientMainDicomTags, this.studyMainDicomTags, null, null);
         },
+        keepSource() {
+            if (this.modificationMode == "duplicate") {
+                return true;
+            } else if (this.modificationMode == "modify-new-uids") {
+                return false;
+            } else if (this.modificationMode == "modify-keep-uids") {
+                if (this.action == "attach-study-to-existing-patient") { // PatientID changes -> orthancID changes -> delete original
+                    return false;
+                } else if (this.action == "modify-any-tags-in-one-study" || this.action == "modify-patient-tags-in-all-studies") {
+                    if ('PatientID' in this.modifiedTags) {
+                        return false; // PatientID changes -> orthancID changes -> delete original
+                    } else {
+                        return true; // PatientID does not change -> orthancID does not change -> do not delete original
+                    }
+                } else {
+                    console.error("unhandled");
+                }
+            } else {
+                console.error("unhandled");
+            }
+        },
+        keepDicomUids() {
+            if (this.modificationMode == "modify-keep-uids") {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        areTagsModified() {
+            let areTagsRemoved = false;
+            for (const [k, v] of Object.entries(this.removedTags)) {
+                if (v) {
+                    areTagsRemoved = true;
+                }
+            }
+            return (Object.keys(this.modifiedTags).length > 0 || areTagsRemoved)
+        },
         modifiedTags() {
             let modifiedTags = {};
             for (const [k, v] of Object.entries(this.tags)) {
-                if (this.tags[k] != this.originalTags[k]) {
+                if (this.tags[k] != this.originalTags[k] && !this.removedTags[k]) {
                     modifiedTags[k] = this.tags[k];
                 }
             }
             return modifiedTags;
+        },
+        insertableTags() {
+            let tags = [];
+            if (this.action == 'modify-any-tags-in-one-study') {
+                tags = tags.concat(this.uiOptions.StudyMainTags);
+                tags = tags.concat(this.uiOptions.PatientMainTags);
+            }
+            const that = this;
+            tags = tags.filter(function (value, index, arr) {
+                return !(value in that.originalTags);
+            })
+
+            return tags.sort();
+        },
+        removedTagsList() {
+            let l = [];
+            for (const [k, v] of Object.entries(this.removedTags)) {
+                if (v) {
+                    l.push(k);
+                }
+            }
+            return l;
         }
     },
     components: { CopyToClipboardButton }
@@ -356,24 +480,98 @@ export default {
                 <div v-if="step == 'tags'" class="modal-body">
                     <div class="container">
                         <div v-for="(item, key) in tags" :key="key" class="row">
-                            <div class="col-md-5">
+                            <div class="col-md-5" :class="{ 'striked-through': isRemovedTag(key) }">
                                 {{ key }}
                             </div>
-                            <div class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" v-model="tags[key]"
-                                    :placeholder="item" />
+
+                            <div v-if="isFrozenTag(key)" class="col-md-6">
+                                <input v-if="true" type="text" class="form-control" disabled :class="{ 'striked-through': !isDicomUid(key) }"
+                                    v-model="originalTags[key]" />
                             </div>
-                            <!-- <div class="col-md-1">
+                            <div v-if="isFrozenTag(key)" class="col-md-1">
                                 <div class="d-flex flex-row-reverse">
-                                    <CopyToClipboardButton :valueToCopy="item" />
+                                    <button v-if="isRemovable(key) && !isRemovedTag(key)" class="btn-small"
+                                        type="button" data-bs-toggle="tooltip" :title="$t('modify.remove_tag_tooltip')"
+                                        @click="toggleRemovedTag(key)">
+                                        <i v-if="!isRemovedTag(key)" class="bi-trash"></i>
+                                    </button>
+                                    <button v-if="isRemovable(key) && isRemovedTag(key)" class="btn-small" type="button"
+                                        data-bs-toggle="tooltip" :title="$t('modify.remove_tag_undo_tooltip')"
+                                        @click="toggleRemovedTag(key)">
+                                        <i v-if="isRemovedTag(key)" class="bi-recycle"></i>
+                                    </button>
                                 </div>
-                            </div> -->
+                            </div>
+
+                            <div v-if="!isFrozenTag(key) && !isDicomUid(key)" class="col-md-6">
+                                <input v-if="true" type="text" class="form-control" v-model="tags[key]" />
+                            </div>
+                            <div v-if="!isFrozenTag(key) && !isDicomUid(key)" class="col-md-1">
+                                <div class="d-flex flex-row-reverse">
+                                    <button v-if="isRemovable(key) && !isRemovedTag(key)" class="btn-small"
+                                        type="button" data-bs-toggle="tooltip" :title="$t('modify.remove_tag_tooltip')"
+                                        @click="toggleRemovedTag(key)">
+                                        <i v-if="!isRemovedTag(key)" class="bi-trash"></i>
+                                    </button>
+                                    <button v-if="isRemovable(key) && isRemovedTag(key)" class="btn-small" type="button"
+                                        data-bs-toggle="tooltip" :title="$t('modify.remove_tag_undo_tooltip')"
+                                        @click="toggleRemovedTag(key)">
+                                        <i v-if="isRemovedTag(key)" class="bi-recycle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div v-if="isAutogeneratedDicomUid(key)" class="col-md-6">
+                                <input v-if="true" type="text" class="form-control" disabled
+                                    :value="$t('modify.autogenerated_dicom_uid')" />
+                            </div>
+                            <div v-if="isAutogeneratedDicomUid(key)" class="col-md-1">
+                            </div>
+                        </div>
+                        <div v-if="action == 'modify-any-tags-in-one-study'" class="row pt-3">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                                        id="dropdownInsertTag" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ $t('modify.insert_tag') }}
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li v-for="(key, i) in insertableTags" :key="key" :value="key"><a
+                                                class="dropdown-item" href="#" @click="insertTag($event, key)">{{ key }}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <div class="row pt-3">
-                            <div v-if="action=='modify-patient-tags-in-all-studies'" class="col-md-10">
+                            <div v-if="isModeAllowed('modify-new-uids')" class="form-check">
+                                <input class="form-check-input" type="radio" name="modificationMode" id="modifyNewUids"
+                                    value="modify-new-uids" v-model="modificationMode">
+                                <label class="form-check-label" for="modifyNewUids"
+                                    v-html="$t('modify.modify_mode_new_uids_html')">
+                                </label>
+                            </div>
+                            <div v-if="isModeAllowed('modify-keep-uids')" class="form-check">
+                                <input class="form-check-input" type="radio" name="modificationMode" id="modifyKeepUids"
+                                    value="modify-keep-uids" v-model="modificationMode">
+                                <label class="form-check-label" for="modifyKeepUids"
+                                    v-html="$t('modify.modify_mode_keep_uids_html')">
+                                </label>
+                            </div>
+                            <div v-if="isModeAllowed('duplicate')" class="form-check">
+                                <input class="form-check-input" type="radio" name="modificationMode"
+                                    id="modifyDuplicate" value="duplicate" v-model="modificationMode">
+                                <label class="form-check-label" for="modifyDuplicate"
+                                    v-html="$t('modify.modify_mode_duplicate_html')">
+                                </label>
+                            </div>
+                        </div>
+                        <!-- <div class="row pt-3">
+                            <div v-if="action == 'modify-patient-tags-in-all-studies'" class="col-md-10">
                                 {{ $t("modify.keep_source_studies") }}
                             </div>
-                            <div v-if="action!='modify-patient-tags-in-all-studies'" class="col-md-10">
+                            <div v-if="action != 'modify-patient-tags-in-all-studies'" class="col-md-10">
                                 {{ $t("modify.keep_source_study") }}
                             </div>
                             <div class="col-md-1">
@@ -383,17 +581,16 @@ export default {
                                 </label>
                             </div>
                         </div>
-                        <div v-if="action!='modify-patient-tags-in-all-studies'" class="row pt-3">
-                            <div class="col-md-10">
-                                {{ $t("modify.keep_study_instance_uid") }}
+                        <div v-if="action != 'modify-patient-tags-in-all-studies'" class="row pt-3">
+                            <div class="col-md-10" v-html="$t('modify.keep_dicom_uids_html')">
                             </div>
                             <div class="col-md-1">
                                 <label class="switch float-end">
-                                    <input type="checkbox" v-model="keepStudyInstanceUid" true-value="yes" false-value="no">
+                                    <input type="checkbox" v-model="keepDicomUids" true-value="yes" false-value="no">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div v-if="step == 'tags'" class="modal-footer">
@@ -526,5 +723,16 @@ input:checked+.slider:before {
 
 .disabled-text {
     color: #888;
+}
+
+.btn-small {
+    line-height: var(--bs-body-line-height);
+    border: 0;
+    background-color: transparent;
+    border-radius: 0.2rem;
+}
+
+.striked-through {
+    text-decoration: line-through;
 }
 </style>

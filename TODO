@@ -1,7 +1,17 @@
 For this version:
 ****************
 
-- implement button show all patient studies
+- DicomModification: 
+  - progress bar (TODO in orthanc-core: smooth progress)
+  - cleanup modified instances when cancelling job (orthanc-core)
+  - handle anonymization
+  - keep study and/or series instanceUID
+  - series modification
+  - update the study list after a modification
+  - scroll modal
+
+
+
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
 - ui/app (with missing /) shall open the interface too

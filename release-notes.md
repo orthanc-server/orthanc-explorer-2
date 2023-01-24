@@ -3,7 +3,7 @@ Changes:
 - new configuration 'Modifications'
 - new configuration 'TranslateDicomTags'   TODO
 - new configurations 'StudyMainDicomTags', 'PatientMainDicomTags' to define the list of tags to display in the study details
-
+- new link to open all studies from the same patient
 
 0.5.1 (2022-12-20)
 ==================
