@@ -64,6 +64,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
+            studies: state => state.studies.studies,
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics
         }),
@@ -502,7 +503,7 @@ export default {
                         v-model="filterStudyDescription" placeholder="Chest" />
                 </th>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
+            <StudyItem v-for="study in studies" :key="study.ID" :study="study" :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
         <div v-if="!isSearching && notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">

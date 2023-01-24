@@ -27,7 +27,6 @@ export default {
             insertedTags: new Set(),
             samePatientStudiesCount: 0,
             hasLoadedSamePatientsStudiesCount: false,
-            // areTagsModified: false,
             warningMessageId: null,
             jobProgressComplete: 0,
             jobProgressFailed: 0,
@@ -39,8 +38,6 @@ export default {
             showModifiedResourceKey: null,
             showModifiedResourceValue: null,
             modificationMode: null,
-            //            createNewStudy: true,
-            //            showCreateNewStudyOption: true,
             step: 'init', // allowed values: 'init', 'tags', 'warning', 'error', 'progress', 'done'
             action: 'none'
         }
@@ -48,8 +45,6 @@ export default {
     async mounted() {
         console.log("ModifyModal mounted");
         this.reset();
-        // this.createNewStudy = ["Always", "DefaultYes"].indexOf(this.uiOptions.ModifyCreatesNewStudy) != -1;
-        // this.showCreateNewStudyOption = ["DefaultYes", "DefaultNo"].indexOf(this.uiOptions.ModifyCreatesNewStudy) != -1;
 
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
             // move the modal to body to avoid z-index issues: https://weblog.west-wind.com/posts/2016/sep/14/bootstrap-modal-dialog-showing-under-modal-background
@@ -259,13 +254,13 @@ export default {
                 }
             }
         },
-        showModifiedResources() {
+        async showModifiedResources() {
             let newUrl = "";
             if (this.showModifiedResourceKey) {
                 newUrl = "/filtered-studies?" + this.showModifiedResourceKey + '=' + this.showModifiedResourceValue;
             }
 
-            this.$router.replace(newUrl);
+            this.$router.go(newUrl);
         },
         isFrozenTag(tag) {
             if (this.isRemovedTag(tag)) {
@@ -567,30 +562,6 @@ export default {
                                 </label>
                             </div>
                         </div>
-                        <!-- <div class="row pt-3">
-                            <div v-if="action == 'modify-patient-tags-in-all-studies'" class="col-md-10">
-                                {{ $t("modify.keep_source_studies") }}
-                            </div>
-                            <div v-if="action != 'modify-patient-tags-in-all-studies'" class="col-md-10">
-                                {{ $t("modify.keep_source_study") }}
-                            </div>
-                            <div class="col-md-1">
-                                <label class="switch float-end">
-                                    <input type="checkbox" v-model="keepSource" true-value="yes" false-value="no">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div v-if="action != 'modify-patient-tags-in-all-studies'" class="row pt-3">
-                            <div class="col-md-10" v-html="$t('modify.keep_dicom_uids_html')">
-                            </div>
-                            <div class="col-md-1">
-                                <label class="switch float-end">
-                                    <input type="checkbox" v-model="keepDicomUids" true-value="yes" false-value="no">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div> -->
                     </div>
                 </div>
                 <div v-if="step == 'tags'" class="modal-footer">
