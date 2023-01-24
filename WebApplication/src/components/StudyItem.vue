@@ -5,7 +5,7 @@ import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 
 export default {
-    props: ["study", "isSearchButtonEnabled"],
+    props: ["studyId", "isSearchButtonEnabled"],
     emits: ["deletedStudy"],
     data() {
         return {
@@ -16,9 +16,10 @@ export default {
         };
     },
     async mounted() {
-        this.fields = this.study;
+        const study = this.studies.filter(s => s["ID"] == this.studyId)[0];
+        this.fields = study;
         this.loaded = true;
-        this.seriesIds = this.study.Series;
+        this.seriesIds = study.Series;
 
         if (!this.$refs['study-collapsible-details']) {
             console.log('no refs: ', studyResponse);
@@ -48,7 +49,7 @@ export default {
     },
     methods: {
         onDeletedStudy(studyId) {
-            this.$emit("deletedStudy", this.study.ID);
+            this.$emit("deletedStudy", this.studyId);
         }
     },
     computed: {
@@ -79,7 +80,7 @@ export default {
                 class="cut-text"
                 :class="{ 'text-center' : columnTag in ['modalities', 'seriesCount']}"
                 data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#study-details-' + this.study.ID"
+                v-bind:data-bs-target="'#study-details-' + this.studyId"
             >
                 <span
                     v-if="columnTag=='StudyDate'"
@@ -133,12 +134,12 @@ export default {
             v-show="loaded"
             class="collapse"
             :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded': expanded }"
-            v-bind:id="'study-details-' + this.study.ID"
+            v-bind:id="'study-details-' + this.studyId"
             ref="study-collapsible-details"
         >
             <td v-if="loaded && expanded" colspan="100">
                 <StudyDetails
-                    :study="this.study"
+                    :studyId="this.studyId"
                     :studyMainDicomTags="this.fields.MainDicomTags"
                     :patientMainDicomTags="this.fields.PatientMainDicomTags"
                     @deletedStudy="onDeletedStudy"

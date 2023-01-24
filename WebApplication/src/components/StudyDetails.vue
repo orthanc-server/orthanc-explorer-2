@@ -7,7 +7,7 @@ import ResourceDetailText from "./ResourceDetailText.vue";
 import api from "../orthancApi";
 
 export default {
-    props: ['study', 'studyMainDicomTags', 'patientMainDicomTags'],
+    props: ['studyId', 'studyMainDicomTags', 'patientMainDicomTags'],
     setup() {
     },
     data() {
@@ -32,7 +32,7 @@ export default {
     components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText },
     methods: {
         onDeletedStudy() {
-            this.$emit("deletedStudy", this.study.ID);
+            this.$emit("deletedStudy", this.studyId);
         }
     }
 
@@ -63,7 +63,7 @@ export default {
                 </p>
             </td>
             <td width="20%" class="study-button-group">
-                <ResourceButtonGroup :resourceOrthancId="this.study.ID" :resourceLevel="'study'"
+                <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
                     :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                     :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" @deletedResource="onDeletedStudy">
                 </ResourceButtonGroup>
@@ -71,7 +71,7 @@ export default {
         </tr>
         <tr>
             <td colspan="100">
-                <SeriesList :studyId="this.study.ID" :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags" @deletedStudy="onDeletedStudy"></SeriesList>
+                <SeriesList :studyId="this.studyId" :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags" @deletedStudy="onDeletedStudy"></SeriesList>
             </td>
         </tr>
     </table>
