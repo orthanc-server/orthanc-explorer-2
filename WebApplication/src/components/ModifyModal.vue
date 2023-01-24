@@ -4,6 +4,7 @@ import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import api from "../orthancApi"
+import { v4 as uuidv4 } from "uuid"
 
 // these tags can not be removed
 document.requiredTags = [
@@ -14,11 +15,7 @@ document.requiredTags = [
 
 
 export default {
-    props: ["orthancId", "studyMainDicomTags", "patientMainDicomTags"],
-    methods: {
-        modify() {
-        }
-    },
+    props: ["orthancId", "studyMainDicomTags", "patientMainDicomTags", "isAnonymization"],
     data() {
         return {
             tags: {},                                       // the tag values entered in the dialog
@@ -68,26 +65,45 @@ export default {
 
             this.tags = {};
             this.originalTags = {};
-            this.modifiedTags = {};
             this.removedTags = {};
             this.insertedTags = new Set();
-            for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
-                this.originalTags[k] = v;
-                this.removedTags[k] = false;
-            }
-            for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
-                this.originalTags[k] = v;
-                this.removedTags[k] = false;
-            }
+
+            // if (this.isAnonymization) {
+            //     const uuid = uuidv4();
+            //     const initTags = {
+            //         'PatientID': uuid,
+            //         'PatientName': uuid,
+            //         'PatientBirthDate': '',
+            //         'PatientSex': '',
+            //         'StudyDescription': this.studyMainDicomTags['StudyDescription']
+            //     }
+            //     for (const [k, v] of Object.entries(initTags)) {
+            //         this.originalTags[k] = v;
+            //         this.removedTags[k] = false;
+            //     }
+            // } else {
+                for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
+                    this.originalTags[k] = v;
+                    this.removedTags[k] = false;
+                }
+                for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
+                    this.originalTags[k] = v;
+                    this.removedTags[k] = false;
+                }
+            // }
 
             this.jobProgressComplete = 0;
             this.jobProgressFailed = 0;
             this.jobProgressRemaining = 100;
 
             this.modificationMode = this.uiOptions.Modifications.DefaultMode;
+
+            if (this.isAnonymization) {
+                this.goToNextStep('init', 'anonymize-study');
+            }
         },
         back() {
-            if (this.step == 'tags') {
+            if (this.step == 'tags' && !this.isAnonymization) {
                 this.step = 'init';
             } else if (this.step == 'warning' || this.step == 'error') {
                 this.step = 'tags';
@@ -219,10 +235,17 @@ export default {
                         orthancId: originalPatient['ID'],
                         replaceTags: this.tags,
                         keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
-                        keepSource: this.keepSource,
                         removeTags: this.removedTagsList
                     });
                     console.log("modify-patient-tags-in-all-studies: created job ", jobId);
+                    this.startMonitoringJob(jobId);
+                } else if (this.action == 'anonymize-study') {
+                    const jobId = await api.anonymizeStudy({
+                        orthancId: this.orthancId,
+                        replaceTags: this.tags,
+                        removeTags: this.removedTagsList
+                    });
+                    console.log("anonymize-study: created job ", jobId);
                     this.startMonitoringJob(jobId);
                 }
             } catch (err) {
@@ -233,7 +256,19 @@ export default {
             if (step == 'init') {
                 this.step = 'tags';
                 this.action = action;
-                if (action == 'attach-study-to-existing-patient') {
+                if (action == 'anonymize-study') {
+                    const uuid = uuidv4();
+
+                    this.tags = {};
+                    this.tags['PatientID'] = uuid;
+                    this.tags['PatientName'] = uuid;
+                    this.tags['PatientBirthDate'] = '';
+                    this.tags['PatientSex'] = '';
+                    if ('StudyDescription' in this.studyMainDicomTags) {
+                        this.tags['StudyDescription'] = this.studyMainDicomTags['StudyDescription'];
+                    }
+                }
+                else if (action == 'attach-study-to-existing-patient') {
                     this.tags = {};
                     this.tags['PatientID'] = this.patientMainDicomTags['PatientID'];
                 } else if (action == 'modify-any-tags-in-one-study') {
@@ -260,7 +295,8 @@ export default {
                 newUrl = "/filtered-studies?" + this.showModifiedResourceKey + '=' + this.showModifiedResourceValue;
             }
 
-            this.$router.go(newUrl);
+            this.$router.push(newUrl);
+            await this.$store.dispatch('studies/reloadFilteredStudies');
         },
         isFrozenTag(tag) {
             if (this.isRemovedTag(tag)) {
@@ -425,7 +461,7 @@ export default {
                 <!-- ------------------------------------------ step 'init' --------------------------------------------------->
                 <div v-if="step == 'init'" class="modal-body">
                     <div class="container">
-                        <div class="row border-bottom pb-3">
+                        <div v-if="!isAnonymization" class="row border-bottom pb-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_attach_study_to_existing_patient_html')">
                             </div>
@@ -435,7 +471,7 @@ export default {
                                     @click="goToNextStep(step, 'attach-study-to-existing-patient')"></button>
                             </div>
                         </div>
-                        <div v-if="samePatientStudiesCount > 1" class="row border-bottom border-3 py-3">
+                        <div v-if="!isAnonymization && samePatientStudiesCount > 1" class="row border-bottom border-3 py-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_patient_has_other_studies_html', { count: samePatientStudiesCount })">
                             </div>
@@ -445,7 +481,7 @@ export default {
                                     @click="goToNextStep(step, 'modify-patient-tags-in-all-studies')"></button>
                             </div>
                         </div>
-                        <div v-if="samePatientStudiesCount >= 1" class="row pt-3">
+                        <div v-if="!isAnonymization && samePatientStudiesCount >= 1" class="row pt-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_modify_study_html', { count: samePatientStudiesCount })">
                             </div>
@@ -455,16 +491,6 @@ export default {
                                     @click="goToNextStep(step, 'modify-any-tags-in-one-study')"></button>
                             </div>
                         </div>
-                        <!-- <div v-if="samePatientStudiesCount > 1" class="row pt-3">
-                            <div class="col-md-9"
-                                v-html="$t('modify.study_step_0_study_step_0_modify_study_with_siblings_html', { count: samePatientStudiesCount })">
-                            </div>
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-primary w-100"
-                                    v-html="$t('modify.study_step_0_study_step_0_modify_study_with_siblings_button_title_html')"
-                                    @click="goToNextStep(step, 'modify-study-tags')"></button>
-                            </div>
-                        </div> -->
                     </div>
                 </div>
                 <div v-if="step == 'init'" class="modal-footer">
@@ -539,7 +565,7 @@ export default {
                                 </div>
                             </div>
                         </div>
-                        <div class="row pt-3">
+                        <div v-if="!isAnonymization" class="row pt-3">
                             <div v-if="isModeAllowed('modify-new-uids')" class="form-check">
                                 <input class="form-check-input" type="radio" name="modificationMode" id="modifyNewUids"
                                     value="modify-new-uids" v-model="modificationMode">
@@ -564,13 +590,19 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div v-if="step == 'tags'" class="modal-footer">
+                <div v-if="step == 'tags' && !isAnonymization" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
                     }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" :disabled="!areTagsModified" @click="modify()">{{
                         $t("modify.modify_button_title")
+                    }}</button>
+                </div>
+                <div v-if="step == 'tags' && isAnonymization" class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
+                    <button type="button" class="btn btn-primary" @click="modify()">{{
+                        $t("modify.anonymize_button_title")
                     }}</button>
                 </div>
 

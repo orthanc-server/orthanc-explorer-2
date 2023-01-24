@@ -7,17 +7,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.2.0",
+    "@fortawesome/fontawesome-free": "^6.2.1",
     "@popperjs/core": "^2.11.6",
     "axios": "^0.24.0",
-    "bootstrap": "^5.2.0",
-    "bootstrap-icons": "^1.9.1",
-    "jquery": "^3.6.1",
+    "bootstrap": "^5.2.3",
+    "bootstrap-icons": "^1.10.0",
+    "jquery": "^3.6.3",
+    "uuid": "^9.0.0",
     "uppie": "^1.1.4",
-    "vue": "^3.2.38",
+    "vue": "^3.2.45",
     "vue-i18n": "^9.2.2",
-    "vue-router": "^4.1.5",
-    "vuex": "^4.0.2"
+    "vue-router": "^4.1.6",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.4",

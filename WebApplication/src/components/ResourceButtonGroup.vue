@@ -282,11 +282,20 @@ export default {
         <div class="btn-group">
             <button v-if="true" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
-                <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.button_title')"></i>
+                <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
             </button>
             <ModifyModal v-if="true" :id="'modify-modal-' + this.resourceOrthancId"
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
-                :patientMainDicomTags="this.patientMainDicomTags"></ModifyModal>
+                :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="false"></ModifyModal>
+        </div>
+        <div class="btn-group">
+            <button v-if="true" class="btn btn-sm btn-secondary m-1" type="button"
+                data-bs-toggle="modal" v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId">
+                <i class="bi bi-person-slash" data-bs-toggle="tooltip" :title="$t('modify.anonymize_button_title')"></i>
+            </button>
+            <ModifyModal v-if="true" :id="'anonymize-modal-' + this.resourceOrthancId"
+                :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="true"></ModifyModal>
         </div>
         <div class="btn-group">
             <div class="dropdown">

@@ -216,6 +216,18 @@ export default {
         return response.data['url'];
     },
 
+    async anonymizeStudy({orthancId, replaceTags={}, removeTags=[]}) {
+        const response = (await axios.post(orthancApiUrl + "studies/" + orthancId + "/anonymize", {
+            "Replace": replaceTags,
+            "Remove": removeTags,
+            "KeepSource": true,
+            "Force": true,
+            "Synchronous": false
+        }))
+
+        return response.data['ID'];
+    },
+
     async modifyStudy({orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
         const response = (await axios.post(orthancApiUrl + "studies/" + orthancId + "/modify", {
             "Replace": replaceTags,
