@@ -1,11 +1,6 @@
 For this version:
 ****************
 
-- DicomModification: 
-  - progress bar (TODO in orthanc-core: smooth progress)
-  - cleanup modified instances when cancelling job (orthanc-core)
-
-
 
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
 
