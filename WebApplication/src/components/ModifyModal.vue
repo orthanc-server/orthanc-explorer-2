@@ -442,6 +442,9 @@ export default {
             }
         },
         isEditableTag(tag) {
+            if (this.isRemovedTag(tag)) {
+                return false;
+            }
             if (this.resourceLevel == 'series') {
                 if (this.action == 'attach-series-to-existing-study' && tag == 'StudyInstanceUID') {
                     return true;
@@ -713,7 +716,7 @@ export default {
                             </div>
 
                             <!----  buttons  ---->
-                            <div v-if="isFrozenTag(key)" class="col-md-1">
+                            <div v-if="true" class="col-md-1">
                                 <div class="d-flex flex-row-reverse">
                                     <button v-if="isRemovable(key) && !isRemovedTag(key)" class="btn-small"
                                         type="button" data-bs-toggle="tooltip" :title="$t('modify.remove_tag_tooltip')"

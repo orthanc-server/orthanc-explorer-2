@@ -128,9 +128,11 @@ const actions = {
         commit('clearFilter');
     },
     async reloadFilteredStudies({ commit, getters }) {
+        commit('setStudiesIds', { studiesIds: [] });
+        commit('setStudies', { studies: [] });
+
         if (getters.isFilterEmpty && this.state.configuration.uiOptions.StudyListEmptyIfNoSearch) {
-            commit('setStudiesIds', { studiesIds: [] });
-            commit('setStudies', { studies: [] });
+            return;
         } else {
             try {
                 commit('setIsSearching', { isSearching: true});

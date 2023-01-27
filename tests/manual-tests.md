@@ -29,14 +29,14 @@ Edit study tags to create a modified copy:
   - Check the new study has changed its tags
 
 Edit study tags 'in place':
-- on the new Study, `Modify Study tags`, first copy the `StudyInstanceUID` and change:
+- on the new Study, first copy-paste the `StudyInstanceUID` somewhere
+  - click `Modify Study tags`, and change:
   - `StudyDate = 20200101`
   - select "Modify the original study. (keeping the original DICOM UIDs)"
   - Apply
   - Check:
     - `StudyDate == 20200101`
     - `StudyInstanceUID` has not changed
-    ----- > TODO: right now: needs reload
 
 
 Edit study tags, can not be used to edit a patient who already has other studies
