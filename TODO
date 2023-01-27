@@ -4,11 +4,6 @@ For this version:
 - DicomModification: 
   - progress bar (TODO in orthanc-core: smooth progress)
   - cleanup modified instances when cancelling job (orthanc-core)
-  - handle anonymization
-  - keep study and/or series instanceUID
-  - series modification
-  - update the study list after a modification
-  - scroll modal
 
 
 

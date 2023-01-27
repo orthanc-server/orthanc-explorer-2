@@ -615,7 +615,7 @@ export default {
 <template>
     <div class="modal fade" :id="this.orthancId" tabindex="-1" aria-labelledby="modalLabel" ref="modal-main-div">
         <!-- aria-hidden="true" -->
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 v-if="!isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.modify_modal_title") + " " + resourceTitle }} </h5>
