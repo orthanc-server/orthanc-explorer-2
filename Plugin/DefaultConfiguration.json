@@ -21,6 +21,8 @@
             "EnableDownloadZip": true,                  // Enables the download zip button for Studies/Series
             "EnableDownloadDicomDir": false,            // Enables the download DICOM DIR button for Studies/Series
             "EnableDownloadDicomFile": true,            // Enables the download DICOM file button for Instances
+            "EnableAnonimization": true,                // Enables the anonymize button
+            "EnableModification": true,                 // Enables the modify button
             "EnableSendTo": true,                       // Enables the 'SendTo' button for Studies/Series/Instances
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface

@@ -103,6 +103,23 @@ export default {
             return null;
         }
     },
+    async findStudy(studyInstanceUid) {
+        const response = (await axios.post(orthancApiUrl + "tools/lookup", studyInstanceUid));
+        if (response.data.length == 1) {
+            const study = (await axios.get(orthancApiUrl + "studies/" + response.data[0]['ID']));
+            return study.data;
+        } else {
+            return null;
+        }
+    },
+    async mergeSeriesInExistingStudy({seriesIds, targetStudyId, keepSource}) {
+        const response = (await axios.post(orthancApiUrl + "studies/" + targetStudyId + "/merge", {
+            "Resources": seriesIds,
+            "KeepSource": keepSource,
+            "Synchronous": false
+        }));
+        return response.data['ID'];
+    },
     async cancelRemoteDicomFindStudies() {
         if (window.axioRemoteDicomFindStudiesAbortController) {
             window.axioRemoteDicomFindStudiesAbortController.abort();
@@ -163,6 +180,9 @@ export default {
     async getSeriesInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
     },
+    async getSeriesParentStudy(orthancId) {
+        return (await axios.get(orthancApiUrl + "series/" + orthancId + "/study")).data;
+    },
     async getInstanceTags(orthancId) {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags")).data;
     },
@@ -172,7 +192,9 @@ export default {
     async getStatistics() {
         return (await axios.get(orthancApiUrl + "statistics")).data;
     },
-
+    async generateUid(level) {
+        return (await axios.get(orthancApiUrl + "tools/generate-uid?level=" + level)).data;
+    },
     async setVerboseLevel(level) {
         await axios.put(orthancApiUrl + "tools/log-level", level);
     },
@@ -216,8 +238,8 @@ export default {
         return response.data['url'];
     },
 
-    async anonymizeStudy({orthancId, replaceTags={}, removeTags=[]}) {
-        const response = (await axios.post(orthancApiUrl + "studies/" + orthancId + "/anonymize", {
+    async anonymizeResource({resourceLevel, orthancId, replaceTags={}, removeTags=[]}) {
+        const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/anonymize", {
             "Replace": replaceTags,
             "Remove": removeTags,
             "KeepSource": true,
@@ -228,21 +250,8 @@ export default {
         return response.data['ID'];
     },
 
-    async modifyStudy({orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
-        const response = (await axios.post(orthancApiUrl + "studies/" + orthancId + "/modify", {
-            "Replace": replaceTags,
-            "Remove": removeTags,
-            "Keep": keepTags,
-            "KeepSource": keepSource,
-            "Force": true,
-            "Synchronous": false
-        }))
-
-        return response.data['ID'];
-    },
-
-    async modifyPatient({orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
-        const response = (await axios.post(orthancApiUrl + "patients/" + orthancId + "/modify", {
+    async modifyResource({resourceLevel, orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
+        const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/modify", {
             "Replace": replaceTags,
             "Remove": removeTags,
             "Keep": keepTags,

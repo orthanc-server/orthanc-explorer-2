@@ -13,9 +13,20 @@ document.requiredTags = [
     'SeriesInstanceUID', 'Modality', 'ContrastBolusAgent', 'SeriesNumber', 'ImageOrientationPatient', 'SeriesType'
 ];
 
+// list of actions: 
+// - 'attach-study-to-existing-patient', 
+// - 'modify-any-tags-in-one-study',
+// - 'modify-patient-tags-in-all-studies',
+// - 'anonymize-study',
+// - 'attach-series-to-existing-study',
+// - 'modify-series-tags',
+// - 'create-new-study-from-series',
+// - 'anonymize-series'
+
+
 
 export default {
-    props: ["orthancId", "studyMainDicomTags", "patientMainDicomTags", "isAnonymization"],
+    props: ["orthancId", "studyMainDicomTags", "patientMainDicomTags", "seriesMainDicomTags", "isAnonymization", "resourceLevel"],
     data() {
         return {
             tags: {},                                       // the tag values entered in the dialog
@@ -68,29 +79,21 @@ export default {
             this.removedTags = {};
             this.insertedTags = new Set();
 
-            // if (this.isAnonymization) {
-            //     const uuid = uuidv4();
-            //     const initTags = {
-            //         'PatientID': uuid,
-            //         'PatientName': uuid,
-            //         'PatientBirthDate': '',
-            //         'PatientSex': '',
-            //         'StudyDescription': this.studyMainDicomTags['StudyDescription']
-            //     }
-            //     for (const [k, v] of Object.entries(initTags)) {
-            //         this.originalTags[k] = v;
-            //         this.removedTags[k] = false;
-            //     }
-            // } else {
-                for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
+            for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
+                this.originalTags[k] = v;
+                this.removedTags[k] = false;
+            }
+            for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
+                this.originalTags[k] = v;
+                this.removedTags[k] = false;
+            }
+
+            if (this.resourceLevel == "series") {
+                for (const [k, v] of Object.entries(this.seriesMainDicomTags)) {
                     this.originalTags[k] = v;
                     this.removedTags[k] = false;
                 }
-                for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
-                    this.originalTags[k] = v;
-                    this.removedTags[k] = false;
-                }
-            // }
+            }
 
             this.jobProgressComplete = 0;
             this.jobProgressFailed = 0;
@@ -99,7 +102,11 @@ export default {
             this.modificationMode = this.uiOptions.Modifications.DefaultMode;
 
             if (this.isAnonymization) {
-                this.goToNextStep('init', 'anonymize-study');
+                if (this.resourceLevel == 'study') {
+                    this.goToNextStep('init', 'anonymize-study');
+                } else {
+                    this.goToNextStep('init', 'anonymize-series');
+                }
             }
         },
         back() {
@@ -151,28 +158,39 @@ export default {
                 setTimeout(this.monitorJob, this.jobRefreshTimeout, [jobId]);
             } else {
                 this.step = 'done';
-                if (jobStatus['Content']['Type'] == 'Patient') {
-                    this.showModifiedResourceKey = "PatientID";
-                    const modifiedPatient = await api.getPatient(jobStatus['Content']['ID']);
-                    this.showModifiedResourceValue = modifiedPatient['MainDicomTags']['PatientID'];
-                } else if (jobStatus['Content']['Type'] == 'Study') {
-                    this.showModifiedResourceKey = "StudyInstanceUID";
-                    const modifiedStudy = await api.getStudy(jobStatus['Content']['ID']);
+                const jobType = jobStatus['Type'];
+                if (jobType == 'MergeStudy') {
+                    const modifiedStudy = await api.getStudy(jobStatus['Content']['TargetStudy']);
                     this.showModifiedResourceValue = modifiedStudy['MainDicomTags']['StudyInstanceUID'];
-                } else {
-                    console.error("not handled yet")
+                    this.showModifiedResourceKey = "StudyInstanceUID";
+                } else if (jobType == 'ResourceModification') {
+                    if (jobStatus['Content']['Type'] == 'Patient') {
+                        this.showModifiedResourceKey = "PatientID";
+                        const modifiedPatient = await api.getPatient(jobStatus['Content']['ID']);
+                        this.showModifiedResourceValue = modifiedPatient['MainDicomTags']['PatientID'];
+                    } else if (jobStatus['Content']['Type'] == 'Study') {
+                        this.showModifiedResourceKey = "StudyInstanceUID";
+                        const modifiedStudy = await api.getStudy(jobStatus['Content']['ID']);
+                        this.showModifiedResourceValue = modifiedStudy['MainDicomTags']['StudyInstanceUID'];
+                    } else if (jobStatus['Content']['Type'] == 'Series') {
+                        this.showModifiedResourceKey = "StudyInstanceUID";
+                        const modifiedStudy = await api.getSeriesParentStudy(jobStatus['Content']['ID']);
+                        this.showModifiedResourceValue = modifiedStudy['MainDicomTags']['StudyInstanceUID'];
+                    } else {
+                        console.error("not handled yet")
+                    }
                 }
-                // modifiedResourceFilter
             }
         },
-        async modify() {
+        async modify(hasAcceptedWarning = false) {
             try {
                 // perform checks before modification
                 if (this.action == 'attach-study-to-existing-patient') {
                     // make sure we use an existing PatientID
                     const targetPatient = await api.findPatient(this.tags['PatientID']);
                     if (targetPatient) {
-                        const jobId = await api.modifyStudy({
+                        const jobId = await api.modifyResource({
+                            resourceLevel: 'study',
                             orthancId: this.orthancId,
                             replaceTags: targetPatient.MainDicomTags,
                             keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
@@ -209,7 +227,8 @@ export default {
                     }
 
                     // at this point, it is safe to modify any tags
-                    const jobId = await api.modifyStudy({
+                    const jobId = await api.modifyResource({
+                        resourceLevel: 'study',
                         orthancId: this.orthancId,
                         replaceTags: this.modifiedTags,
                         keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
@@ -231,7 +250,8 @@ export default {
                     }
 
                     const originalPatient = await api.findPatient(this.originalTags['PatientID']);
-                    const jobId = await api.modifyPatient({
+                    const jobId = await api.modifyResource({
+                        resourceLevel: 'patient',
                         orthancId: originalPatient['ID'],
                         replaceTags: this.tags,
                         keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
@@ -240,13 +260,89 @@ export default {
                     console.log("modify-patient-tags-in-all-studies: created job ", jobId);
                     this.startMonitoringJob(jobId);
                 } else if (this.action == 'anonymize-study') {
-                    const jobId = await api.anonymizeStudy({
+                    const jobId = await api.anonymizeResource({
+                        resourceLevel: 'study',
                         orthancId: this.orthancId,
                         replaceTags: this.tags,
                         removeTags: this.removedTagsList
                     });
                     console.log("anonymize-study: created job ", jobId);
                     this.startMonitoringJob(jobId);
+                } else if (this.action == 'attach-series-to-existing-study') {
+                    if (this.tags['StudyInstanceUID'] == this.originalTags['StudyInstanceUID']) {
+                        console.error("attach-series-to-existing-study: Error target study is same as current study ", this.tags['StudyInstanceUID']);
+                        this.setError('modify.error_attach_series_to_existing_study_target_unchanged_html');
+                        return;
+                    } else {
+                        const targetStudy = await api.findStudy(this.tags['StudyInstanceUID']);
+                        if (targetStudy == null) {
+                            console.error("attach-series-to-existing-study: target study not found ", this.tags['StudyInstanceUID']);
+                            this.setError('modify.error_attach_series_to_existing_study_target_does_not_exist_html');
+                            return;
+                        } else {
+                            const jobId = await api.mergeSeriesInExistingStudy({
+                                seriesIds: [this.orthancId],
+                                targetStudyId: targetStudy['ID'],
+                                keepSource: false
+                            });
+                            console.log("attach-series-to-existing-study: created job ", jobId);
+                            this.startMonitoringJob(jobId);                            
+                        }
+                    }
+                } else if (this.action == 'create-new-study-from-series') {
+                    // check if a patient with the same PatientID already exists
+                    const targetPatient = await api.findPatient(this.tags['PatientID']);
+                    if (targetPatient) {
+                        if (!hasAcceptedWarning) {
+                            if (targetPatient['MainDicomTags']['PatientName'] != this.tags['PatientName']
+                                || targetPatient['MainDicomTags']['PatientBirthDate'] != this.tags['PatientBirthDate']
+                                || targetPatient['MainDicomTags']['PatientSex'] != this.tags['PatientSex']
+                            ) {
+                                console.warn("create-new-study-from-series: Another patient exists but tags differ", targetPatient['MainDicomTags'], this.tags);
+                                this.setWarning('modify.warning_create_new_study_from_series_html');
+                                return;
+                            }
+                        } else {
+                            console.log("create-new-study-from-series: warning accepted, copying existing Patient tags");
+                            this.tags['PatientName'] = targetPatient['MainDicomTags']['PatientName'];
+                            this.tags['PatientBirthDate'] = targetPatient['MainDicomTags']['PatientBirthDate'];
+                            this.tags['PatientSex'] = targetPatient['MainDicomTags']['PatientSex'];
+                        }
+                    }
+
+                    // generate a new StudyInstanceUID (since we perform modification at series level, orthanc would keep even if not listed in keepTags)
+                    this.tags['StudyInstanceUID'] = await api.generateUid('study');
+                    const jobId = await api.modifyResource({
+                        resourceLevel: 'series',
+                        orthancId: this.orthancId,
+                        replaceTags: this.tags,
+                        keepTags: ['SeriesInstanceUID', 'SOPInstanceUID'],
+                        keepSource: false
+                    });
+                    console.log("create-new-study-from-series: created job ", jobId);
+                    this.startMonitoringJob(jobId);                            
+
+                } else if (this.action == 'modify-series-tags') {
+                    const jobId = await api.modifyResource({
+                        resourceLevel: 'series',
+                        orthancId: this.orthancId,
+                        replaceTags: this.tags,
+                        keepTags: ['SeriesInstanceUID', 'SOPInstanceUID'],
+                        keepSource: true   // keep the source since the orthanc id won't change !
+                    });
+                    console.log("modify-series-tags: created job ", jobId);
+                    this.startMonitoringJob(jobId);                            
+                } else if (this.action == 'anonymize-series') {
+                    const jobId = await api.anonymizeResource({
+                        resourceLevel: 'series',
+                        orthancId: this.orthancId,
+                        replaceTags: this.tags,
+                        removeTags: this.removedTagsList
+                    });
+                    console.log("anonymize-study: created job ", jobId);
+                    this.startMonitoringJob(jobId);
+                } else {
+                    console.error('unhandled');
                 }
             } catch (err) {
                 this.setError('modify.error_modify_unexpected_error_html');
@@ -261,14 +357,13 @@ export default {
 
                     this.tags = {};
                     this.tags['PatientID'] = uuid;
-                    this.tags['PatientName'] = uuid;
+                    this.tags['PatientName'] = 'Anonymized ' + uuid.substr(0, 8);
                     this.tags['PatientBirthDate'] = '';
                     this.tags['PatientSex'] = '';
                     if ('StudyDescription' in this.studyMainDicomTags) {
                         this.tags['StudyDescription'] = this.studyMainDicomTags['StudyDescription'];
                     }
-                }
-                else if (action == 'attach-study-to-existing-patient') {
+                } else if (action == 'attach-study-to-existing-patient') {
                     this.tags = {};
                     this.tags['PatientID'] = this.patientMainDicomTags['PatientID'];
                 } else if (action == 'modify-any-tags-in-one-study') {
@@ -284,34 +379,87 @@ export default {
                     for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
                         this.tags[k] = v;
                     }
+                } else if (action == 'attach-series-to-existing-study') {
+                    this.tags = {};
+                    this.tags['StudyInstanceUID'] = "";
+                } else if (action == 'create-new-study-from-series') {
+                    this.tags = {};
+                    this.tags['PatientID'] = '';
+                    this.tags['PatientName'] = '';
+                    this.tags['PatientBirthDate'] = '';
+                    this.tags['PatientSex'] = '';
+                    this.tags['StudyDescription'] = '';
+                } else if (action == 'modify-series-tags') {
+                    this.tags = {};
+                    for (const [k, v] of Object.entries(this.seriesMainDicomTags)) {
+                        this.tags[k] = v;
+                    }
+                } else if (action == 'anonymize-series') {
+                    const uuid = uuidv4();
+
+                    this.tags = {};
+                    this.tags['PatientID'] = uuid;
+                    this.tags['PatientName'] = 'Anonymized ' + uuid.substr(0, 8);
+                    this.tags['PatientBirthDate'] = '';
+                    this.tags['PatientSex'] = '';
+                    if ('StudyDescription' in this.studyMainDicomTags) {
+                        this.tags['StudyDescription'] = this.studyMainDicomTags['StudyDescription'];
+                    }
                 } else {
                     console.error('unknown action ', action);
                 }
+            } else if (this.step == 'warning') {
+                this.modify();
             }
         },
         async showModifiedResources() {
             let newUrl = "";
+            let query = {
+                'forceRefresh' : Date.now() // to force refresh
+            };
             if (this.showModifiedResourceKey) {
-                newUrl = "/filtered-studies?" + this.showModifiedResourceKey + '=' + this.showModifiedResourceValue;
+                query[this.showModifiedResourceKey] = this.showModifiedResourceValue;
             }
 
-            this.$router.push(newUrl);
-            await this.$store.dispatch('studies/reloadFilteredStudies');
+            this.$router.push({path: newUrl, query: query});
+            // location.reload();
         },
         isFrozenTag(tag) {
             if (this.isRemovedTag(tag)) {
                 return true;
             }
-            if (this.isDicomUid(tag)) {
+            if (this.resourceLevel == 'series') {
+                if (this.action == 'modify-series-tags' && tag == 'SeriesInstanceUID') {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else if (this.isDicomUid(tag)) {
                 return this.keepDicomUids;
             } else {
                 return false;
             }
         },
+        isEditableTag(tag) {
+            if (this.resourceLevel == 'series') {
+                if (this.action == 'attach-series-to-existing-study' && tag == 'StudyInstanceUID') {
+                    return true;
+                }
+            }
+
+            if (this.isDicomUid(tag)) {
+                return false;
+            }
+            return true;
+        },
         isDicomUid(tag) {
             return ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'].indexOf(tag) != -1;
         },
         isAutogeneratedDicomUid(tag) {
+            if (this.resourceLevel == 'series') {
+                return false;
+            }
             if (this.isDicomUid(tag)) {
                 return !this.keepDicomUids;
             }
@@ -325,11 +473,7 @@ export default {
                 return true;
             }
         },
-        // clearTag(tag) {
-        //     this.tags[tag] = '';
-        // },
         isRemovedTag(tag) {
-            // console.log("isRemovedTag", this.removedTags[tag]);
             if (this.removedTags[tag] === undefined) {
                 console.log("undefined");
             }
@@ -363,6 +507,9 @@ export default {
             console.log("insert tag " + tag, this.tags, this.removedTags);
         },
         isModeAllowed(mode) {
+            if (this.resourceLevel == 'series') {
+                return false;
+            }
             return this.uiOptions.Modifications.AllowedModes.indexOf(mode) != -1;
         }
 
@@ -372,7 +519,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions
         }),
         resourceTitle() {
-            return resourceHelpers.getResourceTitle("study", this.patientMainDicomTags, this.studyMainDicomTags, null, null);
+            return resourceHelpers.getResourceTitle(this.resourceLevel, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, null);
         },
         keepSource() {
             if (this.modificationMode == "duplicate") {
@@ -441,6 +588,20 @@ export default {
                 }
             }
             return l;
+        },
+        modifyButtonTitle() {
+            if (this.isAnonymization) {
+                return 'modify.anonymize_button_title';
+            } else {
+                return 'modify.modify_button_title';
+            }
+        },
+        modifyButtonEnabled() {
+            if (this.isAnonymization) {
+                return true;
+            } else {
+                return this.areTagsModified;
+            }
         }
     },
     components: { CopyToClipboardButton }
@@ -454,14 +615,15 @@ export default {
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">{{ $t("modify.modal_title") + " " + resourceTitle }} </h5>
+                    <h5 v-if="!isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.modify_modal_title") + " " + resourceTitle }} </h5>
+                    <h5 v-if="isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.anonymize_modal_title") + " " + resourceTitle }} </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <!-- ------------------------------------------ step 'init' --------------------------------------------------->
                 <div v-if="step == 'init'" class="modal-body">
                     <div class="container">
-                        <div v-if="!isAnonymization" class="row border-bottom pb-3">
+                        <div v-if="resourceLevel=='study' && !isAnonymization" class="row border-bottom pb-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_attach_study_to_existing_patient_html')">
                             </div>
@@ -471,7 +633,7 @@ export default {
                                     @click="goToNextStep(step, 'attach-study-to-existing-patient')"></button>
                             </div>
                         </div>
-                        <div v-if="!isAnonymization && samePatientStudiesCount > 1" class="row border-bottom border-3 py-3">
+                        <div v-if="resourceLevel=='study' && !isAnonymization && samePatientStudiesCount > 1" class="row border-bottom border-3 py-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_patient_has_other_studies_html', { count: samePatientStudiesCount })">
                             </div>
@@ -481,7 +643,7 @@ export default {
                                     @click="goToNextStep(step, 'modify-patient-tags-in-all-studies')"></button>
                             </div>
                         </div>
-                        <div v-if="!isAnonymization && samePatientStudiesCount >= 1" class="row pt-3">
+                        <div v-if="resourceLevel=='study' && !isAnonymization && samePatientStudiesCount >= 1" class="row pt-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_modify_study_html', { count: samePatientStudiesCount })">
                             </div>
@@ -489,6 +651,36 @@ export default {
                                 <button type="button" class="btn btn-primary w-100"
                                     v-html="$t('modify.study_step_0_modify_study_button_title_html')"
                                     @click="goToNextStep(step, 'modify-any-tags-in-one-study')"></button>
+                            </div>
+                        </div>
+                        <div v-if="resourceLevel=='series' && !isAnonymization" class="row border-bottom pb-3">
+                            <div class="col-md-9"
+                                v-html="$t('modify.series_step_0_attach_series_to_existing_study_html')">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-primary w-100"
+                                    v-html="$t('modify.series_step_0_attach_series_to_existing_study_button_title_html')"
+                                    @click="goToNextStep(step, 'attach-series-to-existing-study')"></button>
+                            </div>
+                        </div>
+                        <div v-if="resourceLevel=='series' && !isAnonymization" class="row border-bottom border-3 py-3">
+                            <div class="col-md-9"
+                                v-html="$t('modify.series_step_0_create_new_study_html')">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-primary w-100"
+                                    v-html="$t('modify.series_step_0_create_new_study_button_title_html')"
+                                    @click="goToNextStep(step, 'create-new-study-from-series')"></button>
+                            </div>
+                        </div>
+                        <div v-if="resourceLevel=='series' && !isAnonymization" class="row pt-3">
+                            <div class="col-md-9"
+                                v-html="$t('modify.series_step_0_modify_series_html')">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-primary w-100"
+                                    v-html="$t('modify.series_step_0_modify_series_button_title_html')"
+                                    @click="goToNextStep(step, 'modify-series-tags')"></button>
                             </div>
                         </div>
                     </div>
@@ -501,11 +693,45 @@ export default {
                 <div v-if="step == 'tags'" class="modal-body">
                     <div class="container">
                         <div v-for="(item, key) in tags" :key="key" class="row">
+                            <!----  label  ---->
                             <div class="col-md-5" :class="{ 'striked-through': isRemovedTag(key) }">
                                 {{ key }}
                             </div>
 
+                            <!----  edit text  ---->
                             <div v-if="isFrozenTag(key)" class="col-md-6">
+                                <input v-if="true" type="text" class="form-control" disabled :class="{ 'striked-through': !isDicomUid(key) }"
+                                    v-model="originalTags[key]" />
+                            </div>
+                            <div v-if="isEditableTag(key)" class="col-md-6">
+                                <input v-if="true" type="text" class="form-control" v-model="tags[key]" />
+                            </div>
+
+                            <div v-if="isAutogeneratedDicomUid(key)" class="col-md-6">
+                                <input v-if="true" type="text" class="form-control" disabled
+                                    :value="$t('modify.autogenerated_dicom_uid')" />
+                            </div>
+
+                            <!----  buttons  ---->
+                            <div v-if="isFrozenTag(key)" class="col-md-1">
+                                <div class="d-flex flex-row-reverse">
+                                    <button v-if="isRemovable(key) && !isRemovedTag(key)" class="btn-small"
+                                        type="button" data-bs-toggle="tooltip" :title="$t('modify.remove_tag_tooltip')"
+                                        @click="toggleRemovedTag(key)">
+                                        <i v-if="!isRemovedTag(key)" class="bi-trash"></i>
+                                    </button>
+                                    <button v-if="isRemovable(key) && isRemovedTag(key)" class="btn-small" type="button"
+                                        data-bs-toggle="tooltip" :title="$t('modify.remove_tag_undo_tooltip')"
+                                        @click="toggleRemovedTag(key)">
+                                        <i v-if="isRemovedTag(key)" class="bi-recycle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div v-if="isAutogeneratedDicomUid(key)" class="col-md-1">
+                            </div>
+
+                            <!-- <div v-if="isFrozenTag(key)" class="col-md-6">
                                 <input v-if="true" type="text" class="form-control" disabled :class="{ 'striked-through': !isDicomUid(key) }"
                                     v-model="originalTags[key]" />
                             </div>
@@ -523,11 +749,10 @@ export default {
                                     </button>
                                 </div>
                             </div>
-
-                            <div v-if="!isFrozenTag(key) && !isDicomUid(key)" class="col-md-6">
+                            <div v-if="!isFrozenTag(key) && isEditableTag(key)" class="col-md-6">
                                 <input v-if="true" type="text" class="form-control" v-model="tags[key]" />
                             </div>
-                            <div v-if="!isFrozenTag(key) && !isDicomUid(key)" class="col-md-1">
+                            <div v-if="!isFrozenTag(key) && isEditableTag(key)" class="col-md-1">
                                 <div class="d-flex flex-row-reverse">
                                     <button v-if="isRemovable(key) && !isRemovedTag(key)" class="btn-small"
                                         type="button" data-bs-toggle="tooltip" :title="$t('modify.remove_tag_tooltip')"
@@ -540,14 +765,8 @@ export default {
                                         <i v-if="isRemovedTag(key)" class="bi-recycle"></i>
                                     </button>
                                 </div>
-                            </div>
+                            </div> -->
 
-                            <div v-if="isAutogeneratedDicomUid(key)" class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" disabled
-                                    :value="$t('modify.autogenerated_dicom_uid')" />
-                            </div>
-                            <div v-if="isAutogeneratedDicomUid(key)" class="col-md-1">
-                            </div>
                         </div>
                         <div v-if="action == 'modify-any-tags-in-one-study'" class="row pt-3">
                             <div class="col-md-8"></div>
@@ -590,21 +809,21 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div v-if="step == 'tags' && !isAnonymization" class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="back()">{{
+                <div v-if="step == 'tags'" class="modal-footer">
+                    <button v-if="!isAnonymization" type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
                     }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
-                    <button type="button" class="btn btn-primary" :disabled="!areTagsModified" @click="modify()">{{
-                        $t("modify.modify_button_title")
+                    <button type="button" class="btn btn-primary" :disabled="!modifyButtonEnabled" @click="modify()">{{
+                        $t(modifyButtonTitle)
                     }}</button>
                 </div>
-                <div v-if="step == 'tags' && isAnonymization" class="modal-footer">
+                <!-- <div v-if="step == 'tags' && isAnonymization" class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" @click="modify()">{{
                         $t("modify.anonymize_button_title")
                     }}</button>
-                </div>
+                </div> -->
 
                 <!-- ------------------------------------------ step 'warning' or 'error' --------------------------------------------------->
                 <div v-if="step == 'warning' || step == 'error'" class="modal-body">
@@ -621,8 +840,8 @@ export default {
                         $t("modify.back_button_title")
                     }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
-                    <button type="button" class="btn btn-primary" @click="modify()">{{
-                        $t("modify.modify_button_title")
+                    <button type="button" class="btn btn-primary" @click="modify(true)">{{
+                        $t(modifyButtonTitle)
                     }}</button>
                 </div>
                 <div v-if="step == 'error'" class="modal-footer">
