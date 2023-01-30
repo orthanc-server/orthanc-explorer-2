@@ -200,19 +200,15 @@ export default {
             return texts[this.resourceLevel];
         },
         isAnonymizationEnabled() {
-            if (this.resourceLevel == "study") {
-                return this.uiOptions.EnableStudyAnonimization;
-            } else if (this.resourceLevel == "series") {
-                return this.uiOptions.EnableSeriesAnonimization;
+            if (this.resourceLevel == "study" || this.resourceLevel == "series") {
+                return this.uiOptions.EnableAnonimization;
             } else {
                 return false;
             }
         },
         isModificationEnabled() {
-            if (this.resourceLevel == "study") {
-                return this.uiOptions.EnableStudyModification;
-            } else if (this.resourceLevel == "series") {
-                return this.uiOptions.EnableSeriesModification;
+            if (this.resourceLevel == "study" || this.resourceLevel == "series") {
+                return this.uiOptions.EnableModification;
             } else {
                 return false;
             }
