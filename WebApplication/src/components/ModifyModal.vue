@@ -255,7 +255,8 @@ export default {
                         orthancId: originalPatient['ID'],
                         replaceTags: this.tags,
                         keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
-                        removeTags: this.removedTagsList
+                        removeTags: this.removedTagsList,
+                        keepSource: this.keepSource
                     });
                     console.log("modify-patient-tags-in-all-studies: created job ", jobId);
                     this.startMonitoringJob(jobId);
