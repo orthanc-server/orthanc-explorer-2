@@ -160,4 +160,4 @@ Anonymize series:
   - make sure `PatientID` and `PatientName` have been pre-filled
   - click `Anonymize`
   - Check:
-    - the modality shall have been updated in the series (and in the study list)
+    - the anonymized series (and so study) has been created, the original series is still present
