@@ -69,6 +69,8 @@ const actions = {
         const oe2Config = await api.loadOe2Configuration();
         commit('setUiOptions', { uiOptions: oe2Config['UiOptions']});
 
+        document._mustTranslateDicomTags = oe2Config['UiOptions']['TranslateDicomTags'];
+
         for (const [pluginName, pluginConfiguration] of Object.entries(oe2Config['Plugins'])) {
 
             commit('setInstalledPlugin', { plugin: pluginName, pluginConfiguration: pluginConfiguration})

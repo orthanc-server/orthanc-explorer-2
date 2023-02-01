@@ -1,8 +1,10 @@
 <script>
 import SeriesItem from "./SeriesItem.vue"
 import SeriesList from "./SeriesList.vue";
+import { mapState, mapGetters } from "vuex"
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
+import api from "../orthancApi";
 
 export default {
     props: ['studyId', 'studyMainDicomTags', 'patientMainDicomTags'],
@@ -10,9 +12,22 @@ export default {
     },
     data() {
         return {
+            samePatientStudiesCount: 0,
+            hasLoadedSamePatientsStudiesCount: false
         };
     },
+    async mounted() {
+        console.log("study details mounted")
+        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags['PatientID'])).length;
+        this.hasLoadedSamePatientsStudiesCount = true;
+    },
     computed: {
+        ...mapState({
+            uiOptions: state => state.configuration.uiOptions,
+        }),
+        // studyMainTags() {
+        //     return this.uiOptions.StudyMainTags;
+        // }
     },
     components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText },
     methods: {
@@ -30,24 +45,22 @@ export default {
         <tr>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyDate">{{$t('study_date')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyTime">{{$t('study_time')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyDescription" :truncate="true">{{$t('study_description')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.AccessionNumber">{{$t('accession_number')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyID">{{$t('study_id')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.StudyInstanceUID" :truncate="true">Study Instance UID</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.RequestingPhysician">{{$t('requesting_physician')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.ReferringPhysicianName">{{$t('referring_physician_name')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyMainDicomTags.InstitutionName">{{$t('institution_name')}}</ResourceDetailText>
+                    <ResourceDetailText v-for="tag in uiOptions.StudyMainTags" :key="tag" :tags="studyMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                 </ul>
             </td>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientID">{{$t('patient_id')}}</ResourceDetailText>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientName">{{$t('patient_name')}}</ResourceDetailText>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientBirthDate">{{$t('patient_birth_date')}}</ResourceDetailText>
-                    <ResourceDetailText :value="patientMainDicomTags.PatientSex">{{$t('patient_sex')}}</ResourceDetailText>
+                    <ResourceDetailText v-for="tag in uiOptions.PatientMainTags" :key="tag" :tags="patientMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                 </ul>
+                <p v-if="hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1">
+                    {{ $t('this_patient_has_other_studies', { count: samePatientStudiesCount }) }}.
+                    <router-link v-bind:to="'/filtered-studies?PatientID=' + patientMainDicomTags['PatientID']">
+                        {{ $t('this_patient_has_other_studies_show') }}
+                    </router-link>
+                </p>
+                <p v-if="hasLoadedSamePatientsStudiesCount && samePatientStudiesCount == 1">
+                    {{ $t('this_patient_has_no_other_studies') }}
+                </p>
             </td>
             <td width="20%" class="study-button-group">
                 <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"

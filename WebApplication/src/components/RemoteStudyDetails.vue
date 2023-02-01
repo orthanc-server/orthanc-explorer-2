@@ -16,7 +16,13 @@ export default {
     computed: {
         ...mapState({
             system: state => state.configuration.system
-        })
+        }),
+        studyMainTags() {
+            return document._remoteStudyMainStudyTags;
+        },
+        patientMainTags() {
+            return document._remoteStudyMainPatientTags;
+        },
     },
     components: { ResourceDetailText },
     methods: {
@@ -42,23 +48,12 @@ export default {
         <tr>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="studyFields.StudyDate">{{$t('study_date')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyTime">{{$t('study_time')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyDescription" :truncate="true">{{$t('study_description')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.AccessionNumber">{{$t('accession_number')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyID">{{$t('study_id')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.StudyInstanceUID" :truncate="true">Study Instance UID</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.RequestingPhysician">{{$t('requesting_physician')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.ReferringPhysicianName">{{$t('referring_physician_name')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.InstitutionName">{{$t('institution_name')}}</ResourceDetailText>
+                    <ResourceDetailText v-for="tag in studyMainTags" :key="tag" :tags="studyFields" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                 </ul>
             </td>
             <td width="40%" class="cut-text">
                 <ul>
-                    <ResourceDetailText :value="studyFields.PatientID">{{$t('patient_id')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.PatientName">{{$t('patient_name')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.PatientBirthDate">{{$t('patient_birth_date')}}</ResourceDetailText>
-                    <ResourceDetailText :value="studyFields.PatientSex">{{$t('patient_sex')}}</ResourceDetailText>
+                    <ResourceDetailText v-for="tag in patientMainTags" :key="tag" :tags="studyFields" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                 </ul>
             </td>
             <td width="20%" class="study-button-group">

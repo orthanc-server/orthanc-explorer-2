@@ -31,5 +31,7 @@ export default {
         return title.join(" | ");
     },
 
-
+    translateDicomTag2(tagName) {
+        return $t('dicom_tags.' + tagName);
+      }
 }

@@ -2,51 +2,36 @@
 import StudyItem from "./StudyItem.vue"
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
+import { translateDicomTag } from "../locales/i18n"
 import $ from "jquery"
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
 
 document._studyColumns = {
     "StudyDate": {
-        "width": "7%",
-        "title": "study_date",
-        "tooltip": "study_date"
+        "width": "7%"
     },
     "AccessionNumber": {
-        "width": "11%",
-        "title": "accession_number",
-        "tooltip": "accession_number"
+        "width": "11%"
     },
     "PatientID": {
-        "width": "11%",
-        "title": "patient_id",
-        "tooltip": "patient_id"
+        "width": "11%"
     },
     "PatientName": {
-        "width": "15%",
-        "title": "patient_name",
-        "tooltip": "patient_name"
+        "width": "15%"
     },
     "PatientBirthDate": {
-        "width": "7%",
-        "title": "patient_birth_date",
-        "tooltip": "patient_birth_date"
+        "width": "7%"
     },
     "StudyDescription": {
-        "width": "25%",
-        "title": "description",
-        "tooltip": "study_description"
+        "width": "25%"
     },
     "modalities": {
         "width": "6%",
-        "title": "modalities_in_study",
-        "tooltip": "modalities_in_study",
         "extraClasses": "text-center"
     },
     "seriesCount": {
         "width": "4%",
-        "title": "series_count_header",
-        "tooltip": "number_of_series",
         "extraClasses": "text-center"
     },
 }
@@ -153,6 +138,22 @@ export default {
         // console.log("StudyList: mounted");
     },
     methods: {
+        columnTitle(tagName) {
+            if (tagName == "seriesCount") {
+                return this.$i18n.t('series_count_header');
+            } else if (tagName == "modalities") {
+                return translateDicomTag(this.$i18n.t, "ModalitiesInStudy");
+            } else {
+                return translateDicomTag(this.$i18n.t, tagName);
+            }
+        },
+        columnTooltip(tagName) {
+            if (tagName == "modalities") {
+                return translateDicomTag(this.$i18n.t, "ModalitiesInStudy");
+            } else {
+                return translateDicomTag(this.$i18n.t, tagName);
+            }
+        },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
             for (const modality of this.uiOptions.ModalitiesFilter) {
@@ -445,9 +446,9 @@ export default {
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th v-if="isSearchButtonEnabled" width="5%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
-                v-bind:title="$t(columns[columnTag].tooltip)" v-bind:width="columns[columnTag].width"
+                v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
                     v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
-                    $t(columns[columnTag].title)
+                    columnTitle(columnTag)
                     }}</th>
             </thead>
             <thead class="study-filter" v-on:keyup.enter="search">

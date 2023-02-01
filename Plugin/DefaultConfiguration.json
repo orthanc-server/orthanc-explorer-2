@@ -21,6 +21,8 @@
             "EnableDownloadZip": true,                  // Enables the download zip button for Studies/Series
             "EnableDownloadDicomDir": false,            // Enables the download DICOM DIR button for Studies/Series
             "EnableDownloadDicomFile": true,            // Enables the download DICOM file button for Instances
+            "EnableAnonimization": true,                // Enables the anonymize button
+            "EnableModification": true,                 // Enables the modify button
             "EnableSendTo": true,                       // Enables the 'SendTo' button for Studies/Series/Instances
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
@@ -99,6 +101,41 @@
                 "seriesCount"
             ],
 
+            // The list of patient level tags that are displayed in the study details and in the modification dialog.
+            // Note that these tags must be defined in the Orthanc main dicom tags (https://book.orthanc-server.com/faq/main-dicom-tags.html)
+            "PatientMainTags" : [
+                "PatientID",
+                "PatientName",
+                "PatientBirthDate",
+                "PatientSex"
+            ],
+
+            // The list of study level tags that are displayed in the study details and in the modification dialog.
+            // Note that these tags must be defined in the Orthanc main dicom tags (https://book.orthanc-server.com/faq/main-dicom-tags.html)
+            "StudyMainTags" : [
+                "StudyDate",
+                "StudyTime",
+                "StudyDescription",
+                "AccessionNumber",
+                "StudyID",
+                "StudyInstanceUID",
+                "RequestingPhysician",
+                "ReferringPhysicianName",
+                "InstitutionName"
+            ],
+
+            // The list of series level tags that are displayed in the study details and in the modification dialog.
+            // Note that these tags must be defined in the Orthanc main dicom tags (https://book.orthanc-server.com/faq/main-dicom-tags.html)
+            "SeriesMainTags" : [
+                "SeriesDate",
+                "SeriesTime",
+                "SeriesDescription",
+                "SeriesNumber",
+                "BodyPartExamined",
+                "ProtocolName",
+                "SeriesInstanceUID"
+            ],
+
             // The modalities to display in the Modalities filter dropdown in the Study List
             "ModalitiesFilter": [
                 "CR", "CT", "DR", "DX", "MG", "MR", "NM", "OT", "PT", "PX", "SEG", "SR", "US", "XA"
@@ -111,8 +148,23 @@
             
             // Force the default language.  If null (default), the language is the language from the visitor's browser.
             // ex: "DefaultLanguage" : "en"
-            "DefaultLanguage" : null
-          
+            "DefaultLanguage" : null,
+
+            // Should DicomTags be translated (true) or shall we use the English symbolic name whatever the selected language (false)
+            // if true: "PatientID" is displayed as e.g "ID Patient" in french
+            // if false: "PatientID" is displayed as "PatientID" in all languages
+            "TranslateDicomTags" : true,
+
+            // modifications dialog options
+            "Modifications": {
+                // Modes define options to the /modify route:
+                // "modify-keep-uids" is equivalent to KeepSource=True and Keep=["StudyInstanceUID", "SeriesInstanceUID", "SOPInstanceUID"]
+                // "modify-new-uids" is equivalent to KeepSource=False
+                // "duplicate" is equivalent to KeepSource=True
+                "AllowedModes": ["modify-new-uids", "modify-keep-uids", "duplicate"],
+                "DefaultMode": "modify-new-uids"
+
+            }
         },
 
         "Shares" : {

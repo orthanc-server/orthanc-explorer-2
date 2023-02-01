@@ -24,7 +24,7 @@ export default {
     },
     async mounted() {
         const response = await api.getSeriesInstances(this.seriesId)
-        for (const instanceInfo of response.data) {
+        for (const instanceInfo of response) {
             this.instancesInfo[instanceInfo.ID] = instanceInfo;
         }
         this.loaded = true;
@@ -44,11 +44,11 @@ export default {
         <thead>
             <th width="2%" scope="col" class="instance-table-header"></th>
             <th width="7%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
-                :title="$t('instance_number')">{{ $t('instance_number') }}</th>
+                :title="$t('dicom_tags.InstanceNumber')">{{ $t('dicom_tags.InstanceNumber') }}</th>
             <th width="40%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
                 title="SOP Instance UID">SOP Instance UID</th>
             <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
-                :title="$t('number_of_frames')"># {{$t('frames')}}</th>
+                :title="$t('dicom_tags.NumberOfFrames')"># {{$t('frames')}}</th>
         </thead>
         <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
             :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"

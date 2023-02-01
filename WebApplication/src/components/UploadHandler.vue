@@ -113,9 +113,9 @@ export default {
             if (!this.lastUploadReports[uploadId].uploadedStudiesIds.has(studyId)) {
                 this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
                 const studyResponse = await api.getStudy(studyId);
-                this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse.data;
+                this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
 
-                this.$store.dispatch('studies/addStudy', { study: studyResponse.data, studyId: studyId });
+                this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId });
             }
         },
         async uploadFiles(files) {
@@ -143,11 +143,11 @@ export default {
                 try {
                     const uploadResponse = await api.uploadFile(fileContent);
 
-                    if (Array.isArray(uploadResponse.data)) { // we have uploaded a zip
+                    if (Array.isArray(uploadResponse)) { // we have uploaded a zip
 
-                        if (uploadResponse.data.length > 0) {
+                        if (uploadResponse.length > 0) {
                             this.lastUploadReports[uploadId].successFilesCount++;
-                            for (let uploadFileResponse of uploadResponse.data) {
+                            for (let uploadFileResponse of uploadResponse) {
                                 this.uploadedFile(uploadId, uploadFileResponse);
                             }
                         } else {
@@ -156,7 +156,7 @@ export default {
                         }
                     } else {
                         this.lastUploadReports[uploadId].successFilesCount++;
-                        this.uploadedFile(uploadId, uploadResponse.data);
+                        this.uploadedFile(uploadId, uploadResponse);
                     }
                 }
                 catch (error) {

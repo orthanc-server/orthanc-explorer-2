@@ -3,68 +3,9 @@ import store from "./store"
 
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
 
-
-// default config only used when running dev against an Orthanc which does not have the latest plugin
-const _defaultConfig = {
-    "UiOptions" : {
-        "EnableUpload": true,
-        "EnableDeleteResources": true,
-        "EnableApiViewMenu": true,
-        "EnableSettings": true,
-        "MaxStudiesDisplayed": 50,
-        "UploadReportTags" : [
-            "AccessionNumber", 
-            "StudyDate", 
-            "PatientName", 
-            "PatientID", 
-            "StudyDescription"
-        ],
-        "UploadReportMaxTags": 2,
-        "StudyListColumns" : [
-            "PatientBirthDate",
-            "PatientName",
-            "PatientID",
-            "StudyDescription",
-            "StudyDate",
-            "modalities",
-            "AccessionNumber",
-            "seriesCount"
-    ]
-    },
-    "Plugins": {
-		"dicom-web" : {
-			"Description" : "Implementation of DICOMweb (QIDO-RS, STOW-RS and WADO-RS) and WADO-URI.",
-			"Enabled" : true,
-			"ExtendsOrthancExplorer" : true,
-			"ID" : "dicom-web",
-			"RootUri" : "../dicom-web/app/client/index.html",
-			"Version" : "mainline"
-		},
-        "osimis-web-viewer": {
-            "Description" : "Provides a Web viewer of DICOM series within Orthanc.",
-            "ExtendsOrthancExplorer" : true,
-            "ID" : "osimis-web-viewer",
-            "Version" : "1.4.2.0-9d9eff4",
-			"Enabled" : false,
-        },
-		"stone-webviewer" : 
-		{
-			"Enabled" : true,
-			"ExtendsOrthancExplorer" : true,
-			"ID" : "stone-webviewer",
-			"Version" : "2.2"
-		}
-    },
-}
-
 export default {
     async loadOe2Configuration() {
-        try {
-            return (await axios.get(oe2ApiUrl + "configuration")).data;
-        } catch (e) {
-            console.error("Error while loading OE2 configuration: ", e);
-            return _defaultConfig;
-        }
+        return (await axios.get(oe2ApiUrl + "configuration")).data;
     },
     async loadDicomWebServers() {
         return (await axios.get(orthancApiUrl + "dicom-web/servers")).data;
@@ -129,7 +70,7 @@ export default {
         await this.cancelFindStudies();
         window.axioFindStudiesAbortController = new AbortController();
 
-        return axios.post(orthancApiUrl + "tools/find", {
+        return (await axios.post(orthancApiUrl + "tools/find", {
                 "Level": "Study",
                 "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
                 "Query": filterQuery,
@@ -140,7 +81,44 @@ export default {
             }, 
             {
                 signal: window.axioFindStudiesAbortController.signal
-            });
+            })).data;
+    },
+    async getSamePatientStudies(patientId) {
+        const response = (await axios.post(orthancApiUrl + "tools/find", {
+            "Level": "Study",
+            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+            "Query": {
+                "PatientID": patientId
+            },
+            "Expand": false
+        }));
+        return response.data;
+    },
+    async findPatient(patientId) {
+        const response = (await axios.post(orthancApiUrl + "tools/lookup", patientId));
+        if (response.data.length == 1) {
+            const patient = (await axios.get(orthancApiUrl + "patients/" + response.data[0]['ID']));
+            return patient.data;
+        } else {
+            return null;
+        }
+    },
+    async findStudy(studyInstanceUid) {
+        const response = (await axios.post(orthancApiUrl + "tools/lookup", studyInstanceUid));
+        if (response.data.length == 1) {
+            const study = (await axios.get(orthancApiUrl + "studies/" + response.data[0]['ID']));
+            return study.data;
+        } else {
+            return null;
+        }
+    },
+    async mergeSeriesInExistingStudy({seriesIds, targetStudyId, keepSource}) {
+        const response = (await axios.post(orthancApiUrl + "studies/" + targetStudyId + "/merge", {
+            "Resources": seriesIds,
+            "KeepSource": keepSource,
+            "Synchronous": false
+        }));
+        return response.data['ID'];
     },
     async cancelRemoteDicomFindStudies() {
         if (window.axioRemoteDicomFindStudiesAbortController) {
@@ -187,31 +165,36 @@ export default {
         return axios.post(orthancApiUrl + "modalities/" + remoteModality + "/echo", {});
     },
     async uploadFile(filecontent) {
-        return axios.post(orthancApiUrl + "instances", filecontent);
+        return (await axios.post(orthancApiUrl + "instances", filecontent)).data;
+    },
+    async getPatient(orthancId) {
+        return (await axios.get(orthancApiUrl + "patients/" + orthancId)).data;
     },
     async getStudy(orthancId) {
         // returns the same result as a findStudies (including RequestedTags !)
-        return axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=ModalitiesInStudy");
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=ModalitiesInStudy")).data;
     },
     async getStudySeries(orthancId) {
-        return axios.get(orthancApiUrl + "studies/" + orthancId + "/series");
-    },
-    async getExpandedSeries(orthancId) {
-        return axios.get(orthancApiUrl + "series/" + orthancId + "?expand");
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/series")).data;
     },
     async getSeriesInstances(orthancId) {
-        return axios.get(orthancApiUrl + "series/" + orthancId + "/instances");
+        return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
+    },
+    async getSeriesParentStudy(orthancId) {
+        return (await axios.get(orthancApiUrl + "series/" + orthancId + "/study")).data;
     },
     async getInstanceTags(orthancId) {
-        return axios.get(orthancApiUrl + "instances/" + orthancId + "/tags");
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags")).data;
     },
     async getInstanceHeader(orthancId) {
-        return axios.get(orthancApiUrl + "instances/" + orthancId + "/header");
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/header")).data;
     },
     async getStatistics() {
-        return axios.get(orthancApiUrl + "statistics");
+        return (await axios.get(orthancApiUrl + "statistics")).data;
     },
-
+    async generateUid(level) {
+        return (await axios.get(orthancApiUrl + "tools/generate-uid?level=" + level)).data;
+    },
     async setVerboseLevel(level) {
         await axios.put(orthancApiUrl + "tools/log-level", level);
     },
@@ -253,6 +236,31 @@ export default {
         }));
         
         return response.data['url'];
+    },
+
+    async anonymizeResource({resourceLevel, orthancId, replaceTags={}, removeTags=[]}) {
+        const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/anonymize", {
+            "Replace": replaceTags,
+            "Remove": removeTags,
+            "KeepSource": true,
+            "Force": true,
+            "Synchronous": false
+        }))
+
+        return response.data['ID'];
+    },
+
+    async modifyResource({resourceLevel, orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
+        const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/modify", {
+            "Replace": replaceTags,
+            "Remove": removeTags,
+            "Keep": keepTags,
+            "KeepSource": keepSource,
+            "Force": true,
+            "Synchronous": false
+        }))
+
+        return response.data['ID'];
     },
 
     ////////////////////////////////////////// HELPERS
