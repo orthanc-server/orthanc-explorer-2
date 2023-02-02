@@ -29,7 +29,7 @@ Edit study tags to create a modified copy:
   - Check the new study has changed its tags
 
 Edit study tags 'in place':
-- on the new Study, first copy-paste the `StudyInstanceUID` somewhere
+- on the new Study (the one without `StudyDescription`), first copy-paste the `StudyInstanceUID` somewhere
   - click `Modify Study tags`, and change:
   - `StudyDate = 20200101`
   - select "Modify the original study. (keeping the original DICOM UIDs)"
@@ -40,7 +40,7 @@ Edit study tags 'in place':
 
 
 Edit study tags, can not be used to edit a patient who already has other studies
-- on the new Study, `Modify Study tags` and change:
+- on the new Study (the one whose `PatientID==2`), `Modify Study tags` and change:
   - `PatientID = TEST_1`
   - don't change other Patient tags
   - try all 3 modification mode options
@@ -48,7 +48,7 @@ Edit study tags, can not be used to edit a patient who already has other studies
   - Check: you should get an error telling you to use `Change Patient`
 
 Edit study tags, can be used to create a new patient
-- on the new Study, `Modify Study tags` and change:
+- on the new Study (the one whose `PatientID==2`), `Modify Study tags` and change:
   - `PatientID = TEST_3`
   - `PatientName = Test3`
   - don't change other Patient tags

@@ -256,7 +256,7 @@ export default {
             this.updatingFilterUi = true;
             if (filters === undefined) {
                 await this.clearFiltersUi();
-                console.log("updateFilterFromRoute ... I think this code is not used anymore ...");  // filters=={} when default url
+                console.warn("updateFilterFromRoute ... I think this code is not used anymore ...");  // filters=={} when default url
             } else {
 
                 // await this.$store.dispatch('studies/clearFilterNoReload');
@@ -360,7 +360,7 @@ export default {
                 this.isSearching = true;
 
                 findRequest.then((studies) => {
-                    console.log("received studies", studies);
+                    // console.log("received studies", studies);
                     this.studies = studies;
                     this.isSearching = false;
                 })
@@ -374,14 +374,14 @@ export default {
             await this.$store.dispatch('studies/clearFilter');
         },
         async clearFiltersUi() {
-            console.log("StudyList: clearFiltersUi IN");
+            // console.log("StudyList: clearFiltersUi IN");
             this.updatingFilterUi = true;
 
             this.emptyFilterForm();
             this.updateUrl();
 
             this.updatingFilterUi = false;
-            console.log("StudyList: clearFiltersUi OUT");
+            // console.log("StudyList: clearFiltersUi OUT");
         },
         async toggleModalityFilter(ev) {
             // only for all/none, other values are binded with v-model !

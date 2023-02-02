@@ -28,7 +28,7 @@ async function getFileFromFileEntry(fileEntry) {
     try {
         return await new Promise((resolve, reject) => fileEntry.file(resolve, reject));
     } catch (err) {
-        console.log(err);
+        console.error('getFileFromFileEntry', err);
     }
 }
 
@@ -61,7 +61,7 @@ async function readEntriesPromise(directoryReader) {
             directoryReader.readEntries(resolve, reject);
         });
     } catch (err) {
-        console.log(err);
+        console.error('readEntriesPromise', err);
     }
 }
 
@@ -95,7 +95,7 @@ export default {
     },
     methods: {
         onDrop(ev) {
-            console.log("on drop", ev);
+            // console.log("on drop", ev);
             ev.preventDefault();
 
             getAllFiles(ev.dataTransfer.items).then((files) => {
@@ -160,7 +160,7 @@ export default {
                     }
                 }
                 catch (error) {
-                    console.log(error);
+                    console.error('uploadFiles', err);
                     let errorMessage = "error " + error.response.status;
                     if (error.response.status >= 400 && error.response.status < 500) {
                         errorMessage = error.response.data.Message;

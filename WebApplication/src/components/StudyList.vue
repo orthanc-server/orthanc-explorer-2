@@ -288,7 +288,9 @@ export default {
 
                 for (const [filterKey, filterValue] of Object.entries(filters)) {
                     if (document._allowedFilters.indexOf(filterKey) == -1) {
-                        console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
+                        if (filterKey != 'forceRefresh') {
+                            console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
+                        }
                     } else {
                         keyValueFilters[filterKey] = filterValue;
 
@@ -366,14 +368,14 @@ export default {
             await this.$store.dispatch('studies/clearFilter');
         },
         async clearFiltersUi() {
-            console.log("StudyList: clearFiltersUi IN");
+            // console.log("StudyList: clearFiltersUi IN");
             this.updatingFilterUi = true;
 
             this.emptyFilterForm();
             this.updateUrl();
 
             this.updatingFilterUi = false;
-            console.log("StudyList: clearFiltersUi OUT");
+            // console.log("StudyList: clearFiltersUi OUT");
         },
         async toggleModalityFilter(ev) {
             // only for all/none, other values are binded with v-model !

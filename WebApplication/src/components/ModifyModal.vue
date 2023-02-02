@@ -51,7 +51,6 @@ export default {
         }
     },
     async mounted() {
-        console.log("ModifyModal mounted");
         this.reset();
 
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
@@ -61,12 +60,6 @@ export default {
         });
     },
     watch: {
-        tags: {
-            handler(newValue, oldValue) {
-                console.log("tags changed", this.tags);
-            },
-            deep: true
-        },
     },
     methods: {
         async reset() {
@@ -479,7 +472,7 @@ export default {
         },
         isRemovedTag(tag) {
             if (this.removedTags[tag] === undefined) {
-                console.log("undefined");
+                console.warn("isRemovedTag: undefined tag");
             }
             return this.removedTags[tag];
         },

@@ -20,7 +20,6 @@ export default {
         }
     },
     mounted() {
-        console.log("mounted");
         this.expirationInDays = this.uiOptions.DefaultShareDuration;
         this.anonymized = this.uiOptions.AnonymizeSharesByDefault;
 
