@@ -1,3 +1,6 @@
+0.6.0 (2023-02-03)
+==================
+
 Changes:
 - allow modification of series and studies
 - allow anonymization of series and studies
@@ -5,6 +8,8 @@ Changes:
 - new configuration 'TranslateDicomTags'
 - new configurations 'StudyMainDicomTags', 'PatientMainDicomTags' to define the list of tags to display in the study details
 - new link to open all studies from the same patient
+
+Note: the 'Modify' and 'Anonymization' dialog are only available in English in this version.
 
 0.5.1 (2022-12-20)
 ==================
