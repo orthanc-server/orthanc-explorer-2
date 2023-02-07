@@ -1,13 +1,12 @@
-For this version:
-****************
+- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?).
+  check the work done in https://github.com/Terabuck/orthanc-explorer-2
 
+- allow selection of multiple studies/series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
 
-- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?)
-
-- ui/app (with missing /) shall open the interface too
-
-For "soon":
-**********
+- predefined filters in config file to display below Studies:
+  - "Today": {"StudyDate": "$today"}
+  - "CT Last month": {"ModalitiesInStudy": "CT", "StudyDate": "$oneMonthAgo-"}
+    predefined keywords: $today, $yesterday, $oneWeekAgo, $oneMonthAgo, $oneYearAgo
 
 
 - open OHIF viewer with a "?token=1234" to avoid entering credentials when opening OHIF (since it's another server) 
@@ -16,46 +15,29 @@ For "soon":
   -> Probably required for MedDream too + required for creating shares in OsimisViewer
   -> for OHIF & MedDream: generate a token valid for 30 minutes
 
-For "later":
-***********
 
 
-- predefined filters in config file to display below Studies:
-  - "Today": {"StudyDate": "$today"}
-  - "CT Last month": {"ModalitiesInStudy": "CT", "StudyDate": "$oneMonthAgo-"}
-    predefined keywords: $today, $yesterday, $oneWeekAgo, $oneMonthAgo, $oneYearAgo
+- ui/app (with missing /) shall open the interface too
 
-
-- allow selection of multiple studies/series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
 - show attachments
 
-
-- allow sharing a link to a study (aka publication link.  Authorisation included in a JWT part of the url - likely with the help of an external web service)
-
-
-- support multiple languages (https://groups.google.com/g/orthanc-users/c/hiPNVapHygA/m/BJj8lHSDCQAJ)
 - support dicom-web plugin (QIDO-RS UI)
-- support neuro plugin (download nifti)
-- support modification of MainDicomTags via a UI (including anonymization) (add EnableAnonymize in UI options):
-  - Config to list the dicom tags to display (possibly all)
-  - option to keep the StudyInstanceUID or not
-  - option to delete the original data or not
-  - option to anonymize or not (if modification is an anonymization, it will remove many tags)
 
-- query-retrieve (DICOM modalities).  Allow multiple search on multiple fields (same fields as in study list)
+- support neuro plugin (download nifti)
 
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
 
 - show job details (need improvement in Orthanc API itself)
 
+- add an "attach PDF button" at study level
 
-For a further version (ideas):
-**************
+- list last studies received (through DICOM or upload)
+
 - UI customization:
  - add custom actions per study/series/instances
- - select default viewer
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
  - hide/show standard actions -> probably to be handled once user management is implemented
+
 - make table sortable and faster search by maintaining a cache DB (SQLite in each Orthanc instance handled by the oe2 plugin)
   - only for studies.  with a few indexed tags (the ones from the UI table)
   - plugin monitors /changes route to see changes from all orthancs (instead of reacting to change events)
@@ -63,19 +45,15 @@ For a further version (ideas):
   - from OHIF doc for their study list: When the Study List is opened, the application queries the PACS for 101 studies by default. If there are greater than 100 studies    
        returned, the default sort for the study list is dictated by the image archive that hosts these studies for the viewer and study list sorting will be disabled. If there are less than or equal to 100 studies returned, they will be sorted by study date (most recent to oldest) and study list sorting will be enabled. Whenever a query returns greater than 100 studies, use filters to narrow results below 100 studies to enable Study List sorting.
 
-
-- list last studies received (through DICOM or upload)
-- add an "attach PDF button" at study level
 - orthanc-share should generate QR code with publication links
-
-For a further version (ideas):
-***************
 
 - Q&R on multiple modalities at a same time (select the modalities you want to Q&R and display the modality in the study list)
   (same with Q&R for dicom-web and peers)
+
 - in local study list, display the number of studies that are present on a remote modality for this patient (e.g: a cold archive)
   - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
   - same with dicom-web and peers ?
+
 
 User & configuration management (ideas + implementation notes):
 -------------------------------
