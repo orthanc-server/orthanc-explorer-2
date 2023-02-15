@@ -1,3 +1,9 @@
+- BUG: StoneViewer plugin wrong status
+  if using osimis/orthanc with only STONE_WEB_VIEWER_PLUGIN_ENABLED=true, stone is loaded but is displayed as disabled.
+  This happens because there is no section "StoneWebViewer".
+  Note: this should be fixed now !! to check
+
+
 - filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?).
   check the work done in https://github.com/Terabuck/orthanc-explorer-2
 

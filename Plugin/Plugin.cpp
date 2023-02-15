@@ -329,7 +329,7 @@ Json::Value GetPluginsConfiguration()
     }
     else if (pluginName == "stone-webviewer")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "StoneWebViewer");
+      pluginsConfiguration[pluginName]["Enabled"] = true;
     }
     else if (pluginName == "tcia")
     {
