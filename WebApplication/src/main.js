@@ -11,6 +11,7 @@ import "./assets/css/common.css"
 import store from "./store"
 import { router } from './router'
 import Keycloak from "keycloak-js"
+import orthancApi from './orthancApi'
 
 const app = createApp(App)
 
@@ -41,11 +42,13 @@ let initOptions = {
      
       localStorage.setItem("vue-token", keycloak.token);
       localStorage.setItem("vue-refresh-token", keycloak.refreshToken);
-  
+      orthancApi.updateAuthHeader();
+
       setInterval(() =>{
         keycloak.updateToken(70).success((refreshed)=>{
           if (refreshed) {
             console.log('Token refreshed'+ refreshed);
+            orthancApi.updateAuthHeader();
           } else {
             console.log('Token not refreshed, valid for '
             + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');

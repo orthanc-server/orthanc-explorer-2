@@ -4,6 +4,9 @@ import store from "./store"
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
 
 export default {
+    updateAuthHeader() {
+        axios.defaults.headers.common['token'] = localStorage.getItem("vue-token")
+    },
     async loadOe2Configuration() {
         return (await axios.get(oe2ApiUrl + "configuration")).data;
     },
@@ -80,11 +83,7 @@ export default {
                 "Expand": true
             }, 
             {
-                signal: window.axioFindStudiesAbortController.signal,
-                // TODO: Here is the header for keycloak, it should be factorized
-                headers: {
-                    token: localStorage.getItem("vue-token")
-                }
+                signal: window.axioFindStudiesAbortController.signal
             })).data;
     },
     async getSamePatientStudies(patientId) {
