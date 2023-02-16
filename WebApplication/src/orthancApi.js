@@ -80,7 +80,8 @@ export default {
                 "Expand": true
             }, 
             {
-                signal: window.axioFindStudiesAbortController.signal, 
+                signal: window.axioFindStudiesAbortController.signal,
+                // TODO: Here is the header for keycloak, it should be factorized
                 headers: {
                     token: localStorage.getItem("vue-token")
                 }
