@@ -80,7 +80,10 @@ export default {
                 "Expand": true
             }, 
             {
-                signal: window.axioFindStudiesAbortController.signal
+                signal: window.axioFindStudiesAbortController.signal, 
+                headers: {
+                    token: localStorage.getItem("vue-token")
+                }
             })).data;
     },
     async getSamePatientStudies(patientId) {
@@ -129,7 +132,7 @@ export default {
     async remoteDicomFindStudies(remoteModality, filterQuery) {
         await this.cancelRemoteDicomFindStudies();
         window.axioRemoteDicomFindStudiesAbortController = new AbortController();
-
+        
         try {
             const queryResponse = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/query", {
                     "Level": "Study",

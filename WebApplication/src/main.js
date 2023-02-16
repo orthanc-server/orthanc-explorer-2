@@ -23,8 +23,8 @@ app.use(i18n)
 
 // TODO: make this keycloak code optional
 let initOptions = {
-    // TODO: replace 'url', 'realm' and 'clientId' values by env var
-    url: 'http://localhost:8080/', realm: 'orthanc', clientId: 'orthanc-id', onLoad:'login-required'
+    // TODO: replace 'url', 'orthanc-realm' and 'clientId' values by env var
+    url: 'http://localhost:8080/', realm: 'orthanc-realm', clientId: 'orthanc-id', onLoad:'login-required'
   }
   
   let keycloak = Keycloak(initOptions);
