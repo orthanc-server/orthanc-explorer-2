@@ -12,54 +12,65 @@ import store from "./store"
 import { router } from './router'
 import Keycloak from "keycloak-js"
 import orthancApi from './orthancApi'
-
-const app = createApp(App)
-
-app.use(router)
-app.use(store)
-app.use(i18n)
+import axios from 'axios'
 
 
-// This part of the code allows to delegate authentication to Keycloak
 
-// TODO: make this keycloak code optional
-let initOptions = {
-    // TODO: replace 'url', 'orthanc-realm' and 'clientId' values by env var
-    url: 'http://localhost:8080/', realm: 'orthanc-realm', clientId: 'orthanc-id', onLoad:'login-required'
-  }
-  
-  let keycloak = Keycloak(initOptions);
-  
-  keycloak.init({ onLoad: initOptions.onLoad }).success((auth) =>{
-      
-      if(!auth) {
+// before initialization, we must load part of the configuration to know if we need to enable Keycloak or not
+axios.get('../api/pre-login-configuration').then((config) => {
+
+  const app = createApp(App)
+
+  app.use(router)
+  app.use(store)
+  app.use(i18n)
+
+  let keycloackConfig = null;
+
+  if (config.data['Keycloak'] && config.data['Keycloak'] != null && config.data['Keycloak']['Enable']) {
+    console.log("Keycloak is enabled");
+
+    keycloackConfig = config.data['Keycloak']
+
+    let initOptions = {
+      url: keycloackConfig['Url'], realm: keycloackConfig['Realm'], clientId: keycloackConfig['ClientId'], onLoad: 'login-required'
+    }
+
+    let keycloak = new Keycloak(initOptions);
+
+    keycloak.init({ onLoad: initOptions.onLoad }).then((auth) => {
+
+      if (!auth) {
         window.location.reload();
       } else {
         console.log("Authenticated");
       }
-   
-      app.mount('#app')
-     
+
       localStorage.setItem("vue-token", keycloak.token);
       localStorage.setItem("vue-refresh-token", keycloak.refreshToken);
       orthancApi.updateAuthHeader();
 
-      setInterval(() =>{
-        keycloak.updateToken(70).success((refreshed)=>{
+      app.mount('#app')
+
+      setInterval(() => {
+        keycloak.updateToken(70).then((refreshed) => {
           if (refreshed) {
-            console.log('Token refreshed'+ refreshed);
+            console.log('Token refreshed' + refreshed);
             orthancApi.updateAuthHeader();
           } else {
             console.log('Token not refreshed, valid for '
-            + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
+              + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
           }
-        }).error(()=>{
-            console.log('Failed to refresh token');
+        }).catch(() => {
+          console.log('Failed to refresh token');
         });
-  
-  
+
       }, 60000)
-  
-  }).error(() =>{
-    console.log("Authenticated Failed");
-  });
+
+    }).catch(() => {
+      console.log("Authenticated Failed");
+    });
+  } else {
+    app.mount('#app')
+  }
+});

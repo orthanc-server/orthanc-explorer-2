@@ -224,6 +224,20 @@ Json::Value GetPluginInfo(const std::string& pluginName)
   return pluginInfo;
 }
 
+Json::Value GetKeycloakConfiguration()
+{
+  if (pluginJsonConfiguration_.isMember("Keycloak"))
+  {
+    const Json::Value& keyCloakSection = pluginJsonConfiguration_["Keycloak"];
+    if (keyCloakSection.isMember("Enable") && keyCloakSection["Enable"].asBool() == true)
+    {
+      return pluginJsonConfiguration_["Keycloak"];
+    }
+  }
+
+  return Json::nullValue;
+}
+
 Json::Value GetPluginsConfiguration()
 {
   Json::Value pluginsConfiguration;
@@ -374,12 +388,31 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
     Json::Value oe2Configuration;
     oe2Configuration["UiOptions"] = pluginJsonConfiguration_["UiOptions"];
     oe2Configuration["Plugins"] = GetPluginsConfiguration();
-
+    oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
   }
 }
 
+void GetOE2PreLoginConfiguration(OrthancPluginRestOutput* output,
+                                 const char* /*url*/,
+                                 const OrthancPluginHttpRequest* request)
+{
+  OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
+
+  if (request->method != OrthancPluginHttpMethod_Get)
+  {
+    OrthancPluginSendMethodNotAllowed(context, output, "GET");
+  }
+  else
+  {
+    Json::Value oe2Configuration;
+    oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
+
+    std::string answer = oe2Configuration.toStyledString();
+    OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
+  }
+}
 
 // This method implements a reverse proxy to the orthanc-token-service.
 // This solves CORS issue + check authorizations on Orthanc side.
@@ -526,6 +559,7 @@ extern "C"
           (oe2BaseUrl_ + "app", true);
 
         OrthancPlugins::RegisterRestCallback<GetOE2Configuration>(oe2BaseUrl_ + "api/configuration", true);
+        OrthancPlugins::RegisterRestCallback<GetOE2PreLoginConfiguration>(oe2BaseUrl_ + "api/pre-login-configuration", true);
 
         if (enableShares_)
         {
