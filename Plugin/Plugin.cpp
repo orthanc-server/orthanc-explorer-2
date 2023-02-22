@@ -24,6 +24,7 @@
 #include <Logging.h>
 #include <SystemToolbox.h>
 #include <Toolbox.h>
+#include <SerializationToolbox.h>
 #include <HttpClient.h>
 
 #include <EmbeddedResources.h>
@@ -238,7 +239,7 @@ Json::Value GetKeycloakConfiguration()
   return Json::nullValue;
 }
 
-Json::Value GetPluginsConfiguration()
+Json::Value GetPluginsConfiguration(bool& hasUserProfile)
 {
   Json::Value pluginsConfiguration;
   Json::Value pluginList;
@@ -276,6 +277,7 @@ Json::Value GetPluginsConfiguration()
     if (pluginName == "authorization") 
     {
       pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "Authorization") && pluginConfiguration.isMember("WebService");
+      hasUserProfile = GetPluginConfiguration(pluginConfiguration, "Authorization") && pluginConfiguration.isMember("WebServiceUserProfileUrl");
     }
     else if (pluginName == "AWS S3 Storage")
     {
@@ -372,6 +374,12 @@ Json::Value GetPluginsConfiguration()
   return pluginsConfiguration;
 }
 
+void UpdateUiOptions(Json::Value& uiOption, const std::list<std::string>& permissions, const std::string& permission)
+{
+  bool hasPermission = std::find(permissions.begin(), permissions.end(), permission) != permissions.end();
+
+  uiOption = uiOption.asBool() && hasPermission;
+}
 
 void GetOE2Configuration(OrthancPluginRestOutput* output,
                          const char* /*url*/,
@@ -386,8 +394,42 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
   else
   {
     Json::Value oe2Configuration;
+
+    bool hasUserProfile = false;
+    oe2Configuration["Plugins"] = GetPluginsConfiguration(hasUserProfile);
+
     oe2Configuration["UiOptions"] = pluginJsonConfiguration_["UiOptions"];
-    oe2Configuration["Plugins"] = GetPluginsConfiguration();
+
+    if (hasUserProfile)
+    {
+      // get the user profile from the auth plugin
+      std::map<std::string, std::string> headers;
+      OrthancPlugins::GetHttpHeaders(headers, request);
+
+      Json::Value userProfile;
+      OrthancPlugins::RestApiGet(userProfile, "/auth/user-profile", headers, true);
+
+      // modify the UiOptions based on the user profile
+      std::list<std::string> permissions;
+      Orthanc::SerializationToolbox::ReadListOfStrings(permissions, userProfile, "permissions");
+
+      Json::Value& uiOptions = oe2Configuration["UiOptions"];
+      UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "view");
+      UpdateUiOptions(uiOptions["EnableUpload"], permissions, "upload");
+      UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "q-r-remote-modalities");
+      UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "delete");
+      UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "download");
+      UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "download");
+      UpdateUiOptions(uiOptions["EnableDownloadDicomFile"], permissions, "download");
+      UpdateUiOptions(uiOptions["EnableModification"], permissions, "modify");
+      UpdateUiOptions(uiOptions["EnableAnonimization"], permissions, "anonymize");
+      UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "send");
+      UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "api-view");
+      UpdateUiOptions(uiOptions["EnableSettings"], permissions, "settings");
+      UpdateUiOptions(uiOptions["EnableLinkToLegacyUi"], permissions, "legacy-ui");
+      UpdateUiOptions(uiOptions["EnableShares"], permissions, "share");
+    }
+
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
@@ -464,6 +506,7 @@ void SharesReverseProxy(OrthancPluginRestOutput* output,
       shareClient.AssignBody(outgoingBody);
       shareClient.SetMethod(Orthanc::HttpMethod_Put);
       shareClient.AddHeader("Content-Type", "application/json");
+      shareClient.AddHeader("Expect", "");
       shareClient.ApplyAndThrowException(answerPayload);
 
       OrthancPlugins::AnswerJson(answerPayload, output);

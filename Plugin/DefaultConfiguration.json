@@ -15,6 +15,9 @@
         // This block of configuration is transmitted as is to the frontend application.
         // Make sure not to store any secret here
         "UiOptions" : {
+            // note: all the "Enable..." variables can be set to false by the user-profile (if using the authorization plugin)
+
+            "EnableStudyList": true,                    // Enables the access to the study list (TODO)
             "EnableUpload": true,                       // Enables the upload menu/interface
             "EnableDicomModalities": true,              // Enables the 'DICOM Modalities' interface in the side menu
             "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances

@@ -77,7 +77,7 @@ User & configuration management (ideas + implementation notes):
     Each CRUD operation only updates a node of the json (that's why we need revisions !).
   - implement authorization checks at API level for all routes (deny all and handle all known routes, including known plugins route)
   - a user could save its prefered searches in its user-settings (to be stored in global properties too)
-  - implement a "login page" instead of the brwoser login dialog -> some routes must be accessible for everyone -> check if compatible with Orthanc Core
+  - implement a "login page" instead of the browser login dialog -> some routes must be accessible for everyone -> check if compatible with Orthanc Core
 
 - Edit configuration through the oe2 UI:
   - Some immutable configuration in a config file:

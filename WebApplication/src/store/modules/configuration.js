@@ -54,11 +54,15 @@ const actions = {
     async load({ commit, state}) {
         await this.dispatch('configuration/loadOe2Configuration');
 
-        const orthancPeers = await api.loadOrthancPeers();
-        commit('setOrthancPeers', { orthancPeers: orthancPeers});
+        if (state.uiOptions.EnableSendTo) {
+            const orthancPeers = await api.loadOrthancPeers();
+            commit('setOrthancPeers', { orthancPeers: orthancPeers});
+        }
 
-        const dicomModalities = await api.loadDicomModalities();
-        commit('setDicomModalities', { dicomModalities: dicomModalities});
+        if (state.uiOptions.EnableSendTo || state.uiOptions.EnableDicomModalities) {
+            const dicomModalities = await api.loadDicomModalities();
+            commit('setDicomModalities', { dicomModalities: dicomModalities});
+        }
 
         const system = await api.loadSystem();
         commit('setSystem', { system: system});

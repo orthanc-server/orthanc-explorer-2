@@ -533,6 +533,11 @@ namespace OrthancPlugins
                   const std::string& uri,
                   bool applyPlugins);
 
+  bool RestApiGet(Json::Value& result,
+                  const std::string& uri,
+                  const std::map<std::string, std::string>& httpHeaders,
+                  bool applyPlugins);
+
   bool RestApiGetString(std::string& result,
                         const std::string& uri,
                         bool applyPlugins);
