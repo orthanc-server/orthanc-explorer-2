@@ -10,10 +10,10 @@ Binaries are available:
   - Windows 64bits
   - Ubuntu 20.04
   - MacOS (Universal binary)
-- in the Windows Installers (to come mid-May 2022),
+- in the Windows Installers,
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
-- in the osimis/orthanc Docker images (to come mid-May 2022),
+- in the osimis/orthanc Docker images,
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
 
