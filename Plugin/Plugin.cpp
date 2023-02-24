@@ -407,7 +407,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       OrthancPlugins::GetHttpHeaders(headers, request);
 
       Json::Value userProfile;
-      OrthancPlugins::RestApiGet(userProfile, "/auth/user-profile", headers, true);
+      OrthancPlugins::RestApiGet(userProfile, "/auth/user/profile", headers, true);
 
       // modify the UiOptions based on the user profile
       std::list<std::string> permissions;
