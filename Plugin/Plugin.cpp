@@ -533,6 +533,9 @@ extern "C"
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX, Orthanc::MimeType_Html> >
           (oe2BaseUrl_ + "app/index.html", true);
         OrthancPlugins::RegisterRestCallback
+          <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX_LANDING, Orthanc::MimeType_Html> >
+          (oe2BaseUrl_ + "app/token-landing.html", true);
+        OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_FAVICON, Orthanc::MimeType_Ico> >
           (oe2BaseUrl_ + "app/favicon.ico", true);
         

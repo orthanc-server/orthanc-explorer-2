@@ -6,6 +6,9 @@ BREAKING CHANGES:
 Changes:
 - Introduced user-permissions and authorization tokens linked to the authorization plugin and new auth-service API
 - Configuration: new "Tokens" section
+- new "landing" page at /ui/app/token-landing.html?token=... to validate tokens and display a user friendly message if the token
+  is invalid.  Redirects to the viewer if the token is valid.
+
 
 
 0.6.0 (2023-02-03)

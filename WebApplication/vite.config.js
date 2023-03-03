@@ -1,4 +1,5 @@
-import { defineConfig } from 'vite'
+import { defineConfig, resolveBaseUrl } from 'vite'
+import { resolve } from 'path'
 import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
@@ -7,10 +8,17 @@ export default defineConfig({
   base: '',
   plugins: [vue()],
   server: {
-    host: true
+    host: true,
+    port: 3000
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        landing: resolve(__dirname, 'token-landing.html')
+      }
+    }
   },
   css: {
     postcss: { // to avoid this warning: https://github.com/vitejs/vite/discussions/5079

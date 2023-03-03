@@ -292,6 +292,14 @@ export default {
         
         return response.data;
     },
+    async parseToken(tokenKey, tokenValue) {
+        const response = (await axios.post(orthancApiUrl + "auth/tokens/decode", {
+            "TokenKey": tokenKey,
+            "TokenValue": tokenValue
+        }))
+
+        return response.data;
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
