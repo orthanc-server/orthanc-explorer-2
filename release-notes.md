@@ -1,3 +1,13 @@
+BREAKING CHANGES:
+- Shares: removed anonymized shares
+- Shares: is now using the authorization plugin to generate tokens.  This requires the new auth-service API
+- Shares: removed "Shares" configuration section, part of it has been moved to the "Tokens" section
+
+Changes:
+- Introduced user-permissions and authorization tokens linked to the authorization plugin and new auth-service API
+- Configuration: new "Tokens" section
+
+
 0.6.0 (2023-02-03)
 ==================
 

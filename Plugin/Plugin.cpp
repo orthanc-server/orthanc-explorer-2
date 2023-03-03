@@ -44,12 +44,6 @@ Json::Value pluginsConfiguration_;
 bool hasUserProfile_ = false;
 
 bool enableShares_ = false;
-std::unique_ptr<Orthanc::WebServiceParameters> sharesWebService_;
-std::string shareType_;
-int defaultShareDuration_ = 0;
-bool enableAnonymizedShares_ = false;
-bool enableStandardShares_ = false;
-bool enableMedDreamInstantLinks_ = false;
 
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
@@ -166,28 +160,6 @@ void ReadConfiguration()
   }
 
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
-
-  if (pluginJsonConfiguration_.isMember("Shares"))
-  {
-    const Json::Value& sharesConfiguration = pluginJsonConfiguration_["Shares"];
-
-    if (enableShares_)
-    {
-      shareType_ = sharesConfiguration["Type"].asString();
-      enableAnonymizedShares_ = sharesConfiguration["EnableAnonymizedShares"].asBool();
-      enableStandardShares_ = sharesConfiguration["EnableStandardShares"].asBool();
-
-      // Extend the UI options from the Share configuration
-      pluginJsonConfiguration_["UiOptions"]["EnableAnonymizedShares"] = enableAnonymizedShares_;
-      pluginJsonConfiguration_["UiOptions"]["EnableStandardShares"] = enableStandardShares_;
-
-      // Token service
-      sharesWebService_.reset(new Orthanc::WebServiceParameters(sharesConfiguration["TokenService"]));
-    }
-
-    enableMedDreamInstantLinks_ = sharesConfiguration["EnableMedDreamInstantLinks"].asBool();
-    pluginJsonConfiguration_["UiOptions"]["EnableMedDreamInstantLinks"] = enableMedDreamInstantLinks_;
-  }
 
 }
 
@@ -466,68 +438,6 @@ void GetOE2PreLoginConfiguration(OrthancPluginRestOutput* output,
   }
 }
 
-// This method implements a reverse proxy to the orthanc-token-service.
-// This solves CORS issue + check authorizations on Orthanc side.
-void SharesReverseProxy(OrthancPluginRestOutput* output,
-                         const char* url,
-                         const OrthancPluginHttpRequest* request)
-{
-  OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
-
-  if (request->method != OrthancPluginHttpMethod_Put)
-  {
-    OrthancPluginSendMethodNotAllowed(context, output, "PUT");
-  }
-  else
-  {
-    // validate/transform the payload
-    Json::Value incomingPayload;
-    if (Orthanc::Toolbox::ReadJson(incomingPayload, request->body, request->bodySize))
-    {
-      Json::Value outgoingPayload;
-      outgoingPayload["id"] = incomingPayload["id"];
-      outgoingPayload["studies"] = incomingPayload["studies"];
-      if (enableAnonymizedShares_ && incomingPayload["anonymized"].asBool())
-      {
-        outgoingPayload["anonymized"] = true;
-      }
-      else
-      {
-        outgoingPayload["anonymized"] = false;
-      }
-
-      // keep the "meddream-instant-link" type only if defined and allowed
-      if (incomingPayload.isMember("type") && incomingPayload["type"].asString() == "meddream-instant-link" && enableMedDreamInstantLinks_)
-      {
-        outgoingPayload["type"] = "meddream-instant-link";
-      }
-      else
-      {
-        outgoingPayload["type"] = shareType_;
-      }
-
-      outgoingPayload["expiration-date"] = incomingPayload["expiration-date"];
-
-      Orthanc::HttpClient shareClient(*(sharesWebService_.get()), "");
-      std::string outgoingBody;
-      Json::Value answerPayload;
-      Orthanc::Toolbox::WriteFastJson(outgoingBody, outgoingPayload);
-
-      shareClient.AssignBody(outgoingBody);
-      shareClient.SetMethod(Orthanc::HttpMethod_Put);
-      shareClient.AddHeader("Content-Type", "application/json");
-      shareClient.AddHeader("Expect", "");
-      shareClient.ApplyAndThrowException(answerPayload);
-
-      OrthancPlugins::AnswerJson(answerPayload, output);
-    }
-    else
-    {
-      OrthancPluginSendHttpStatusCode(context, output, 400);
-      return;
-    }
-  }
-}
 
 static bool DisplayPerformanceWarning(OrthancPluginContext* context)
 {
@@ -536,6 +446,7 @@ static bool DisplayPerformanceWarning(OrthancPluginContext* context)
                           "Non-release build, runtime debug assertions are turned on");
   return true;
 }
+
 
 static void CheckRootUrlIsValid(const std::string& value, const std::string& name, bool allowEmpty)
 {
@@ -636,11 +547,6 @@ extern "C"
         OrthancPlugins::RegisterRestCallback<GetOE2Configuration>(oe2BaseUrl_ + "api/configuration", true);
         OrthancPlugins::RegisterRestCallback<GetOE2PreLoginConfiguration>(oe2BaseUrl_ + "api/pre-login-configuration", true);
 
-        if (enableShares_)
-        {
-          OrthancPlugins::RegisterRestCallback<SharesReverseProxy>(oe2BaseUrl_ + "api/shares", true);
-        }
-        
         std::string pluginRootUri = oe2BaseUrl_ + "app/";
         OrthancPluginSetRootUri(context, pluginRootUri.c_str());
 

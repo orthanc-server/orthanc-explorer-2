@@ -31,10 +31,9 @@
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
 
-            "EnableShares": false,                      // Enables sharing studies (to be released after OrthancCon).  See "Shares" section below.
+            "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
             "ShareDurations": [0, 7, 15, 30, 90, 365],  // The share durations proposed in the UI
-            "AnonymizeSharesByDefault": false,          // Are shares anonymized by default or not (check the "Shares" section below)      
 
             "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button
             "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/Viewer/" means that link to OHIF will look like http://ohif.my.site/Viewer/1.2.3.444.5555....
@@ -193,7 +192,8 @@
         
         // this section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented
         "Tokens" : {
-            "InstantLinksValidity": 200  // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
+            "InstantLinksValidity": 200,                // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
+            "ShareType": "stone-viewer-publication"     // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication"
         }
     }
 }

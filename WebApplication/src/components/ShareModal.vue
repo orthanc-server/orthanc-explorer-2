@@ -15,13 +15,11 @@ export default {
     data() {
         return {
             expirationInDays: 0,
-            anonymized: "no",
             shareLink: ""
         }
     },
     mounted() {
         this.expirationInDays = this.uiOptions.DefaultShareDuration;
-        this.anonymized = this.uiOptions.AnonymizeSharesByDefault;
 
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
             // move the modal to body to avoid z-index issues: https://weblog.west-wind.com/posts/2016/sep/14/bootstrap-modal-dialog-showing-under-modal-background
@@ -32,9 +30,6 @@ export default {
         expirationInDays(newValue, oldValue) {
             this.shareLink = ""
         },
-        anonymized(newValue, oldValue) {
-            this.shareLink = ""
-        }
     },
     methods: {
         getDurationText(duration) {
@@ -44,8 +39,13 @@ export default {
             return "" + duration + " " +  this.$i18n.t('share.days');
         },
         async share() {
-            const anonymized = this.anonymized == "yes";
-            this.shareLink = await api.shareStudy(this.orthancId, this.studyMainDicomTags["StudyInstanceUID"], anonymized, this.expirationInDays);
+            let token = await api.createToken({
+                tokenType: this.tokens.ShareType,  // defined in configuration file
+                resourcesIds: [this.orthancId], 
+                level: 'study', 
+                validityDuration: this.expirationInDays * 24 * 3600
+            })
+            this.shareLink = token["Url"];
         },
         copyAndClose() {
             clipboardHelpers.copyToClipboard(this.shareLink);
@@ -54,6 +54,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            tokens: state => state.configuration.tokens,
         }),
         resourceTitle() {
             return resourceHelpers.getResourceTitle("study", this.patientMainDicomTags, this.studyMainDicomTags, null, null);
@@ -84,17 +85,6 @@ export default {
                                 <option v-for="duration in uiOptions.ShareDurations" :key="duration" :value="duration">
                                     {{ getDurationText(duration) }}</option>
                             </select>
-                        </div>
-                    </div>
-                    <div v-if="uiOptions.EnableAnonymizedShares" class="row py-3">
-                        <div class="col-md-6">
-                            {{ $t("share.anonymize")}}
-                        </div>
-                        <div class="col-md-5">
-                            <label class="switch float-end">
-                                <input type="checkbox" v-model="anonymized" true-value="yes" false-value="no">
-                                <span class="slider round"></span>
-                            </label>                            
                         </div>
                     </div>
                     <div class="row py-3">
