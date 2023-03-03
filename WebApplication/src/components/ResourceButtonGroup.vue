@@ -7,6 +7,7 @@ import { mapState } from "vuex"
 import api from "../orthancApi"
 import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
+import TokenLinkButton from "./TokenLinkButton.vue"
 
 
 export default {
@@ -148,11 +149,7 @@ export default {
             return this.uiOptions.EnableOpenInMedDreamViewer;
         },
         medDreamViewerUrl() {
-            if (this.uiOptions.EnableMedDreamInstantLinks) {
-                return "#";
-            } else {
-                return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
-            }
+            return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
         instancePreviewUrl() {
             return api.getInstancePreviewUrl(this.resourceOrthancId);
@@ -174,11 +171,9 @@ export default {
         },
         stoneViewerIcon() {
             return this.getViewerIcon("stone-webviewer");
-
         },
         medDreamViewerIcon() {
             return this.getViewerIcon("meddream");
-
         },
         ohifViewerIcon() {
             return this.getViewerIcon("ohif");
@@ -214,7 +209,7 @@ export default {
             }
         }
     },
-    components: { Modal, ShareModal, ModifyModal }
+    components: { Modal, ShareModal, ModifyModal, TokenLinkButton }
 }
 </script>
 
@@ -222,22 +217,24 @@ export default {
     <div>
         <div class="btn-group">
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
-                <a v-if="hasMedDreamViewer && viewer == 'meddream' && this.resourceLevel == 'study'"
-                    class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                    :title="$t('view_in_meddream')" target="blank" @click="openMedDream"
-                    v-bind:href="medDreamViewerUrl">
-                    <i :class="medDreamViewerIcon"></i>
-                </a>
-                <a v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-                    class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                    :title="$t('view_in_osimis')" target="blank" v-bind:href="osimisViewerUrl">
-                    <i :class="osimisViewerIcon"></i>
-                </a>
-                <a v-if="hasStoneViewer && viewer == 'stone-webviewer' && this.resourceLevel == 'study'"
-                    class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                    :title="$t('view_in_stone')" target="blank" v-bind:href="stoneViewerUrl">
-                    <i :class="stoneViewerIcon"></i>
-                </a>
+                <TokenLinkButton v-if="hasMedDreamViewer && viewer == 'meddream' && this.resourceLevel == 'study'"
+                    :iconClass="medDreamViewerIcon" :level="this.resourceLevel" :linkUrl="medDreamViewerUrl" 
+                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_meddream')" :tokenType="'meddream-instant-link'"
+                    :opensInNewTab="true">
+                </TokenLinkButton>
+
+                <TokenLinkButton v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+                    :iconClass="osimisViewerIcon" :level="this.resourceLevel" :linkUrl="osimisViewerUrl" 
+                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_osimis')" :tokenType="'viewer-instant-link'"
+                    :opensInNewTab="true">
+                </TokenLinkButton>
+
+                <TokenLinkButton v-if="hasStoneViewer && viewer == 'stone-webviewer' && this.resourceLevel == 'study'"
+                    :iconClass="stoneViewerIcon" :level="this.resourceLevel" :linkUrl="stoneViewerUrl" 
+                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_stone')" :tokenType="'viewer-instant-link'"
+                    :opensInNewTab="true">
+                </TokenLinkButton>
+
                 <a v-if="hasOhifViewer && viewer == 'ohif' && this.resourceLevel == 'study'"
                     class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
                     :title="$t('view_in_ohif')" target="blank" v-bind:href="ohifViewerUrl">
@@ -250,32 +247,20 @@ export default {
             </a>
         </div>
         <div class="btn-group">
-            <a v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                :title="`${$t('download_zip')}`" v-bind:href="downloadZipUrl">
-                <i class="bi bi-download"></i>
-            </a>
-            <a v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                :title="`${$t('download_dicomdir')}`" v-bind:href="downloadDicomDirUrl">
-                <i class="bi bi-box-arrow-down"></i>
-            </a>
-            <a v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
-                class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                :title="`${$t('download_dicom_file')}`" v-bind:href="instanceDownloadUrl">
-                <i class="bi bi-download"></i>
-            </a>
+            <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
+                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadZipUrl" 
+                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_zip')" :tokenType="'download-instant-link'">
+            </TokenLinkButton>
+            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
+                :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl" 
+                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicomdir')" :tokenType="'download-instant-link'">
+            </TokenLinkButton>
+            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
+                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="instanceDownloadUrl" 
+                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicom_file')" :tokenType="'download-instant-link'">
+            </TokenLinkButton>
         </div>
         <div class="btn-group">
-            <!-- <button
-            v-if="uiOptions.EnableAnonymize"
-            class="btn btn-sm btn-secondary m-1"
-            type="button"
-            data-bs-toggle="tooltip"
-            :title="`${$t('anonymize')}`"
-        >
-            <i class="bi bi-person-x"></i>
-        </button> -->
             <button v-if="uiOptions.EnableDeleteResources" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId">
                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>

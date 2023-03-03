@@ -40,6 +40,9 @@ OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);
 Json::Value pluginJsonConfiguration_;
 std::string oe2BaseUrl_;
 
+Json::Value pluginsConfiguration_;
+bool hasUserProfile_ = false;
+
 bool enableShares_ = false;
 std::unique_ptr<Orthanc::WebServiceParameters> sharesWebService_;
 std::string shareType_;
@@ -276,8 +279,14 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
 
     if (pluginName == "authorization") 
     {
+      pluginConfiguration = Json::nullValue;
       pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "Authorization") && pluginConfiguration.isMember("WebService");
-      hasUserProfile = GetPluginConfiguration(pluginConfiguration, "Authorization") && pluginConfiguration.isMember("WebServiceUserProfileUrl");
+      hasUserProfile = GetPluginConfiguration(pluginConfiguration, "Authorization") && (pluginConfiguration.isMember("WebServiceUserProfileUrl") || pluginConfiguration.isMember("WebServiceRootUrl"));
+
+      if (!pluginConfiguration.isMember("CheckedLevel") || pluginConfiguration["CheckedLevel"].asString() != "studies")
+      {
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_BadFileFormat, "When using OE2 and the authorization plugin together, you must set 'Authorization.CheckedLevel' to 'studies'.");
+      }
     }
     else if (pluginName == "AWS S3 Storage")
     {
@@ -367,8 +376,6 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
     }
-    
-
   }
 
   return pluginsConfiguration;
@@ -395,12 +402,15 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
   {
     Json::Value oe2Configuration;
 
-    bool hasUserProfile = false;
-    oe2Configuration["Plugins"] = GetPluginsConfiguration(hasUserProfile);
-
+    oe2Configuration["Plugins"] = pluginsConfiguration_;
     oe2Configuration["UiOptions"] = pluginJsonConfiguration_["UiOptions"];
+    
+    Json::Value tokens = pluginJsonConfiguration_["Tokens"];
+    tokens["RequiredForLinks"] = hasUserProfile_;
 
-    if (hasUserProfile)
+    oe2Configuration["Tokens"] = tokens;
+    
+    if (hasUserProfile_)
     {
       // get the user profile from the auth plugin
       std::map<std::string, std::string> headers;
@@ -543,6 +553,28 @@ static void CheckRootUrlIsValid(const std::string& value, const std::string& nam
   }
 }
 
+OrthancPluginErrorCode OnChangeCallback(OrthancPluginChangeType changeType,
+                                        OrthancPluginResourceType resourceType,
+                                        const char* resourceId)
+{
+  try
+  {
+    if (changeType == OrthancPluginChangeType_OrthancStarted)
+    {
+      // this can not be performed during plugin initialization because it is accessing the DB -> must be done when Orthanc has just started
+      pluginsConfiguration_ = GetPluginsConfiguration(hasUserProfile_);
+    }
+  }
+  catch (Orthanc::OrthancException& e)
+  {
+    LOG(ERROR) << "Exception: " << e.What();
+    return static_cast<OrthancPluginErrorCode>(e.GetErrorCode());
+  }
+
+  return OrthancPluginErrorCode_Success;
+}
+
+
 extern "C"
 {
   ORTHANC_PLUGINS_API int32_t OrthancPluginInitialize(OrthancPluginContext* context)
@@ -617,6 +649,7 @@ extern "C"
           OrthancPlugins::RegisterRestCallback<RedirectRoot>("/", true);
         }
 
+        OrthancPluginRegisterOnChangeCallback(context, OnChangeCallback);
       }
       else
       {

@@ -188,6 +188,12 @@
             "Url": "http://change-me:8080/",
             "Realm": "change-me",
             "ClientId": "change-me"
+        },
+
+        
+        // this section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented
+        "Tokens" : {
+            "InstantLinksValidity": 200  // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
         }
     }
 }

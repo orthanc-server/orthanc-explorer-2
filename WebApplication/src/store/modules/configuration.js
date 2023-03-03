@@ -11,6 +11,7 @@ const state = () => ({
     maxStudiesDisplayed: 100,
     orthancApiUrl: "../../",
     uiOptions: {},
+    tokens: {},
     loaded: false,
     system: {}
 })
@@ -44,6 +45,9 @@ const mutations = {
     },
     setLoaded(state) {
         state.loaded = true;
+    },
+    setTokens(state, { tokens }) {
+        state.tokens = tokens;
     }
 
 }
@@ -72,6 +76,7 @@ const actions = {
     async loadOe2Configuration({ commit }) {
         const oe2Config = await api.loadOe2Configuration();
         commit('setUiOptions', { uiOptions: oe2Config['UiOptions']});
+        commit('setTokens', { tokens: oe2Config['Tokens']});
 
         document._mustTranslateDicomTags = oe2Config['UiOptions']['TranslateDicomTags'];
 

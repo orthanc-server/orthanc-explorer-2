@@ -186,6 +186,20 @@ export default {
     async getSeriesParentStudy(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/study")).data;
     },
+    async getInstanceParentStudy(orthancId) {
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/study")).data;
+    },
+    async getResourceStudy(orthancId, level) {
+        if (level == "study") {
+            return (await this.getStudy(orthancId));
+        } else if (level == "series") {
+            return (await this.getSeriesParentStudy(orthancId));
+        } else if (level == "instance") {
+            return (await this.getInstanceParentStudy(orthancId));
+        } else {
+            console.error("unsupported level for getResourceStudyId", level);
+        }
+    },
     async getInstanceTags(orthancId) {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags")).data;
     },
@@ -264,6 +278,40 @@ export default {
         }))
 
         return response.data['ID'];
+    },
+
+    async createToken({tokenType, resourcesIds, level, validityDuration=null, id=null, expirationDate=null}) {
+        let body = {
+            "Resources" : [],
+            "Type": tokenType
+        }
+
+        for (let resourceId of resourcesIds) {
+            // the authorization are performed at study level -> get parent study id if needed
+            const study = await this.getResourceStudy(resourceId, level);
+            body["Resources"].push({
+                "OrthancId": study["ID"],
+                "DicomUid": study["MainDicomTags"]["StudyInstanceUID"],
+                "Level": 'study'
+            })
+        }
+
+        if (validityDuration != null) {
+           body["ValidityDuration"] = validityDuration;
+        }
+
+        if (expirationDate != null) {
+            body["ExpirationDate"] = expirationDate.toJSON();
+        }
+
+        if (id != null) {
+            body["Id"] = id;
+        }
+
+        const response = (await axios.put(orthancApiUrl + "auth/tokens/" + tokenType, body));
+        // console.log(response);
+        
+        return response.data;
     },
 
     ////////////////////////////////////////// HELPERS
