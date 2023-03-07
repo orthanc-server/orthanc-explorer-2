@@ -32,11 +32,11 @@ export default {
             let token = await api.createToken({tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: this.level, validityDuration: validityDuration});
             let finalUrl = this.linkUrl;
 
-            // if (token["Url"] != null) {
-            //     finalUrl = token["Url"];
-            // }
-            // else 
-            if (this.linkUrl.indexOf('?') == -1) {
+            // give priority to the urls coming from the token service
+            if (token["Url"] != null) {
+                finalUrl = token["Url"];
+            }
+            else if (this.linkUrl.indexOf('?') == -1) {
                 finalUrl = finalUrl + "?token=" + token["Token"];
             } else {
                 finalUrl = finalUrl + "&token=" + token["Token"];
