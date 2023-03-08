@@ -15,7 +15,6 @@ import orthancApi from './orthancApi'
 import axios from 'axios'
 
 
-
 // before initialization, we must load part of the configuration to know if we need to enable Keycloak or not
 axios.get('../api/pre-login-configuration').then((config) => {
 
@@ -33,12 +32,15 @@ axios.get('../api/pre-login-configuration').then((config) => {
     keycloackConfig = config.data['Keycloak']
 
     let initOptions = {
-      url: keycloackConfig['Url'], realm: keycloackConfig['Realm'], clientId: keycloackConfig['ClientId'], onLoad: 'login-required'
+      url: keycloackConfig['Url'], 
+      realm: keycloackConfig['Realm'], 
+      clientId: keycloackConfig['ClientId'], 
+      onLoad: 'login-required'
     }
 
-    let keycloak = new Keycloak(initOptions);
+    window.keycloak = new Keycloak(initOptions);
 
-    keycloak.init({ onLoad: initOptions.onLoad }).then((auth) => {
+    window.keycloak.init({ onLoad: initOptions.onLoad }).then(async (auth) => {
 
       if (!auth) {
         window.location.reload();
@@ -46,20 +48,21 @@ axios.get('../api/pre-login-configuration').then((config) => {
         console.log("Authenticated");
       }
 
-      localStorage.setItem("vue-token", keycloak.token);
-      localStorage.setItem("vue-refresh-token", keycloak.refreshToken);
+      localStorage.setItem("vue-token", window.keycloak.token);
+      localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
       orthancApi.updateAuthHeader();
 
-      app.mount('#app')
+      app.mount('#app');
+      await router.push('/');
 
       setInterval(() => {
-        keycloak.updateToken(70).then((refreshed) => {
+        window.keycloak.updateToken(70).then((refreshed) => {
           if (refreshed) {
             console.log('Token refreshed' + refreshed);
             orthancApi.updateAuthHeader();
           } else {
             console.log('Token not refreshed, valid for '
-              + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
+              + Math.round(window.keycloak.tokenParsed.exp + window.keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
           }
         }).catch(() => {
           console.log('Failed to refresh token');

@@ -39,6 +39,9 @@ export default {
         hasJobs() {
             return this.jobs.length > 0;
         },
+        hasLogout() {
+            return true;
+        },
         displayedStudyCount() {
             return this.studiesIds.length;
         },
@@ -58,6 +61,17 @@ export default {
         },
         isEchoSuccess(modality) {
             return this.modalitiesEchoStatus[modality] == true;
+        },
+        logout(event) {
+            event.preventDefault();
+            let logoutOptions = {
+                "redirectUri": window.location.href
+            }
+            window.keycloak.logout(logoutOptions).then((success) => {
+                console.log("logout success", success);
+            }).catch((error) => {
+                console.error("logout failed", error);
+            })
         }
     },
     mounted() {
@@ -148,6 +162,11 @@ export default {
                         <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t('legacy_ui') }}
                     </a><span class="ms-auto"></span>
                 </li>
+                <li v-if="hasLogout" class="d-flex align-items-center fix-router-link">
+                    <a v-bind:href="'#'" @click="logout($event)">
+                        <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
+                    </a><span class="ms-auto"></span>
+                </li>
                 <li v-if="hasJobs" class="d-flex align-items-center">
                     <a href="#">
                         <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{ $t('my_jobs') }}
@@ -158,9 +177,9 @@ export default {
                 </div>
             </ul>
         </div>
-        <div class="language-picker">
-                <LanguagePicker />
-            </div>
+        <div class="bottom-side-bar">
+            <LanguagePicker />
+        </div>
     </div>
 </template>
 <style scoped>
@@ -315,7 +334,7 @@ export default {
     margin-right: 10px;
 }
 
-.language-picker {
+.bottom-side-bar {
     position: absolute;
     bottom: 1rem;
     width: 100%;
