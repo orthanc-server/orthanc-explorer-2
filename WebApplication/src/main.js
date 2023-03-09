@@ -53,8 +53,18 @@ axios.get('../api/pre-login-configuration').then((config) => {
       orthancApi.updateAuthHeader();
 
       app.mount('#app');
-      await router.push('/');
+      console.log("App mounted with keycloak, current route is ", router.currentRoute.value.fullPath);
+      
+      // keycloak includes state, code and session_state -> the router does not like them -> remove them
+      const params = new URLSearchParams(router.currentRoute.value.fullPath);
+      params.delete('state');
+      params.delete('code');
+      params.delete('session_state');
+      const cleanedRoute = decodeURIComponent(params.toString()).replace('/=', '/');
+      console.log("App mounted, moving to cleaned route ", cleanedRoute);
+      await router.push(cleanedRoute);
 
+      // programm token refresh at regular interval
       setInterval(() => {
         window.keycloak.updateToken(70).then((refreshed) => {
           if (refreshed) {
