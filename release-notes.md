@@ -8,7 +8,8 @@ Changes:
 - Configuration: new "Tokens" section
 - new "landing" page at /ui/app/token-landing.html?token=... to validate tokens and display a user friendly message if the token
   is invalid.  Redirects to the viewer if the token is valid.
-
+- new "landing" page at /ui/app/retrieve-and-view?StudyInstanceUID=1.2.3....&modality=pacs@viewer=stone-viewer to open the viewer
+  on a study that might already be stored in Orthanc or, if not, that can be fetched from a DICOM modality.
 
 
 0.6.0 (2023-02-03)

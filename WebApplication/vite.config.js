@@ -16,7 +16,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        landing: resolve(__dirname, 'token-landing.html')
+        landing: resolve(__dirname, 'token-landing.html'),
+        retrieve: resolve(__dirname, 'retrieve-and-view.html')
       }
     }
   },

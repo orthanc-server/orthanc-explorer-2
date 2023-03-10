@@ -353,9 +353,17 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
   return pluginsConfiguration;
 }
 
-void UpdateUiOptions(Json::Value& uiOption, const std::list<std::string>& permissions, const std::string& permission)
+void UpdateUiOptions(Json::Value& uiOption, const std::list<std::string>& permissions, const std::string& anyOfPermissions)
 {
-  bool hasPermission = std::find(permissions.begin(), permissions.end(), permission) != permissions.end();
+  std::vector<std::string> permissionsVector;
+  Orthanc::Toolbox::TokenizeString(permissionsVector, anyOfPermissions, '|');
+
+  bool hasPermission = false;
+
+  for (size_t i = 0; i < permissionsVector.size(); ++i)
+  {
+    hasPermission |= std::find(permissions.begin(), permissions.end(), permissionsVector[i]) != permissions.end();
+  }
 
   uiOption = uiOption.asBool() && hasPermission;
 }
@@ -396,20 +404,20 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       Orthanc::SerializationToolbox::ReadListOfStrings(permissions, userProfile, "permissions");
 
       Json::Value& uiOptions = oe2Configuration["UiOptions"];
-      UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "view");
-      UpdateUiOptions(uiOptions["EnableUpload"], permissions, "upload");
-      UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "q-r-remote-modalities");
-      UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "delete");
-      UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "download");
-      UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "download");
-      UpdateUiOptions(uiOptions["EnableDownloadDicomFile"], permissions, "download");
-      UpdateUiOptions(uiOptions["EnableModification"], permissions, "modify");
-      UpdateUiOptions(uiOptions["EnableAnonimization"], permissions, "anonymize");
-      UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "send");
-      UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "api-view");
-      UpdateUiOptions(uiOptions["EnableSettings"], permissions, "settings");
-      UpdateUiOptions(uiOptions["EnableLinkToLegacyUi"], permissions, "legacy-ui");
-      UpdateUiOptions(uiOptions["EnableShares"], permissions, "share");
+      UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "all|view");
+      UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
+      UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
+      UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
+      UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "all|download");
+      UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "all|download");
+      UpdateUiOptions(uiOptions["EnableDownloadDicomFile"], permissions, "all|download");
+      UpdateUiOptions(uiOptions["EnableModification"], permissions, "all|modify");
+      UpdateUiOptions(uiOptions["EnableAnonimization"], permissions, "all|anonymize");
+      UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "all|send");
+      UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
+      UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
+      UpdateUiOptions(uiOptions["EnableLinkToLegacyUi"], permissions, "all|legacy-ui");
+      UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
     }
 
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
@@ -535,6 +543,9 @@ extern "C"
         OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX_LANDING, Orthanc::MimeType_Html> >
           (oe2BaseUrl_ + "app/token-landing.html", true);
+        OrthancPlugins::RegisterRestCallback
+          <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX_RETRIEVE_AND_VIEW, Orthanc::MimeType_Html> >
+          (oe2BaseUrl_ + "app/retrieve-and-view.html", true);
         OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_FAVICON, Orthanc::MimeType_Ico> >
           (oe2BaseUrl_ + "app/favicon.ico", true);

@@ -183,6 +183,9 @@ export default {
     async getSeriesInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
     },
+    async getStudyInstances(orthancId) {
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/instances")).data;
+    },
     async getSeriesParentStudy(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/study")).data;
     },
