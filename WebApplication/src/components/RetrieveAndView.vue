@@ -7,10 +7,18 @@ export default {
     props: [],
     async created() {
         const params = new URLSearchParams(window.location.search);
-        this.studyInstanceUid = params.get('study');
+        
+        if (params.has("StudyInstanceUID")) {
+            this.studyInstanceUid = params.get('StudyInstanceUID');
+        } else if (params.has("study")) {
+            this.studyInstanceUid = params.get('study');
+        } else {
+            console.error("No study defined.  Use StudyInstanceUID=1.2.3.... in your url");
+        }
+        
         const modality = params.get('modality');
         if (params.has("viewer")) {
-            viewer = params.get("viewer");
+            this.viewer = params.get("viewer");
         }
 
         const study = await api.findStudy( this.studyInstanceUid);
