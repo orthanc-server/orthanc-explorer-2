@@ -3,6 +3,7 @@ import StudyItem from "./StudyItem.vue"
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
+import resourceHelpers from "../helpers/resource-helpers"
 import $ from "jquery"
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
@@ -44,6 +45,7 @@ export default {
     data() {
         return {
             filterStudyDate: '',
+            filterStudyDateForDatePicker: '',
             filterAccessionNumber: '',
             filterPatientID: '',
             filterPatientName: '',
@@ -113,7 +115,16 @@ export default {
             deep: true
         },
         filterStudyDate(newValue, oldValue) {
+            console.log("watch filterStudyDate", newValue);
             this.updateFilter('StudyDate', newValue, oldValue);
+        },
+        filterStudyDateForDatePicker(newValue, oldValue) {
+            let dicomNewValue = this.formatDateFromDatePicker(newValue);
+            if (dicomNewValue == null) {
+                dicomNewValue = "";
+            }
+            console.log("watch filterStudyDateForDatePicker", newValue, dicomNewValue);
+            this.filterStudyDate = dicomNewValue;
         },
         filterAccessionNumber(newValue, oldValue) {
             this.updateFilter('AccessionNumber', newValue, oldValue);
@@ -310,6 +321,7 @@ export default {
             for (const [key, value] of Object.entries(filters)) {
                 if (key == "StudyDate") {
                     this.filterStudyDate = value;
+                    this.filterStudyDateForDatePicker = resourceHelpers.parseDate(value);
                 } else if (key == "AccessionNumber") {
                     this.filterAccessionNumber = value;
                 } else if (key == "PatientID") {
@@ -340,6 +352,7 @@ export default {
         emptyFilterForm() {
             // console.log("StudyList: emptyFilterForm", this.updatingFilterUi);
             this.filterStudyDate = '';
+            this.filterStudyDateForDatePicker = null;
             this.filterAccessionNumber = '';
             this.filterPatientID = '';
             this.filterPatientName = '';
@@ -434,7 +447,33 @@ export default {
         },
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });
-        }
+        },
+        formatDateFromDatePicker(dates) {
+            let output = "";
+            if (dates == null) {
+               output = null;
+            }
+            else if (dates instanceof Date) {
+                output = resourceHelpers.toDicomDate(dates);
+            }
+            else if (dates instanceof Array) {
+                if (dates.length == 2 && (dates[0] != null && dates[0].getFullYear != undefined) && (dates[1] != null && dates[1].getFullYear != undefined)) {
+                    if (resourceHelpers.toDicomDate(dates[0]) == resourceHelpers.toDicomDate(dates[1])) {
+                        output = resourceHelpers.toDicomDate(dates[0]);
+                    } else {
+                        output = resourceHelpers.toDicomDate(dates[0]) + "-" + resourceHelpers.toDicomDate(dates[1]);
+                    }
+                } else if (dates.length >= 1 && dates[0].getFullYear != undefined) {
+                    output = resourceHelpers.toDicomDate(dates[0]);
+                } else if (dates.length == 2 && typeof dates[0] == 'string' && typeof dates[1] == 'string') {
+                    output = dates[0] + "-" + dates[1];
+                } else if (dates.length == 1 && typeof dates[0] == 'string') {
+                    output = dates[0];
+                }
+            }
+            console.log("formatDateFromDatePicker", dates, output);
+            return output;
+        },
     },
     components: { StudyItem }
 }
@@ -471,8 +510,10 @@ export default {
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                    <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')"/>
+                    <!--<input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
+                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')"/>-->
+                    <Datepicker style="width:200px" v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker" :enable-time-picker="false"
+                    range format="yyyyMMdd" preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]"/>
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
                         v-model="filterAccessionNumber" placeholder="1234" v-bind:class="getFilterClass('AccessionNumber')"/>
                     <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
