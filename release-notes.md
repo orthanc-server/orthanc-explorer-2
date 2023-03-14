@@ -4,6 +4,7 @@ BREAKING CHANGES:
 - Shares: removed "Shares" configuration section, part of it has been moved to the "Tokens" section
 
 Changes:
+- Introduced a Date Picker for the StudyDate and PatientBirthDate
 - Introduced user-permissions and authorization tokens linked to the authorization plugin and new auth-service API
 - Configuration: new "Tokens" section
 - new "landing" page at /ui/app/token-landing.html?token=... to validate tokens and display a user friendly message if the token
