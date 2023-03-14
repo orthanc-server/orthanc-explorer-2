@@ -50,6 +50,7 @@ export default {
             filterPatientID: '',
             filterPatientName: '',
             filterPatientBirthDate: '',
+            filterPatientBirthDateForDatePicker: '',
             filterStudyDescription: '',
             filterModalities: {},
             allModalities: true,
@@ -108,8 +109,8 @@ export default {
         filterModalities: {
             handler(newValue, oldValue) {
                 if (!this.updatingFilterUi && !this.initializingModalityFilter) {
-                //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
-                   this.updateFilter('ModalitiesInStudy', this.getModalityFilter(), null);
+                    //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
+                    this.updateFilter('ModalitiesInStudy', this.getModalityFilter(), null);
                 }
             },
             deep: true
@@ -137,6 +138,14 @@ export default {
         },
         filterPatientBirthDate(newValue, oldValue) {
             this.updateFilter('PatientBirthDate', newValue, oldValue);
+        },
+        filterPatientBirthDateForDatePicker(newValue, oldValue) {
+            let dicomNewValue = this.formatDateFromDatePicker(newValue);
+            if (dicomNewValue == null) {
+                dicomNewValue = "";
+            }
+            console.log("watch filterPatientBirthDateForDatePicker", newValue, dicomNewValue);
+            this.filterPatientBirthDate = dicomNewValue;
         },
         filterStudyDescription(newValue, oldValue) {
             this.updateFilter('StudyDescription', newValue, oldValue);
@@ -173,12 +182,12 @@ export default {
         },
         initModalityFilter() {
             // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
-            this.initializingModalityFilter=true;
+            this.initializingModalityFilter = true;
             this.filterModalities = {};
             for (const modality of this.uiOptions.ModalitiesFilter) {
                 this.filterModalities[modality] = true;
             }
-            this.initializingModalityFilter=false;
+            this.initializingModalityFilter = false;
         },
         getModalityFilter() {
             if (this.filterModalities === undefined) {
@@ -210,7 +219,7 @@ export default {
             }
         },
         updateFilter(dicomTagName, newValue, oldValue) {
-            
+
             if (this.updatingFilterUi) {
                 return;
             }
@@ -231,9 +240,9 @@ export default {
                 if (this.searchTimerHandler[dicomTagName]) {
                     clearTimeout(this.searchTimerHandler[dicomTagName]);
                 }
-                this.searchTimerHandler[dicomTagName] = setTimeout(() => {this._updateFilter(dicomTagName, newValue)}, this.uiOptions.StudyListSearchAsYouTypeDelay);
+                this.searchTimerHandler[dicomTagName] = setTimeout(() => { this._updateFilter(dicomTagName, newValue) }, this.uiOptions.StudyListSearchAsYouTypeDelay);
             } else if (newValue.length < oldValue.length && oldValue.length >= this.uiOptions.StudyListSearchAsYouTypeMinChars) { // when deleting filter
-                this.searchTimerHandler[dicomTagName] = setTimeout(() => {this._updateFilter(dicomTagName, "")}, this.uiOptions.StudyListSearchAsYouTypeDelay);
+                this.searchTimerHandler[dicomTagName] = setTimeout(() => { this._updateFilter(dicomTagName, "") }, this.uiOptions.StudyListSearchAsYouTypeDelay);
             }
         },
         clipFilter(dicomTagName, value) {
@@ -321,7 +330,7 @@ export default {
             for (const [key, value] of Object.entries(filters)) {
                 if (key == "StudyDate") {
                     this.filterStudyDate = value;
-                    this.filterStudyDateForDatePicker = resourceHelpers.parseDate(value);
+                    this.filterStudyDateForDatePicker = resourceHelpers.parseDateForDatePicker(value);
                 } else if (key == "AccessionNumber") {
                     this.filterAccessionNumber = value;
                 } else if (key == "PatientID") {
@@ -330,6 +339,7 @@ export default {
                     this.filterPatientName = value;
                 } else if (key == "PatientBirthDate") {
                     this.filterPatientBirthDate = value;
+                    this.filterPatientBirthDateForDatePicker = resourceHelpers.parseDateForDatePicker(value);
                 } else if (key == "StudyDescription") {
                     this.filterStudyDescription = value;
                 } else if (key == "ModalitiesInStudy") {
@@ -357,12 +367,13 @@ export default {
             this.filterPatientID = '';
             this.filterPatientName = '';
             this.filterPatientBirthDate = '';
+            this.filterPatientBirthDateForDatePicker = null;
             this.filterStudyDescription = '';
             this.clearModalityFilter();
         },
         async search() {
             if (this.isSearching) {
-                await this.$store.dispatch('studies/cancelSearch');    
+                await this.$store.dispatch('studies/cancelSearch');
             } else {
                 await this.$store.dispatch('studies/clearFilterNoReload');
                 await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDate", value: this.filterStudyDate });
@@ -451,7 +462,7 @@ export default {
         formatDateFromDatePicker(dates) {
             let output = "";
             if (dates == null) {
-               output = null;
+                output = null;
             }
             else if (dates instanceof Date) {
                 output = resourceHelpers.toDicomDate(dates);
@@ -487,79 +498,93 @@ export default {
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th v-if="isSearchButtonEnabled" width="5%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
-                v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
+                    v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
                     v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
-                    columnTitle(columnTag)
+                        columnTitle(columnTag)
                     }}</th>
             </thead>
             <thead class="study-filter" v-on:keyup.enter="search">
                 <th scope="col" class="px-2">
-                    <button @click="clearFilters" type="button"
-                        class="form-control study-list-filter btn filter-button" data-bs-toggle="tooltip"
-                        title="Clear filter">
+                    <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
+                        data-bs-toggle="tooltip" title="Clear filter">
                         <i class="fa-regular fa-circle-xmark"></i>
                     </button>
                 </th>
                 <th v-if="isSearchButtonEnabled" scope="col" class="search-button">
                     <button @click="search" type="submit"
                         class="form-control study-list-filter btn filter-button btn-secondary" data-bs-toggle="tooltip"
-                        :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
-                        title="Search">
+                        :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }" title="Search">
                         <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
-                        <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                            aria-hidden="true"></span>
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                    <!--<input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')"/>-->
-                    <Datepicker style="width:200px" v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker" :enable-time-picker="false"
-                    range format="yyyyMMdd" preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]"/>
+                    <!-- <input v-if="columnTag == 'StudyDate'"type="text" class="form-control study-list-filter"
+                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')" /> -->
+                    <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
+                        :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
+                        arrow-navigation :highlight-week-days="[0, 6]">
+                    </Datepicker>
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
-                        v-model="filterAccessionNumber" placeholder="1234" v-bind:class="getFilterClass('AccessionNumber')"/>
+                        v-model="filterAccessionNumber" placeholder="1234"
+                        v-bind:class="getFilterClass('AccessionNumber')" />
                     <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientID" placeholder="1234" v-bind:class="getFilterClass('PatientID')"/>
+                        v-model="filterPatientID" placeholder="1234" v-bind:class="getFilterClass('PatientID')" />
                     <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
-                    <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate" placeholder="19740815" v-bind:class="getFilterClass('PatientBirthDate')"/>
+                        v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')" />
+                    <!-- <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
+                        v-model="filterPatientBirthDate" placeholder="19740815"
+                        v-bind:class="getFilterClass('PatientBirthDate')" /> -->
+                    <Datepicker v-if="columnTag == 'PatientBirthDate'" v-model="filterPatientBirthDateForDatePicker"
+                        :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
+                        arrow-navigation :highlight-week-days="[0, 6]">
+                    </Datepicker>
                     <div v-if="columnTag == 'modalities'" class="dropdown">
-                        <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
-                            id="dropdown-modalities-button" aria-expanded="false"><span
+                        <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
+                            data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
                                 class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button" @click="modalityFilterClicked" id="modality-filter-dropdown">
-                            <li><label class="dropdown-item"><input type="checkbox" data-value="all" @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{$t('all_modalities')}}</label></li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
+                            @click="modalityFilterClicked" id="modality-filter-dropdown">
+                            <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                        @click="toggleModalityFilter"
+                                        v-model="allModalities" />&nbsp;{{ $t('all_modalities') }}</label></li>
                             <li><label class="dropdown-item"><input type="checkbox" data-value="none"
                                         @click="toggleModalityFilter"
-                                        v-model="noneModalities" />&nbsp;{{$t('no_modalities')}}</label></li>
+                                        v-model="noneModalities" />&nbsp;{{ $t('no_modalities') }}</label></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
-                                <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality" v-model="filterModalities[modality]" />&nbsp;{{modality}}</label>
+                                <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
+                                        v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
                             </li>
                             <li><button class="btn btn-primary mx-5" @click="closeModalityFilter"
-                                    data-bs-toggle="dropdown">{{$t('close')}}</button></li>
+                                    data-bs-toggle="dropdown">{{ $t('close') }}</button></li>
                         </ul>
                     </div>
                     <input v-if="columnTag == 'StudyDescription'" type="text" class="form-control study-list-filter"
                         v-model="filterStudyDescription" placeholder="Chest" />
                 </th>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId" :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId"
+                :isSearchButtonEnabled="isSearchButtonEnabled" @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
         <div v-if="!isSearching && notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">
-            <i class="bi bi-exclamation-triangle-fill"></i> {{$t('not_showing_all_results')}} ! !
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('not_showing_all_results') }} ! !
         </div>
         <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
             class="alert alert-warning bottom-fixed-alert" role="alert">
-            <i class="bi bi-exclamation-triangle-fill"></i> {{$t('enter_search')}}
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('enter_search') }}
         </div>
         <div v-else-if="!isSearching && isStudyListEmpty" class="alert alert-warning bottom-fixed-alert" role="alert">
-            <i class="bi bi-exclamation-triangle-fill"></i> {{$t('no_result_found')}}
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('no_result_found') }}
         </div>
         <div v-else-if="isSearching" class="alert alert-secondary bottom-fixed-alert" role="alert">
-            <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>{{$t('searching')}}</div>
+            <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                aria-hidden="true"></span>{{ $t('searching') }}
+        </div>
     </div>
 </template>
 
@@ -649,4 +674,9 @@ button.form-control.study-list-filter {
     box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25) !important;
 }
 
+/* .input-slot-image {
+        height: 20px;
+        width: auto;
+        margin-right: 5px;
+    } */
 </style>

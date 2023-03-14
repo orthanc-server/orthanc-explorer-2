@@ -1,6 +1,11 @@
 .cut-text { 
-    text-overflow: ellipsis;
-    overflow: hidden; 
-    white-space: nowrap;
-    max-width: 0;
-  }
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+  max-width: 0;
+}
+
+  /* override CSS from datepicker to avoid the close button to overflow over the text */
+.dp__input_icon_pad {
+  padding-right: 30px !important;
+}
