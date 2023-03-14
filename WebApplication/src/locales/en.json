@@ -4,6 +4,15 @@
     "cancel": "Cancel",
     "close": "Close",
     "copy_orthanc_id": "Copy Orthanc ID",
+    "date_picker": {
+        "today" : "Today",
+        "yesterday": "Yesterday",
+        "this_week": "This week",
+        "last_week": "Last week",
+        "this_month": "This month",
+        "last_month": "Last month",
+        "last_12_months": "Last 12 months"
+    },
     "default": "Default",
     "delete": "Delete",
     "delete_study_title": "Delete study?",
