@@ -121,6 +121,13 @@
     "plugin": "Plugin",
     "plugins_not_enabled": "Les plugins qui sont chargés mais pas activés ou configurés correctement sont ",
     "preview": "Aperçu",
+    "retrieve_and_view": {
+        "finding_locally": "Recherche de l'examen en local.",
+        "finding_remotely": "Recherche de l'examen dans les modalités DICOM.",
+        "not_found": "Cet examen n'a publication être trouvé ni en local ni dans les modalités DICOM.",
+        "retrieving": "L'examen est en cours de récupération.",
+        "retrieved_html": "<strong>{count}</strong> instances récupérées." 
+    },
     "searching": "Recherche...",
     "select_files": "Choisir des fichiers",
     "select_folder": "Choisir un dossier",
@@ -155,6 +162,12 @@
     "this_patient_has_other_studies": "Ce patient a {count} examens au total.",
     "this_patient_has_no_other_studies": "Ce patient n'a pas d'autres examens.",
     "this_patient_has_other_studies_show": "Les afficher !",
+    "token" : {
+        "token_being_checked_html": "Votre lien est en cours de vérification.",
+        "error_token_invalid_html": "Votre lien n'est pas valide.<br/>Vérifiez que vous l'avez collé complètement ou contactez la personne qui vous l'a fourni.",
+        "error_token_expired_html": "Votre lien a expiré.",
+        "error_token_unknown_html": "Votre lien n'est pas valide.<br/>Vérifiez que vous l'avez collé complètement ou contactez la personne qui vous l'a fourni."
+    },
     "trace": "Trace",
     "upload": "Importer",
     "uploaded_studies": "Examens importés",
