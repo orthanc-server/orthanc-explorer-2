@@ -12,12 +12,16 @@ import store from "./store"
 import { router } from './router'
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import mitt from "mitt"
 
 const app = createApp(App)
+const messageBus = mitt();
 
 app.use(router)
 app.use(store)
 app.use(i18n)
 app.component('Datepicker', Datepicker);
+
+app.config.globalProperties.messageBus = messageBus;
 
 app.mount('#app')

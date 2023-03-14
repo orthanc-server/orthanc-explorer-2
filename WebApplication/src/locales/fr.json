@@ -4,6 +4,15 @@
     "cancel": "Annuler",
     "close": "Fermer",
     "copy_orthanc_id": "Copier l'identifiant Orthanc",
+    "date_picker": {
+        "today" : "Aujourd'hui",
+        "yesterday": "Hier",
+        "this_week": "Cette semaine",
+        "last_week": "La semaine dernière",
+        "this_month": "Ce mois-ci",
+        "last_month": "Le mois dernier",
+        "last_12_months": "Les 12 derniers mois"
+    },
     "default": "Par défaut",
     "delete": "Supprimer",
     "delete_study_title": "Supprimer l'examen ?",

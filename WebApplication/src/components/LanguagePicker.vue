@@ -93,6 +93,7 @@ export default {
                 this.selectedLanguageName = languageName;
 
                 localStorage.setItem("OE2.languageKey", key);
+                this.messageBus.emit('language-changed', key);
                 return true;
             } else {
                 return false;

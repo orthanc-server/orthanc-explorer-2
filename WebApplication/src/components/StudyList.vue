@@ -5,6 +5,8 @@ import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
 import resourceHelpers from "../helpers/resource-helpers"
 import $ from "jquery"
+import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
+import { ref } from 'vue';
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
 
@@ -35,9 +37,17 @@ document._studyColumns = {
         "width": "4%",
         "extraClasses": "text-center"
     },
-}
+};
 
-
+document._datePickerPresetRanges = [
+    { tLabel: 'date_picker.today', range: [new Date(), new Date()] },
+    { tLabel: 'date_picker.yesterday', range: [subDays(new Date(), 1), subDays(new Date(), 1)] },
+    { tLabel: 'date_picker.this_week', range: [startOfWeek(new Date()), new Date()] },
+    { tLabel: 'date_picker.last_week', range: [startOfWeek(subDays(new Date(), 7)), endOfWeek(subDays(new Date(), 7))] },
+    { tLabel: 'date_picker.this_month', range: [startOfMonth(new Date()), endOfMonth(new Date())] },
+    { tLabel: 'date_picker.last_month', range: [startOfMonth(subMonths(new Date(), 1)), endOfMonth(subMonths(new Date(), 1))] },
+    { tLabel: 'date_picker.last_12_months', range: [subYears(new Date(), 1), new Date()] },
+];
 
 export default {
     props: [],
@@ -60,6 +70,7 @@ export default {
             initializingModalityFilter: false,
             searchTimerHandler: {},
             columns: document._studyColumns,
+            datePickerPresetRanges: document._datePickerPresetRanges
         };
     },
     computed: {
@@ -152,12 +163,18 @@ export default {
         },
     },
     async created() {
+        this.messageBus.on('language-changed', this.translateDatePicker);
         // console.log("StudyList: created");
     },
     async mounted() {
         // console.log("StudyList: mounted");
     },
     methods: {
+        translateDatePicker(languageKey) {
+            for (let i in document._datePickerPresetRanges) {
+                document._datePickerPresetRanges[i].label = this.$t(document._datePickerPresetRanges[i].tLabel);
+            }
+        },
         columnTitle(tagName) {
             if (tagName == "seriesCount") {
                 return this.$i18n.t('series_count_header');
@@ -521,10 +538,13 @@ export default {
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <!-- <input v-if="columnTag == 'StudyDate'"type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')" /> -->
+                            v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')" /> -->
                     <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                        :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
-                        arrow-navigation :highlight-week-days="[0, 6]">
+                        :enable-time-picker="false" range :preset-ranges="datePickerPresetRanges" format="yyyyMMdd"
+                        preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]">
+                        <template #yearly="{ label, range, presetDateRange }">
+                            <span @click="presetDateRange(range)">{{ label }}</span>
+                        </template>
                     </Datepicker>
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
                         v-model="filterAccessionNumber" placeholder="1234"
@@ -534,8 +554,8 @@ export default {
                     <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')" />
                     <!-- <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate" placeholder="19740815"
-                        v-bind:class="getFilterClass('PatientBirthDate')" /> -->
+                            v-model="filterPatientBirthDate" placeholder="19740815"
+                            v-bind:class="getFilterClass('PatientBirthDate')" /> -->
                     <Datepicker v-if="columnTag == 'PatientBirthDate'" v-model="filterPatientBirthDateForDatePicker"
                         :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
                         arrow-navigation :highlight-week-days="[0, 6]">
@@ -547,11 +567,11 @@ export default {
                         <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
                             @click="modalityFilterClicked" id="modality-filter-dropdown">
                             <li><label class="dropdown-item"><input type="checkbox" data-value="all"
-                                        @click="toggleModalityFilter"
-                                        v-model="allModalities" />&nbsp;{{ $t('all_modalities') }}</label></li>
+                                        @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                            $t('all_modalities') }}</label></li>
                             <li><label class="dropdown-item"><input type="checkbox" data-value="none"
-                                        @click="toggleModalityFilter"
-                                        v-model="noneModalities" />&nbsp;{{ $t('no_modalities') }}</label></li>
+                                        @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
+                                            $t('no_modalities') }}</label></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -582,8 +602,8 @@ export default {
             <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('no_result_found') }}
         </div>
         <div v-else-if="isSearching" class="alert alert-secondary bottom-fixed-alert" role="alert">
-            <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
-                aria-hidden="true"></span>{{ $t('searching') }}
+            <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>{{
+                $t('searching') }}
         </div>
     </div>
 </template>

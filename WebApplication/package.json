@@ -13,6 +13,7 @@
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.0",
     "jquery": "^3.6.3",
+    "mitt": "^3.0.0",
     "uuid": "^9.0.0",
     "uppie": "^1.1.4",
     "vue": "^3.2.45",

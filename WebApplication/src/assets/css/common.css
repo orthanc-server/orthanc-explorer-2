@@ -9,3 +9,11 @@
 .dp__input_icon_pad {
   padding-right: 30px !important;
 }
+
+.dp__preset_ranges {
+  width: 300px !important;
+}
+
+.dp__range_end, .dp__range_start, .dp__active_date {
+  background: var(--dp-primary-color) !important;
+}
