@@ -218,26 +218,27 @@ export default {
         <div class="btn-group">
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
                 <TokenLinkButton v-if="hasMedDreamViewer && viewer == 'meddream' && this.resourceLevel == 'study'"
-                    :iconClass="medDreamViewerIcon" :level="this.resourceLevel" :linkUrl="medDreamViewerUrl" 
-                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_meddream')" :tokenType="'meddream-instant-link'"
-                    :opensInNewTab="true">
+                    :iconClass="medDreamViewerIcon" :level="this.resourceLevel" :linkUrl="medDreamViewerUrl"
+                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_meddream')"
+                    :tokenType="'meddream-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
-                <TokenLinkButton v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-                    :iconClass="osimisViewerIcon" :level="this.resourceLevel" :linkUrl="osimisViewerUrl" 
-                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_osimis')" :tokenType="'viewer-instant-link'"
-                    :opensInNewTab="true">
+                <TokenLinkButton
+                    v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
+                    :iconClass="osimisViewerIcon" :level="this.resourceLevel" :linkUrl="osimisViewerUrl"
+                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_osimis')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="hasStoneViewer && viewer == 'stone-webviewer' && this.resourceLevel == 'study'"
-                    :iconClass="stoneViewerIcon" :level="this.resourceLevel" :linkUrl="stoneViewerUrl" 
-                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_stone')" :tokenType="'viewer-instant-link'"
-                    :opensInNewTab="true">
+                    :iconClass="stoneViewerIcon" :level="this.resourceLevel" :linkUrl="stoneViewerUrl"
+                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_stone')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
                 <a v-if="hasOhifViewer && viewer == 'ohif' && this.resourceLevel == 'study'"
-                    class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-                    :title="$t('view_in_ohif')" target="blank" v-bind:href="ohifViewerUrl">
+                    class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="$t('view_in_ohif')"
+                    target="blank" v-bind:href="ohifViewerUrl">
                     <i :class="ohifViewerIcon"></i>
                 </a>
             </span>
@@ -248,16 +249,18 @@ export default {
         </div>
         <div class="btn-group">
             <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
-                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadZipUrl" 
+                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadZipUrl"
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_zip')" :tokenType="'download-instant-link'">
             </TokenLinkButton>
             <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
-                :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl" 
-                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicomdir')" :tokenType="'download-instant-link'">
+                :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl"
+                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicomdir')"
+                :tokenType="'download-instant-link'">
             </TokenLinkButton>
             <TokenLinkButton v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
-                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="instanceDownloadUrl" 
-                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicom_file')" :tokenType="'download-instant-link'">
+                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="instanceDownloadUrl"
+                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicom_file')"
+                :tokenType="'download-instant-link'">
             </TokenLinkButton>
         </div>
         <div class="btn-group">
@@ -271,8 +274,8 @@ export default {
             </Modal>
         </div>
         <div class="btn-group">
-            <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="modal" v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
+            <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
             <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"
@@ -280,8 +283,8 @@ export default {
                 :patientMainDicomTags="this.patientMainDicomTags"></ShareModal>
         </div>
         <div class="btn-group">
-            <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
+            <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
             </button>
             <ModifyModal v-if="isModificationEnabled" :id="'modify-modal-' + this.resourceOrthancId"
@@ -290,8 +293,8 @@ export default {
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="false"></ModifyModal>
         </div>
         <div class="btn-group">
-            <button v-if="isAnonymizationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="modal" v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId">
+            <button v-if="isAnonymizationEnabled" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId">
                 <i class="bi bi-person-slash" data-bs-toggle="tooltip" :title="$t('modify.anonymize_button_title')"></i>
             </button>
             <ModifyModal v-if="isAnonymizationEnabled" :id="'anonymize-modal-' + this.resourceOrthancId"
@@ -310,23 +313,32 @@ export default {
                 <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId"
                     v-if="uiOptions.EnableApiViewMenu">
                     <li>
-                        <button class="dropdown-item" href="#"
-                            @click="copyIdToClipboard">{{ $t('copy_orthanc_id') }}</button>
+                        <button class="dropdown-item" href="#" @click="copyIdToClipboard">{{ $t('copy_orthanc_id')
+                        }}</button>
                     </li>
                     <li>
-                        <a class="dropdown-item" target="blank" v-bind:href="getApiUrl('')">/</a>
+                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('')"
+                            :resourcesOrthancId="[resourceOrthancId]" :title="'/'" :tokenType="'download-instant-link'"
+                            :opensInNewTab="true">
+                        </TokenLinkButton>
                     </li>
                     <li v-if="this.resourceLevel == 'instance'">
-                        <a class="dropdown-item" target="blank"
-                            v-bind:href="getApiUrl('/tags?simplify')">/tags?simplify</a>
+                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('/tags?simplify')"
+                            :resourcesOrthancId="[resourceOrthancId]" :title="'/tags?simplify'" :tokenType="'download-instant-link'"
+                            :opensInNewTab="true">
+                        </TokenLinkButton>
                     </li>
                     <li>
-                        <a class="dropdown-item" target="blank"
-                            v-bind:href="getApiUrl('/metadata?expand')">/metadata</a>
+                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('/metadata?expand')"
+                            :resourcesOrthancId="[resourceOrthancId]" :title="'/metadata?expand'" :tokenType="'download-instant-link'"
+                            :opensInNewTab="true">
+                        </TokenLinkButton>
                     </li>
                     <li>
-                        <a class="dropdown-item" target="blank"
-                            v-bind:href="getApiUrl('/attachments?expand')">/attachments</a>
+                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('/attachments?expand')"
+                            :resourcesOrthancId="[resourceOrthancId]" :title="'/attachments?expand'" :tokenType="'download-instant-link'"
+                            :opensInNewTab="true">
+                        </TokenLinkButton>
                     </li>
                 </ul>
             </div>

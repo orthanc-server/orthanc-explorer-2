@@ -10,7 +10,7 @@ import clipboardHelpers from "../helpers/clipboard-helpers"
 
 
 export default {
-    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab"],
+    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType"],
     setup() {
         return {
         }
@@ -24,12 +24,15 @@ export default {
     },
     methods: {
         async clicked(event) {
+            if (!this.tokens.RequiredForLinks) {
+                return;  // just execute the default click handler
+            }
             event.preventDefault();
             let validityDuration = this.validityDuration;
             if (validityDuration == null || validityDuration === undefined) {
                 validityDuration = this.tokens.InstantLinksValidity;
             }
-            let token = await api.createToken({tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: this.level, validityDuration: validityDuration});
+            let token = await api.createToken({ tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: this.level, validityDuration: validityDuration });
             let finalUrl = this.linkUrl;
 
             // give priority to the urls coming from the token service
@@ -64,28 +67,27 @@ export default {
             } else {
                 return "blank";
             }
+        },
+        isButton() {
+            return this.linkType === undefined || this.linkType == "button";
+        },
+        isDropDownItem() {
+            return this.linkType == "dropdown-item";
         }
     },
-    components: {  }
+    components: {}
 }
 </script>
 
 <template>
     <div>
-    <a v-if="tokens.RequiredForLinks"
-        class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-        :title="title" @click="clicked"
-        href="#">
-        <i :class="iconClass"></i>
-    </a>
-    <a v-if="!tokens.RequiredForLinks"
-        class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip"
-        :title="title" :target="target"
-        :href="linkUrl">
-        <i :class="iconClass"></i>
-    </a>
+        <a v-if="isButton" class="btn btn-sm btn-secondary m-1" type="button"
+            data-bs-toggle="tooltip" :title="title" @click="clicked" :href="linkUrl">
+            <i :class="iconClass"></i>
+        </a>
+        <a v-if="isDropDownItem" class="dropdown-item" target="blank" @click="clicked"
+            :href="linkUrl">{{ title }}</a>
     </div>
 </template>
 
-<style>
-</style>
+<style></style>
