@@ -416,8 +416,10 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "all|send");
       UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
       UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
-      UpdateUiOptions(uiOptions["EnableLinkToLegacyUi"], permissions, "all|legacy-ui");
       UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
+
+      // the Legacy UI is not available with user profile since it would not refresh the tokens
+      uiOptions["EnableLinkToLegacyUi"] = false;
     }
 
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
