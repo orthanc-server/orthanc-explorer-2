@@ -88,7 +88,7 @@ axios.get('../api/pre-login-configuration').then((config) => {
             }, 60000)
 
         }).catch(() => {
-            console.log("Authenticated Failed");
+            console.log("Could not connect to Keycloak");
         });
     } else {
         app.mount('#app')
