@@ -40,7 +40,7 @@ export default {
             return this.jobs.length > 0;
         },
         hasLogout() {
-            return true;
+            return window.keycloak !== undefined;
         },
         displayedStudyCount() {
             return this.studiesIds.length;
@@ -72,7 +72,16 @@ export default {
             }).catch((error) => {
                 console.error("logout failed", error);
             })
+        },
+        changePassword(event) {
+            event.preventDefault();
+            window.keycloak.login({action: "UPDATE_PASSWORD"}).then((success) => {
+                console.log("login for password change success", success);
+            }).catch((error) => {
+                console.error("login for password change failed", error);
+            })
         }
+
     },
     mounted() {
         this.$refs['modalities-collapsible'].addEventListener('show.bs.collapse', (e) => {
@@ -162,11 +171,23 @@ export default {
                         <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t('legacy_ui') }}
                     </a><span class="ms-auto"></span>
                 </li>
-                <li v-if="hasLogout" class="d-flex align-items-center fix-router-link">
+                <li v-if="hasLogout" class="d-flex align-items-center" data-bs-toggle="collapse"
+                    data-bs-target="#profile-list">
+                    <i class="fa fa-user fa-lg menu-icon"></i>{{ $t('profile') }}
+                    <span class="arrow ms-auto"></span>
+                </li>
+                <ul class="sub-menu collapse" id="profile-list" ref="profile-collapsible">
+                    <li v-if="hasLogout" class="d-flex align-items-center fix-router-link">
                     <a v-bind:href="'#'" @click="logout($event)">
                         <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
                     </a><span class="ms-auto"></span>
                 </li>
+                <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center fix-router-link">
+                    <a v-bind:href="'#'" @click="changePassword($event)">
+                        <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
+                    </a><span class="ms-auto"></span>
+                </li>
+                </ul>
                 <li v-if="hasJobs" class="d-flex align-items-center">
                     <a href="#">
                         <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{ $t('my_jobs') }}
@@ -285,7 +306,7 @@ export default {
 .nav-side-menu li .sub-menu li:before {
     font-family: "Font Awesome\ 5 Free";
     font-weight: 900;
-    content: "\f105";
+    content: " ";
     display: inline-block;
     padding-left: 20px;
     padding-right: 20px;

@@ -2,6 +2,7 @@
     "all_modalities": "all",
     "anonymize": "Anonymize",
     "cancel": "Cancel",
+    "change_password": "Change password",
     "close": "Close",
     "copy_orthanc_id": "Copy Orthanc ID",
     "date_picker": {
@@ -122,6 +123,7 @@
     "plugin": "plugin",
     "plugins_not_enabled": "Plugins that are loaded but not enabled or not configured correctly are ",
     "preview": "Preview",
+    "profile": "Profile",
     "retrieve_and_view": {
         "finding_locally": "Checking if the study is already available locally.",
         "finding_remotely": "Searching for the study in remote DICOM nodes.",

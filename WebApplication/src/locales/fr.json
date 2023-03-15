@@ -2,6 +2,7 @@
     "all_modalities": "Toutes",
     "anonymize": "Anonymiser",
     "cancel": "Annuler",
+    "change_password": "Changer le MDP",
     "close": "Fermer",
     "copy_orthanc_id": "Copier l'identifiant Orthanc",
     "date_picker": {
@@ -71,6 +72,7 @@
     "instances": "Éléments",
     "legacy_ui": "Ancienne interface",
     "local_studies": "Examens",
+    "logout": "Se déconnecter",
     "modalities_in_study": "Modalités dans l'examen",
     "modify": {
       "anonymize_button_title": "Anonymiser",
@@ -121,6 +123,7 @@
     "plugin": "Plugin",
     "plugins_not_enabled": "Les plugins qui sont chargés mais pas activés ou configurés correctement sont ",
     "preview": "Aperçu",
+    "profile": "Profil",
     "retrieve_and_view": {
         "finding_locally": "Recherche de l'examen en local.",
         "finding_remotely": "Recherche de l'examen dans les modalités DICOM.",

@@ -30,6 +30,7 @@
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
+            "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
 
             "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
