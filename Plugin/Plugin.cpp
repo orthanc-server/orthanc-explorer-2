@@ -257,7 +257,7 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
 
       if (!pluginConfiguration.isMember("CheckedLevel") || pluginConfiguration["CheckedLevel"].asString() != "studies")
       {
-        throw Orthanc::OrthancException(Orthanc::ErrorCode_BadFileFormat, "When using OE2 and the authorization plugin together, you must set 'Authorization.CheckedLevel' to 'studies'.");
+        LOG(WARNING) << "When using OE2 and the authorization plugin together, you must set 'Authorization.CheckedLevel' to 'studies'.  Unless you are using this orthanc only to generate tokens.";
       }
     }
     else if (pluginName == "AWS S3 Storage")
