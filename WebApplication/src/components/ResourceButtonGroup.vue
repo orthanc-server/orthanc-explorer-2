@@ -325,7 +325,7 @@ export default {
                             :opensInNewTab="true">
                         </TokenLinkButton>
                     </li>
-                    <li v-if="this.resourceLevel != 'instance'">
+                    <li>
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('/statistics')"
                             :resourcesOrthancId="[resourceOrthancId]" :title="'/statistics'" :tokenType="'download-instant-link'"
                             :opensInNewTab="true">
