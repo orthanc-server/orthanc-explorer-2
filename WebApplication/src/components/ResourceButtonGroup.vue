@@ -68,15 +68,6 @@ export default {
         copyIdToClipboard() {
             clipboardHelpers.copyToClipboard(this.resourceOrthancId);
         },
-        async openMedDream(event) {
-            if (this.uiOptions.EnableMedDreamInstantLinks) {
-                event.preventDefault();
-
-                console.log("opening MedDream, requesting an instant link token");
-                let link = await api.getMedDreamInstantLink(this.resourceDicomUid);
-                window.open(link, 'blank');
-            }
-        },
         getViewerIcon(forViewer) {
             const orderedViewerList = this.uiOptions.ViewersOrdering;
             const viewersIcons = this.uiOptions.ViewersIcons;
@@ -331,6 +322,12 @@ export default {
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('/metadata?expand')"
                             :resourcesOrthancId="[resourceOrthancId]" :title="'/metadata?expand'" :tokenType="'download-instant-link'"
+                            :opensInNewTab="true">
+                        </TokenLinkButton>
+                    </li>
+                    <li v-if="this.resourceLevel != 'instance'">
+                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel" :linkUrl="getApiUrl('/statistics')"
+                            :resourcesOrthancId="[resourceOrthancId]" :title="'/statistics'" :tokenType="'download-instant-link'"
                             :opensInNewTab="true">
                         </TokenLinkButton>
                     </li>
