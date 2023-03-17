@@ -75,7 +75,7 @@ export default {
         },
         changePassword(event) {
             event.preventDefault();
-            window.keycloak.login({action: "UPDATE_PASSWORD"}).then((success) => {
+            window.keycloak.login({ action: "UPDATE_PASSWORD" }).then((success) => {
                 console.log("login for password change success", success);
             }).catch((error) => {
                 console.error("login for password change failed", error);
@@ -144,8 +144,8 @@ export default {
                         <span v-else-if="this.isEchoSuccess(modality)" class="ms-auto"><i
                                 class="bi bi-check2 text-success echo-status" data-bs-toggle="tooltip"
                                 title="C-Echo succeeded"></i></span>
-                        <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status"
-                                data-bs-toggle="tooltip" title="C-Echo failed"></i></span>
+                        <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status" data-bs-toggle="tooltip"
+                                title="C-Echo failed"></i></span>
                     </li>
                 </ul>
 
@@ -177,16 +177,16 @@ export default {
                     <span class="arrow ms-auto"></span>
                 </li>
                 <ul class="sub-menu collapse" id="profile-list" ref="profile-collapsible">
+                    <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center fix-router-link">
+                        <a v-bind:href="'#'" @click="changePassword($event)">
+                            <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
+                        </a><span class="ms-auto"></span>
+                    </li>
                     <li v-if="hasLogout" class="d-flex align-items-center fix-router-link">
-                    <a v-bind:href="'#'" @click="logout($event)">
-                        <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
-                    </a><span class="ms-auto"></span>
-                </li>
-                <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center fix-router-link">
-                    <a v-bind:href="'#'" @click="changePassword($event)">
-                        <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
-                    </a><span class="ms-auto"></span>
-                </li>
+                        <a v-bind:href="'#'" @click="logout($event)">
+                            <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
+                        </a><span class="ms-auto"></span>
+                    </li>
                 </ul>
                 <li v-if="hasJobs" class="d-flex align-items-center">
                     <a href="#">
