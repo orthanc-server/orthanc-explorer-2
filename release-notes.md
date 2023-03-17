@@ -1,7 +1,5 @@
-BREAKING CHANGES:
-- Shares: removed anonymized shares
-- Shares: is now using the authorization plugin to generate tokens.  This requires the new auth-service API
-- Shares: removed "Shares" configuration section, part of it has been moved to the "Tokens" section
+0.7.0 (2023-03-17)
+==================
 
 Changes:
 - Introduced a Date Picker for the StudyDate and PatientBirthDate
@@ -11,6 +9,11 @@ Changes:
   is invalid.  Redirects to the viewer if the token is valid.
 - new "landing" page at /ui/app/retrieve-and-view?StudyInstanceUID=1.2.3....&modality=pacs@viewer=stone-viewer to open the viewer
   on a study that might already be stored in Orthanc or, if not, that can be fetched from a DICOM modality.
+
+BREAKING CHANGES:
+- Shares: removed anonymized shares
+- Shares: is now using the authorization plugin to generate tokens.  This requires the new auth-service API
+- Shares: removed "Shares" configuration section, part of it has been moved to the "Tokens" section
 
 
 0.6.0 (2023-02-03)
