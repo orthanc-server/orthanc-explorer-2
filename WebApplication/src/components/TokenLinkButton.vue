@@ -63,9 +63,9 @@ export default {
         }),
         target() {
             if (this.opensInNewTab === undefined || this.opensInNewTab == false) {
-                return "";
+                return "_self";
             } else {
-                return "blank";
+                return "_blank";
             }
         },
         isButton() {
@@ -82,10 +82,10 @@ export default {
 <template>
     <div>
         <a v-if="isButton" class="btn btn-sm btn-secondary m-1" type="button"
-            data-bs-toggle="tooltip" :title="title" @click="clicked" :href="linkUrl">
+            data-bs-toggle="tooltip" :title="title" @click="clicked" :target="target" :href="linkUrl">
             <i :class="iconClass"></i>
         </a>
-        <a v-if="isDropDownItem" class="dropdown-item" target="blank" @click="clicked"
+        <a v-if="isDropDownItem" class="dropdown-item" :target="target" @click="clicked"
             :href="linkUrl">{{ title }}</a>
     </div>
 </template>
