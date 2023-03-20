@@ -167,9 +167,9 @@
     "this_patient_has_other_studies_show" : "Show them !",
     "token" : {
         "token_being_checked_html": "Your token is being checked.",
-        "error_token_invalid_html": "Your token is invalid.<br/>Check you have pasted in completely or contact the person who has provided it to you.",
+        "error_token_invalid_html": "Your token is invalid.<br/>Check you have pasted it completely or contact the person who has provided it to you.",
         "error_token_expired_html": "Your token has expired.",
-        "error_token_unknown_html": "Your token is invalid.<br/>Check you have pasted in completely or contact the person who has provided it to you."
+        "error_token_unknown_html": "Your token is invalid.<br/>Check you have pasted it completely or contact the person who has provided it to you."
     },
     "trace": "Trace",
     "upload": "Upload",
