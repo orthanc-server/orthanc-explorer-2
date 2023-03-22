@@ -1,13 +1,6 @@
-- BUG: StoneViewer plugin wrong status
-  if using osimis/orthanc with only STONE_WEB_VIEWER_PLUGIN_ENABLED=true, stone is loaded but is displayed as disabled.
-  This happens because there is no section "StoneWebViewer".
-  Note: this should be fixed now !! to check
+- use DatePicker in remote modality study list
 
-
-- filter by daterange - including date picker (https://vcalendar.io/vue-3.html ?).
-  check the work done in https://github.com/Terabuck/orthanc-explorer-2
-
-- allow selection of multiple studies/series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
+- allow selection of multiple series/instances to perform bulk actions (delete/send-to-peer/send-to-modality)
 
 - predefined filters in config file to display below Studies:
   - "Today": {"StudyDate": "$today"}
@@ -61,23 +54,11 @@
   - same with dicom-web and peers ?
 
 
-User & configuration management (ideas + implementation notes):
+Configuration management (ideas + implementation notes):
 -------------------------------
 
 - allow Orthanc to store anything in Global Properties.  Maybe not through the API but only through the SDK.
   Or, only for an "admin" user ?
-
-- TBC: allow Orthanc to store the users in DB (like Peers & Modalities).  Except for
-  one "admin" user that would be stored in the config file.  Note: In this case, we would need an API to store users.
-  Would be nice to have some type of users like: admin, read-only, read-write at API level but that would make more sense
-  to have dedicated roles in the oe2 plugin.
-  
-- User management in oe2 plugin: 
-  - CRUD routes for users -> would modify Global properties (need for revisions !).  A single json with all users definition.
-    Each CRUD operation only updates a node of the json (that's why we need revisions !).
-  - implement authorization checks at API level for all routes (deny all and handle all known routes, including known plugins route)
-  - a user could save its prefered searches in its user-settings (to be stored in global properties too)
-  - implement a "login page" instead of the browser login dialog -> some routes must be accessible for everyone -> check if compatible with Orthanc Core
 
 - Edit configuration through the oe2 UI:
   - Some immutable configuration in a config file:
