@@ -1,3 +1,6 @@
+Changes:
+- Added an icon to open a study or a series in VolView
+
 0.8.0 (2023-03-22)
 ==================
 

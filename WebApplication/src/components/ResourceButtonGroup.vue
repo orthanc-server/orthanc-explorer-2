@@ -87,6 +87,10 @@ export default {
                         return viewersIcons[viewer];
                     }
 
+                    if (this.hasVolView && forViewer == "volview") {
+                        return viewersIcons[viewer];
+                    }
+
                     if (this.hasOhifViewer && forViewer == "ohif") {
                         return viewersIcons[viewer];
                     }
@@ -165,6 +169,18 @@ export default {
         isStoneViewerButtonEnabled() {
             return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
         },
+        hasVolView() {
+            return "volview" in this.installedPlugins;
+        },
+        volViewUrl() {
+            return api.getVolViewUrl(this.resourceLevel, this.resourceOrthancId);
+        },
+        hasVolViewButton() {
+            return this.hasVolView && (this.resourceLevel == 'study' || this.resourceLevel == 'series');
+        },
+        isVolViewButtonEnabled() {
+            return (this.resourceLevel == 'study' || this.resourceLevel == 'series');
+        },
         hasOhifViewer() {
             return this.uiOptions.EnableOpenInOhifViewer;
         },
@@ -197,6 +213,9 @@ export default {
         },
         stoneViewerIcon() {
             return this.getViewerIcon("stone-webviewer");
+        },
+        volViewIcon() {
+            return this.getViewerIcon("volview");
         },
         medDreamViewerIcon() {
             return this.getViewerIcon("meddream");
@@ -284,6 +303,13 @@ export default {
                     :disabled="!isStoneViewerButtonEnabled"
                     :iconClass="stoneViewerIcon" :level="computedResourceLevel" :linkUrl="stoneViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stone')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
+
+                <TokenLinkButton v-if="viewer == 'volview' && hasVolViewButton"
+                    :disabled="!isVolViewButtonEnabled"
+                    :iconClass="volViewIcon" :level="computedResourceLevel" :linkUrl="volViewUrl"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_volview')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 

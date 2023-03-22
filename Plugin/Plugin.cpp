@@ -338,6 +338,10 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
     }
+    else if (pluginName == "volview")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = true;
+    }
     else if (pluginName == "tcia")
     {
       pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Tcia", "Enable", false);
