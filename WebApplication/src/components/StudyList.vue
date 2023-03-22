@@ -32,12 +32,10 @@ document._studyColumns = {
         "width": "25%"
     },
     "modalities": {
-        "width": "6%",
-        "extraClasses": "text-center"
+        "width": "6%"
     },
     "seriesCount": {
-        "width": "4%",
-        "extraClasses": "text-center"
+        "width": "4%"
     },
 };
 
@@ -546,7 +544,7 @@ export default {
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                     v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
-                    v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
+                    class="study-table-title">{{
                         columnTitle(columnTag)
                     }}</th>
             </thead>
@@ -710,6 +708,14 @@ button.form-control.study-list-filter {
 .study-table-header {
     text-align: left;
     padding-left: 10px;
+}
+
+.study-table-title {
+    text-align: left;
+    padding-left: 4px;
+    padding-right: 4px;
+    vertical-align: middle;
+    line-height: 1.2rem;
 }
 
 .study-table> :not(:first-child) {
