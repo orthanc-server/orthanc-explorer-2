@@ -47,19 +47,19 @@ export default {
             return api.getApiUrl(this.resourceLevel, this.resourceOrthancId, subRoute);
         },
         async sendToDicomWebServer(server) {
-            const jobId = await api.sendToDicomWebServer([this.resourceOrthancId], server);
+            const jobId = await api.sendToDicomWebServer(this.resourcesOrthancId, server);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DicomWeb (' + server + ')' });
         },
         async sendToOrthancPeer(peer) {
-            const jobId = await api.sendToOrthancPeer([this.resourceOrthancId], peer);
+            const jobId = await api.sendToOrthancPeer(this.resourcesOrthancId, peer);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to Peer (' + peer + ')' });
         },
         async sendToOrthancPeerWithTransfers(peer) {
-            const jobId = await api.sendToOrthancPeerWithTransfers([{ "Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId }], peer);
+            const jobId = await api.sendToOrthancPeerWithTransfers(this.resourcesForTransfer, peer);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Transfer to Peer (' + peer + ')' });
         },
         async sendToDicomModality(modality) {
-            const jobId = await api.sendToDicomModality([this.resourceOrthancId], modality);
+            const jobId = await api.sendToDicomModality(this.resourcesOrthancId, modality);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DICOM (' + modality + ')' });
         },
         capitalizeFirstLetter(level) {
@@ -95,9 +95,6 @@ export default {
         }
     },
     watch: {
-        selectedStudiesIds(oldValue, newValue) {
-            
-        }
     },
     computed: {
         ...mapState({
@@ -223,6 +220,13 @@ export default {
                 return this.selectedStudiesIds;
             } else {
                 return [this.resourcesOrthancId];
+            }
+        },
+        resourcesForTransfer() {
+            if (this.resourceLevel == 'bulk') {
+                return this.selectedStudiesIds.map(id => ({ "Level": "Study", "ID": id }));
+            } else {
+                return [{ "Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId }];
             }
         },
         computedResourceLevel() {
@@ -375,7 +379,7 @@ export default {
                 </ul>
             </div>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
+        <div class="btn-group">
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">

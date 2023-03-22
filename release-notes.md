@@ -1,6 +1,8 @@
 Changes:
-- Allow opening the StoneViewer on multiple studies at once
-- Refactored the Study List headers to show bulk action buttons (StoneViewer is the only one available)
+- Allow actions on multiple studies:
+  - open StoneViewer
+  - send to
+- Refactored the Study List headers to show bulk action buttons
 
 Fixes:
 - #9 EnableAnonimization spelled wrong: you should now use EnableAnonymization instead.  Both spellings
