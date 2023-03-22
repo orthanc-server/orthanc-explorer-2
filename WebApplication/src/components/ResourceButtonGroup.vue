@@ -206,7 +206,7 @@ export default {
         },
         isAnonymizationEnabled() {
             if (this.resourceLevel == "study" || this.resourceLevel == "series") {
-                return this.uiOptions.EnableAnonimization;
+                return this.uiOptions.EnableAnonymization;
             } else {
                 return false;
             }

@@ -36,7 +36,6 @@
 
 
 std::unique_ptr<OrthancPlugins::OrthancConfiguration> orthancFullConfiguration_;
-OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);
 Json::Value pluginJsonConfiguration_;
 std::string oe2BaseUrl_;
 
@@ -154,23 +153,34 @@ void ReadConfiguration()
 
   if (orthancFullConfiguration_->IsSection("OrthancExplorer2"))
   {
-    orthancFullConfiguration_->GetSection(pluginConfiguration_, "OrthancExplorer2");
+    OrthancPlugins::OrthancConfiguration pluginConfiguration(false);
+    orthancFullConfiguration_->GetSection(pluginConfiguration, "OrthancExplorer2");
 
-    MergeJson(pluginJsonConfiguration_, pluginConfiguration_.GetJson());
+    Json::Value jsonConfig = pluginConfiguration.GetJson();
+    
+    // fix typo from version 0.7.0
+    if (jsonConfig["UiOptions"].isMember("EnableAnonimization") && !jsonConfig["UiOptions"].isMember("EnableAnonymization"))
+    {
+      LOG(WARNING) << "You are still using the 'UiOptions.EnableAnonimization' configuration that has a typo.  You should use 'UiOptions.EnableAnonymization' instead.";
+      jsonConfig["UiOptions"]["EnableAnonymization"] = jsonConfig["UiOptions"]["EnableAnonimization"];
+    }
+
+
+    MergeJson(pluginJsonConfiguration_, jsonConfig);
   }
 
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
 
 }
 
-bool GetPluginConfiguration(Json::Value& pluginConfiguration, const std::string& sectionName)
+bool GetPluginConfiguration(Json::Value& jsonPluginConfiguration, const std::string& sectionName)
 {
   if (orthancFullConfiguration_->IsSection(sectionName))
   {
-    OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);    
-    orthancFullConfiguration_->GetSection(pluginConfiguration_, sectionName);
+    OrthancPlugins::OrthancConfiguration pluginConfiguration(false);    
+    orthancFullConfiguration_->GetSection(pluginConfiguration, sectionName);
 
-    pluginConfiguration = pluginConfiguration_.GetJson();
+    jsonPluginConfiguration = pluginConfiguration.GetJson();
     return true;
   }
 
@@ -182,10 +192,10 @@ bool IsPluginEnabledInConfiguration(const std::string& sectionName, const std::s
 {
   if (orthancFullConfiguration_->IsSection(sectionName))
   {
-    OrthancPlugins::OrthancConfiguration pluginConfiguration_(false);    
-    orthancFullConfiguration_->GetSection(pluginConfiguration_, sectionName);
+    OrthancPlugins::OrthancConfiguration pluginConfiguration(false);    
+    orthancFullConfiguration_->GetSection(pluginConfiguration, sectionName);
 
-    return pluginConfiguration_.GetBooleanValue(enableValueName, defaultValue);
+    return pluginConfiguration.GetBooleanValue(enableValueName, defaultValue);
   }
 
   return defaultValue;
@@ -412,7 +422,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "all|download");
       UpdateUiOptions(uiOptions["EnableDownloadDicomFile"], permissions, "all|download");
       UpdateUiOptions(uiOptions["EnableModification"], permissions, "all|modify");
-      UpdateUiOptions(uiOptions["EnableAnonimization"], permissions, "all|anonymize");
+      UpdateUiOptions(uiOptions["EnableAnonymization"], permissions, "all|anonymize");
       UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "all|send");
       UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
       UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");

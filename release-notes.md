@@ -2,6 +2,9 @@ Changes:
 - Allow opening the StoneViewer on multiple studies at once
 - Refactored the Study List headers to show bulk action buttons (StoneViewer is the only one available)
 
+Fixes:
+- #9 EnableAnonimization spelled wrong: you should now use EnableAnonymization instead.  Both spellings
+  are currently accepted but only the new spelling might be accepted in future versions.
 
 0.7.0 (2023-03-17)
 ==================
