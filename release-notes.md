@@ -1,3 +1,6 @@
+0.8.0 (2023-03-22)
+==================
+
 Changes:
 - Allow actions on multiple studies:
   - open StoneViewer
@@ -6,7 +9,7 @@ Changes:
 - Refactored the Study List headers to show bulk action buttons
 
 Fixes:
-- #9 EnableAnonimization spelled wrong: you should now use EnableAnonymization instead.  Both spellings
+- #9 EnableAnonimization spelled wrong in configuration file: you should now use UiOptions.EnableAnonymization instead.  Both spellings
   are currently accepted but only the new spelling might be accepted in future versions.
 
 0.7.0 (2023-03-17)
