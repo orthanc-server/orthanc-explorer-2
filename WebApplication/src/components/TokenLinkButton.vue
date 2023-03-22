@@ -76,7 +76,7 @@ export default {
         },
         classes() {
             if (this.disabled) {
-                return "btn-light disabled-link";
+                return "btn-secondary disabled-link";
             } else {
                 return "btn-secondary";
             }
@@ -98,7 +98,10 @@ export default {
 </template>
 
 <style>
+/* this mimicks the disabled state of btn-secondary */
 .disabled-link {
     pointer-events: none;
+    background-color: #9aa0a5;
+    opacity: 0.65;
 }
 </style>

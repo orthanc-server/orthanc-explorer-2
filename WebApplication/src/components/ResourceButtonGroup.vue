@@ -110,6 +110,13 @@ export default {
             return this.uiOptions.EnableSendTo &&
                 (this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities || this.hasSendToPeersWithTransfer);
         },
+        isSendToEnabled() {
+            if (this.resourceLevel == 'bulk') {
+                return this.selectedStudiesIds.length > 0
+            } else {
+                return true;
+            }
+        },
         hasSendToPeers() {
             return this.orthancPeers.length > 0;
         },
@@ -382,7 +389,7 @@ export default {
         <div class="btn-group">
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
-                    id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
+                    id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false" :disabled="!isSendToEnabled">
                     <span data-bs-toggle="tooltip" :title="$t('send_to.button_title')">
                         <i class="bi bi-send"></i>
                     </span>
