@@ -310,7 +310,10 @@ export default {
     },
     getStoneViewerUrl(level, resourceDicomUid) {
         return orthancApiUrl + 'stone-webviewer/index.html?' + level + '=' + resourceDicomUid;
-    },    
+    },
+    getStoneViewerUrlForBulkStudies(studiesDicomIds) {
+        return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");
+    },
     getInstancePreviewUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/preview";
     },

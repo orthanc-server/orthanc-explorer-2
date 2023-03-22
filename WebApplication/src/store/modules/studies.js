@@ -17,7 +17,9 @@ const state = () => ({
     studiesIds: [],
     filters: {..._clearedFilter},
     statistics: {},
-    isSearching: false
+    isSearching: false,
+    selectedStudiesIds: [],
+    selectedStudies: []
 })
 
 function insert_wildcards(initialValue) {
@@ -91,13 +93,41 @@ const mutations = {
         if (pos >= 0) {
             state.studiesIds.splice(pos, 1);
         }
-        state.studies = state.studies.map(s => s["ID"] != studyId);
+        state.studies = state.studies.filter(s => s["ID"] != studyId);
+
+        // also delete from selection
+        const pos2 = state.selectedStudiesIds.indexOf(studyId);
+        if (pos2 >= 0) {
+            state.selectedStudiesIds.splice(pos, 1);
+        }
     },
     setStatistics(state, {statistics}) {
         state.statistics = statistics;
     },
     setIsSearching(state, {isSearching}) {
         state.isSearching = isSearching;
+    },
+    selectStudy(state, {studyId, isSelected}) {
+        if (isSelected && !state.selectedStudiesIds.includes(studyId)) {
+            state.selectedStudiesIds.push(studyId);
+            state.selectedStudies = state.selectedStudies.concat(state.studies.filter(s => state.selectedStudiesIds.includes(s["ID"])))
+        } else if (!isSelected) {
+            const pos = state.selectedStudiesIds.indexOf(studyId);
+            if (pos >= 0) {
+                state.selectedStudiesIds.splice(pos, 1);
+                state.selectedStudies = state.selectedStudies.filter(s => s["ID"] != studyId);
+            }
+        }
+    },
+    selectAllStudies(state, {isSelected}) {
+        if (isSelected) {
+            state.selectedStudiesIds = state.studiesIds;
+            state.selectedStudies = state.studies;
+        } else {
+            state.selectedStudiesIds = [];
+            state.selectedStudies = [];
+        }
+       
     }
 }
 
@@ -164,8 +194,16 @@ const actions = {
         const study = payload['study'];
         commit('addStudy', { studyId: studyId, study: study });
         this.dispatch('studies/loadStatistics');
-    }
-
+    },
+    async selectStudy({ commit }, payload) {
+        const studyId = payload['studyId'];
+        const isSelected = payload['isSelected'];
+        commit('selectStudy', { studyId: studyId, isSelected: isSelected});
+    },
+    async selectAllStudies({ commit }, payload) {
+        const isSelected = payload['isSelected'];
+        commit('selectAllStudies', { isSelected: isSelected});
+    },
 }
 
 

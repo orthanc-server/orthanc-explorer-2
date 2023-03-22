@@ -10,7 +10,7 @@ import clipboardHelpers from "../helpers/clipboard-helpers"
 
 
 export default {
-    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType"],
+    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType", "disabled"],
     setup() {
         return {
         }
@@ -73,6 +73,13 @@ export default {
         },
         isDropDownItem() {
             return this.linkType == "dropdown-item";
+        },
+        classes() {
+            if (this.disabled) {
+                return "btn-light disabled-link";
+            } else {
+                return "btn-secondary";
+            }
         }
     },
     components: {}
@@ -81,8 +88,8 @@ export default {
 
 <template>
     <div>
-        <a v-if="isButton" class="btn btn-sm btn-secondary m-1" type="button"
-            data-bs-toggle="tooltip" :title="title" @click="clicked" :target="target" :href="linkUrl">
+        <a v-if="isButton" class="btn btn-sm m-1" type="button"
+            data-bs-toggle="tooltip" :title="title" @click="clicked" :target="target" :href="linkUrl" :class="classes">
             <i :class="iconClass"></i>
         </a>
         <a v-if="isDropDownItem" class="dropdown-item" :target="target" @click="clicked"
@@ -90,4 +97,8 @@ export default {
     </div>
 </template>
 
-<style></style>
+<style>
+.disabled-link {
+    pointer-events: none;
+}
+</style>

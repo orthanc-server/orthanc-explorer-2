@@ -1,3 +1,8 @@
+Changes:
+- Allow opening the StoneViewer on multiple studies at once
+- Refactored the Study List headers to show bulk action buttons (StoneViewer is the only one available)
+
+
 0.7.0 (2023-03-17)
 ==================
 

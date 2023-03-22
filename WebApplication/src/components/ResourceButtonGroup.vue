@@ -19,7 +19,7 @@ export default {
 
     data() {
         return {
-            "isDeleteModalVisible": false,
+            isDeleteModalVisible: false
         };
     },
     mounted() {
@@ -94,12 +94,19 @@ export default {
             return "bi bi-eye";
         }
     },
+    watch: {
+        selectedStudiesIds(oldValue, newValue) {
+            
+        }
+    },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             installedPlugins: state => state.configuration.installedPlugins,
             targetDicomWebServers: state => state.configuration.targetDicomWebServers,
             targetDicomModalities: state => state.configuration.targetDicomModalities,
+            selectedStudiesIds: state => state.studies.selectedStudiesIds,
+            selectedStudies: state => state.studies.selectedStudies,
             orthancPeers: state => state.configuration.orthancPeers
         }),
         hasSendTo() {
@@ -128,7 +135,19 @@ export default {
             return "stone-webviewer" in this.installedPlugins;
         },
         stoneViewerUrl() {
-            return api.getStoneViewerUrl(this.resourceLevel, this.resourceDicomUid);
+            if (this.resourceLevel == 'bulk') {
+                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
+                const url = api.getStoneViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                return url;
+            } else {
+                return api.getStoneViewerUrl(this.resourceLevel, this.resourceDicomUid);
+            }
+        },
+        hasStoneViewerButton() {
+            return this.hasStoneViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+        },
+        isStoneViewerButtonEnabled() {
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
         },
         hasOhifViewer() {
             return this.uiOptions.EnableOpenInOhifViewer;
@@ -198,6 +217,21 @@ export default {
             } else {
                 return false;
             }
+        },
+        resourcesOrthancId() {
+            if (this.resourceLevel == 'bulk') {
+                return this.selectedStudiesIds;
+            } else {
+                return [this.resourcesOrthancId];
+            }
+        },
+        computedResourceLevel() {
+            if (this.resourceLevel == 'bulk') {
+                
+                return "study";
+            } else {
+                return this.resourceLevel;
+            }
         }
     },
     components: { Modal, ShareModal, ModifyModal, TokenLinkButton }
@@ -210,20 +244,21 @@ export default {
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
                 <TokenLinkButton v-if="hasMedDreamViewer && viewer == 'meddream' && this.resourceLevel == 'study'"
                     :iconClass="medDreamViewerIcon" :level="this.resourceLevel" :linkUrl="medDreamViewerUrl"
-                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_meddream')"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_meddream')"
                     :tokenType="'meddream-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
                 <TokenLinkButton
                     v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
                     :iconClass="osimisViewerIcon" :level="this.resourceLevel" :linkUrl="osimisViewerUrl"
-                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_osimis')"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_osimis')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
-                <TokenLinkButton v-if="hasStoneViewer && viewer == 'stone-webviewer' && this.resourceLevel == 'study'"
-                    :iconClass="stoneViewerIcon" :level="this.resourceLevel" :linkUrl="stoneViewerUrl"
-                    :resourcesOrthancId="[resourceOrthancId]" :title="$t('view_in_stone')"
+                <TokenLinkButton v-if="viewer == 'stone-webviewer' && hasStoneViewerButton"
+                    :disabled="!isStoneViewerButtonEnabled"
+                    :iconClass="stoneViewerIcon" :level="computedResourceLevel" :linkUrl="stoneViewerUrl"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stone')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
@@ -238,7 +273,7 @@ export default {
                 <i class="bi bi-binoculars"></i>
             </a>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
                 :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadZipUrl"
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_zip')" :tokenType="'download-instant-link'">
@@ -254,7 +289,7 @@ export default {
                 :tokenType="'download-instant-link'">
             </TokenLinkButton>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <button v-if="uiOptions.EnableDeleteResources" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId">
                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
@@ -264,7 +299,7 @@ export default {
                 :cancelText="$t('cancel')" :bodyText="$t(this.deleteResourceBody)" @ok="deleteResource($event)">
             </Modal>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
@@ -273,7 +308,7 @@ export default {
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"></ShareModal>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
@@ -283,7 +318,7 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="false"></ModifyModal>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <button v-if="isAnonymizationEnabled" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId">
                 <i class="bi bi-person-slash" data-bs-toggle="tooltip" :title="$t('modify.anonymize_button_title')"></i>
@@ -293,7 +328,7 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="true"></ModifyModal>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <div class="dropdown">
                 <button v-if="uiOptions.EnableApiViewMenu" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
                     type="button" id="apiDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
@@ -340,7 +375,7 @@ export default {
                 </ul>
             </div>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
