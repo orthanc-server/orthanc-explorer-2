@@ -101,7 +101,7 @@ export default {
 /* this mimicks the disabled state of btn-secondary */
 .disabled-link {
     pointer-events: none;
-    background-color: #9aa0a5;
+    background-color: #6c757d;
     opacity: 0.65;
 }
 </style>

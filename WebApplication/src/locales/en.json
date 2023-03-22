@@ -18,6 +18,8 @@
     "delete": "Delete",
     "delete_study_title": "Delete study?",
     "delete_study_body": "Are you sure you want to delete this study?<br/>This action can not be undone!",
+    "delete_studies_title": "Delete studies?",
+    "delete_studies_body": "Are you sure you want to delete these studies?<br/>This action can not be undone!",
     "delete_series_title": "Delete series?",
     "delete_series_body": "Are you sure you want to delete this series?<br/>This action can not be undone!",
     "delete_instance_title": "Delete instance?",

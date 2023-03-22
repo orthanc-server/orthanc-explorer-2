@@ -35,13 +35,18 @@ export default {
             event.preventDefault();
         },
         deleteResource(event) {
-            api.deleteResource(this.resourceLevel, this.resourceOrthancId)
-                .then(() => {
-                    this.$emit("deletedResource");
-                })
-                .catch((reason) => {
-                    console.error("failed to delete resource : ", this.resourceOrthancId, reason);
-                });
+            if (this.resourceLevel == 'bulk') {
+                api.deleteResources(this.resourcesOrthancId);
+                window.location.reload();
+            } else {
+                api.deleteResource(this.resourceLevel, this.resourceOrthancId)
+                    .then(() => {
+                        this.$emit("deletedResource");
+                    })
+                    .catch((reason) => {
+                        console.error("failed to delete resource : ", this.resourceOrthancId, reason);
+                    });
+            }
         },
         getApiUrl(subRoute) {
             return api.getApiUrl(this.resourceLevel, this.resourceOrthancId, subRoute);
@@ -117,6 +122,13 @@ export default {
                 return true;
             }
         },
+        isDeleteEnabled() {
+            if (this.resourceLevel == 'bulk') {
+                return this.selectedStudiesIds.length > 0
+            } else {
+                return true;
+            }
+        },     
         hasSendToPeers() {
             return this.orthancPeers.length > 0;
         },
@@ -196,7 +208,8 @@ export default {
             const texts = {
                 "study": "delete_study_title",
                 "series": "delete_series_title",
-                "instance": "delete_instance_title"
+                "instance": "delete_instance_title",
+                "bulk": "delete_studies_title"
             }
             return texts[this.resourceLevel];
         },
@@ -204,7 +217,8 @@ export default {
             const texts = {
                 "study": "delete_study_body",
                 "series": "delete_series_body",
-                "instance": "delete_instance_body"
+                "instance": "delete_instance_body",
+                "bulk": "delete_studies_body"
             }
             return texts[this.resourceLevel];
         },
@@ -300,10 +314,10 @@ export default {
                 :tokenType="'download-instant-link'">
             </TokenLinkButton>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
+        <div class="btn-group" >
             <button v-if="uiOptions.EnableDeleteResources" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId">
-                <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
+                data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId" :disabled="!isDeleteEnabled">
+                <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')" ></i>
             </button>
             <Modal v-if="uiOptions.EnableDeleteResources" :id="'delete-modal-' + this.resourceOrthancId"
                 :headerText="$t(this.deleteResourceTitle) + ' ' + this.resourceTitle" :okText="$t('delete')"

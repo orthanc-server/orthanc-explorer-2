@@ -16,6 +16,8 @@
     },
     "default": "Par défaut",
     "delete": "Supprimer",
+    "delete_studies_title": "Supprimer les examens ?",
+    "delete_studies_body": "Êtes vous sûr de vouloir supprimer ces examens ?<br/>Cette opération est définitive.",
     "delete_study_title": "Supprimer l'examen ?",
     "delete_study_body": "Êtes vous sûr de vouloir supprimer cet examen ?<br/>Cette opération est définitive.",
     "delete_series_title": "Supprimer la série ?",

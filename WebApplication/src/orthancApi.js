@@ -63,6 +63,11 @@ export default {
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },
+    async deleteResources(resourcesIds) {
+        return axios.post(orthancApiUrl + "tools/bulk-delete", {
+            "Resources": resourcesIds
+        });
+    },
     async cancelFindStudies() {
         if (window.axioFindStudiesAbortController) {
             window.axioFindStudiesAbortController.abort();

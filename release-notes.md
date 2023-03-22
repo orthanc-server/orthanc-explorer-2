@@ -2,6 +2,7 @@ Changes:
 - Allow actions on multiple studies:
   - open StoneViewer
   - send to
+  - delete
 - Refactored the Study List headers to show bulk action buttons
 
 Fixes:
