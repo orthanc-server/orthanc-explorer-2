@@ -75,7 +75,9 @@ axios.get('../api/pre-login-configuration').then((config) => {
             setInterval(() => {
                 window.keycloak.updateToken(70).then((refreshed) => {
                     if (refreshed) {
-                        console.log('Token refreshed' + refreshed);
+                        console.log('Token refreshed');
+                        localStorage.setItem("vue-token", window.keycloak.token);
+                        localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
                         orthancApi.updateAuthHeader();
                     } else {
                         console.log('Token not refreshed, valid for '

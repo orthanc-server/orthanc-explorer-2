@@ -1,3 +1,10 @@
+0.8.1 (2023-03-24)
+==================
+
+Fixes:
+- Since the introduction of multiple selections, is was not possible to open the StoneViewer on a single study
+- Auth tokens were not refreshed correctly.
+
 0.8.0 (2023-03-22)
 ==================
 
