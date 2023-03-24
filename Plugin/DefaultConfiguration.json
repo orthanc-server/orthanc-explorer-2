@@ -49,14 +49,16 @@
                 "osimis-web-viewer": "bi bi-eye",
                 "stone-webviewer": "bi bi-eye-fill",
                 "ohif": "bi bi-grid",
-                "meddream": "bi bi-columns-gap"
+                "meddream": "bi bi-columns-gap",
+                "volview": "bi bi-box"
             },
             // Defines the order in which the viewer icons should appear in the interface
             "ViewersOrdering" : [
                 "osimis-web-viewer",
                 "stone-webviewer",
                 "ohif",
-                "meddream"
+                "meddream",
+                "volview"
             ],
 
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list

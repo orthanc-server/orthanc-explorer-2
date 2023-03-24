@@ -181,5 +181,6 @@
     "view_in_meddream": "View in MedDream",
     "view_in_ohif": "View in OHIF",
     "view_in_osimis": "View in OsimisViewer",
-    "view_in_stone": "View in StoneViewer"
+    "view_in_stone": "View in StoneViewer",
+    "view_in_volview": "View in VolView"    
 }

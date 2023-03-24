@@ -1,4 +1,5 @@
 Changes:
+- Added an icon to open a study or a series in VolView
 - In the settings page, do not show buttons to open plugin UI if user-permissions are enabled, these UI
   wouldn't work anyway since they do not support tokens.
   

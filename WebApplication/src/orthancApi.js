@@ -316,6 +316,9 @@ export default {
     getStoneViewerUrl(level, resourceDicomUid) {
         return orthancApiUrl + 'stone-webviewer/index.html?' + level + '=' + resourceDicomUid;
     },
+    getVolViewUrl(level, resourceOrthancId) {
+        return orthancApiUrl + 'volview/index.html?urls=[../' + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive]';
+    },
     getStoneViewerUrlForBulkStudies(studiesDicomIds) {
         return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");
     },
