@@ -240,7 +240,7 @@ export default {
             if (this.resourceLevel == 'bulk') {
                 return this.selectedStudiesIds;
             } else {
-                return [this.resourcesOrthancId];
+                return [this.resourceOrthancId];
             }
         },
         resourcesForTransfer() {
