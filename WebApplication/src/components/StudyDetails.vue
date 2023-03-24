@@ -17,7 +17,6 @@ export default {
         };
     },
     async mounted() {
-        console.log("study details mounted")
         this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags['PatientID'])).length;
         this.hasLoadedSamePatientsStudiesCount = true;
     },
