@@ -1,3 +1,7 @@
+Changes:
+- In the settings page, do not show buttons to open plugin UI if user-permissions are enabled, these UI
+  wouldn't work anyway since they do not support tokens.
+  
 0.8.1 (2023-03-24)
 ==================
 

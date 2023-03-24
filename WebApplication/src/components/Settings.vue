@@ -24,6 +24,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            tokens: state => state.configuration.tokens,
             statistics: state => state.studies.statistics,
             system: state => state.configuration.system,
             installedPlugins: state => state.configuration.installedPlugins,
@@ -118,7 +119,7 @@ export default {
                         <th scope="row" class="w-25 header">{{ plugin }}</th>
                         <td class="w-50 value">{{ configuration.Description }}</td>
                         <td class="w-15 value">{{ configuration.Version }}</td>
-                        <td class="w-10 value">
+                        <td class="w-10 value" v-if="!this.tokens.RequiredForLinks"><!-- If tokens are required for links, no need to display links to plugin UI, they usually don't support links and won't work -->
                             <a v-if="configuration.RootUri && configuration.Enabled" type="button" class="btn btn-primary" v-bind:href="configuration.RootUri">{{$t('open')}}</a>
                         </td>
                     </tr>
