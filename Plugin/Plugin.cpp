@@ -159,12 +159,11 @@ void ReadConfiguration()
     Json::Value jsonConfig = pluginConfiguration.GetJson();
     
     // fix typo from version 0.7.0
-    if (jsonConfig["UiOptions"].isMember("EnableAnonimization") && !jsonConfig["UiOptions"].isMember("EnableAnonymization"))
+    if (jsonConfig.isMember("UiOptions") && jsonConfig["UiOptions"].isMember("EnableAnonimization") && !jsonConfig["UiOptions"].isMember("EnableAnonymization"))
     {
       LOG(WARNING) << "You are still using the 'UiOptions.EnableAnonimization' configuration that has a typo.  You should use 'UiOptions.EnableAnonymization' instead.";
       jsonConfig["UiOptions"]["EnableAnonymization"] = jsonConfig["UiOptions"]["EnableAnonimization"];
     }
-
 
     MergeJson(pluginJsonConfiguration_, jsonConfig);
   }

@@ -1,3 +1,9 @@
+0.8.2 (2023-03-27)
+==================
+
+Fixes:
+- If OE2 configuration did not include "UiOptions" section, the UI failed to run correctly.
+
 Changes:
 - Added an icon to open a study or a series in VolView
 - In the settings page, do not show buttons to open plugin UI if user-permissions are enabled, these UI
