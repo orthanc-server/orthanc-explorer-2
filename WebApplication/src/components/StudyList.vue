@@ -610,7 +610,7 @@ export default {
                         </div>
                     </td>
                     <td width="98%" colspan="10" scope="col" class="study-table-header">
-                        <div class="row">
+                        <div class="row g-0">
                             <div class="col-3">
                                 <ResourceButtonGroup :resourceLevel="'bulk'">
                                 </ResourceButtonGroup>
