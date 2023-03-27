@@ -157,12 +157,25 @@ void ReadConfiguration()
     orthancFullConfiguration_->GetSection(pluginConfiguration, "OrthancExplorer2");
 
     Json::Value jsonConfig = pluginConfiguration.GetJson();
-    
-    // fix typo from version 0.7.0
-    if (jsonConfig.isMember("UiOptions") && jsonConfig["UiOptions"].isMember("EnableAnonimization") && !jsonConfig["UiOptions"].isMember("EnableAnonymization"))
+
+    // backward compatibility  
+    if (jsonConfig.isMember("UiOptions"))
     {
-      LOG(WARNING) << "You are still using the 'UiOptions.EnableAnonimization' configuration that has a typo.  You should use 'UiOptions.EnableAnonymization' instead.";
-      jsonConfig["UiOptions"]["EnableAnonymization"] = jsonConfig["UiOptions"]["EnableAnonimization"];
+      // fix typo from version 0.7.0
+      if (jsonConfig["UiOptions"].isMember("EnableAnonimization") && !jsonConfig["UiOptions"].isMember("EnableAnonymization"))
+      {
+        LOG(WARNING) << "You are still using the 'UiOptions.EnableAnonimization' configuration that has a typo.  You should use 'UiOptions.EnableAnonymization' instead.";
+        jsonConfig["UiOptions"]["EnableAnonymization"] = jsonConfig["UiOptions"]["EnableAnonimization"];
+      }
+
+      if (jsonConfig["UiOptions"].isMember("StudyListEmptyIfNoSearch") && !jsonConfig["UiOptions"].isMember("StudyListContentIfNoSearch"))
+      {
+        if (jsonConfig["UiOptions"]["StudyListEmptyIfNoSearch"].asBool() == true)
+        {
+          LOG(WARNING) << "You are still using the 'UiOptions.StudyListEmptyIfNoSearch' configuration that is now deprecated a typo.  You should use 'UiOptions.StudyListContentIfNoSearch' instead.";
+          jsonConfig["UiOptions"]["StudyListContentIfNoSearch"] = "empty";
+        }
+      }
     }
 
     MergeJson(pluginJsonConfiguration_, jsonConfig);

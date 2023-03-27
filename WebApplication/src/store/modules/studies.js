@@ -157,13 +157,15 @@ const actions = {
     async clearFilterNoReload({ commit }) {
         commit('clearFilter');
     },
+    async clearStudies({ commit }) {
+        commit('setStudiesIds', { studiesIds: [] });
+        commit('setStudies', { studies: [] });
+    },
     async reloadFilteredStudies({ commit, getters }) {
         commit('setStudiesIds', { studiesIds: [] });
         commit('setStudies', { studies: [] });
 
-        if (getters.isFilterEmpty && this.state.configuration.uiOptions.StudyListEmptyIfNoSearch) {
-            return;
-        } else {
+        if (!getters.isFilterEmpty) {
             try {
                 commit('setIsSearching', { isSearching: true});
                 const studies = (await api.findStudies(getters.filterQuery));

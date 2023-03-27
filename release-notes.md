@@ -1,3 +1,9 @@
+Changes:
+- new configuration 'StudyListContentIfNoSearch' to replace 'StudyListEmptyIfNoSearch'.  Allowed values are
+  "empty", "most-recents" (default)
+- configuraation 'StudyListEmptyIfNoSearch' is now deprecated.  You should now use "StudyListContentIfNoSearch": "empty".
+
+
 0.8.2 (2023-03-27)
 ==================
 

@@ -58,6 +58,7 @@
         "StudyTime": "Heure de l'examen",
         "StudyInstanceUID": "Study Instance UID"
     },
+    "displaying_latest_studies": "Liste des examens les plus récents",
     "download_dicom_file": "Télécharger le fichier DICOM",
     "download_dicomdir": "Télécharger DICOMDIR",
     "download_zip": "Télécharger ZIP",
@@ -73,6 +74,7 @@
     "instances_number": "Nombre d'éléments",
     "instances": "Éléments",
     "legacy_ui": "Ancienne interface",
+    "loading_latest_studies": "Chargement des examens les plus récents",
     "local_studies": "Examens",
     "logout": "Se déconnecter",
     "modalities_in_study": "Modalités dans l'examen",

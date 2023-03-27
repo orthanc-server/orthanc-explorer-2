@@ -69,14 +69,14 @@ export default {
         });
     },
     async cancelFindStudies() {
-        if (window.axioFindStudiesAbortController) {
-            window.axioFindStudiesAbortController.abort();
-            window.axioFindStudiesAbortController = null;
+        if (window.axiosFindStudiesAbortController) {
+            window.axiosFindStudiesAbortController.abort();
+            window.axiosFindStudiesAbortController = null;
         }
     },
     async findStudies(filterQuery) {
         await this.cancelFindStudies();
-        window.axioFindStudiesAbortController = new AbortController();
+        window.axiosFindStudiesAbortController = new AbortController();
 
         return (await axios.post(orthancApiUrl + "tools/find", {
                 "Level": "Study",
@@ -88,8 +88,16 @@ export default {
                 "Expand": true
             }, 
             {
-                signal: window.axioFindStudiesAbortController.signal
+                signal: window.axiosFindStudiesAbortController.signal
             })).data;
+    },
+    async getLastChangeId() {
+        const response = (await axios.get(orthancApiUrl + "changes?last"));
+        return response.data["Last"];
+    },
+    async getChanges(since, limit) {
+        const response = (await axios.get(orthancApiUrl + "changes?since=" + since + "&limit=" + limit));
+        return response.data;
     },
     async getSamePatientStudies(patientId) {
         const response = (await axios.post(orthancApiUrl + "tools/find", {

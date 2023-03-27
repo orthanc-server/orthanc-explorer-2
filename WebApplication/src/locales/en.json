@@ -58,6 +58,7 @@
         "StudyTime": "Study Time",
         "StudyInstanceUID": "Study Instance UID"
     },
+    "displaying_latest_studies": "Displaying most recent studies",
     "download_dicom_file": "Download DICOM file",
     "download_dicomdir": "Download DICOMDIR",
     "download_zip": "Download ZIP",
@@ -73,8 +74,9 @@
     "instances_number": "Number of instances",
     "instances": "Instances",
     "legacy_ui": "Legacy UI",
-    "logout": "Logout",
+    "loading_latest_studies": "Loading most recent studies",
     "local_studies": "Local Studies",
+    "logout": "Logout",
     "modalities_in_study": "Modalities in Study",
     "modify": {
         "anonymize_button_title": "Anonymize",

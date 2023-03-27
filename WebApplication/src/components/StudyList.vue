@@ -8,6 +8,7 @@ import { translateDicomTag } from "../locales/i18n"
 import resourceHelpers from "../helpers/resource-helpers"
 import $ from "jquery"
 import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
+import api from "../orthancApi";
 import { ref } from 'vue';
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
@@ -72,7 +73,11 @@ export default {
             columns: document._studyColumns,
             datePickerPresetRanges: document._datePickerPresetRanges,
             allSelected: false,
-            isPartialSelected: false
+            isPartialSelected: false,
+            latestStudiesIds: [],
+            shouldStopLoadingLatestStudies: false,
+            isLoadingLatestStudies: false,
+            isDisplayingLatestStudies: false,
         };
     },
     computed: {
@@ -85,7 +90,7 @@ export default {
             statistics: state => state.studies.statistics
         }),
         ...mapGetters([
-            'studies/isFilterEmpty' // -> this['studies/isFilterEmpty']
+            'studies/isFilterEmpty', // -> this['studies/isFilterEmpty']
         ]),
         notShowingAllResults() {
             if (this.studiesIds.length >= this.statistics.CountStudies) {
@@ -100,7 +105,10 @@ export default {
             return this.uiOptions.StudyListSearchMode == "search-button";
         },
         showEmptyStudyListIfNoSearch() {
-            return this.uiOptions.StudyListEmptyIfNoSearch;
+            return this.uiOptions.StudyListContentIfNoSearch == "empty";
+        },
+        showLastReceivedIfNoSearch() {
+            return this.uiOptions.StudyListContentIfNoSearch == "most-recents";
         },
         isStudyListEmpty() {
             return this.studiesIds.length == 0;
@@ -130,7 +138,7 @@ export default {
             deep: true
         },
         filterStudyDate(newValue, oldValue) {
-            console.log("watch filterStudyDate", newValue);
+            // console.log("watch filterStudyDate", newValue);
             this.updateFilter('StudyDate', newValue, oldValue);
         },
         filterStudyDateForDatePicker(newValue, oldValue) {
@@ -138,7 +146,7 @@ export default {
             if (dicomNewValue == null) {
                 dicomNewValue = "";
             }
-            console.log("watch filterStudyDateForDatePicker", newValue, dicomNewValue);
+            // console.log("watch filterStudyDateForDatePicker", newValue, dicomNewValue);
             this.filterStudyDate = dicomNewValue;
         },
         filterAccessionNumber(newValue, oldValue) {
@@ -158,7 +166,7 @@ export default {
             if (dicomNewValue == null) {
                 dicomNewValue = "";
             }
-            console.log("watch filterPatientBirthDateForDatePicker", newValue, dicomNewValue);
+            // console.log("watch filterPatientBirthDateForDatePicker", newValue, dicomNewValue);
             this.filterPatientBirthDate = dicomNewValue;
         },
         filterStudyDescription(newValue, oldValue) {
@@ -337,36 +345,32 @@ export default {
         },
         _updateFilter(dicomTagName, value) {
             this.searchTimerHandler[dicomTagName] = null;
-            this.$store.dispatch('studies/updateFilter', { dicomTagName: dicomTagName, value: value });
+            this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
             this.updateUrl();
+            this.reloadStudyList();
         },
         async updateFilterFromRoute(filters) {
             // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
 
             this.updatingFilterUi = true;
-            if (filters === undefined) {
-                await this.clearFiltersUi();
-                console.log("updateFilterFromRoute ... I think this code is not used anymore ...");  // filters=={} when default url
-            } else {
+            await this.$store.dispatch('studies/clearFilterNoReload');
+            var keyValueFilters = {};
 
-                await this.$store.dispatch('studies/clearFilterNoReload');
-                var keyValueFilters = {};
-
-                for (const [filterKey, filterValue] of Object.entries(filters)) {
-                    if (document._allowedFilters.indexOf(filterKey) == -1) {
-                        if (filterKey != 'forceRefresh') {
-                            console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
-                        }
-                    } else {
-                        keyValueFilters[filterKey] = filterValue;
-
-                        await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
+            for (const [filterKey, filterValue] of Object.entries(filters)) {
+                if (document._allowedFilters.indexOf(filterKey) == -1) {
+                    if (filterKey != 'forceRefresh') {
+                        console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
                     }
-                }
+                } else {
+                    keyValueFilters[filterKey] = filterValue;
 
-                await this.updateFilterForm(keyValueFilters);
-                await this.$store.dispatch('studies/reloadFilteredStudies');
+                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
+                }
             }
+
+            await this.updateFilterForm(keyValueFilters);
+            await this.reloadStudyList();
+
             this.updatingFilterUi = false;
         },
         updateFilterForm(filters) {
@@ -428,14 +432,16 @@ export default {
                 await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientName", value: this.filterPatientName });
                 await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "PatientBirthDate", value: this.filterPatientBirthDate });
                 await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "StudyDescription", value: this.filterStudyDescription });
-                await this.$store.dispatch('studies/reloadFilteredStudies');
+                await this.reloadStudyList();
                 this.updateUrl();
             }
         },
         async clearFilters() {
             // console.log("StudyList: clearFilters", this.updatingFilterUi);
             await this.clearFiltersUi();
-            await this.$store.dispatch('studies/clearFilter');
+            await this.$store.dispatch('studies/clearFilterNoReload');
+
+            this.reloadStudyList();
         },
         async clearFiltersUi() {
             // console.log("StudyList: clearFiltersUi IN");
@@ -501,6 +507,60 @@ export default {
 
             this.updatingRoute = true;  // cleared in watcher
             this.$router.replace(newUrl);
+        },
+        async reloadStudyList() {
+            if (this['studies/isFilterEmpty']) {
+                if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
+                    return;
+                } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
+                    if (this.isLoadingLatestStudies) {
+                        // if currently loading, stop it
+                        this.shouldStopLoadingLatestStudies = true;
+                        this.isLoadingLatestStudies = false;
+                        this.isDisplayingLatestStudies = true;
+                    } else {
+                        const lastChangeId = await api.getLastChangeId();
+                    
+                        await this.$store.dispatch('studies/clearStudies');
+                        this.latestStudiesIds = new Set();
+                        this.shouldStopLoadingLatestStudies = false;
+                        this.isLoadingLatestStudies = true;
+                        this.isDisplayingLatestStudies = false;
+
+                        this.loadStudiesFromChange(lastChangeId - 1000, 1000);
+                    }
+                }
+            } else {
+                this.shouldStopLoadingLatestStudies = true;
+                this.isLoadingLatestStudies = false;
+                this.isDisplayingLatestStudies = false;
+                await this.$store.dispatch('studies/reloadFilteredStudies');
+            }
+        },
+        async loadStudiesFromChange(fromChangeId, limit) {
+            let changes = await api.getChanges(fromChangeId, limit);
+            for (let change of changes["Changes"].reverse()) {
+                // Take the first event we find -> we see last uploaded data immediately (NewStudy but no StableStudy).  
+                // An updated study that has received a new series is visible as well (its NewStudy might be too old but the StableStudy brings it back on top of the list)
+                if ((change["ChangeType"] == "NewStudy" || change["ChangeType"] == "StableStudy") && !this.latestStudiesIds.has(change["ID"])) {
+                    if (this.shouldStopLoadingLatestStudies) {
+                        return;
+                    }
+                    console.log(change);
+                    const study = await api.getStudy(change["ID"]);
+                    this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
+
+                    this.latestStudiesIds.add(change["ID"]);
+                    if (this.latestStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
+                        this.isLoadingLatestStudies = false;
+                        this.isDisplayingLatestStudies = true;
+                        return;
+                    }
+                }
+            }
+            if (!this.shouldStopLoadingLatestStudies && fromChangeId > 0) {
+                this.loadStudiesFromChange(Math.max(0, fromChangeId - 1000), 1000);
+            }
         },
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });
@@ -616,20 +676,29 @@ export default {
                                 </ResourceButtonGroup>
                             </div>
                             <div class="col-7">
-                                <div v-if="!isSearching && notShowingAllResults" class="alert alert-danger study-list-alert"
+                                <div v-if="!isSearching && isLoadingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
+                                    <span v-if="isLoadingLatestStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
+                                        aria-hidden="true"></span>{{
+                                            $t('loading_latest_studies') }}
+                                </div>
+                                <div v-else-if="!isSearching && isDisplayingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i>{{
+                                            $t('displaying_latest_studies') }}
+                                </div>
+                                <div v-else-if="!isSearching && notShowingAllResults" class="alert alert-danger study-list-alert"
                                     role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('not_showing_all_results') }} ! !
+                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('not_showing_all_results') }} ! !
                                 </div>
                                 <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
                                     class="alert alert-warning study-list-alert" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('enter_search') }}
+                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('enter_search') }}
                                 </div>
                                 <div v-else-if="!isSearching && isStudyListEmpty"
                                     class="alert alert-warning study-list-alert" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> {{ $t('no_result_found') }}
+                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('no_result_found') }}
                                 </div>
                                 <div v-else-if="isSearching" class="alert alert-secondary study-list-alert" role="alert">
-                                    <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                                    <span v-if="isSearching" class="spinner-border spinner-border-sm alert-icon" role="status"
                                         aria-hidden="true"></span>{{
                                             $t('searching') }}
                                 </div>
@@ -746,6 +815,10 @@ button.form-control.study-list-filter {
     /* background-color: #f7dddf !important; */
     border-color: red !important;
     box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25) !important;
+}
+
+.alert-icon {
+    margin-right: 0.7rem;
 }
 
 .actions-header {
