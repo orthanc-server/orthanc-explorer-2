@@ -3,6 +3,9 @@ Changes:
   "empty", "most-recents" (default)
 - configuraation 'StudyListEmptyIfNoSearch' is now deprecated.  You should now use "StudyListContentIfNoSearch": "empty".
 
+Fixes:
+- In the settings page, the status of the python plugin was not correct.
+
 
 0.8.2 (2023-03-27)
 ==================

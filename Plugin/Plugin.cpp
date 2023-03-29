@@ -340,7 +340,9 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     }
     else if (pluginName == "python")
     {
-      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "PythonScript");
+      OrthancPlugins::OrthancConfiguration orthancConfiguration(false);
+      std::string notUsed;
+      pluginsConfiguration[pluginName]["Enabled"] = orthancConfiguration.LookupStringValue(notUsed, "PythonScript");
     }
     else if (pluginName == "serve-folders")
     {
