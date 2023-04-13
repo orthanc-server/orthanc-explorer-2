@@ -78,6 +78,8 @@ export default {
                 window.location.href = api.getStoneViewerUrl("study", this.studyInstanceUid);
             } else if (this.viewer == "osimis-viewer") {
                 window.location.href = api.getOsimisViewerUrl("study", this.studyOrthancId);
+            } else if (this.viewer == "ohif-viewer") {
+                window.location.href = api.getOh("study", this.studyOrthancId);
             } else {
                 console.error("unsupported viewer: ", this.viewer);
             }

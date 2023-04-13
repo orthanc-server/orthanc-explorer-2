@@ -37,7 +37,7 @@
             "ShareDurations": [0, 7, 15, 30, 90, 365],  // The share durations proposed in the UI
 
             "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button
-            "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/Viewer/" means that link to OHIF will look like http://ohif.my.site/Viewer/1.2.3.444.5555....
+            "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/" means that link to OHIF will look like http://ohif.my.site/viewer?StudyInstanceUIDs=1.2.3.444.5555....
 
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
             "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
@@ -179,7 +179,7 @@
                 "Username": "change-me",
                 "Password": "change-me"
             },
-            "Type": "osimis-viewer-publication" // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication"
+            "Type": "osimis-viewer-publication" // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication", "ohif-viewer-publication"
         },
 
         // When using Keycloak for user management

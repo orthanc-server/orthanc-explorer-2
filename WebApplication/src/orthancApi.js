@@ -330,6 +330,12 @@ export default {
     getStoneViewerUrlForBulkStudies(studiesDicomIds) {
         return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");
     },
+    getOhifViewerUrl(level, resourceDicomUid) {
+        return store.state.configuration.uiOptions.OhifViewerPublicRoot + 'viewer?StudyInstanceUIDs=' + resourceDicomUid;
+    },
+    getOhifViewerUrlForBulkStudies(studiesDicomIds) {
+        return store.state.configuration.uiOptions.OhifViewerPublicRoot + 'viewer?StudyInstanceUIDs=' + studiesDicomIds.join(",");
+    },
     getInstancePreviewUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/preview";
     },

@@ -184,8 +184,20 @@ export default {
         hasOhifViewer() {
             return this.uiOptions.EnableOpenInOhifViewer;
         },
+        hasOhifViewerButton() {
+            return this.hasOhifViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+        },
         ohifViewerUrl() {
-            return this.uiOptions.OhifViewerPublicRoot + this.resourceDicomUid;
+            if (this.resourceLevel == 'bulk') {
+                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
+                const url = api.getOhifViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                return url;
+            } else {
+                return api.getOhifViewerUrl(this.resourceLevel, this.resourceDicomUid);
+            }
+        },
+        isOhifButtonEnabled() {
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
         },
         hasMedDreamViewer() {
             return this.uiOptions.EnableOpenInMedDreamViewer;
@@ -313,11 +325,12 @@ export default {
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
 
-                <a v-if="hasOhifViewer && viewer == 'ohif' && this.resourceLevel == 'study'"
-                    class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="tooltip" :title="$t('view_in_ohif')"
-                    target="blank" v-bind:href="ohifViewerUrl">
-                    <i :class="ohifViewerIcon"></i>
-                </a>
+                <TokenLinkButton v-if="viewer == 'ohif' && hasOhifViewerButton"
+                    :disabled="!isOhifButtonEnabled"
+                    :iconClass="ohifViewerIcon" :level="computedResourceLevel" :linkUrl="ohifViewerUrl"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
             </span>
             <a v-if="this.resourceLevel == 'instance'" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="tooltip" :title="`${$t('preview')}`" target="blank" v-bind:href="instancePreviewUrl">
