@@ -179,7 +179,7 @@
                 "Username": "change-me",
                 "Password": "change-me"
             },
-            "Type": "osimis-viewer-publication" // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication", "ohif-viewer-publication"
+            "Type": "osimis-viewer-publication" // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication"
         },
 
         // When using Keycloak for user management

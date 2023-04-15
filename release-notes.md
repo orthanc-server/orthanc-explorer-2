@@ -4,8 +4,6 @@ Changes:
 - configuraation 'StudyListEmptyIfNoSearch' is now deprecated.  You should now use "StudyListContentIfNoSearch": "empty".
 - OHIF integration: upgrade to OHIF v3:
   - "OhifViewerPublicRoot" should now link to an OHIF v3
-  - new value for Tokens.ShareType: "ohif-viewer-publication"
-  - it is now possible to open OHIF when working with user-permissions and orthanc-auth-service
 
 Fixes:
 - In the settings page, the status of the python plugin was not correct.

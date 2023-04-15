@@ -113,7 +113,8 @@ export default {
             targetDicomModalities: state => state.configuration.targetDicomModalities,
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
             selectedStudies: state => state.studies.selectedStudies,
-            orthancPeers: state => state.configuration.orthancPeers
+            orthancPeers: state => state.configuration.orthancPeers,
+            tokens: state => state.configuration.tokens
         }),
         hasSendTo() {
             return this.uiOptions.EnableSendTo &&
@@ -197,6 +198,10 @@ export default {
             }
         },
         isOhifButtonEnabled() {
+            if (this.tokens.RequiredForLinks) {
+                // https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727
+                return false;
+            }
             return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
         },
         hasMedDreamViewer() {
