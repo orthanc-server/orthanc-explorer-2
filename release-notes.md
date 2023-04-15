@@ -2,8 +2,8 @@ Changes:
 - new configuration 'StudyListContentIfNoSearch' to replace 'StudyListEmptyIfNoSearch'.  Allowed values are
   "empty", "most-recents" (default)
 - configuraation 'StudyListEmptyIfNoSearch' is now deprecated.  You should now use "StudyListContentIfNoSearch": "empty".
-- OHIF integration: upgrade to OHIF v3:
-  - "OhifViewerPublicRoot" should now link to an OHIF v3
+- OHIF integration: upgrade to OHIF v3: "OhifViewerPublicRoot" should now link to an OHIF v3 viewer 
+- now reporting the status of Multitenant DICOM plugin in the settings page
 
 Fixes:
 - In the settings page, the status of the python plugin was not correct.

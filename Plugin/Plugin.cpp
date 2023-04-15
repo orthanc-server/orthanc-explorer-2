@@ -376,6 +376,16 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
     }
+    else if (pluginName == "multitenant-dicom")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = false;
+      Json::Value pluginConfiguration;
+      if (GetPluginConfiguration(pluginConfiguration, "ServeFolders"))
+      {
+        return pluginConfiguration.isMember("Servers") && pluginConfiguration["Servers"].isArray() && pluginConfiguration["Servers"].size() > 0;
+      }
+    }
+
   }
 
   return pluginsConfiguration;

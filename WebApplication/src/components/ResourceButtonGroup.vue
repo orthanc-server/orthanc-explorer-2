@@ -199,6 +199,7 @@ export default {
         },
         isOhifButtonEnabled() {
             if (this.tokens.RequiredForLinks) {
+                // OHIF is not available when using user permissions:
                 // https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727
                 return false;
             }
