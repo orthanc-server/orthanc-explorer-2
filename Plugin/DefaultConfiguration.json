@@ -36,7 +36,7 @@
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
             "ShareDurations": [0, 7, 15, 30, 90, 365],  // The share durations proposed in the UI
 
-            "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button
+            "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button.  Note: OHIF can not be used together with KeyCloak (https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727)
             "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/" means that link to OHIF will look like http://ohif.my.site/viewer?StudyInstanceUIDs=1.2.3.444.5555....
 
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button

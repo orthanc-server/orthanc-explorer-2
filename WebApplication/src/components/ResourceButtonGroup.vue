@@ -186,6 +186,11 @@ export default {
             return this.uiOptions.EnableOpenInOhifViewer;
         },
         hasOhifViewerButton() {
+            if (this.tokens.RequiredForLinks) {
+                // OHIF is not available when using user permissions:
+                // https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727
+                return false;
+            }
             return this.hasOhifViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         ohifViewerUrl() {
@@ -198,11 +203,6 @@ export default {
             }
         },
         isOhifButtonEnabled() {
-            if (this.tokens.RequiredForLinks) {
-                // OHIF is not available when using user permissions:
-                // https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727
-                return false;
-            }
             return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
         },
         hasMedDreamViewer() {
