@@ -527,7 +527,7 @@ export default {
                         this.isLoadingLatestStudies = true;
                         this.isDisplayingLatestStudies = false;
 
-                        this.loadStudiesFromChange(lastChangeId - 1000, 1000);
+                        this.loadStudiesFromChange(Math.max(0, lastChangeId - 1000), 1000);
                     }
                 }
             } else {
@@ -559,7 +559,10 @@ export default {
                 }
             }
             if (!this.shouldStopLoadingLatestStudies && fromChangeId > 0) {
-                this.loadStudiesFromChange(Math.max(0, fromChangeId - 1000), 1000);
+                this.loadStudiesFromChange(Math.max(0, Math.max(0, fromChangeId - 1000)), 1000);
+            } else {
+                this.isLoadingLatestStudies = false;
+                this.isDisplayingLatestStudies = true;
             }
         },
         onDeletedStudy(studyId) {
