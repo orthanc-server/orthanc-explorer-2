@@ -9,7 +9,6 @@ $('#lookup').live('pagebeforeshow', function() {
       .append($('<div>')
               .addClass('ui-block-b')
               .append($('<a>')
-                      .attr('id', 'coucou')
                       .attr('data-role', 'button')
                       .attr('href', '#')
                       .attr('data-icon', 'forward')
@@ -22,4 +21,3 @@ $('#lookup').live('pagebeforeshow', function() {
   
   b.insertAfter($('#lookup-result'));
 });
-

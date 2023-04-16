@@ -169,6 +169,7 @@ endif()
 EmbedResources(
   --no-upcase-check
   ${ADDITIONAL_RESOURCES}
+  ORTHANC_EXPLORER  ${CMAKE_SOURCE_DIR}/Plugin/OrthancExplorer.js
   )
 
 

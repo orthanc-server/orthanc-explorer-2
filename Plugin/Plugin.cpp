@@ -609,6 +609,12 @@ extern "C"
         }
 
         OrthancPluginRegisterOnChangeCallback(context, OnChangeCallback);
+
+        {
+          std::string explorer;
+          Orthanc::EmbeddedResources::GetFileResource(explorer, Orthanc::EmbeddedResources::ORTHANC_EXPLORER);
+          OrthancPluginExtendOrthancExplorer(OrthancPlugins::GetGlobalContext(), explorer.c_str());
+        }
       }
       else
       {
