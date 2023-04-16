@@ -25,7 +25,6 @@
 #include <SystemToolbox.h>
 #include <Toolbox.h>
 #include <SerializationToolbox.h>
-#include <HttpClient.h>
 
 #include <EmbeddedResources.h>
 

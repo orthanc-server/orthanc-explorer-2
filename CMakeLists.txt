@@ -85,13 +85,18 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "system")
 else()
   include(${ORTHANC_FRAMEWORK_ROOT}/../Resources/CMake/OrthancFrameworkParameters.cmake)
 
-  set(ENABLE_LOCALE ON)         # Enable support for locales (notably in Boost)
-  set(ENABLE_GOOGLE_TEST ON)
+  #set(ENABLE_LOCALE ON)         # Enable support for locales (notably in Boost)
+  #set(ENABLE_GOOGLE_TEST ON)
   set(ENABLE_PUGIXML ON)
   set(ENABLE_MODULE_JOBS OFF)
   set(USE_BOOST_ICONV ON)
-  set(ENABLE_WEB_CLIENT ON)
-  
+  #set(ENABLE_WEB_CLIENT ON)
+
+  # Those modules of the Orthanc framework are not needed
+  set(ENABLE_MODULE_IMAGES OFF)
+  set(ENABLE_MODULE_JOBS OFF)
+  set(ENABLE_MODULE_DICOM OFF)
+
   include(${ORTHANC_FRAMEWORK_ROOT}/../Resources/CMake/OrthancFrameworkConfiguration.cmake)
   include_directories(${ORTHANC_FRAMEWORK_ROOT})
 endif()
