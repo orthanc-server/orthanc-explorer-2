@@ -1,8 +1,13 @@
+0.9.0 (2023-04-16)
+==================
+
+BREAKING CHANGES:
+- OHIF integration: "OhifViewerPublicRoot" should now link to an OHIF v3 viewer 
+
 Changes:
 - new configuration 'StudyListContentIfNoSearch' to replace 'StudyListEmptyIfNoSearch'.  Allowed values are
   "empty", "most-recents" (default)
 - configuration 'StudyListEmptyIfNoSearch' is now deprecated.  You should now use "StudyListContentIfNoSearch": "empty".
-- OHIF integration: upgrade to OHIF v3: "OhifViewerPublicRoot" should now link to an OHIF v3 viewer 
 - now reporting the status of Multitenant DICOM plugin in the settings page
 - added button "Open Orthanc Explorer 2" in Orthanc Explorer
 
