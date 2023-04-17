@@ -183,7 +183,7 @@ export default {
             return (this.resourceLevel == 'study' || this.resourceLevel == 'series');
         },
         hasOhifViewer() {
-            return this.uiOptions.EnableOpenInOhifViewer;
+            return this.uiOptions.EnableOpenInOhifViewer || this.uiOptions.EnableOpenInOhifViewer3;
         },
         hasOhifViewerButton() {
             if (this.tokens.RequiredForLinks) {
@@ -191,7 +191,11 @@ export default {
                 // https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727
                 return false;
             }
-            return this.hasOhifViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+            if (this.uiOptions.EnableOpenInOhifViewer3) {
+                return this.hasOhifViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+            } else {
+                return this.hasOhifViewer && this.resourceLevel == 'study';
+            }
         },
         ohifViewerUrl() {
             if (this.resourceLevel == 'bulk') {
@@ -203,7 +207,11 @@ export default {
             }
         },
         isOhifButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            if (this.uiOptions.EnableOpenInOhifViewer3) {
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            } else {
+                return this.resourceLevel == 'study';
+            }
         },
         hasMedDreamViewer() {
             return this.uiOptions.EnableOpenInMedDreamViewer;

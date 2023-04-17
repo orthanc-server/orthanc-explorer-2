@@ -331,10 +331,18 @@ export default {
         return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");
     },
     getOhifViewerUrl(level, resourceDicomUid) {
-        return store.state.configuration.uiOptions.OhifViewerPublicRoot + 'viewer?StudyInstanceUIDs=' + resourceDicomUid;
+        if (store.state.configuration.uiOptions.EnableOpenInOhifViewer3) {
+            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?StudyInstanceUIDs=' + resourceDicomUid;    
+        } else {
+            return store.state.configuration.uiOptions.OhifViewerPublicRoot + 'Viewer/' + resourceDicomUid;
+        }
     },
     getOhifViewerUrlForBulkStudies(studiesDicomIds) {
-        return store.state.configuration.uiOptions.OhifViewerPublicRoot + 'viewer?StudyInstanceUIDs=' + studiesDicomIds.join(",");
+        if (store.state.configuration.uiOptions.EnableOpenInOhifViewer3) {
+            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?StudyInstanceUIDs=' + studiesDicomIds.join(",");
+        } else {
+            return null;
+        }
     },
     getInstancePreviewUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/preview";
