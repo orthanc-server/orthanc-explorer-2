@@ -379,9 +379,9 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     {
       pluginsConfiguration[pluginName]["Enabled"] = false;
       Json::Value pluginConfiguration;
-      if (GetPluginConfiguration(pluginConfiguration, "ServeFolders"))
+      if (GetPluginConfiguration(pluginConfiguration, "MultitenantDicom"))
       {
-        return pluginConfiguration.isMember("Servers") && pluginConfiguration["Servers"].isArray() && pluginConfiguration["Servers"].size() > 0;
+        pluginsConfiguration[pluginName]["Enabled"] = pluginConfiguration.isMember("Servers") && pluginConfiguration["Servers"].isArray() && pluginConfiguration["Servers"].size() > 0;
       }
     }
 
