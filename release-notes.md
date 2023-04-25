@@ -1,3 +1,6 @@
+Changes:
+- allow opening MedDream viewer on multiple studies
+
 0.9.2 (2023-04-17)
 ==================
 

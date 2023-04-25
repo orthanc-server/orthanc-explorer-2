@@ -236,20 +236,6 @@ export default {
         return (await axios.get(orthancApiUrl + "tools/log-level")).data;
     },
 
-    async getMedDreamInstantLink(dicomId) {
-        const response = (await axios.put(oe2ApiUrl + "shares", {
-            "studies" : [{
-                "dicom-uid": dicomId,
-                "orthanc-id" : null
-            }],
-            "anonymized": false,
-            "expiration-date": null,
-            "type": "meddream-instant-link"
-        }));
-        
-        return response.data['url'];
-    },
-
     async anonymizeResource({resourceLevel, orthancId, replaceTags={}, removeTags=[]}) {
         const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/anonymize", {
             "Replace": replaceTags,

@@ -216,6 +216,12 @@ export default {
         hasMedDreamViewer() {
             return this.uiOptions.EnableOpenInMedDreamViewer;
         },
+        hasMedDreamViewerButton() {
+            return this.hasMedDreamViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+        },
+        isMedDreamViewerButtonEnabled() {
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+        },
         medDreamViewerUrl() {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
@@ -312,8 +318,9 @@ export default {
     <div>
         <div class="btn-group">
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
-                <TokenLinkButton v-if="hasMedDreamViewer && viewer == 'meddream' && this.resourceLevel == 'study'"
-                    :iconClass="medDreamViewerIcon" :level="this.resourceLevel" :linkUrl="medDreamViewerUrl"
+                <TokenLinkButton v-if="viewer == 'meddream' && hasMedDreamViewerButton"
+                    :disabled="!isMedDreamViewerButtonEnabled"
+                    :iconClass="medDreamViewerIcon" :level="computedResourceLevel" :linkUrl="medDreamViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_meddream')"
                     :tokenType="'meddream-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
