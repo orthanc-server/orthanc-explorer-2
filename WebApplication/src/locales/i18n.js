@@ -3,6 +3,7 @@ import en from "./en.json";
 import es from "./es.json";
 import fr from "./fr.json";
 import it from "./it.json";
+import ka from "./ka.json";
 // import it from "./it.json";
 // import pt from "./pt.json";
 // import ru from "./ru.json";
@@ -23,6 +24,7 @@ const i18n = createI18n({
     es,
     fr,
     it,
+    ka,
     // pt,
     // ru,
     // de,
