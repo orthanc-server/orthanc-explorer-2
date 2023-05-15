@@ -2,6 +2,7 @@
     "all_modalities": "Todos",
     "anonymize": "Anonimizar",
     "cancel": "Cancelar",
+    "change_password": "Cambiar la contraseña",
     "close": "Cerrar",
     "copy_orthanc_id": "Copiar Orthanc ID",
     "date_picker": {
@@ -17,6 +18,8 @@
     "delete": "Eliminar",
     "delete_study_title": "¿Eliminar estudio?",
     "delete_study_body": "¿Estás seguro de que quieres eliminar este estudio?<br/>Esta acción no se puede deshacer!",
+    "delete_studies_title": "¿Eliminar estudios?",
+    "delete_studies_body": "¿Estás seguro de que quieres eliminar estos estudios?<br/>Esta acción no se puede deshacer!",
     "delete_series_title": "¿Eliminar serie?",
     "delete_series_body": "¿Estás seguro de que quieres eliminar esta serie?<br/>Esta acción no se puede deshacer!",
     "delete_instance_title": "¿Eliminar elemento?",
@@ -28,7 +31,6 @@
     "dicom_web_servers": "Servidores DICOM-Web",
     "dicom_tags" : {
         "seriesCount": "Recuento de serie",
-
         "AccessionNumber":"Número de acceso",
         "BodyPartExamined": "Parte del cuerpo examinada",
         "InstanceNumber":"Número de elemento",
@@ -55,6 +57,7 @@
         "StudyTime": "Hora de estudio",
         "StudyInstanceUID": "Study Instance UID"
     },
+    "displaying_latest_studies": "Se muestran los estudios más recientes",
     "download_dicom_file": "Descargar archivo DICOM",
     "download_dicomdir": "Descargar DICOMDIR",
     "download_zip": "Descargar ZIP",
@@ -63,14 +66,16 @@
     "error": "Error",
     "file": "Archivo",
     "files": "archivos",
-    "frames": "marcos",
+    "frames": "cuadros",
     "ingest_transcoding": "Transcodificación adaptable",
     "installed_plugins": "Complementos instalados",
     "instance": "Elemento",
     "instances_number": "Número de elementos",
     "instances": "Elementos",
     "legacy_ui": "IU heredada",
+    "loading_latest_studies": "Cargando estudios más recientes",
     "local_studies": "Estudios locales",
+    "logout": "Cerrar sesión",
     "modalities_in_study": "Modalidades en Estudio",
     "modify": {
       "anonymize_button_title": "Anonimizar",
@@ -106,13 +111,13 @@
       "study_step_0_patient_has_other_studies_button_title_html": "Modificar etiquetas de pacientes",
       "study_step_0_modify_study_html": "¿Modificar etiquetas de paciente/estudio solo en este estudio?",
       "study_step_0_modify_study_button_title_html": "Modificar etiquetas de estudio",
-      "warning_create_new_study_from_series_html": "Ya existe un paciente con el mismo ID de paciente con etiquetas diferentes. "
+      "warning_create_new_study_from_series_html": "Ya existe un paciente con el mismo ID de paciente con etiquetas diferentes. ¿Desea utilizar las etiquetas PatientName, PatientSex and PatientBirthDate existentes?"
     },
     "my_jobs": "Mis trabajos",
-    "no_result_found": "¡No se han encontrado resultados!",
+    "no_result_found": "¡No se encontraron resultados!",
     "no_modalities": "Ninguno",
-    "not_showing_all_results": "No mostrar todos los resultados. ",
-    "open": "Abierto",
+    "not_showing_all_results": "No se muestran todos los resultados. Debes afinar tus criterios de búsqueda. ",
+    "open": "Abrir",
     "orthanc_name": "Nombre original",
     "orthanc_system_info": "Información del sistema Orthanc",
     "orthanc_version": "Versión original",
@@ -121,8 +126,16 @@
     "plugin": "Complemento",
     "plugins_not_enabled": "Los complementos que están cargados pero no habilitados o configurados correctamente están ",
     "preview": "Vista previa",
+    "profile": "Perfil",
+    "retrieve_and_view": {
+        "finding_locally": "Verificando si el estudio está disponible localmente.",
+        "finding_remotely": "Buscando el estudio en nodos DICOM remotos.",
+        "not_found": "El estudio no se encontró ni localmente ni en nodos DICOM remotos.",
+        "retrieving": "Recuperando estudio.",
+        "retrieved_html": "Se recuperaron  <strong>{count}</strong> elementos." 
+    },
     "searching": "Buscando...",
-    "select_files": "Seleccionar archivos",
+    "select_files": "Seleccionar Archivos",
     "select_folder": "Seleccionar Carpeta",
     "send_to": {
         "button_title": "Enviar",
@@ -155,6 +168,12 @@
     "this_patient_has_other_studies": "Este paciente tiene {count} estudios en total.",
     "this_patient_has_no_other_studies": "Este paciente no tiene otros estudios.",
     "this_patient_has_other_studies_show": "Mostrarlos!",
+    "token" : {
+      "token_being_checked_html": "Tu token está siendo verificado.",
+      "error_token_invalid_html": "Tu token es inválido.<br/>Comprueba que lo has pegado por completo o contacta a la persona que te lo ha facilitado.",
+      "error_token_expired_html": "Tu token ha caducado.",
+      "error_token_unknown_html": "Tu token es inválido.<br/>Comprueba que lo has pegado por completo o contacta a la persona que te lo ha facilitado."
+  },
     "trace": "Rastreo",
     "upload": "Cargar",
     "uploaded_studies": "Estudios cargados",

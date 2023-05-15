@@ -31,7 +31,6 @@
     "dicom_web_servers": "Serveurs Web DICOM",
     "dicom_tags" : {
         "seriesCount": "Nombre de séries",
-
         "AccessionNumber":"Numéro d'accès",
         "BodyPartExamined": "Partie du corps examinée",
         "InstanceNumber":"Numéro d'instance",

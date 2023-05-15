@@ -31,7 +31,6 @@
     "dicom_web_servers": "DICOM-Web Servers",
     "dicom_tags" : {
         "seriesCount": "Numero di serie",
-
         "AccessionNumber": "Numero Accesso",
         "BodyPartExamined": "Parte del corpo esaminata",
         "InstanceNumber": "Numero Istanza",
@@ -168,7 +167,7 @@
     "study": "Studio",
     "this_patient_has_other_studies" : "Questo paziente ha {count} studi in totale.",
     "this_patient_has_no_other_studies" : "Questo paziente non ha altri studi.",
-    "this_patient_has_other_studies_show" : "Mosta altri!",
+    "this_patient_has_other_studies_show" : "Mostra altri!",
     "token" : {
         "token_being_checked_html": "Il tuo token è in fase di verifica.",
         "error_token_invalid_html": "Il tuo token non è valido.<br/>Controlla di averlo incollato completamente o contatta la persona che te lo ha fornito.",
