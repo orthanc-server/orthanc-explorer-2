@@ -1,6 +1,7 @@
 Changes:
 - allow opening MedDream viewer on multiple studies
 - new italian translations thanks to Stefano Feroldi
+- new georgian translations thanks to Yomarbuzz
 
 0.9.2 (2023-04-17)
 ==================
