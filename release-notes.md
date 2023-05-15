@@ -1,7 +1,14 @@
+0.9.3 (2023-05-15)
+==================
+
 Changes:
 - allow opening MedDream viewer on multiple studies
 - new italian translations thanks to Stefano Feroldi
 - new georgian translations thanks to Yomarbuzz
+
+Fixes:
+- improved integration with OHIF v3 and keycloak
+
 
 0.9.2 (2023-04-17)
 ==================

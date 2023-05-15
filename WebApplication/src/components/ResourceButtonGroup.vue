@@ -186,11 +186,6 @@ export default {
             return this.uiOptions.EnableOpenInOhifViewer || this.uiOptions.EnableOpenInOhifViewer3;
         },
         hasOhifViewerButton() {
-            if (this.tokens.RequiredForLinks) {
-                // OHIF is not available when using user permissions:
-                // https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727
-                return false;
-            }
             if (this.uiOptions.EnableOpenInOhifViewer3) {
                 return this.hasOhifViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
             } else {
@@ -207,9 +202,9 @@ export default {
             }
         },
         isOhifButtonEnabled() {
-            if (this.uiOptions.EnableOpenInOhifViewer3) {
+            if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
                 return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
-            } else {
+            } else { // OHIF V2
                 return this.resourceLevel == 'study';
             }
         },
