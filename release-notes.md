@@ -1,3 +1,8 @@
+
+Changes:
+- added support for VolView 1.1 plugin
+
+
 0.9.3 (2023-05-15)
 ==================
 

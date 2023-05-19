@@ -311,7 +311,13 @@ export default {
         return orthancApiUrl + 'stone-webviewer/index.html?' + level + '=' + resourceDicomUid;
     },
     getVolViewUrl(level, resourceOrthancId) {
-        return orthancApiUrl + 'volview/index.html?urls=[../' + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive]';
+        const volViewVersion = store.state.configuration.installedPlugins.volview.Version;
+        const urls = 'urls=[../' + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive]';
+        if (volViewVersion == '1.0') {
+            return orthancApiUrl + 'volview/index.html?' + urls;
+        } else {
+            return orthancApiUrl + 'volview/index.html?names=[archive.zip]&' + urls;
+        }
     },
     getStoneViewerUrlForBulkStudies(studiesDicomIds) {
         return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");
