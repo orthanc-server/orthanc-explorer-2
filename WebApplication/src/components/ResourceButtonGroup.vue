@@ -348,10 +348,11 @@ export default {
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
             </span>
-            <a v-if="this.resourceLevel == 'instance'" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="tooltip" :title="`${$t('preview')}`" target="blank" v-bind:href="instancePreviewUrl">
-                <i class="bi bi-binoculars"></i>
-            </a>
+            <TokenLinkButton v-if="this.resourceLevel == 'instance'"
+                :iconClass="'bi bi-binoculars'" :level="this.resourceLevel" :linkUrl="instancePreviewUrl"
+                :resourcesOrthancId="[resourceOrthancId]" :title="$t('preview')"
+                :tokenType="'download-instant-link'" :opensInNewTab="true">
+            </TokenLinkButton>
         </div>
         <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"

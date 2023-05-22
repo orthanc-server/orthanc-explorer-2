@@ -2,6 +2,9 @@
 Changes:
 - added support for VolView 1.1 plugin
 
+Fixes:
+- use auth token for /preview if required
+
 
 0.9.3 (2023-05-15)
 ==================
