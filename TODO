@@ -12,13 +12,9 @@ UI improvements:
 - tags: https://github.com/lekoala/bootstrap5-tags
  
 
-- open OHIF viewer with a "?token=1234" to avoid entering credentials when opening OHIF (since it's another server) 
-  -> need authorization plugin to check auth 
-  -> need API to generate the token (API in OE2 that forwards to ext web-service).
-  -> Probably required for MedDream too + required for creating shares in OsimisViewer
-  -> for OHIF & MedDream: generate a token valid for 30 minutes
-
-
+- modification:
+  - configuration to hide DICOM UID options and select the right one directly for a given setup.
+  - add a Series Description renamer (one dialog to edit SeriesNumber + SeriesDescription of a study)
 
 - ui/app (with missing /) shall open the interface too
 
