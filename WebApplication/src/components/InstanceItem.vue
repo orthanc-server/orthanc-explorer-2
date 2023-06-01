@@ -98,7 +98,7 @@ export default {
     background-color: var(--instance-selected-color);
     font-weight: 700;
 
-    border-top: 2px !important;
+    border-top: 3px !important;
     border-style: solid !important;
     border-color: black !important;    
 }
@@ -123,7 +123,7 @@ export default {
     background-color: var(--instance-selected-color);
 
     border-top: 0px !important;
-    border-bottom: 2px !important;
+    border-bottom: 3px !important;
     border-style: solid !important;
     border-color: black !important;
 }

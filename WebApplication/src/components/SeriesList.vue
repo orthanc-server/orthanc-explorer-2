@@ -110,6 +110,10 @@ export default {
     border-color: black !important;
 }
 
+.series-table>:nth-child(odd) {
+    background-color: var(--series-odd-color);
+}
+
 .series-table-header {
     text-align: left;
     padding-left: 10px;

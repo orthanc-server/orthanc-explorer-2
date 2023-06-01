@@ -68,6 +68,10 @@ export default {
     border-color: black !important;
 }
 
+.instance-table>:nth-child(odd) {
+    background-color: var(--instance-odd-color);
+}
+
 .instance-table-header {
     text-align: left;
     padding-left: 10px;

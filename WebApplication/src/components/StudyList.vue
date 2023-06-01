@@ -794,6 +794,10 @@ button.form-control.study-list-filter {
     border-top: 0px !important;
 }
 
+.study-table> :nth-child(odd) {
+    background-color: var(--study-odd-color)
+}
+
 .study-filter th {
     text-align: left;
     padding-left: 10px;

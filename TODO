@@ -1,4 +1,5 @@
 - call /pdf instead of /preview is the instance is a pdf file
+- allow adding non standard columns (https://discourse.orthanc-server.org/t/oe2-additional-columns-in-studylist/3564/3)
 
 - use DatePicker in remote modality study list
 
