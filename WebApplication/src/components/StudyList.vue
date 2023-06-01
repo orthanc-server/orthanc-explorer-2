@@ -38,6 +38,9 @@ document._studyColumns = {
     "seriesCount": {
         "width": "4%"
     },
+    "undefined": {
+        "width": "10%"
+    }
 };
 
 document._datePickerPresetRanges = [
@@ -228,6 +231,13 @@ export default {
                 return translateDicomTag(this.$i18n.t, tagName);
             }
         },
+        columnWidth(tagName) {
+            if (tagName in this.columns) {
+                return this.columns[tagName].width;
+            } else {
+                return this.columns[undefined].width;
+            }
+        },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
             for (const modality of this.uiOptions.ModalitiesFilter) {
@@ -357,15 +367,15 @@ export default {
             var keyValueFilters = {};
 
             for (const [filterKey, filterValue] of Object.entries(filters)) {
-                if (document._allowedFilters.indexOf(filterKey) == -1) {
-                    if (filterKey != 'forceRefresh') {
-                        console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
-                    }
-                } else {
+                // if (document._allowedFilters.indexOf(filterKey) == -1) {
+                //     if (filterKey != 'forceRefresh') {
+                //         console.log("StudyList: Not a filter Key: ", filterKey, filterValue)
+                //     }
+                // } else {
                     keyValueFilters[filterKey] = filterValue;
 
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
-                }
+                // }
             }
 
             await this.updateFilterForm(keyValueFilters);
@@ -606,7 +616,7 @@ export default {
             <thead>
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
-                    v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
+                    v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                     class="study-table-title">{{
                         columnTitle(columnTag)
                     }}</th>

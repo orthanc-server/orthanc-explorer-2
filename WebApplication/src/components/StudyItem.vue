@@ -99,26 +99,28 @@ export default {
                 <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.StudyDate">{{ fields.MainDicomTags.StudyDate }}
                 </span>
-                <span v-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
+                <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.AccessionNumber">{{ fields.MainDicomTags.AccessionNumber }}
                 </span>
-                <span v-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
+                <span v-else-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
                     v-bind:title="fields.PatientMainDicomTags.PatientID">{{ fields.PatientMainDicomTags.PatientID }}
                 </span>
-                <span v-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
+                <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
                     v-bind:title="fields.PatientMainDicomTags.PatientName">{{ fields.PatientMainDicomTags.PatientName }}
                 </span>
-                <span v-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
+                <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
                     v-bind:title="fields.PatientMainDicomTags.PatientBirthDate">{{
                         fields.PatientMainDicomTags.PatientBirthDate }}
                 </span>
-                <span v-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
+                <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.StudyDescription">{{ fields.MainDicomTags.StudyDescription }}
                 </span>
-                <span v-if="columnTag == 'modalities'" data-bs-toggle="tooltip" v-bind:title="modalitiesInStudyForDisplay">{{
+                <span v-else-if="columnTag == 'modalities'" data-bs-toggle="tooltip" v-bind:title="modalitiesInStudyForDisplay">{{
                     modalitiesInStudyForDisplay }}
                 </span>
-                <span v-if="columnTag == 'seriesCount'">{{ fields.Series.length }}
+                <span v-else-if="columnTag == 'seriesCount'">{{ fields.Series.length }}
+                </span>
+                <span v-else>{{ fields.MainDicomTags[columnTag] }}
                 </span>
             </td>
         </tr>

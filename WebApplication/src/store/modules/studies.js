@@ -35,29 +35,19 @@ function insert_wildcards(initialValue) {
 const getters = {
     filterQuery: (state) => {
         let query = {};
-        if (state.filters.StudyDate.length >= 8) {
-            query["StudyDate"] = state.filters.StudyDate;
-        }
-        if (state.filters.AccessionNumber.length >= 1) {
-            query["AccessionNumber"] = insert_wildcards(state.filters.AccessionNumber);
-        }
-        if (state.filters.PatientID.length >= 1) {
-            query["PatientID"] = insert_wildcards(state.filters.PatientID);
-        }
-        if (state.filters.PatientName.length >= 1) {
-            query["PatientName"] = insert_wildcards(state.filters.PatientName);
-        }
-        if (state.filters.PatientBirthDate.length >= 8) {
-            query["PatientBirthDate"] = state.filters.PatientBirthDate;
-        }
-        if (state.filters.StudyDescription.length >= 1) {
-            query["StudyDescription"] = insert_wildcards(state.filters.StudyDescription);
-        }
-        if (state.filters.StudyInstanceUID.length >= 1) {
-            query["StudyInstanceUID"] = state.filters.StudyInstanceUID;
-        }
-        if (state.filters.ModalitiesInStudy.length >= 1) {
-            query["ModalitiesInStudy"] = state.filters.ModalitiesInStudy;
+        for (const [k, v] of Object.entries(state.filters)) {
+            if (['StudyDate', 'PatientBirthDate'].indexOf(k) != -1) {
+                // for dates, accept only exactly 8 chars
+                if (v.length >= 8) {
+                    query[k] = v;
+                }
+            } else if (['StudyInstanceUID', 'ModalitiesInStudy'].indexOf(k) != -1 && v.length >= 8) {
+                // exact match
+                query[k] = v;
+            } else if (v.length >= 1) {
+                // wildcard match for all other fields
+                query[k] = insert_wildcards(v);
+            }
         }
         return query;
     },
