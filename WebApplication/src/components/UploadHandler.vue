@@ -160,7 +160,7 @@ export default {
                     }
                 }
                 catch (error) {
-                    console.error('uploadFiles', err);
+                    console.error('uploadFiles', error);
                     let errorMessage = "error " + error.response.status;
                     if (error.response.status >= 400 && error.response.status < 500) {
                         errorMessage = error.response.data.Message;
