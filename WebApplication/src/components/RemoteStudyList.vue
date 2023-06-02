@@ -133,17 +133,13 @@ export default {
             if (tagName == "seriesCount") {
                 return this.$i18n.t('series_count_header');
             } else if (tagName == "modalities") {
-                return translateDicomTag(this.$i18n.t, "ModalitiesInStudy");
+                return translateDicomTag(this.$i18n.t, this.$i18n.te, "ModalitiesInStudy");
             } else {
-                return translateDicomTag(this.$i18n.t, tagName);
+                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
             }
         },
         columnTooltip(tagName) {
-            if (tagName == "modalities") {
-                return translateDicomTag(this.$i18n.t, "ModalitiesInStudy");
-            } else {
-                return translateDicomTag(this.$i18n.t, tagName);
-            }
+            return this.columnTitle(tagName);
         },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);

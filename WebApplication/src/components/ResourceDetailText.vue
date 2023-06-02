@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         title() {
-            return translateDicomTag(this.$i18n.t, this.tag);
+            return translateDicomTag(this.$i18n.t, this.$i18n.te, this.tag);
         },
         value() {
             if (this.hasValue) {

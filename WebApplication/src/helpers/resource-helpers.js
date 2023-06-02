@@ -31,10 +31,6 @@ export default {
         return title.join(" | ");
     },
 
-    translateDicomTag2(tagName) {
-        return $t('dicom_tags.' + tagName);
-    },
-
     toDicomDate(date) {
         return (date.getFullYear() * 10000 + (date.getMonth()+1) * 100 + date.getDate()).toString();
     },

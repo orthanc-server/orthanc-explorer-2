@@ -36,17 +36,19 @@ const getters = {
     filterQuery: (state) => {
         let query = {};
         for (const [k, v] of Object.entries(state.filters)) {
-            if (['StudyDate', 'PatientBirthDate'].indexOf(k) != -1) {
-                // for dates, accept only exactly 8 chars
-                if (v.length >= 8) {
+            if (v && v.length >= 1) {
+                if (['StudyDate', 'PatientBirthDate'].indexOf(k) != -1) {
+                    // for dates, accept only exactly 8 chars
+                    if (v.length >= 8) {
+                        query[k] = v;
+                    }
+                } else if (['StudyInstanceUID', 'ModalitiesInStudy'].indexOf(k) != -1 && v.length >= 8) {
+                    // exact match
                     query[k] = v;
+                } else {
+                    // wildcard match for all other fields
+                    query[k] = insert_wildcards(v);
                 }
-            } else if (['StudyInstanceUID', 'ModalitiesInStudy'].indexOf(k) != -1 && v.length >= 8) {
-                // exact match
-                query[k] = v;
-            } else if (v.length >= 1) {
-                // wildcard match for all other fields
-                query[k] = insert_wildcards(v);
             }
         }
         return query;

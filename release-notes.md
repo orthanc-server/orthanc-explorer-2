@@ -1,6 +1,7 @@
 
 Changes:
 - added support for VolView 1.1 plugin
+- 'StudyListColumns' can now contain any DICOM Tag that is stored as a MainDicomTag or ExtraMainDicomTag
 
 Fixes:
 - use auth token for /preview if required
