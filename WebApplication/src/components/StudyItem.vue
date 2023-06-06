@@ -3,6 +3,7 @@ import SeriesList from "./SeriesList.vue"
 import StudyDetails from "./StudyDetails.vue";
 import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import api from "../orthancApi";
 
 export default {
     props: ["studyId"],
@@ -61,6 +62,14 @@ export default {
         onDeletedStudy(studyId) {
             this.$emit("deletedStudy", this.studyId);
         },
+        async onLabelsUpdated(studyId) {
+            this.$store.dispatch('studies/reloadStudy', {
+                'studyId': studyId,
+                'study': await api.getStudy(studyId)
+            })
+            const study = this.studies.filter(s => s["ID"] == this.studyId)[0];
+            this.fields = study;
+        },
         onSelectedStudy() {
             this.selected = true;
         },
@@ -75,10 +84,17 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             studies: state => state.studies.studies,
+            allLabels: state => state.labels.allLabels
         }),
         modalitiesInStudyForDisplay() {
             return this.fields.RequestedTags.ModalitiesInStudy.split('\\').join(',');
         },
+        showLabels() {
+            return !this.expanded && ((this.allLabels && this.allLabels.length > 0));
+        },
+        hasLabels() {
+            return this.fields && this.fields.Labels && this.fields.Labels.length > 0;
+        }
     },
     components: { SeriesList, StudyDetails }
 }
@@ -87,7 +103,7 @@ export default {
 
 <template>
     <tbody>
-        <tr v-if="loaded" :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded }">
+        <tr v-if="loaded" :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="selected" @click="clickedSelect">
@@ -115,8 +131,9 @@ export default {
                 <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.StudyDescription">{{ fields.MainDicomTags.StudyDescription }}
                 </span>
-                <span v-else-if="columnTag == 'modalities'" data-bs-toggle="tooltip" v-bind:title="modalitiesInStudyForDisplay">{{
-                    modalitiesInStudyForDisplay }}
+                <span v-else-if="columnTag == 'modalities'" data-bs-toggle="tooltip"
+                    v-bind:title="modalitiesInStudyForDisplay">{{
+                        modalitiesInStudyForDisplay }}
                 </span>
                 <span v-else-if="columnTag == 'seriesCount'">{{ fields.Series.length }}
                 </span>
@@ -124,19 +141,29 @@ export default {
                 </span>
             </td>
         </tr>
+        <tr v-show="showLabels">
+            <td></td>
+            <td colspan="100%" class="label-row">
+                <span v-for="label in fields.Labels" :key="label" class="label badge bg-info">{{ label }}</span>
+                <span v-if="!hasLabels">&nbsp;</span>
+            </td>
+        </tr>
         <tr v-show="loaded" class="collapse"
             :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded': expanded }"
             v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
             <td v-if="loaded && expanded" colspan="100">
                 <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.fields.MainDicomTags"
-                    :patientMainDicomTags="this.fields.PatientMainDicomTags" @deletedStudy="onDeletedStudy"></StudyDetails>
+                    :patientMainDicomTags="this.fields.PatientMainDicomTags" :labels="this.fields.Labels" @deletedStudy="onDeletedStudy" @studyLabelsUpdated="onLabelsUpdated"></StudyDetails>
             </td>
         </tr>
     </tbody>
 </template>
 
 <style scoped>
-.study-row-collapsed {}
+.study-row-collapsed {
+    border-top-width: 1px;
+    border-color: #ddd;
+}
 
 .study-row-expanded {
     background-color: var(--study-selected-color);
@@ -148,6 +175,10 @@ export default {
 }
 
 .study-row-expanded>:first-child {
+    border-bottom: 5px !important;
+}
+
+.study-row-show-labels {
     border-bottom: 0px !important;
 }
 
@@ -170,5 +201,15 @@ export default {
     border-bottom: 3px !important;
     border-style: solid !important;
     border-color: black !important;
+}
+
+.label {
+    margin-left: 2px;
+    margin-left: 2px;
+}
+
+.label-row {
+    border-top: 0px !important;
+    border-bottom: 0px !important;
 }
 </style>

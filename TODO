@@ -54,6 +54,8 @@ UI improvements:
   - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
   - same with dicom-web and peers ?
 
+- display and search dates with other formats: DD/MM/YYYY
+
 
 Configuration management (ideas + implementation notes):
 -------------------------------

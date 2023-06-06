@@ -74,19 +74,25 @@ export default {
             window.axiosFindStudiesAbortController = null;
         }
     },
-    async findStudies(filterQuery) {
+    async findStudies(filterQuery, labels, LabelsConstraint) {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
-        return (await axios.post(orthancApiUrl + "tools/find", {
-                "Level": "Study",
-                "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
-                "Query": filterQuery,
-                "RequestedTags": [
-                    "ModalitiesInStudy"
-                ],
-                "Expand": true
-            }, 
+        let payload = {
+            "Level": "Study",
+            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+            "Query": filterQuery,
+            "RequestedTags": [
+                "ModalitiesInStudy"
+            ],
+            "Expand": true
+        };
+        if (labels && labels.length > 0) {
+            payload["Labels"] = labels;
+            payload["LabelsConstrint"] = LabelsConstraint;
+        }
+
+        return (await axios.post(orthancApiUrl + "tools/find", payload, 
             {
                 signal: window.axiosFindStudiesAbortController.signal
             })).data;
@@ -260,6 +266,49 @@ export default {
 
         return response.data['ID'];
     },
+
+    async loadAllLabels() {
+        const response = (await axios.get(orthancApiUrl + "tools/labels"));
+        return response.data;
+    },
+
+    async addLabel({studyId, label}) {
+        const response = (await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, ""));
+        return response.data;
+    },
+
+    async removeLabel({studyId, label}) {
+        const response = (await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label));
+        return response.data;
+    },
+
+    async getLabels(studyId) {
+        const response = (await axios.get(orthancApiUrl + "studies/" + studyId + "/labels"));
+        return response.data;
+    },
+
+    async updateLabels({studyId, labels}) {
+        const currentLabels = await this.getLabels(studyId);
+        const labelsToRemove = currentLabels.filter(x => !labels.includes(x));
+        const labelsToAdd = labels.filter(x => !currentLabels.includes(x));
+        // console.log("labelsToRemove: ", labelsToRemove);
+        // console.log("labelsToAdd: ", labelsToAdd);
+        for (const label of labelsToRemove) {
+            this.removeLabel({
+                studyId: studyId,
+                label: label
+            })
+        }
+        for (const label of labelsToAdd) {
+            this.addLabel({
+                studyId: studyId,
+                label: label
+            })
+        }
+        return labelsToAdd.length > 0 || labelsToRemove.length > 0;
+    },
+
+
 
     async createToken({tokenType, resourcesIds, level, validityDuration=null, id=null, expirationDate=null}) {
         let body = {

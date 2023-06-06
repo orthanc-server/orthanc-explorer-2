@@ -4,6 +4,7 @@ export default {
         console.log("Creating App...");
         await this.$store.dispatch('configuration/load');
         await this.$store.dispatch('studies/initialLoad');
+        await this.$store.dispatch('labels/refresh');
         console.log("App created");
     },
 

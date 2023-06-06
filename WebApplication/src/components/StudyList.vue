@@ -11,7 +11,7 @@ import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, s
 import api from "../orthancApi";
 import { ref } from 'vue';
 
-document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy"]
+document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy", "labels"]
 
 document._studyColumns = {
     "StudyDate": {
@@ -69,6 +69,7 @@ export default {
             filterModalities: {},
             filterGenericTags : {},
             oldFilterGenericTags : {},
+            filterLabels: {},
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
@@ -138,6 +139,15 @@ export default {
         }
             this.updateFilterFromRoute(this.$route.query);
         },
+        filterLabels: {
+            handler(newValue, oldValue) {
+                if (!this.updatingFilterUi && !this.initializingModalityFilter) {
+                    //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
+                    this.updateFilter('labels', this.filterLabels, null);
+                }
+            },
+            deep: true
+        },
         filterModalities: {
             handler(newValue, oldValue) {
                 if (!this.updatingFilterUi && !this.initializingModalityFilter) {
@@ -193,6 +203,7 @@ export default {
     },
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);
+        this.messageBus.on('filter-label-changed', this.updateLabelsFilter);
     },
     async mounted() {
         this.updateSelectAll();
@@ -249,6 +260,9 @@ export default {
                 this.filterModalities[modality] = true;
             }
         },
+        updateLabelsFilter(label) {
+            this.filterLabels = [label];
+        },
         initModalityFilter() {
             // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
             this.initializingModalityFilter = true;
@@ -298,6 +312,10 @@ export default {
             if (dicomTagName == "ModalitiesInStudy" && oldValue == null) { // not text: e.g. modalities in study -> update directly
                 this._updateFilter(dicomTagName, newValue);
                 return;
+            }
+
+            if (dicomTagName == "labels" && newValue != oldValue) {
+                this._updateLabelsFilter(newValue);
             }
 
             if (!this.isSearchAsYouTypeEnabled) {
@@ -365,6 +383,11 @@ export default {
                 return this.filterGenericTags[dicomTagName];
             }
         },
+        _updateLabelsFilter(labels) {
+            this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
+            this.updateUrl();
+            this.reloadStudyList();
+        },
         _updateFilter(dicomTagName, value) {
             this.searchTimerHandler[dicomTagName] = null;
             this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
@@ -379,9 +402,14 @@ export default {
             var keyValueFilters = {};
 
             for (const [filterKey, filterValue] of Object.entries(filters)) {
-                keyValueFilters[filterKey] = filterValue;
-
-                await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
+                if (filterKey == "labels") {
+                    const labels = filterValue.split(",");
+                    keyValueFilters[filterKey] = labels;
+                    await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
+                } else {
+                    keyValueFilters[filterKey] = filterValue;
+                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
+                }
             }
 
             await this.updateFilterForm(keyValueFilters);
@@ -394,7 +422,9 @@ export default {
             this.emptyFilterForm();
 
             for (const [key, value] of Object.entries(filters)) {
-                if (key == "StudyDate") {
+                if (key == "labels") {
+                    this.filterLabels = value;
+                } else if (key == "StudyDate") {
                     this.filterStudyDate = value;
                     this.filterStudyDateForDatePicker = resourceHelpers.parseDateForDatePicker(value);
                 } else if (key == "PatientBirthDate") {
@@ -431,7 +461,19 @@ export default {
                     this.filterGenericTags[tag] = '';
                 }
             }
+            this.filterLabels = [];
             this.clearModalityFilter();
+        },
+        isFilteringOnlyOnLabels() {
+            let hasGenericTagFilter = false;
+            for (const tag of this.uiOptions.StudyListColumns) {
+                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount'].indexOf(tag) == -1) {
+                    if (this.filterGenericTags[tag] && this.filterGenericTags[tag] != '') {
+                        hasGenericTagFilter = true;
+                    }
+                }
+            }
+            return this.filterStudyDate == '' && this.filterPatientBirthDate == '' && !hasGenericTagFilter && this.filterLabels.length > 0;
         },
         async search() {
             if (this.isSearching) {
@@ -503,6 +545,9 @@ export default {
                     activeFilters.push(k + '=' + v);
                 }
             }
+            if (this.filterLabels.length > 0) {
+                activeFilters.push('labels=' + this.filterLabels.join(","))
+            }
 
             let newUrl = "";
             if (activeFilters.length > 0) {
@@ -513,7 +558,10 @@ export default {
             this.$router.replace(newUrl);
         },
         async reloadStudyList() {
-            if (this['studies/isFilterEmpty']) {
+            // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
+            const shouldShowMostRecentsWithLabel = this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.isFilteringOnlyOnLabels();
+
+            if (this['studies/isFilterEmpty'] || shouldShowMostRecentsWithLabel) {
                 if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
                     return;
                 } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
@@ -552,7 +600,9 @@ export default {
                     }
                     console.log(change);
                     const study = await api.getStudy(change["ID"]);
-                    this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
+                    if (this.filterLabels.length == 0 || this.filterLabels.filter(l => study["Labels"].includes(l)).length > 0) {
+                        this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
+                    }
 
                     this.latestStudiesIds.add(change["ID"]);
                     if (this.latestStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
@@ -606,7 +656,7 @@ export default {
 
 <template>
     <div>
-        <table class="table table-responsive table-sm study-table">
+        <table class="table table-responsive table-sm study-table table-borderless">
             <thead>
                 <th width="2%" scope="col" class="study-table-header"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
@@ -615,14 +665,15 @@ export default {
                         columnTitle(columnTag)
                     }}</th>
             </thead>
-            <thead class="study-filter" v-on:keyup.enter="search">
-                <th scope="col" class="px-2">
+            <thead class="study-filters" v-on:keyup.enter="search">
+                <th scope="col">
                     <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
                         data-bs-toggle="tooltip" title="Clear filter">
                         <i class="fa-regular fa-circle-xmark"></i>
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
+                    <div v-if="columnTag == 'StudyDate'" class="study-list-date-picker">
                     <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
                         :enable-time-picker="false" range :preset-ranges="datePickerPresetRanges" format="yyyyMMdd"
                         preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]">
@@ -630,6 +681,7 @@ export default {
                             <span @click="presetDateRange(range)">{{ label }}</span>
                         </template>
                     </Datepicker>
+                </div>
                     <div v-else-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
                             data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
@@ -653,10 +705,12 @@ export default {
                                     data-bs-toggle="dropdown">{{ $t('close') }}</button></li>
                         </ul>
                     </div>
-                    <Datepicker v-else-if="columnTag == 'PatientBirthDate'" v-model="filterPatientBirthDateForDatePicker"
+                    <div v-else-if="columnTag == 'PatientBirthDate'" class="study-list-date-picker">
+                    <Datepicker v-model="filterPatientBirthDateForDatePicker"
                         :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
                         arrow-navigation :highlight-week-days="[0, 6]">
                     </Datepicker>
+                    </div>
                     <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
                         v-model="this.filterGenericTags[columnTag]" v-bind:placeholder="getFilterPlaceholder(columnTag)"
                         v-bind:class="getFilterClass(columnTag)" />
@@ -671,8 +725,8 @@ export default {
                         </div>
                     </td>
                     <td width="98%" colspan="10" scope="col" class="study-table-header">
-                        <div class="row g-0">
-                            <div class="col-3">
+                        <div class="row g-1">
+                            <div class="col-3 study-list-bulk-buttons">
                                 <ResourceButtonGroup :resourceLevel="'bulk'">
                                 </ResourceButtonGroup>
                             </div>
@@ -739,10 +793,11 @@ input.form-control.study-list-filter {
     margin-bottom: var(--filter-margin);
     padding-top: var(--filter-padding);
     padding-bottom: var(--filter-padding);
+    border-bottom-width: thin;
 }
 
 .filter-button {
-    border: 1px solid #ced4da;
+    border-bottom-width: thin !important;
 }
 
 .search-button {
@@ -788,20 +843,26 @@ button.form-control.study-list-filter {
     line-height: 1.2rem;
 }
 
-.study-table> :not(:first-child) {
+/* .study-table> :not(:first-child) {
     border-top: 0px !important;
-}
+} */
 
 .study-table> :nth-child(odd) {
     background-color: var(--study-odd-color)
 }
 
-.study-filter th {
+.study-table> :last-child {
+    border-bottom-width: thin;
+}
+
+.study-filters th {
     text-align: left;
-    padding-left: 10px;
     background-color: rgb(240, 240, 240);
+    padding-left: 10px !important;
     padding-top: 0px;
     padding-bottom: 0px;
+    margin-bottom: 5px;
+    vertical-align: middle;    
 }
 
 .study-table td {
@@ -810,10 +871,14 @@ button.form-control.study-list-filter {
 }
 
 .study-list-alert {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-    margin-top: 1px !important;
-    margin-bottom: 1px !important;
+    margin-top: var(--filter-margin);
+    margin-bottom: var(--filter-margin);
+    padding-top: var(--filter-padding);
+    padding-bottom: var(--filter-padding);
+}
+
+.study-list-bulk-buttons {
+    margin-top: var(--filter-margin);
 }
 
 .is-invalid-filter {

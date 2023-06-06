@@ -13,6 +13,7 @@ export default {
     data() {
         return {
             selectedModality: null,
+            selectedLabel: null,
             modalitiesEchoStatus: {}
         };
     },
@@ -24,7 +25,9 @@ export default {
             queryableDicomWebServers: state => state.configuration.queryableDicomWebServers,
             studiesIds: state => state.studies.studiesIds,
             statistics: state => state.studies.statistics,
+            labelsFilter: state => state.studies.labelsFilter,
             jobs: state => state.jobs.jobsIds,
+            allLabels: state => state.labels.allLabels
         }),
 
         hasQueryableDicomWebServers() {
@@ -61,6 +64,13 @@ export default {
         },
         isEchoSuccess(modality) {
             return this.modalitiesEchoStatus[modality] == true;
+        },
+        selectLabel(label) {
+            this.selectedLabel = label;
+            this.messageBus.emit('filter-label-changed', label);
+        },
+        isSelectedLabel(label) {
+            return this.labelsFilter.includes(label);
         },
         logout(event) {
             event.preventDefault();
@@ -117,6 +127,13 @@ export default {
                         }}</span>
                     </router-link>
                 </li>
+                <ul class="sub-menu" id="labels-list">
+                    <li v-for="label in allLabels" :key="label"
+                    v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
+                        <i class="fa fa-tag label-icon"></i>
+                        {{ label }}
+                    </li>
+                </ul>
 
                 <li v-if="uiOptions.EnableUpload" class="d-flex align-items-center" data-bs-toggle="collapse"
                     data-bs-target="#upload-handler">
@@ -353,6 +370,12 @@ export default {
 .menu-icon {
     width: 20px;
     margin-right: 10px;
+}
+
+.label-icon {
+    width: 15px;
+    margin-right: 5px;
+    line-height: 28px;
 }
 
 .bottom-side-bar {
