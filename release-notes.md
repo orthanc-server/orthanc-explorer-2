@@ -1,7 +1,7 @@
 
 Changes:
 - added support for labels
-  - new 'UiOptions.EnableLabels' configuration
+  - new 'UiOptions.EnableEditLabels' configuration
 - added support for VolView 1.1 plugin
 - 'StudyListColumns' can now contain any DICOM Tag that is stored as a MainDicomTag or ExtraMainDicomTag
 

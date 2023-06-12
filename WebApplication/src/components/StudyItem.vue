@@ -90,7 +90,7 @@ export default {
             return this.fields.RequestedTags.ModalitiesInStudy.split('\\').join(',');
         },
         showLabels() {
-            return this.uiOptions.EnableLabels && !this.expanded && ((this.allLabels && this.allLabels.length > 0));
+            return !this.expanded && ((this.allLabels && this.allLabels.length > 0));
         },
         hasLabels() {
             return this.fields && this.fields.Labels && this.fields.Labels.length > 0;

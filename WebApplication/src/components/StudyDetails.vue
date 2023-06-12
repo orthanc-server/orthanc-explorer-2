@@ -70,7 +70,7 @@ export default {
 
 <template>
     <table class="table table-responsive table-sm study-details-table">
-        <tr v-if="uiOptions.EnableLabels">
+        <tr v-if="uiOptions.EnableEditLabels">
             <td colspan="100%">
                 Labels:
                 <select class="form-select" id="labelsEdit" name="tags[]" v-model="labelsModel" multiple
@@ -79,6 +79,12 @@ export default {
                     <option v-for="label in allLabels" :key="label" :value="label" :selected="hasLabel(label)">{{ label }}
                     </option>
                 </select>
+            </td>
+        </tr>
+        <tr v-if="!uiOptions.EnableEditLabels">
+            <td colspan="100%">
+                Labels:
+                <span v-for="label in labelsModel" :key="label" class="label badge bg-info">{{ label }}</span>
             </td>
         </tr>
         <tr>

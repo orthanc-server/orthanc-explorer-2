@@ -147,7 +147,7 @@ export default {
             }
         },
         hasLabelsButton() {
-            return this.uiOptions.EnableLabels && this.resourceLevel == 'bulk';
+            return this.uiOptions.EnableEditLabels && this.resourceLevel == 'bulk';
         },
         isLabelsEnabled() {
             if (this.resourceLevel == 'bulk') {
@@ -494,7 +494,7 @@ export default {
                 :disabled="!isLabelsEnabled" @click="showBulkLabelModal()">
                 <i class="bi bi-tag" data-bs-toggle="tooltip" :title="$t('labels.edit_labels_button')" ></i>
             </button>
-            <BulkLabelsModal v-if="uiOptions.EnableLabels && isBulkLabelModalVisible" :id="'labels2-modal2-' + this.componentId" ref="bulk-label-modal"
+            <BulkLabelsModal v-if="uiOptions.EnableEditLabels && isBulkLabelModalVisible" :id="'labels2-modal2-' + this.componentId" ref="bulk-label-modal"
             :resourceLevel="this.resourceLevel" :resourcesOrthancId="selectedStudiesIds" @bulkModalClosed="onBulkModalClosed">
 
             </BulkLabelsModal>

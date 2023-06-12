@@ -454,6 +454,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
       UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
       UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
+      UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
 
       // the Legacy UI is not available with user profile since it would not refresh the tokens
       uiOptions["EnableLinkToLegacyUi"] = false;

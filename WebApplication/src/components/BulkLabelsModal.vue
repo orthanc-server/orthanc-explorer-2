@@ -13,7 +13,6 @@ export default {
             labelsToAdd: [],
             removedLabels: [],
             messages: [],
-            // allLabels: [],
             addInProgress: false,
             clearAllInProgress: false,
             removeInProgress: false
@@ -28,7 +27,6 @@ export default {
             document.querySelector('body').appendChild(e.target);
         });
         this.$refs['modal-main-div'].addEventListener('hide.bs.modal', (e) => {
-            // this.onHide();
             this.$emit("bulkModalClosed");
         });
     },
@@ -40,7 +38,6 @@ export default {
             myModal.show();
         },
         async reset() {
-            // this.allLabels = await api.loadAllLabels();
             this.labelsToRemove = [];
             this.labelsToAdd = [];
             this.removedLabels = [];
@@ -48,7 +45,6 @@ export default {
             this.addInProgress = false;
             this.clearAllInProgress = false;
             this.removeInProgress = false;
-            // console.log("reset done");
         },
         async clearAllLabels() {
             this.clearAllInProgress = true;
