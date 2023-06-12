@@ -273,13 +273,26 @@ export default {
     },
 
     async addLabel({studyId, label}) {
-        const response = (await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, ""));
-        return response.data;
+        await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, "");
+        return label;
     },
 
     async removeLabel({studyId, label}) {
-        const response = (await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label));
-        return response.data;
+        await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label);
+        return label;
+    },
+
+    async removeAllLabels(studyId) {
+        const labels = await this.getLabels(studyId);
+        let promises = [];
+        for (let label of labels) {
+            promises.push(this.removeLabel({
+                studyId: studyId,
+                label: label
+            }));
+        }
+        await Promise.all(promises);
+        return labels;
     },
 
     async getLabels(studyId) {

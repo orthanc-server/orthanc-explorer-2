@@ -31,6 +31,7 @@
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
+            "EnableLabels": true,                       // Show the labels and enables their edition
 
             "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 

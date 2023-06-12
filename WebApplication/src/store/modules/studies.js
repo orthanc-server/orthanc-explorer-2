@@ -106,6 +106,13 @@ const mutations = {
             state.selectedStudiesIds.splice(pos, 1);
         }
     },
+    refreshStudyLabels(state, {studyId, labels}) {
+        for (const i in state.studies) {
+            if (state.studies[i].ID == studyId) {
+                state.studies[i].Labels = labels
+            }
+        }
+    },
     setStatistics(state, {statistics}) {
         state.statistics = statistics;
     },
@@ -220,6 +227,15 @@ const actions = {
         const study = payload['study'];
         commit('addStudy', { studyId: studyId, study: study });
         this.dispatch('studies/loadStatistics');
+    },
+    async refreshStudiesLabels({ commit }, payload) {
+        const studiesIds = payload['studiesIds'];
+
+        for (const studyId of studiesIds) {
+            const labels = await api.getLabels(studyId);
+
+            commit('refreshStudyLabels', { studyId: studyId, labels: labels});
+        }
     },
 }
 

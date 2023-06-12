@@ -127,7 +127,7 @@ export default {
                         }}</span>
                     </router-link>
                 </li>
-                <ul class="sub-menu" id="labels-list">
+                <ul v-if="uiOptions.EnableLabels" class="sub-menu" id="labels-list">
                     <li v-for="label in allLabels" :key="label"
                     v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
                         <i class="fa fa-tag label-icon"></i>

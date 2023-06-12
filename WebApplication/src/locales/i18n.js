@@ -17,6 +17,7 @@ import ka from "./ka.json";
 // import zh from "./zh.json";
 
 const i18n = createI18n({
+  warnHtmlInMessage: 'off',
   locale: 'en',    // when the list of availableLanguages is loaded, this value is updated in LanguagePicker.isConfigurationLoaded
   fallbackLocale: 'en',  
   messages: {

@@ -70,12 +70,12 @@ export default {
 
 <template>
     <table class="table table-responsive table-sm study-details-table">
-        <tr>
+        <tr v-if="uiOptions.EnableLabels">
             <td colspan="100%">
                 Labels:
-                <select class="form-select" id="validationTags" name="tags[]" v-model="labelsModel" multiple
+                <select class="form-select" id="labelsEdit" name="tags[]" v-model="labelsModel" multiple
                     data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-                    placeholder="add labels" data-selected="Label1">
+                    placeholder="add labels">
                     <option v-for="label in allLabels" :key="label" :value="label" :selected="hasLabel(label)">{{ label }}
                     </option>
                 </select>
