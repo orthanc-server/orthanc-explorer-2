@@ -166,7 +166,7 @@ export default {
                             <div class="col-md-9">
                                 <select class="form-select" id="addLabels" name="tags[]" v-model="labelsToAdd" multiple
                                 data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-                                placeholder="add labels">
+                                :placeholder="$t('labels.add_labels_placeholder')">
                                     <!-- <option v-for="label in allLabels" :id="label" :key="label" :value="label">{{ label }}
                                     </option> -->
                                     <option v-for="label in allLabels" :key="label" :value="label" :selected="isLabelToAdd(label)">{{ label }}
@@ -188,7 +188,7 @@ export default {
                                 <div class="col-md-9">
                                 <select class="form-select" id="removeLabels" name="tags[]" v-model="labelsToRemove" multiple
                                 data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-                                placeholder="remove labels">
+                                :placeholder="$t('labels.remove_labels_placeholder')">
                                     <option v-for="label in allLabels" :key="label" :value="label" :selected="isLabelToRemove(label)">{{ label }}
                                     </option>
                                     <!-- <option v-for="label in allLabels" :id="label" :key="label" :value="label">{{ label }}

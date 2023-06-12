@@ -75,7 +75,7 @@ export default {
                 Labels:
                 <select class="form-select" id="labelsEdit" name="tags[]" v-model="labelsModel" multiple
                     data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-                    placeholder="add labels">
+                    :placeholder="$t('labels.add_labels_placeholder')">
                     <option v-for="label in allLabels" :key="label" :value="label" :selected="hasLabel(label)">{{ label }}
                     </option>
                 </select>

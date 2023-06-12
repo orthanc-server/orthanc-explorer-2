@@ -75,6 +75,7 @@
     "labels" : {
         "add_button": "Ajouter",
         "add_labels_message_html": "<strong>Ajouter</strong> ces étiquettes aux examens sélectionnés",
+        "add_labels_placeholder": "Ajouter des étiquettes, appuyer sur Enter pour en créer de nouvelles",
         "added_labels_message_part_1_html": "Les étiquettes ",
         "added_labels_message_part_2_html": " ont été ajoutées aux <strong>{count}</strong> examens",
         "clear_all_button": "Tout effacer",
@@ -85,6 +86,7 @@
         "modal_title": "Modifier les étiquettes dans les examens sélectionnés",
         "remove_button": "Supprimer",
         "remove_labels_message_html": "<strong>Supprimer</strong> ces étiquettes des examens sélectionnés",
+        "remove_labels_placeholder": "Étiquettes à supprimer",
         "removed_labels_message_part_1_html": "Les étiquettes ",
         "removed_labels_message_part_2_html": " ont été supprimées de <strong>{count}</strong> examens"
     },

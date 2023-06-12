@@ -75,6 +75,7 @@
     "labels" : {
         "add_button": "Add",
         "add_labels_message_html": "<strong>Add</strong> these labels to all selected resources",
+        "add_labels_placeholder": "Labels to add, press Enter to create a new one",
         "added_labels_message_part_1_html": "Added labels ",
         "added_labels_message_part_2_html": " to <strong>{count}</strong> studies",
         "clear_all_button": "Remove all",
@@ -85,6 +86,7 @@
         "modal_title": "Modify labels in selected resources",
         "remove_button": "Remove",
         "remove_labels_message_html": "<strong>Remove</strong> these labels from all selected resources",
+        "remove_labels_placeholder": "Labels to remove",
         "removed_labels_message_part_1_html": "Removed labels ",
         "removed_labels_message_part_2_html": " from <strong>{count}</strong> studies"
     },
