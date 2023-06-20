@@ -384,16 +384,31 @@ export default {
     getStoneViewerUrlForBulkStudies(studiesDicomIds) {
         return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");
     },
-    getOhifViewerUrl(level, resourceDicomUid) {
+    getOhifViewerUrlForDicomJson(mode, resourceOrthancId) {
+        if (mode == 'basic') {
+            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?url=../studies/' + resourceOrthancId + "/ohif-dicom-json";
+        } else if (mode == 'vr') {
+            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?hangingprotocolId=mprAnd3DVolumeViewport&url=../studies/' + resourceOrthancId + "/ohif-dicom-json";
+        } else if (mode == 'tmtv') {
+            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'tmtv?url=../studies/' + resourceOrthancId + "/ohif-dicom-json";
+        }
+    },
+    getOhifViewerUrlForDicomWeb(mode, resourceDicomUid) {
         if (store.state.configuration.uiOptions.EnableOpenInOhifViewer3) {
-            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?StudyInstanceUIDs=' + resourceDicomUid;    
+            if (mode == 'basic') {
+                return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?StudyInstanceUIDs=' + resourceDicomUid;
+            } else if (mode == 'vr') {
+                return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?hangingprotocolId=mprAnd3DVolumeViewport&StudyInstanceUIDs=' + resourceDicomUid;
+            } else if (mode == 'tmtv') {
+                return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'tmtv?StudyInstanceUIDs=' + resourceDicomUid;
+            }
         } else {
             return store.state.configuration.uiOptions.OhifViewerPublicRoot + 'Viewer/' + resourceDicomUid;
         }
     },
-    getOhifViewerUrlForBulkStudies(studiesDicomIds) {
+    getOhifViewerUrlForDicomWebBulkStudies(mode, studiesDicomIds) {
         if (store.state.configuration.uiOptions.EnableOpenInOhifViewer3) {
-            return store.state.configuration.uiOptions.OhifViewer3PublicRoot + 'viewer?StudyInstanceUIDs=' + studiesDicomIds.join(",");
+            return this.getOhifViewerUrlForDicomWeb(mode, studiesDicomIds.join(","));
         } else {
             return null;
         }

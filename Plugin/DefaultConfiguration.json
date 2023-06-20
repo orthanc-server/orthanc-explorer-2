@@ -41,18 +41,20 @@
             "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button.  Note: OHIF can not be used together with KeyCloak (https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727)
             "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/" means that link to OHIF will look like http://ohif.my.site/Viewer/1.2.3.444.5555....
             "EnableOpenInOhifViewer3": false,           // Enables a "open in OHIF viewer" button.  Note: OHIF can not be used together with KeyCloak (https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727)
-            "OhifViewer3PublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/" means that link to OHIF will look like http://ohif.my.site/viewer?StudyInstanceUIDs=1.2.3.444.5555....
+            "OhifViewer3PublicRoot" : "/ohif/",         // must end with a '/'.  e.g: "http://ohif.my.site/" means that link to OHIF will look like http://ohif.my.site/viewer?StudyInstanceUIDs=1.2.3.444.5555....
 
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
             "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
 
             // Defines which icons is used by which enabled viewer.
-            // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif"
+            // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif", "ohif-vr", "ohif-tmtv"
             // Allowed values: CSS class that defines the viewer icons (only from bootstrap icons)
             "ViewersIcons" : {
                 "osimis-web-viewer": "bi bi-eye",
                 "stone-webviewer": "bi bi-eye-fill",
                 "ohif": "bi bi-grid",
+                "ohif-vr": "bi bi-grid-1x2",
+                "ohif-tmtv": "bi bi-grid-3x3-gap",
                 "meddream": "bi bi-columns-gap",
                 "volview": "bi bi-box"
             },
@@ -61,6 +63,8 @@
                 "osimis-web-viewer",
                 "stone-webviewer",
                 "ohif",
+                "ohif-vr",
+                "ohif-tmtv",
                 "meddream",
                 "volview"
             ],

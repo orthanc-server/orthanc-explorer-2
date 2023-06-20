@@ -13,7 +13,8 @@ const state = () => ({
     uiOptions: {},
     tokens: {},
     loaded: false,
-    system: {}
+    system: {},
+    ohifDataSource: "dicom-web"
 })
 
 ///////////////////////////// GETTERS
@@ -32,6 +33,9 @@ const mutations = {
     setDicomWebServers(state, { dicomWebServers }) {  // TODO: split in two
         state.targetDicomWebServers = dicomWebServers;
         state.queryableDicomWebServers = dicomWebServers;
+    },
+    setOhifDataSource(state, { ohifDataSource }) {
+        state.ohifDataSource = ohifDataSource;
     },
     setOrthancPeers(state, { orthancPeers }) {
         state.orthancPeers = orthancPeers;
@@ -87,7 +91,10 @@ const actions = {
             if (pluginName === "dicom-web") {
                 const dicomWebServers = await api.loadDicomWebServers();
                 commit('setDicomWebServers', { dicomWebServers: dicomWebServers});
+            } else if (pluginName === "ohif") {
+                commit('setOhifDataSource', { ohifDataSource: pluginConfiguration["DataSource"]})
             }
+            
         }
 
     },

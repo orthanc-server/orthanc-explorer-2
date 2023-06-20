@@ -181,7 +181,6 @@ void ReadConfiguration()
   }
 
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
-
 }
 
 bool GetPluginConfiguration(Json::Value& jsonPluginConfiguration, const std::string& sectionName)
@@ -292,6 +291,19 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     else if (pluginName == "connectivity-checks")
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
+    }
+    else if (pluginName == "ohif")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = true;
+      std::string ohifDataSource = "dicom-json";
+      if (GetPluginConfiguration(pluginConfiguration, "OHIF"))
+      {
+        if (pluginConfiguration.isMember("DataSource") && pluginConfiguration["DataSource"].asString() == "dicom-web")
+        {
+          ohifDataSource = "dicom-web";
+        }
+      }
+      pluginsConfiguration[pluginName]["DataSource"] = ohifDataSource;
     }
     else if (pluginName == "delayed-deletion")
     {

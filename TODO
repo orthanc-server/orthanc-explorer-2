@@ -1,6 +1,6 @@
+- show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)
 - handle the EnableLabels "permission"
-- call /pdf instead of /preview is the instance is a pdf file
-- allow adding non standard columns (https://discourse.orthanc-server.org/t/oe2-additional-columns-in-studylist/3564/3)
+- call /pdf instead of /preview if the instance is a pdf file
 
 - use DatePicker in remote modality study list
 

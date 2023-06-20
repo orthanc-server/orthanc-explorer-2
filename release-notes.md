@@ -1,5 +1,9 @@
 
 Changes:
+- added support for OHIF plugin:
+  - new default value for the 'OhifViewer3PublicRoot' configuration: '/ohif/'
+  - now displaying 3 buttons to open OHIF in basic mode, Volume Rendering and TMTV modes
+  - 2 more viewers can be listed in 'ViewersIcons' and in 'ViewersOrdering': "ohif-vr" & "ohif-tmtv"
 - added support for labels
   - new 'UiOptions.EnableEditLabels' configuration
 - added support for VolView 1.1 plugin

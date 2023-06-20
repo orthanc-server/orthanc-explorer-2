@@ -95,6 +95,14 @@ export default {
                         return viewersIcons[viewer];
                     }
 
+                    if (this.hasOhifViewer && forViewer == "ohif-vr") {
+                        return viewersIcons[viewer];
+                    }
+
+                    if (this.hasOhifViewer && forViewer == "ohif-tmtv") {
+                        return viewersIcons[viewer];
+                    }
+
                     if (this.hasMedDreamViewer && forViewer == "meddream") {
                         return viewersIcons[viewer];
                     }
@@ -113,13 +121,27 @@ export default {
         async onBulkModalClosed() {
             this.isBulkLabelModalVisible = false;
             await this.$store.dispatch('labels/refresh');
-        }
+        },
+        getOhifViewerUrl(mode) {
+            if (this.resourceLevel == 'bulk') {
+                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
+                const url = api.getOhifViewerUrlForDicomWebBulkStudies(mode, selectedStudiesDicomIds);
+                return url;
+            } else {
+                if (this.ohifDataSource == 'dicom-web') {
+                    return api.getOhifViewerUrlForDicomWeb(mode, this.resourceDicomUid);
+                } else if (this.ohifDataSource == 'dicom-json') {
+                    return api.getOhifViewerUrlForDicomJson(mode, this.resourceOrthancId);
+                }
+            }
+        },
     },
     watch: {
     },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            ohifDataSource: state => state.configuration.ohifDataSource,
             installedPlugins: state => state.configuration.installedPlugins,
             targetDicomWebServers: state => state.configuration.targetDicomWebServers,
             targetDicomModalities: state => state.configuration.targetDicomModalities,
@@ -216,25 +238,53 @@ export default {
         },
         hasOhifViewerButton() {
             if (this.uiOptions.EnableOpenInOhifViewer3) {
-                return this.hasOhifViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+                return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
                 return this.hasOhifViewer && this.resourceLevel == 'study';
             }
         },
-        ohifViewerUrl() {
-            if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getOhifViewerUrlForBulkStudies(selectedStudiesDicomIds);
-                return url;
+        hasOhifViewerButtonVr() {
+            if (this.uiOptions.EnableOpenInOhifViewer3) {
+                return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
-                return api.getOhifViewerUrl(this.resourceLevel, this.resourceDicomUid);
+                return false;
             }
+        },
+        hasOhifViewerButtonTmtv() {
+            if (this.uiOptions.EnableOpenInOhifViewer3) {
+                return this.hasOhifViewer && (this.resourceLevel == 'study');
+            } else {
+                return false;
+            }
+        },
+        ohifViewerUrl() {
+            return this.getOhifViewerUrl('basic');
+        },
+        ohifViewerUrlVr() {
+            return this.getOhifViewerUrl('vr');
+        },
+        ohifViewerUrlTmtv() {
+            return this.getOhifViewerUrl('tmtv');
         },
         isOhifButtonEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
                 return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
             } else { // OHIF V2
                 return this.resourceLevel == 'study';
+            }
+        },
+        isOhifButtonVrEnabled() {
+            if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            } else { // OHIF V2
+                return false;
+            }
+        },
+        isOhifButtonTmtvEnabled() {
+            if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
+                return (this.resourceLevel == 'study');
+            } else { // OHIF V2
+                return false;
             }
         },
         hasMedDreamViewer() {
@@ -278,6 +328,12 @@ export default {
         },
         ohifViewerIcon() {
             return this.getViewerIcon("ohif");
+        },
+        ohifViewerIconVr() {
+            return this.getViewerIcon("ohif-vr");
+        },
+        ohifViewerIconTmtv() {
+            return this.getViewerIcon("ohif-tmtv");
         },
         deleteResourceTitle() {
             const texts = {
@@ -374,6 +430,20 @@ export default {
                     :disabled="!isOhifButtonEnabled"
                     :iconClass="ohifViewerIcon" :level="computedResourceLevel" :linkUrl="ohifViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
+
+                <TokenLinkButton v-if="viewer == 'ohif-vr' && hasOhifViewerButtonVr"
+                    :disabled="!isOhifButtonVrEnabled"
+                    :iconClass="ohifViewerIconVr" :level="computedResourceLevel" :linkUrl="ohifViewerUrlVr"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_vr')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
+
+                <TokenLinkButton v-if="viewer == 'ohif-tmtv' && hasOhifViewerButtonTmtv"
+                    :disabled="!isOhifButtonTmtvEnabled"
+                    :iconClass="ohifViewerIconTmtv" :level="computedResourceLevel" :linkUrl="ohifViewerUrlTmtv"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_tmtv')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
             </span>
