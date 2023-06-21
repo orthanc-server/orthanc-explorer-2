@@ -26,6 +26,7 @@ export default {
         this.fields = study;
         this.loaded = true;
         this.seriesIds = study.Series;
+        this.selected = this.selectedStudiesIds.indexOf(this.studyId) != -1;
 
         if (!this.$refs['study-collapsible-details']) {
             console.log('no refs: ', studyResponse);
@@ -54,9 +55,6 @@ export default {
 
     },
     watch: {
-        async selected(newValue, oldValue) {
-            // await this.$store.dispatch('studies/selectStudy', { studyId: this.studyId, isSelected: newValue });
-        }
     },
     methods: {
         onDeletedStudy(studyId) {
@@ -84,6 +82,7 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             studies: state => state.studies.studies,
+            selectedStudiesIds: state => state.studies.selectedStudiesIds,
             allLabels: state => state.labels.allLabels
         }),
         modalitiesInStudyForDisplay() {
