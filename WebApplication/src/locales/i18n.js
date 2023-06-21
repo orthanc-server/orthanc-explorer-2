@@ -4,6 +4,8 @@ import es from "./es.json";
 import fr from "./fr.json";
 import it from "./it.json";
 import ka from "./ka.json";
+import uk from "./uk.json";
+import zh from "./zh.json";
 // import it from "./it.json";
 // import pt from "./pt.json";
 // import ru from "./ru.json";
@@ -14,7 +16,6 @@ import ka from "./ka.json";
 // import xn from "./in.json";
 // import hi from "./hi.json";
 // import sw from "./sw.json";
-// import zh from "./zh.json";
 
 const i18n = createI18n({
   warnHtmlInMessage: 'off',
@@ -26,6 +27,8 @@ const i18n = createI18n({
     fr,
     it,
     ka,
+    uk,
+    zh
     // pt,
     // ru,
     // de,

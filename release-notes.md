@@ -8,6 +8,7 @@ Changes:
   - new 'UiOptions.EnableEditLabels' configuration
 - added support for VolView 1.1 plugin
 - 'StudyListColumns' can now contain any DICOM Tag that is stored as a MainDicomTag or ExtraMainDicomTag
+- added Ukrainian and Chinese translations thanks to Stephen D. Scotti, 'Franklin' and Juriy Cherednichock
 
 Fixes:
 - use auth token for /preview if required

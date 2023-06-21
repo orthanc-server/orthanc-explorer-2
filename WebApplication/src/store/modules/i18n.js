@@ -4,6 +4,8 @@ let allLanguages = [
     { name: "Français", key: "fr" },
     { name: "Italiano", key: "it" },
     { name: "ქართული", key: "ka" },
+    { name: "Українська", key: "uk" },
+    { name: '中文', key: 'zh' }
     // { name: 'Português', key: 'pt' },
     // { name: 'Русский', key: 'ru' },
     // { name: 'Deutsche', key: 'de' },
@@ -13,6 +15,5 @@ let allLanguages = [
     // { name: 'Bahasa', key: 'xn' },
     // { name: 'हिंदू', key: 'hi' },
     // { name: 'Kiswahili', key: 'sw' },
-    // { name: '中文', key: 'zh' }
 ]
 export default allLanguages;
