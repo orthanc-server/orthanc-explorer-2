@@ -1,3 +1,6 @@
+0.10.0 (2023-06-21)
+==================
+
 
 Changes:
 - added support for OHIF plugin:
