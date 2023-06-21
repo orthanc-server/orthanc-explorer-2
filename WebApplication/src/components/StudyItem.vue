@@ -63,7 +63,7 @@ export default {
             this.$emit("deletedStudy", this.studyId);
         },
         async onLabelsUpdated(studyId) {
-            this.$store.dispatch('studies/reloadStudy', {
+            await this.$store.dispatch('studies/reloadStudy', {
                 'studyId': studyId,
                 'study': await api.getStudy(studyId)
             })

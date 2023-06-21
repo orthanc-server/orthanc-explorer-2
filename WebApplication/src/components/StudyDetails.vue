@@ -58,6 +58,8 @@ export default {
                 });
                 if (changed) {
                     this.$emit("studyLabelsUpdated", this.studyId);
+
+                    // TODO: make this works !  it currently crashes vue ... this.messageBus.emit('all-labels-changed', null);
                 }
             },
             deep: true
