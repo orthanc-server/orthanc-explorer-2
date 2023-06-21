@@ -262,6 +262,7 @@ export default {
         },
         updateLabelsFilter(label) {
             this.filterLabels = [label];
+            this.reloadStudyList();
         },
         initModalityFilter() {
             // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
@@ -570,17 +571,17 @@ export default {
                         this.shouldStopLoadingLatestStudies = true;
                         this.isLoadingLatestStudies = false;
                         this.isDisplayingLatestStudies = true;
-                    } else {
-                        const lastChangeId = await api.getLastChangeId();
-                    
-                        await this.$store.dispatch('studies/clearStudies');
-                        this.latestStudiesIds = new Set();
-                        this.shouldStopLoadingLatestStudies = false;
-                        this.isLoadingLatestStudies = true;
-                        this.isDisplayingLatestStudies = false;
-
-                        this.loadStudiesFromChange(Math.max(0, lastChangeId - 1000), 1000);
                     }
+                    // restart loading 
+                    const lastChangeId = await api.getLastChangeId();
+                
+                    await this.$store.dispatch('studies/clearStudies');
+                    this.latestStudiesIds = new Set();
+                    this.shouldStopLoadingLatestStudies = false;
+                    this.isLoadingLatestStudies = true;
+                    this.isDisplayingLatestStudies = false;
+
+                    this.loadStudiesFromChange(Math.max(0, lastChangeId - 1000), 1000);
                 }
             } else {
                 this.shouldStopLoadingLatestStudies = true;
@@ -598,7 +599,7 @@ export default {
                     if (this.shouldStopLoadingLatestStudies) {
                         return;
                     }
-                    console.log(change);
+                    //console.log(change);
                     const study = await api.getStudy(change["ID"]);
                     if (this.filterLabels.length == 0 || this.filterLabels.filter(l => study["Labels"].includes(l)).length > 0) {
                         this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
