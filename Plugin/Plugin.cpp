@@ -40,7 +40,7 @@ std::string oe2BaseUrl_;
 
 Json::Value pluginsConfiguration_;
 bool hasUserProfile_ = false;
-
+bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
 
 
@@ -175,6 +175,8 @@ void ReadConfiguration()
           jsonConfig["UiOptions"]["StudyListContentIfNoSearch"] = "empty";
         }
       }
+
+      openInOhifV3IsExplicitelyDisabled = jsonConfig["UiOptions"].isMember("EnableOpenInOhifViewer3") && jsonConfig["UiOptions"]["EnableOpenInOhifViewer3"].asBool() == false;
     }
 
     MergeJson(pluginJsonConfiguration_, jsonConfig);
@@ -434,6 +436,12 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
     oe2Configuration["Plugins"] = pluginsConfiguration_;
     oe2Configuration["UiOptions"] = pluginJsonConfiguration_["UiOptions"];
     
+    // if OHIF has not been explicitely disabled in the config and if the plugin is loaded, enable it
+    if (!openInOhifV3IsExplicitelyDisabled && pluginsConfiguration_.isMember("ohif"))
+    {
+      oe2Configuration["UiOptions"]["EnableOpenInOhifViewer3"] = true;
+    }
+
     Json::Value tokens = pluginJsonConfiguration_["Tokens"];
     tokens["RequiredForLinks"] = hasUserProfile_;
 
