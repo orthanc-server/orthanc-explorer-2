@@ -43,7 +43,7 @@ const getters = {
                     if (v.length >= 8) {
                         query[k] = v;
                     }
-                } else if (['StudyInstanceUID', 'ModalitiesInStudy'].indexOf(k) != -1 && v.length >= 8) {
+                } else if (['StudyInstanceUID', 'ModalitiesInStudy'].indexOf(k) != -1) {
                     // exact match
                     query[k] = v;
                 } else {

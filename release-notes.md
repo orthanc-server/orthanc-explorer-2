@@ -1,6 +1,9 @@
+Fixes:
+- fix ModalitiesInStudy filtering
+
+
 1.0.1 (2023-06-21)
 =================
-
 
 Changes:
 - added support for OHIF plugin:
