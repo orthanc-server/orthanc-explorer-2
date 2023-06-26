@@ -23,7 +23,7 @@
     "delete_series_title": "Видалити серії?",
     "delete_series_body": "Ви впевнені, що хочете видалити ці серії?<br/>Цю дію не можна скасувати!",
     "delete_instance_title": "Видалити екземпляр?",
-    "delete_instance_body": "Ви впевнені, що хочете видалити цей інстанс (екземпляр)?<br/>Цю дію не можна скасувати!",
+    "delete_instance_body": "Ви впевнені, що хочете видалити цей екземпляр?<br/>Цю дію не можна скасувати!",
     "description": "Опис",
     "dicom_AET": "DICOM AE Title",
     "dicom_modalities": "Модальності DICOM",
@@ -140,7 +140,7 @@
     "orthanc_name": "Orthanc Name",
     "orthanc_system_info": "Orthanc System Info",
     "orthanc_version": "Версія Orthanc",
-    "overwrite_instances": "Перезаписати інстанси (екземпляри)",
+    "overwrite_instances": "Перезаписати екземпляри",
     "page_not_found": "Нема такої сторінки!",
     "plugin": "додаток (плагін)",
     "plugins_not_enabled": "Завантажені додатки (плагіни), які не ввімкнені або некоректно налаштовані ",
@@ -151,7 +151,7 @@
         "finding_remotely": "Пошук дослідження у віддалених вузлах DICOM.",
         "not_found": "Дослідження не було знайдено ані локально, ані у віддалених вузлах DICOM.",
         "retrieving": "Отримання дослідження.",
-        "retrieved_html": "Отримано <strong>{count}</strong> інстансів (екземплярів)." 
+        "retrieved_html": "Отримано <strong>{count}</strong> екземплярів." 
     },
     "searching": "Пошук...",
     "select_files": "Виберіть файли",
