@@ -152,7 +152,7 @@
 
             // The modalities to display in the Modalities filter dropdown in the Study List
             "ModalitiesFilter": [
-                "CR", "CT", "DR", "DX", "KO", "MG", "MR", "NM", "OT", "PR", "PT", "PX", "RTSTRUCT", "RTDOSE", "SEG", "SR", "US", "XA", "XC"
+                "CR", "CT", "DR", "DX", "KO", "MG", "MR", "NM", "OT", "PR", "PT", "PX", "RTDOSE", "RTSTRUCT", "RTPLAN", "SEG", "SR", "US", "XA", "XC"
             ],
 
             // Defines the list of languages available in the language picker
