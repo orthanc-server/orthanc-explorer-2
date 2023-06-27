@@ -123,7 +123,7 @@
         "series_step_0_create_new_study_button_title_html": "Create new study",
         "series_step_0_modify_series_html": "Modify Series tags in this series only?",
         "series_step_0_modify_series_button_title_html": "Modify series tags",
-        "study_step_0_attach_study_to_existing_patient_html": "Attach this study to an other existing Patient.",
+        "study_step_0_attach_study_to_existing_patient_html": "Attach this study to another existing Patient.",
         "study_step_0_attach_study_to_existing_patient_button_title_html": "Change patient",
         "study_step_0_patient_has_other_studies_html": "This patient has <strong>{count}</strong> studies in total.<br/>Do you want to modify the patient in all these studies?",
         "study_step_0_patient_has_other_studies_button_title_html": "Modify Patient tags",
@@ -185,7 +185,7 @@
     "study": "Study",
     "this_patient_has_other_studies" : "This patient has {count} studies in total.",
     "this_patient_has_no_other_studies" : "This patient has no other studies.",
-    "this_patient_has_other_studies_show" : "Show them !",
+    "this_patient_has_other_studies_show" : "Show them!",
     "token" : {
         "token_being_checked_html": "Your token is being checked.",
         "error_token_invalid_html": "Your token is invalid.<br/>Check you have pasted it completely or contact the person who has provided it to you.",
