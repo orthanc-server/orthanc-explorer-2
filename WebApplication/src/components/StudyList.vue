@@ -407,7 +407,7 @@ export default {
                     const labels = filterValue.split(",");
                     keyValueFilters[filterKey] = labels;
                     await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
-                } else {
+                } else if (filterKey[0] === filterKey[0].toUpperCase()) {  // DicomTags starts with a capital letter
                     keyValueFilters[filterKey] = filterValue;
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
                 }

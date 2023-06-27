@@ -1,5 +1,6 @@
 Fixes:
 - fix ModalitiesInStudy filtering
+- fix links to uploaded studies
 
 
 1.0.1 (2023-06-21)
