@@ -185,7 +185,7 @@
     "study": "Study",
     "this_patient_has_other_studies" : "This patient has {count} studies in total.",
     "this_patient_has_no_other_studies" : "This patient has no other studies.",
-    "this_patient_has_other_studies_show" : "Show them !",
+    "this_patient_has_other_studies_show" : "Show them!",
     "token" : {
         "token_being_checked_html": "Your token is being checked.",
         "error_token_invalid_html": "Your token is invalid.<br/>Check you have pasted it completely or contact the person who has provided it to you.",
