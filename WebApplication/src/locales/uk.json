@@ -55,7 +55,6 @@
         "StudyDescription": "Опис дослідження",
         "StudyID": "ID дослідження",
         "StudyTime": "Час дослідження",
-        "SOPInstanceUID": "UID екземпляра SOP",
         "StudyInstanceUID": "UID екземпляра дослідження"
     },
     "displaying_latest_studies": "Відображення останніх досліджень",
