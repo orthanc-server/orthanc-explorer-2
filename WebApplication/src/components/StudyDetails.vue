@@ -74,7 +74,7 @@ export default {
     <table class="table table-responsive table-sm study-details-table">
         <tr v-if="uiOptions.EnableEditLabels">
             <td colspan="100%">
-                Labels:
+                {{  $t('labels.study_details_title') }}
                 <select class="form-select" id="labelsEdit" name="tags[]" v-model="labelsModel" multiple
                     data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
                     :placeholder="$t('labels.add_labels_placeholder')">
@@ -85,7 +85,7 @@ export default {
         </tr>
         <tr v-if="!uiOptions.EnableEditLabels">
             <td colspan="100%">
-                Labels:
+                {{  $t('labels.study_details_title') }}
                 <span v-for="label in labelsModel" :key="label" class="label badge bg-info">{{ label }}</span>
             </td>
         </tr>
