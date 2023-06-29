@@ -51,6 +51,7 @@
         "SeriesInstanceUID": "Series Instance UID",
         "SeriesNumber": "Series number",
         "SeriesTime": "Series Time",
+        "SOPInstanceUID": "SOP Instance UID",
         "StudyDate": "Study Date",
         "StudyDescription": "Study Description",
         "StudyID": "Study ID",

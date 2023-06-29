@@ -51,6 +51,7 @@
         "SeriesInstanceUID": "UID екземпляра серії",
         "SeriesNumber": "Номер серії",
         "SeriesTime": "Час серії",
+        "SOPInstanceUID": "UID екземпляра SOP",
         "StudyDate": "Дата дослідження",
         "StudyDescription": "Опис дослідження",
         "StudyID": "ID дослідження",

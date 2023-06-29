@@ -51,6 +51,7 @@
         "SeriesInstanceUID": "Series Instance UID",
         "SeriesNumber": "Numéro de série",
         "SeriesTime": "Heure de la série",
+        "SOPInstanceUID": "SOP Instance UID",
         "StudyDate": "Date de l'examen",
         "StudyDescription": "Description",
         "StudyID": "ID de l'examen",
