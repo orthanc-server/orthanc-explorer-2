@@ -88,7 +88,7 @@
         "remove_labels_message_html": "<strong>Видалити</strong> ці мітки з усіх вибраних ресурсів",
         "remove_labels_placeholder": "Мітки, що будуть вилучені",
         "removed_labels_message_part_1_html": "Видалені мітки ",
-        "removed_labels_message_part_2_html": " з <strong>{count}</strong> досліджень"
+        "removed_labels_message_part_2_html": " з <strong>{count}</strong> досліджень",
         "study_details_title": "Мітки"
     },
     "legacy_ui": "Старий інтерфейс",
