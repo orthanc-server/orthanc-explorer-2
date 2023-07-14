@@ -152,12 +152,12 @@ jobs:
     steps:
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1.0.0
+      uses: ncipollo/release-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ needs.pre-build.outputs.current_branch_tag }}
-        release_name: Release ${{ needs.pre-build.outputs.current_branch_tag }}
+        tag: ${{ needs.pre-build.outputs.current_branch_tag }}
+        name: Release ${{ needs.pre-build.outputs.current_branch_tag }}
         draft: false
         prerelease: false
 
@@ -214,7 +214,7 @@ jobs:
     - id: set_upload_url
       run: |
         upload_url=`cat ./upload_url`
-        echo ::set-output name=upload_url::$upload_url
+        echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
 
     - name: Upload to Release
       id: upload_to_release
