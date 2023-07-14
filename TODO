@@ -1,6 +1,7 @@
 - show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)
 - handle the EnableLabels "permission"
 - call /pdf instead of /preview if the instance is a pdf file
+- integrate WSI plugin
 
 - use DatePicker in remote modality study list
 
