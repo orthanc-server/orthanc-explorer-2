@@ -30,6 +30,7 @@ UI improvements:
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
 
 - show job details (need improvement in Orthanc API itself)
+- include an "all jobs" panel and not only our jobs (https://discourse.orthanc-server.org/t/oe2-inclusion-of-jobs-panel-in-explorer-2/3708)
 
 - add an "attach PDF button" at study level
 
