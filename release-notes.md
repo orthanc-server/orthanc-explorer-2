@@ -1,3 +1,9 @@
+1.0.3 (2023-07-14)
+==================
+
+Changes:
+- added support for opening the WSI viewer on series
+
 1.0.2 (2023-06-27)
 =================
 

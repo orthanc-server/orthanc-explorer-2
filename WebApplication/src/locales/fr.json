@@ -205,5 +205,6 @@
     "view_in_ohif_tmtv": "View en OHIF en mode Total Metabolic Tumor Volume",
     "view_in_osimis": "Visualiser avec le OsimisViewer",
     "view_in_stone": "Visualiser avec le StoneViewer",
-    "view_in_volview": "Visualiser avec VolView"        
+    "view_in_volview": "Visualiser avec VolView",
+    "view_in_wsi_viewer": "Visualiser avec le Whole Slide Imaging Viewer"
 }

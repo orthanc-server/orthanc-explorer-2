@@ -225,6 +225,9 @@ export default {
     async getInstanceTags(orthancId) {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags")).data;
     },
+    async getSimplifiedInstanceTags(orthancId) {
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags?simplify")).data;
+    },
     async getInstanceHeader(orthancId) {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/header")).data;
     },
@@ -380,6 +383,9 @@ export default {
         } else {
             return orthancApiUrl + 'volview/index.html?names=[archive.zip]&' + urls;
         }
+    },
+    getWsiViewerUrl(seriesOrthancId) {
+        return orthancApiUrl + 'wsi/app/viewer.html?series=' + seriesOrthancId;
     },
     getStoneViewerUrlForBulkStudies(studiesDicomIds) {
         return orthancApiUrl + 'stone-webviewer/index.html?study=' + studiesDicomIds.join(",");

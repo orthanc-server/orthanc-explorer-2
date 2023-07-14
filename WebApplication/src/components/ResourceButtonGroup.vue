@@ -19,10 +19,16 @@ export default {
 
     data() {
         return {
-            isBulkLabelModalVisible: false
+            isBulkLabelModalVisible: false,
+            isWsiButtonEnabled: false
         };
     },
-    mounted() {
+    async mounted() {
+        if (this.resourceLevel == 'series') {
+            let seriesInstances = await api.getSeriesInstances(this.resourceOrthancId);
+            let firstInstancetags = await api.getSimplifiedInstanceTags(seriesInstances[0]['ID']);
+            this.isWsiButtonEnabled = firstInstancetags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6";
+        }
     },
     methods: {
         toggleSubMenu(event) {
@@ -184,7 +190,16 @@ export default {
             } else {
                 return true;
             }
-        },     
+        },
+        hasWsiButton() {
+            if (this.resourceLevel != 'series' || !("wsi" in this.installedPlugins)) {
+                return false;
+            }
+            return true;
+        },
+        wsiViewerUrl() {
+            return api.getWsiViewerUrl(this.resourceOrthancId);
+        },
         hasSendToPeers() {
             return this.orthancPeers.length > 0;
         },
@@ -452,6 +467,12 @@ export default {
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('preview')"
                 :tokenType="'download-instant-link'" :opensInNewTab="true">
             </TokenLinkButton>
+            <TokenLinkButton v-if="hasWsiButton"
+                :hidden="!isWsiButtonEnabled"
+                :iconClass="'fa-solid fa-microscope fa-button'" :level="this.resourceLevel" :linkUrl="wsiViewerUrl"
+                :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_wsi_viewer')"
+                :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+            </TokenLinkButton>
         </div>
         <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
@@ -641,5 +662,9 @@ export default {
     top: 0;
     right: 100%;
     margin-top: -1px;
+}
+
+.fa-button {
+    line-height: 1.5;
 }
 </style>
