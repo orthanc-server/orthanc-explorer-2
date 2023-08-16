@@ -1,3 +1,9 @@
+1.1.0 (2023-08-16)
+==================
+
+Fixes:
+- fixed an XSS vulnerability (many thanks to Abebe Hailu from kth.se)
+
 1.0.3 (2023-07-14)
 ==================
 
