@@ -205,5 +205,6 @@
     "view_in_ohif_tmtv": "Подивитися в OHIF у режимі Total Metabolic Tumor Volume",
     "view_in_osimis": "Подивитись у OsimisViewer",
     "view_in_stone": "Подивитись у StoneViewer",
-    "view_in_volview": "Подивитись у VolView"    
+    "view_in_volview": "Подивитись у VolView",
+    "view_in_wsi_viewer": "Подивитись у Whole Slide Imaging Viewer"
 }
