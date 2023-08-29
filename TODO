@@ -56,7 +56,7 @@ UI improvements:
   - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
   - same with dicom-web and peers ?
 
-- display and search dates with other formats: DD/MM/YYYY
+- display and search dates with other formats: DD/MM/YYYY (https://discourse.orthanc-server.org/t/date-format-oe2/3833)
 
 
 Configuration management (ideas + implementation notes):
