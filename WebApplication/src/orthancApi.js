@@ -89,7 +89,7 @@ export default {
         };
         if (labels && labels.length > 0) {
             payload["Labels"] = labels;
-            payload["LabelsConstrint"] = LabelsConstraint;
+            payload["LabelsConstraint"] = LabelsConstraint;
         }
 
         return (await axios.post(orthancApiUrl + "tools/find", payload, 
