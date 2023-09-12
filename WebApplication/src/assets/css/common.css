@@ -1,7 +1,7 @@
 .cut-text { 
   text-overflow: ellipsis;
   overflow: hidden; 
-  white-space: nowrap;
+  white-space: pre; /* preserve double white spaces (https://github.com/orthanc-server/orthanc-explorer-2/issues/30) */ 
   max-width: 0;
 }
 
