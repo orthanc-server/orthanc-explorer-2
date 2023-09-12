@@ -1,3 +1,7 @@
+
+Changes:
+- show username in side bar
+
 Fixes:
 - internal: fixed a typo in tools/find request
 - fix UI loading when user is not authorized to access to DicomWEB servers

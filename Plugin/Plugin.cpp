@@ -478,6 +478,8 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
 
       // the Legacy UI is not available with user profile since it would not refresh the tokens
       uiOptions["EnableLinkToLegacyUi"] = false;
+
+      oe2Configuration["Profile"] = userProfile;
     }
 
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();

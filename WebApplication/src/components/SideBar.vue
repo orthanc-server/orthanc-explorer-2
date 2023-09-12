@@ -20,6 +20,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            userProfile: state => state.configuration.userProfile,
             system: state => state.configuration.system,
             queryableDicomModalities: state => state.configuration.queryableDicomModalities,
             queryableDicomWebServers: state => state.configuration.queryableDicomWebServers,
@@ -44,6 +45,9 @@ export default {
         },
         hasLogout() {
             return window.keycloak !== undefined;
+        },
+        hasUserProfile() {
+            return this.userProfile != null && this.userProfile.name;
         },
         displayedStudyCount() {
             return this.studiesIds.length;
@@ -196,7 +200,7 @@ export default {
                 </li>
                 <li v-if="hasLogout" class="d-flex align-items-center" data-bs-toggle="collapse"
                     data-bs-target="#profile-list">
-                    <i class="fa fa-user fa-lg menu-icon"></i>{{ $t('profile') }}
+                    <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
                     <span class="arrow ms-auto"></span>
                 </li>
                 <ul class="sub-menu collapse" id="profile-list" ref="profile-collapsible">

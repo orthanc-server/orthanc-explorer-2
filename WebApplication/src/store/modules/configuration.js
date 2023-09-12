@@ -11,6 +11,7 @@ const state = () => ({
     maxStudiesDisplayed: 100,
     orthancApiUrl: "../../",
     uiOptions: {},
+    userProfile: null,
     tokens: {},
     loaded: false,
     system: {},
@@ -26,6 +27,9 @@ const getters = {
 const mutations = {
     setUiOptions(state, { uiOptions }) {
         state.uiOptions = uiOptions;
+    },
+    setUserProfile(state, { profile }) {
+        state.userProfile = profile;
     },
     setInstalledPlugin(state, { plugin, pluginConfiguration }) {
         state.installedPlugins[plugin] = pluginConfiguration;
@@ -90,6 +94,9 @@ const actions = {
         commit('setUiOptions', { uiOptions: oe2Config['UiOptions']});
         commit('setTokens', { tokens: oe2Config['Tokens']});
 
+        if ('Profile' in oe2Config) {
+            commit('setUserProfile', { profile: oe2Config['Profile']});
+        }
         document._mustTranslateDicomTags = oe2Config['UiOptions']['TranslateDicomTags'];
 
         for (const [pluginName, pluginConfiguration] of Object.entries(oe2Config['Plugins'])) {
