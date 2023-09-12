@@ -1,5 +1,6 @@
 
 Changes:
+- added German translations
 - show username in side bar
 
 Fixes:
