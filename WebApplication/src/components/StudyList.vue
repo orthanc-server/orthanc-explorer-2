@@ -600,16 +600,20 @@ export default {
                         return;
                     }
                     //console.log(change);
-                    const study = await api.getStudy(change["ID"]);
-                    if (this.filterLabels.length == 0 || this.filterLabels.filter(l => study["Labels"].includes(l)).length > 0) {
-                        this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
-                    }
+                    try {
+                        const study = await api.getStudy(change["ID"]);
+                        if (this.filterLabels.length == 0 || this.filterLabels.filter(l => study["Labels"].includes(l)).length > 0) {
+                            this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
+                        }
 
-                    this.latestStudiesIds.add(change["ID"]);
-                    if (this.latestStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
-                        this.isLoadingLatestStudies = false;
-                        this.isDisplayingLatestStudies = true;
-                        return;
+                        this.latestStudiesIds.add(change["ID"]);
+                        if (this.latestStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
+                            this.isLoadingLatestStudies = false;
+                            this.isDisplayingLatestStudies = true;
+                            return;
+                        }
+                    } catch (err) {
+                        console.warn("Unable to load study - not authorized ?");
                     }
                 }
             }
