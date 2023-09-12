@@ -1,3 +1,7 @@
+Fixes:
+- internal: fixed a typo in tools/find request
+- fix UI loading when user is not authorized to access to DicomWEB servers
+
 1.1.0 (2023-08-16)
 ==================
 

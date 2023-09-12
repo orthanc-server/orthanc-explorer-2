@@ -63,13 +63,21 @@ const actions = {
         await this.dispatch('configuration/loadOe2Configuration');
 
         if (state.uiOptions.EnableSendTo) {
-            const orthancPeers = await api.loadOrthancPeers();
-            commit('setOrthancPeers', { orthancPeers: orthancPeers});
+            try {
+                const orthancPeers = await api.loadOrthancPeers();
+                commit('setOrthancPeers', { orthancPeers: orthancPeers});
+            } catch (err) {
+                console.warn("can not get Orthanc peers - not authorized ?")
+            }
         }
 
         if (state.uiOptions.EnableSendTo || state.uiOptions.EnableDicomModalities) {
-            const dicomModalities = await api.loadDicomModalities();
-            commit('setDicomModalities', { dicomModalities: dicomModalities});
+            try {
+                const dicomModalities = await api.loadDicomModalities();
+                commit('setDicomModalities', { dicomModalities: dicomModalities});
+            } catch (err) {
+                console.warn("can not get DICOM modalities - not authorized ?")
+            }
         }
 
         const system = await api.loadSystem();
@@ -89,8 +97,12 @@ const actions = {
             commit('setInstalledPlugin', { plugin: pluginName, pluginConfiguration: pluginConfiguration})
 
             if (pluginName === "dicom-web") {
-                const dicomWebServers = await api.loadDicomWebServers();
-                commit('setDicomWebServers', { dicomWebServers: dicomWebServers});
+                try {
+                    const dicomWebServers = await api.loadDicomWebServers();
+                    commit('setDicomWebServers', { dicomWebServers: dicomWebServers});
+                } catch (err) {
+                    console.warn("can not get DicomWEB servers - not authorized ?")
+                }
             } else if (pluginName === "ohif") {
                 commit('setOhifDataSource', { ohifDataSource: pluginConfiguration["DataSource"]})
             }
