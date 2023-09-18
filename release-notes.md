@@ -1,3 +1,5 @@
+1.1.1 (2023-09-18)
+==================
 
 Changes:
 - added German translations
