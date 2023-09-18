@@ -262,7 +262,6 @@ export default {
         },
         updateLabelsFilter(label) {
             this.filterLabels = [label];
-            this.reloadStudyList();
         },
         initModalityFilter() {
             // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
@@ -563,6 +562,7 @@ export default {
             const shouldShowMostRecentsWithLabel = this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.isFilteringOnlyOnLabels();
 
             if (this['studies/isFilterEmpty'] || shouldShowMostRecentsWithLabel) {
+                await this.$store.dispatch('studies/clearStudies');
                 if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
                     return;
                 } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
@@ -587,6 +587,7 @@ export default {
                 this.shouldStopLoadingLatestStudies = true;
                 this.isLoadingLatestStudies = false;
                 this.isDisplayingLatestStudies = false;
+                // await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: this.filterLabels });
                 await this.$store.dispatch('studies/reloadFilteredStudies');
             }
         },
