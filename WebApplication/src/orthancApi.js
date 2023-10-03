@@ -307,20 +307,23 @@ export default {
         const currentLabels = await this.getLabels(studyId);
         const labelsToRemove = currentLabels.filter(x => !labels.includes(x));
         const labelsToAdd = labels.filter(x => !currentLabels.includes(x));
+        let promises = [];
+
         // console.log("labelsToRemove: ", labelsToRemove);
         // console.log("labelsToAdd: ", labelsToAdd);
         for (const label of labelsToRemove) {
-            this.removeLabel({
+            promises.push(this.removeLabel({
                 studyId: studyId,
                 label: label
-            })
+            }));
         }
         for (const label of labelsToAdd) {
-            this.addLabel({
+            promises.push(this.addLabel({
                 studyId: studyId,
                 label: label
-            })
+            }));
         }
+        await Promise.all(promises);
         return labelsToAdd.length > 0 || labelsToRemove.length > 0;
     },
 
