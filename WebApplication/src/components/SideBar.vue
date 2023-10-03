@@ -100,9 +100,6 @@ export default {
         }
 
     },
-    async created() {
-        // TODO: make this works (currently vue crashes) this.messageBus.on('all-labels-changed', this.onAllLabelsChanged);
-    },
     mounted() {
         this.$refs['modalities-collapsible'].addEventListener('show.bs.collapse', (e) => {
             for (const modality of this.queryableDicomModalities) {

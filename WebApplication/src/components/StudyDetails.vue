@@ -16,11 +16,13 @@ export default {
         return {
             samePatientStudiesCount: 0,
             hasLoadedSamePatientsStudiesCount: false,
-            labelsModel: []
+            labelsModel: [],
+            allLabelsLocalCopy: new Set()
         };
     },
     async created() {
         this.labelsModel = this.labels;
+        this.allLabelsLocalCopy = await api.loadAllLabels();
     },
     async mounted() {
         this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags['PatientID'])).length;
@@ -30,14 +32,10 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
-            allLabels: state => state.labels.allLabels
         }),
         selectedValues() {
             return this.labelsModel.join(",");
         }
-        // studyMainTags() {
-        //     return this.uiOptions.StudyMainTags;
-        // }
     },
     components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText },
     methods: {
@@ -51,7 +49,6 @@ export default {
     watch: {
         labelsModel: {
             async handler(oldValue, newValue) {
-                // console.log(this.labelsModel);
                 let changed = await api.updateLabels({
                     studyId: this.studyId,
                     labels: this.labelsModel
@@ -59,7 +56,8 @@ export default {
                 if (changed) {
                     this.$emit("studyLabelsUpdated", this.studyId);
 
-                    // TODO: make this works !  it currently crashes vue ... this.messageBus.emit('all-labels-changed', null);
+                    // update the side bar
+                    setTimeout(() => {this.$store.dispatch('labels/refresh')}, 100);
                 }
             },
             deep: true
@@ -78,7 +76,7 @@ export default {
                 <select class="form-select" id="labelsEdit" name="tags[]" v-model="labelsModel" multiple
                     data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
                     :placeholder="$t('labels.add_labels_placeholder')">
-                    <option v-for="label in allLabels" :key="label" :value="label" :selected="hasLabel(label)">{{ label }}
+                    <option v-for="label in allLabelsLocalCopy" :key="label" :value="label" :selected="hasLabel(label)">{{ label }}
                     </option>
                 </select>
             </td>

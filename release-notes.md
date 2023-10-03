@@ -1,3 +1,8 @@
+Fixes:
+- new labels now appears/disappears on the side bar when they are created/deleted from a study
+- study labels are listed correctly when reoopening a study
+
+
 1.1.1 (2023-09-18)
 ==================
 
