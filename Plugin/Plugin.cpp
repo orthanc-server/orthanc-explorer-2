@@ -636,7 +636,12 @@ extern "C"
         {
           std::string explorer;
           Orthanc::EmbeddedResources::GetFileResource(explorer, Orthanc::EmbeddedResources::ORTHANC_EXPLORER);
-          OrthancPluginExtendOrthancExplorer(OrthancPlugins::GetGlobalContext(), explorer.c_str());
+
+          std::map<std::string, std::string> dictionary;
+          dictionary["OE2_BASE_URL"] = oe2BaseUrl_.substr(1, oe2BaseUrl_.size() - 2);  // Remove heading and trailing slashes
+          std::string explorerConfigured = Orthanc::Toolbox::SubstituteVariables(explorer, dictionary);
+
+          OrthancPluginExtendOrthancExplorer(OrthancPlugins::GetGlobalContext(), explorerConfigured.c_str());
         }
       }
       else
