@@ -1,5 +1,6 @@
 import { createI18n } from "vue-i18n";
 import en from "./en.json";
+import de from "./de.json";
 import es from "./es.json";
 import fr from "./fr.json";
 import it from "./it.json";
@@ -23,6 +24,7 @@ const i18n = createI18n({
   fallbackLocale: 'en',  
   messages: {
     en,
+    de,
     es,
     fr,
     it,
