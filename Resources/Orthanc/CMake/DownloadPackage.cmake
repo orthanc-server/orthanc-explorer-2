@@ -1,8 +1,8 @@
 # Orthanc - A Lightweight, RESTful DICOM Store
 # Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
 # Department, University Hospital of Liege, Belgium
-# Copyright (C) 2017-2022 Osimis S.A., Belgium
-# Copyright (C) 2021-2022 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+# Copyright (C) 2017-2023 Osimis S.A., Belgium
+# Copyright (C) 2021-2023 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -101,19 +101,26 @@ macro(DownloadFile MD5 Url)
       message(FATAL_ERROR "CMake is not allowed to download from Internet. Please set the ALLOW_DOWNLOADS option to ON")
     endif()
 
-    if ("${MD5}" STREQUAL "no-check")
-      message(WARNING "Not checking the MD5 of: ${Url}")
-      file(DOWNLOAD "${Url}" "${TMP_PATH}"
-        SHOW_PROGRESS TIMEOUT 300 INACTIVITY_TIMEOUT 60
-        STATUS Failure)
-    else()
-      file(DOWNLOAD "${Url}" "${TMP_PATH}"
-        SHOW_PROGRESS TIMEOUT 300 INACTIVITY_TIMEOUT 60
-        EXPECTED_MD5 "${MD5}" STATUS Failure)
-    endif()
+    foreach (retry RANGE 1 5)   # Retries 5 times
+      if ("${MD5}" STREQUAL "no-check")
+        message(WARNING "Not checking the MD5 of: ${Url}")
+        file(DOWNLOAD "${Url}" "${TMP_PATH}"
+          SHOW_PROGRESS TIMEOUT 30 INACTIVITY_TIMEOUT 10
+          STATUS Failure)
+      else()
+        file(DOWNLOAD "${Url}" "${TMP_PATH}"
+          SHOW_PROGRESS TIMEOUT 30 INACTIVITY_TIMEOUT 10
+          EXPECTED_MD5 "${MD5}" STATUS Failure)
+      endif()
 
-    list(GET Failure 0 Status)
+      list(GET Failure 0 Status)
+      if (Status EQUAL 0)
+        break()  # Successful download
+      endif()
+    endforeach()
+
     if (NOT Status EQUAL 0)
+      file(REMOVE ${TMP_PATH})
       message(FATAL_ERROR "Cannot download file: ${Url}")
     endif()
     

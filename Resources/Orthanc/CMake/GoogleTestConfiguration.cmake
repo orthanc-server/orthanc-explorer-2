@@ -1,8 +1,8 @@
 # Orthanc - A Lightweight, RESTful DICOM Store
 # Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
 # Department, University Hospital of Liege, Belgium
-# Copyright (C) 2017-2022 Osimis S.A., Belgium
-# Copyright (C) 2021-2022 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+# Copyright (C) 2017-2023 Osimis S.A., Belgium
+# Copyright (C) 2021-2023 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -50,7 +50,7 @@ if (USE_GOOGLE_TEST_DEBIAN_PACKAGE)
 
 elseif (STATIC_BUILD OR NOT USE_SYSTEM_GOOGLE_TEST)
   set(GOOGLE_TEST_SOURCES_DIR ${CMAKE_BINARY_DIR}/googletest-release-1.8.1)
-  set(GOOGLE_TEST_URL "http://orthanc.osimis.io/ThirdPartyDownloads/gtest-1.8.1.tar.gz")
+  set(GOOGLE_TEST_URL "https://orthanc.uclouvain.be/third-party-downloads/gtest-1.8.1.tar.gz")
   set(GOOGLE_TEST_MD5 "2e6fbeb6a91310a16efe181886c59596")
 
   DownloadPackage(${GOOGLE_TEST_MD5} ${GOOGLE_TEST_URL} "${GOOGLE_TEST_SOURCES_DIR}")

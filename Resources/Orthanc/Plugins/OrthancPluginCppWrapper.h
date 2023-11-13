@@ -2,8 +2,8 @@
  * Orthanc - A Lightweight, RESTful DICOM Store
  * Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
  * Department, University Hospital of Liege, Belgium
- * Copyright (C) 2017-2022 Osimis S.A., Belgium
- * Copyright (C) 2021-2022 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+ * Copyright (C) 2017-2023 Osimis S.A., Belgium
+ * Copyright (C) 2021-2023 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -136,6 +136,8 @@ namespace OrthancPlugins
                                 const OrthancPluginHttpRequest* request);
 
   void SetGlobalContext(OrthancPluginContext* context);
+
+  void ResetGlobalContext();
 
   bool HasGlobalContext();
 
@@ -346,9 +348,11 @@ namespace OrthancPlugins
     void LoadConfiguration();
     
   public:
-    OrthancConfiguration();
+    OrthancConfiguration(); // loads the full Orthanc configuration
 
     explicit OrthancConfiguration(bool load);
+
+    explicit OrthancConfiguration(const Json::Value& configuration, const std::string& path);  // e.g. to load a section from a default json content
 
     const Json::Value& GetJson() const
     {
@@ -838,9 +842,19 @@ namespace OrthancPlugins
 
     static float CallbackGetProgress(void* job);
 
+#if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 11, 3)
+    static OrthancPluginErrorCode CallbackGetContent(OrthancPluginMemoryBuffer* target,
+                                                     void* job);
+#else
     static const char* CallbackGetContent(void* job);
+#endif
 
+#if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 11, 3)
+    static int32_t CallbackGetSerialized(OrthancPluginMemoryBuffer* target,
+                                         void* job);
+#else
     static const char* CallbackGetSerialized(void* job);
+#endif
 
     static OrthancPluginJobStepStatus CallbackStep(void* job);
 
@@ -1252,6 +1266,11 @@ namespace OrthancPlugins
 
     ~DicomInstance();
 
+    const OrthancPluginDicomInstance* GetObject() const
+    {
+      return instance_;
+    }
+
     std::string GetRemoteAet() const;
 
     const void* GetBuffer() const
@@ -1305,6 +1324,11 @@ namespace OrthancPlugins
     static DicomInstance* Transcode(const void* buffer,
                                     size_t size,
                                     const std::string& transferSyntax);
+#endif
+
+#if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 12, 1)
+    static DicomInstance* Load(const std::string& instanceId,
+                               OrthancPluginLoadDicomInstanceMode mode);
 #endif
   };
 
