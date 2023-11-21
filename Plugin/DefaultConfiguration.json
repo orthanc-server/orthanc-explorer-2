@@ -116,7 +116,7 @@
             ],
 
             // The list of patient level tags that are displayed in the study details and in the modification dialog.
-            // Note that these tags must be defined in the Orthanc main dicom tags (https://book.orthanc-server.com/faq/main-dicom-tags.html)
+            // Note that these tags must be defined in the Orthanc main dicom tags (https://orthanc.uclouvain.be/book/faq/main-dicom-tags.html)
             "PatientMainTags" : [
                 "PatientID",
                 "PatientName",
@@ -125,7 +125,7 @@
             ],
 
             // The list of study level tags that are displayed in the study details and in the modification dialog.
-            // Note that these tags must be defined in the Orthanc main dicom tags (https://book.orthanc-server.com/faq/main-dicom-tags.html)
+            // Note that these tags must be defined in the Orthanc main dicom tags (https://orthanc.uclouvain.be/book/faq/main-dicom-tags.html)
             "StudyMainTags" : [
                 "StudyDate",
                 "StudyTime",
@@ -139,7 +139,7 @@
             ],
 
             // The list of series level tags that are displayed in the study details and in the modification dialog.
-            // Note that these tags must be defined in the Orthanc main dicom tags (https://book.orthanc-server.com/faq/main-dicom-tags.html)
+            // Note that these tags must be defined in the Orthanc main dicom tags (https://orthanc.uclouvain.be/book/faq/main-dicom-tags.html)
             "SeriesMainTags" : [
                 "SeriesDate",
                 "SeriesTime",
