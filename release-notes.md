@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Changes:
+- added Russian translations
+
+
 1.1.3 (2023-10-04)
 ==================
 

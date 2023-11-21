@@ -5,11 +5,12 @@ import es from "./es.json";
 import fr from "./fr.json";
 import it from "./it.json";
 import ka from "./ka.json";
+import ru from "./ru.json";
 import uk from "./uk.json";
 import zh from "./zh.json";
 // import it from "./it.json";
 // import pt from "./pt.json";
-// import ru from "./ru.json";
+
 // import de from "./de.json";
 // import nl from "./nl.json";
 // import jp from "./jp.json";
@@ -29,10 +30,10 @@ const i18n = createI18n({
     fr,
     it,
     ka,
+    ru,
     uk,
     zh
     // pt,
-    // ru,
     // de,
     // nl,
     // jp,
