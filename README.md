@@ -118,7 +118,7 @@ LSB_CC=gcc-4.8 LSB_CXX=g++-4.8 cmake -DCMAKE_TOOLCHAIN_FILE=../Resources/Orthanc
 make -j4
 ```
 
-Pre-compiled LSB binaries can be found at: https://lsb.orthanc-server.com/plugin-orthanc-explorer-2/
+Pre-compiled LSB binaries can be found at: https://orthanc.uclouvain.be/downloads/linux-standard-base/orthanc-explorer-2/index.html
 
 ### Linking against system-wide Orthanc Framework
 
