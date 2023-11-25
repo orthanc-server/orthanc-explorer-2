@@ -2607,7 +2607,7 @@ namespace OrthancPlugins
 
     if (body.isMember(KEY_PRIORITY))
     {
-      if (body[KEY_PRIORITY].type() != Json::booleanValue)
+      if (body[KEY_PRIORITY].type() != Json::intValue)
       {
 #if HAS_ORTHANC_EXCEPTION == 1
         throw Orthanc::OrthancException(Orthanc::ErrorCode_BadFileFormat,
