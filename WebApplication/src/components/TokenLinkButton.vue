@@ -32,7 +32,12 @@ export default {
             if (validityDuration == null || validityDuration === undefined) {
                 validityDuration = this.tokens.InstantLinksValidity;
             }
-            let token = await api.createToken({ tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: this.level, validityDuration: validityDuration });
+            let level = this.level;
+            if (level == "bulk-study") {
+                level = "study";
+            }
+
+            let token = await api.createToken({ tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: level, validityDuration: validityDuration });
             let finalUrl = this.linkUrl;
 
             // give priority to the urls coming from the token service

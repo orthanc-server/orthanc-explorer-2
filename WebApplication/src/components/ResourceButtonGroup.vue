@@ -500,7 +500,7 @@ export default {
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')" :tokenType="'download-instant-link'">
             </TokenLinkButton>
             <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk'"
-                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadBulkZipUrl"
+                :iconClass="'bi bi-download'" :level="'bulk-study'" :linkUrl="downloadBulkZipUrl"
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')" :tokenType="'download-instant-link'"
                 :disabled="!isBulkDownloadZipEnabled">
             </TokenLinkButton>
@@ -510,7 +510,7 @@ export default {
                 :tokenType="'download-instant-link'">
             </TokenLinkButton>
             <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk'"
-                :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadBulkDicomDirUrl"
+                :iconClass="'bi bi-box-arrow-down'" :level="'bulk-study'" :linkUrl="downloadBulkDicomDirUrl"
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('download_dicomdir')" :tokenType="'download-instant-link'"
                 :disabled="!isBulkDownloadDicomDirEnabled">
             </TokenLinkButton>

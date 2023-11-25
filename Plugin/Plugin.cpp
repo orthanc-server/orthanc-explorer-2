@@ -274,7 +274,13 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     if (pluginName == "authorization") 
     {
       pluginConfiguration = Json::nullValue;
-      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "Authorization") && pluginConfiguration.isMember("WebService");
+      pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "Authorization") 
+                                                    && (pluginConfiguration.isMember("WebService") 
+                                                        || pluginConfiguration.isMember("WebServiceRootUrl")
+                                                        || pluginConfiguration.isMember("WebServiceUserProfileUrl")
+                                                        || pluginConfiguration.isMember("WebServiceTokenValidationUrl")
+                                                        || pluginConfiguration.isMember("WebServiceTokenCreationBaseUrl")
+                                                        || pluginConfiguration.isMember("WebServiceTokenDecoderUrl"));
       hasUserProfile = GetPluginConfiguration(pluginConfiguration, "Authorization") && (pluginConfiguration.isMember("WebServiceUserProfileUrl") || pluginConfiguration.isMember("WebServiceRootUrl"));
 
       if (!pluginConfiguration.isMember("CheckedLevel") || pluginConfiguration["CheckedLevel"].asString() != "studies")
