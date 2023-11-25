@@ -431,6 +431,20 @@ export default {
     getDownloadZipUrl(level, resourceOrthancId) {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive';
     },
+    getBulkDownloadZipUrl(resourcesOrthancId) {
+        if (resourcesOrthancId.length > 0)
+        {
+            return orthancApiUrl + "tools/create-archive?resources=" + resourcesOrthancId.join(',');
+        }
+        return undefined;
+    },
+    getBulkDownloadDicomDirUrl(resourcesOrthancId) {
+        if (resourcesOrthancId.length > 0)
+        {
+            return orthancApiUrl + "tools/create-media?resources=" + resourcesOrthancId.join(',');
+        }
+        return undefined;
+    },
     getDownloadDicomDirUrl(level, resourceOrthancId) {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/media';
     },

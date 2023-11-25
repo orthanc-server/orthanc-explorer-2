@@ -154,7 +154,8 @@ export default {
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
             selectedStudies: state => state.studies.selectedStudies,
             orthancPeers: state => state.configuration.orthancPeers,
-            tokens: state => state.configuration.tokens
+            tokens: state => state.configuration.tokens,
+            system: state => state.configuration.system,
         }),
         componentId() {
             if (this.resourceLevel == 'bulk') {
@@ -320,6 +321,12 @@ export default {
         instanceDownloadUrl() {
             return api.getInstanceDownloadUrl(this.resourceOrthancId);
         },
+        downloadBulkZipUrl() {
+            return api.getBulkDownloadZipUrl(this.resourcesOrthancId);
+        },
+        downloadBulkDicomDirUrl() {
+            return api.getBulkDownloadDicomDirUrl(this.resourcesOrthancId);
+        },
         downloadZipUrl() {
             return api.getDownloadZipUrl(this.resourceLevel, this.resourceOrthancId);
         },
@@ -368,6 +375,20 @@ export default {
             }
             return texts[this.resourceLevel];
         },
+        isBulkDownloadZipEnabled() {
+            if (this.system.ApiVersion < 22) // the /tools/create-archive GET route has been introduced in 1.12.2
+            {
+                return false;
+            }
+            return this.uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0;
+        },
+        isBulkDownloadDicomDirEnabled() {
+            if (this.system.ApiVersion < 22) // the /tools/create-media GET route has been introduced in 1.12.2
+            {
+                return false;
+            }
+            return this.uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0;
+        },
         isAnonymizationEnabled() {
             if (this.resourceLevel == "study" || this.resourceLevel == "series") {
                 return this.uiOptions.EnableAnonymization;
@@ -398,7 +419,6 @@ export default {
         },
         computedResourceLevel() {
             if (this.resourceLevel == 'bulk') {
-                
                 return "study";
             } else {
                 return this.resourceLevel;
@@ -474,15 +494,25 @@ export default {
                 :tokenType="'viewer-instant-link'" :opensInNewTab="true">
             </TokenLinkButton>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
-            <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance'"
+        <div class="btn-group">
+            <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk'"
                 :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadZipUrl"
-                :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_zip')" :tokenType="'download-instant-link'">
+                :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')" :tokenType="'download-instant-link'">
             </TokenLinkButton>
-            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance'"
+            <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk'"
+                :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadBulkZipUrl"
+                :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')" :tokenType="'download-instant-link'"
+                :disabled="!isBulkDownloadZipEnabled">
+            </TokenLinkButton>
+            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk'"
                 :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl"
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicomdir')"
                 :tokenType="'download-instant-link'">
+            </TokenLinkButton>
+            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk'"
+                :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadBulkDicomDirUrl"
+                :resourcesOrthancId="resourcesOrthancId" :title="$t('download_dicomdir')" :tokenType="'download-instant-link'"
+                :disabled="!isBulkDownloadDicomDirEnabled">
             </TokenLinkButton>
             <TokenLinkButton v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
                 :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="instanceDownloadUrl"

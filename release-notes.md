@@ -2,6 +2,9 @@ Pending changes
 ===============
 
 Changes:
+- added a button to download multiple studies at once (only available if running an
+  Orthanc version > 1.12.1 - not officially released at the time this plugin was
+  released)
 - added Russian translations
 
 
