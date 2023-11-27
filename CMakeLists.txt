@@ -30,12 +30,12 @@ project(OrthancExplorer2)
 set(PLUGIN_VERSION "mainline" CACHE STRING "plugin version 'mainline' or '1.2.3'")
 
 if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")  # todo: switch back to 1.12.2 - web once available
-  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
+  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "daf4807631c5")  # todo: switch back to 1.12.2 - web once available
+  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
   set(ORTHANC_OE2_VERSION ${PLUGIN_VERSION})
 else()
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
-  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
+  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "daf4807631c5")
+  set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
   set(ORTHANC_OE2_VERSION "mainline")
 endif()
 
