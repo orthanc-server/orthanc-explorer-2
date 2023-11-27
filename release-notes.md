@@ -8,6 +8,7 @@ Changes:
 - new configuration "UiOptions.ShowSamePatientStudiesFilter" to list the tags that 
   are used to identify studies belonging to the same patient.
 - added Russian translations
+- added a button to share multiple studies at once.
 
 
 1.1.3 (2023-10-04)

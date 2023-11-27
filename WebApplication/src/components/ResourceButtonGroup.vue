@@ -192,6 +192,13 @@ export default {
                 return true;
             }
         },
+        isShareEnabled() {
+            if (this.resourceLevel == 'bulk') {
+                return this.selectedStudiesIds.length > 0
+            } else {
+                return true;
+            }
+        },
         hasWsiButton() {
             if (this.resourceLevel != 'series' || !("wsi" in this.installedPlugins)) {
                 return false;
@@ -530,9 +537,9 @@ export default {
                 :cancelText="$t('cancel')" :bodyText="$t(this.deleteResourceBody)" @ok="deleteResource($event)">
             </Modal>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
+        <div class="btn-group">
             <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
-                v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId">
+                v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId" :disabled="!isShareEnabled">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
             <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"

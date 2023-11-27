@@ -39,9 +39,13 @@ export default {
             return "" + duration + " " +  this.$i18n.t('share.days');
         },
         async share() {
+            let resourcesIds = [this.orthancId];
+            if (this.isBulkSelection) {
+                resourcesIds = this.selectedStudiesIds;
+            }
             let token = await api.createToken({
                 tokenType: this.tokens.ShareType,  // defined in configuration file
-                resourcesIds: [this.orthancId], 
+                resourcesIds: resourcesIds, 
                 level: 'study', 
                 validityDuration: this.expirationInDays * 24 * 3600
             })
@@ -55,9 +59,20 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             tokens: state => state.configuration.tokens,
+            selectedStudiesIds: state => state.studies.selectedStudiesIds,
         }),
+        isBulkSelection() {
+            return !(this.patientMainDicomTags && this.studyMainDicomTags && Object.keys(this.patientMainDicomTags).length > 0 && Object.keys(this.studyMainDicomTags).length > 0);
+        },
         resourceTitle() {
-            return resourceHelpers.getResourceTitle("study", this.patientMainDicomTags, this.studyMainDicomTags, null, null);
+            if (!this.isBulkSelection) {
+                return resourceHelpers.getResourceTitle("study", this.patientMainDicomTags, this.studyMainDicomTags, null, null);
+            } else {
+                return "";
+            }
+        },
+        studiesCount() {
+            return this.selectedStudiesIds.length;
         }
     },
     components: { CopyToClipboardButton }
@@ -71,7 +86,8 @@ export default {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">{{ $t("share.modal_title") + " " + resourceTitle }} </h5>
+                    <h5 class="modal-title" id="modalLabel" v-if="!isBulkSelection">{{ $t("share.modal_title") + " " + resourceTitle }} </h5>
+                    <h5 class="modal-title" id="modalLabel" v-if="isBulkSelection">{{ $t("share.modal_title_multiple_studies", { count: studiesCount}) }} </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

@@ -176,6 +176,7 @@
         "expires_in": "Expires in",
         "link": "Link",
         "modal_title": "Share study",
+        "modal_title_multiple_studies": "Share {count} studies",
         "never": "never"
     },
     "show_errors": "Show errors",

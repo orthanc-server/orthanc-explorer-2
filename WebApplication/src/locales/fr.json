@@ -176,6 +176,7 @@
         "expires_in": "Expire dans",
         "link": "Lien",
         "modal_title": "Partager l'examen",
+        "modal_title_multiple_studies": "Partager {count} examens",
         "never": "jamais"
     },
     "show_errors": "Afficher les erreurs",
