@@ -178,7 +178,14 @@
                 "AllowedModes": ["modify-new-uids", "modify-keep-uids", "duplicate"],
                 "DefaultMode": "modify-new-uids"
 
-            }
+            },
+
+            // List of tags that are used to identify studies belonging to the same patient.
+            // This appears as "This patient has {count} studies in total" in the study details.
+            // ex: "ShowSamePatientStudiesFilter" : ["PatientID", "PatientBirthDate", "PatientSex"]
+            "ShowSamePatientStudiesFilter" : [
+                "PatientID"
+            ]
         },
 
         "Shares" : {

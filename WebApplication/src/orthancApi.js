@@ -105,13 +105,22 @@ export default {
         const response = (await axios.get(orthancApiUrl + "changes?since=" + since + "&limit=" + limit));
         return response.data;
     },
-    async getSamePatientStudies(patientId) {
+    async getSamePatientStudies(patientTags, tags) {
+        if (!tags || tags.length == 0) {
+            console.error("Unable to getSamePatientStudies if 'tags' is not defined or empty");
+            return {};
+        }
+        
+        let query = {};
+        for (let tag of tags) {
+            if (tag in patientTags) {
+                query[tag] = patientTags[tag];
+            }
+        }
         const response = (await axios.post(orthancApiUrl + "tools/find", {
             "Level": "Study",
             "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
-            "Query": {
-                "PatientID": patientId
-            },
+            "Query": query,
             "Expand": false
         }));
         return response.data;

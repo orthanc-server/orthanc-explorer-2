@@ -64,7 +64,7 @@ export default {
     methods: {
         async reset() {
             this.step = 'init';
-            this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags['PatientID'])).length;
+            this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
             this.hasLoadedSamePatientsStudiesCount = true;
 
             this.tags = {};
@@ -209,7 +209,7 @@ export default {
                         }
                     } else if ('PatientName' in this.modifiedTags || 'PatientBirthDate' in this.modifiedTags || 'PatientSex' in this.modifiedTags) {
                         console.log("modify-any-tags-in-one-study: Patient tags have changed");
-                        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.originalTags['PatientID'])).length;
+                        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.originalTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
                         if (this.samePatientStudiesCount > 1) {
                             console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, this patient has other studies, you can not modify patient tags ", this.originalTags['PatientID'], this.modifiedTags);
                             this.setError('modify.error_modify_any_study_tags_can_not_modify_patient_tags_because_of_other_studies_html');
