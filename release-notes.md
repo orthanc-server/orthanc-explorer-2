@@ -13,7 +13,8 @@ Changes:
 - New configurations "UiOptions.Modifications.SeriesAllowedModes" & "UiOptions.Modifications.SeriesDefaultMode"
   to configure how series are modified.  If only one option is available, it is not displayed and the
   default option is selected.
-
+- In "Modify Patient Tags", allow applying changes even if nothing has changed e.g. to apply all current
+  Patient tags to all studies with the same Patient ID.
 
 1.1.3 (2023-10-04)
 ==================

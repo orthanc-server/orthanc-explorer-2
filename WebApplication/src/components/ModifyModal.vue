@@ -628,7 +628,11 @@ export default {
             if (this.isAnonymization) {
                 return true;
             } else {
-                return this.areTagsModified;
+                if (this.action == 'modify-patient-tags-in-all-studies') { // specific use case for https://github.com/orthanc-server/orthanc-explorer-2/issues/37
+                    return true;
+                } else {
+                    return this.areTagsModified;
+                }
             }
         }
     },
