@@ -37,6 +37,18 @@ export default {
                 return (Math.round(this.statistics.TotalDiskSizeMB/1024*100) / 100) + " GB"; 
             }
             return this.statistics.TotalDiskSizeMB + " MB";
+        },
+        hasMaxStorageSize() {
+            return this.system.MaximumStorageSize > 0;
+        },
+        maxStorageSize() {
+            if (this.system.MaximumStorageSize > 1024*1024) {
+                return (Math.round(this.system.MaximumStorageSize/(1024*1024)*100) / 100) + " TB"; 
+            }
+            else if (this.statistics.TotalDiskSizeMB > 1024) {
+                return (Math.round(this.system.MaximumStorageSize/1024*100) / 100) + " GB"; 
+            }
+            return this.system.MaximumStorageSize + " MB";
         }
     },
 }
@@ -61,7 +73,8 @@ export default {
                     </tr>
                     <tr>
                         <th scope="row" class="header">{{$t('storage_size')}}</th>
-                        <td class="value">{{ totalDiskSize }}</td>
+                        <td v-if="!hasMaxStorageSize" class="value">{{ totalDiskSize }}</td>
+                        <td v-if="hasMaxStorageSize" class="value">{{ totalDiskSize }} / {{ maxStorageSize }} ( {{ system.MaximumStorageMode }})</td>
                     </tr>
                 </tbody>
             </table>

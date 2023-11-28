@@ -2,13 +2,14 @@ Pending changes
 ===============
 
 Changes:
-- added a button to download multiple studies at once (only available if running an
+- Added a button to download multiple studies at once (only available if running an
   Orthanc version > 1.12.1 - not officially released at the time this plugin was
   released)
-- new configuration "UiOptions.ShowSamePatientStudiesFilter" to list the tags that 
+- Bew configuration "UiOptions.ShowSamePatientStudiesFilter" to list the tags that 
   are used to identify studies belonging to the same patient.
-- added Russian translations
-- added a button to share multiple studies at once.
+- Added Russian translations
+- Added a button to share multiple studies at once.
+- Now displaying the MaximumStorageSize in the settings page.
 
 
 1.1.3 (2023-10-04)
