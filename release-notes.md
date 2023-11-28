@@ -10,6 +10,9 @@ Changes:
 - Added Russian translations
 - Added a button to share multiple studies at once.
 - Now displaying the MaximumStorageSize in the settings page.
+- New configurations "UiOptions.Modifications.SeriesAllowedModes" & "UiOptions.Modifications.SeriesDefaultMode"
+  to configure how series are modified.  If only one option is available, it is not displayed and the
+  default option is selected.
 
 
 1.1.3 (2023-10-04)

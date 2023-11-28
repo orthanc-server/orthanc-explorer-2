@@ -175,8 +175,13 @@
                 // "modify-keep-uids" is equivalent to KeepSource=True and Keep=["StudyInstanceUID", "SeriesInstanceUID", "SOPInstanceUID"]
                 // "modify-new-uids" is equivalent to KeepSource=False
                 // "duplicate" is equivalent to KeepSource=True
+                // "AllowedModes" and "DefaultMode" apply to studies modification
                 "AllowedModes": ["modify-new-uids", "modify-keep-uids", "duplicate"],
-                "DefaultMode": "modify-new-uids"
+                "DefaultMode": "modify-new-uids",
+
+                // same configurations for Series (introduced in 1.2.0)
+                "SeriesAllowedModes": ["modify-new-uids", "modify-keep-uids", "duplicate"],
+                "SeriesDefaultMode": "modify-new-uids"
 
             },
 
