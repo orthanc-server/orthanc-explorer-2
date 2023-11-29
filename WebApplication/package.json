@@ -10,7 +10,7 @@
     "@fortawesome/fontawesome-free": "^6.2.1",
     "@popperjs/core": "^2.11.6",
     "@vuepic/vue-datepicker": "^4.2.0",
-    "axios": "^0.24.0",
+    "axios": "^1.6.0",
     "bootstrap": "5.2.3",
     "bootstrap-icons": "^1.10.0",
     "bootstrap5-tags": "^1.5.22",
