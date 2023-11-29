@@ -189,7 +189,7 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
       elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "daf4807631c5")
         # DICOMweb 1.15 (framework pre-1.12.2)
         set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
-        set(ORTHANC_FRAMEWORK_MD5 "c644aff2817306b3207c98c92e43f35f")
+        set(ORTHANC_FRAMEWORK_MD5 "ebe8bdf388319f1c9536b2b680451848")
       endif()
     endif()
   endif()
