@@ -192,6 +192,9 @@ export default {
                 return true;
             }
         },
+        hasShareButton() {
+            return (this.uiOptions.EnableShares && "authorization" in this.installedPlugins);
+        },
         isShareEnabled() {
             if (this.resourceLevel == 'bulk') {
                 return this.selectedStudiesIds.length > 0
@@ -538,11 +541,11 @@ export default {
             </Modal>
         </div>
         <div class="btn-group">
-            <button v-if="uiOptions.EnableShares" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+            <button v-if="hasShareButton" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId" :disabled="!isShareEnabled">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
-            <ShareModal v-if="uiOptions.EnableShares" :id="'share-modal-' + this.resourceOrthancId"
+            <ShareModal v-if="hasShareButton" :id="'share-modal-' + this.resourceOrthancId"
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"></ShareModal>
         </div>
