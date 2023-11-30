@@ -8,10 +8,6 @@ import api from "../orthancApi"
 
 export default {
     props: ["id", "orthancId", "studyMainDicomTags", "patientMainDicomTags"],
-    methods: {
-        share() {
-        }
-    },
     data() {
         return {
             expirationInDays: 0,
@@ -19,11 +15,12 @@ export default {
         }
     },
     mounted() {
-        this.expirationInDays = this.uiOptions.DefaultShareDuration;
+        this.reset();
 
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
             // move the modal to body to avoid z-index issues: https://weblog.west-wind.com/posts/2016/sep/14/bootstrap-modal-dialog-showing-under-modal-background
             document.querySelector('body').appendChild(e.target);
+            this.reset();
         });
     },
     watch: {
@@ -32,6 +29,10 @@ export default {
         },
     },
     methods: {
+        async reset() {
+            this.expirationInDays = this.uiOptions.DefaultShareDuration;
+            this.shareLink = "";
+        },
         getDurationText(duration) {
             if (duration == 0) {
                 return this.$i18n.t('share.never');
