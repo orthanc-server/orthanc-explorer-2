@@ -16,6 +16,10 @@ Changes:
 - In "Modify Patient Tags", allow applying changes even if nothing has changed e.g. to apply all current
   Patient tags to all studies with the same Patient ID.
 
+Fixes:
+- fix #43: Missing 'ModalitiesInStudy' in response in remote system QR breaks search result preview.
+
+
 1.1.3 (2023-10-04)
 ==================
 

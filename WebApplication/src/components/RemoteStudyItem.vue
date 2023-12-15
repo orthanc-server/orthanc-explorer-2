@@ -51,7 +51,11 @@ export default {
             // studies: state => state.studies.studies,
         }),        
         modalitiesInStudyForDisplay() {
-            return this.studyFields.ModalitiesInStudy.split('\\').join(',');
+            if (this.studyFields.ModalitiesInStudy) {
+                return this.studyFields.ModalitiesInStudy.split('\\').join(',');
+            } else {
+                return "?";
+            }
         },
     },
     components: { RemoteStudyDetails }
