@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.2.0 (2023-12-19)
+==================
 
 Changes:
 - Added a button to download multiple studies at once (only available if running an
