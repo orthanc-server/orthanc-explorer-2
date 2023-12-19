@@ -111,6 +111,10 @@ jobs:
         name: web-app-dist
         path: WebApplication/dist
 
+    - name: install Mercurial on MacOS
+      if: runner.os == 'MacOSX'
+      run: pip3 install mercurial
+
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build  ${{matrix.config.extraCMakeFlags}} -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}" -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       env: 
