@@ -1,3 +1,9 @@
+Pending changes in the mainline
+===============================
+
+Fixes:
+- Handle quotes correctly when "PatientBirthDate" is defined in in "ShowSamePatientStudiesFilter"
+
 1.2.0 (2023-12-19)
 ==================
 

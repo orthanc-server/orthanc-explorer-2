@@ -36,11 +36,11 @@ export default {
         selectedValues() {
             return this.labelsModel.join(",");
         },
-        sampePatientStudiesLink() {
+        samePatientStudiesLink() {
             let filters = [];
             for (let tag of this.uiOptions.ShowSamePatientStudiesFilter) {
                 if (tag in this.patientMainDicomTags) {
-                    if (tag in ["PatientBirthDate"]) {
+                    if (["PatientBirthDate"].indexOf(tag) >= 0) {
                         filters.push(tag + "=" + this.patientMainDicomTags[tag] + "");
                     } else {
                         filters.push(tag + "=\"" + this.patientMainDicomTags[tag] + "\"");
@@ -115,7 +115,7 @@ export default {
                 </ul>
                 <p v-if="hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1">
                     {{ $t('this_patient_has_other_studies', { count: samePatientStudiesCount }) }}.
-                    <router-link v-bind:to='sampePatientStudiesLink' >
+                    <router-link v-bind:to='samePatientStudiesLink' >
                         {{ $t('this_patient_has_other_studies_show') }}
                     </router-link>
                 </p>
