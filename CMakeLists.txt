@@ -149,7 +149,7 @@ if (${WEBAPP_DIST_SOURCE} STREQUAL "WEB")
   if (${WEBAPP_DIST_VERSION} STREQUAL "mainline")
     set(WEBAPP_DIST_VERSION "master")  # the branch is named master, not mainline
   endif()
-  DownloadPackage(no-check "https://orthanc.osimis.io/public/oe2/web-app-dist/${WEBAPP_DIST_VERSION}.zip" ${WEBAPP_DIST_PATH})
+  DownloadPackage(no-check "https://public-files.orthanc.team/oe2-dist-files/${WEBAPP_DIST_VERSION}.zip" ${WEBAPP_DIST_PATH})
 endif()
 
 if (STANDALONE_BUILD)

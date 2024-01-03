@@ -10,7 +10,7 @@ Binaries are available:
   - Windows 64bits
   - Ubuntu 20.04
   - MacOS (Universal binary)
-- in the [Windows Installers](https://orthanc.osimis.io/win-installer/OrthancInstaller-Win64-latest.exe) (64bits version only),
+- in the [Windows Installers](https://orthanc.uclouvain.be/downloads/windows-64/installers/index.html) (64bits version only),
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
 - in the [osimis/orthanc](https://hub.docker.com/r/osimis/orthanc) Docker images,
