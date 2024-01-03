@@ -133,8 +133,8 @@ const mutations = {
     },
     selectAllStudies(state, {isSelected}) {
         if (isSelected) {
-            state.selectedStudiesIds = state.studiesIds;
-            state.selectedStudies = state.studies;
+            state.selectedStudiesIds = [...state.studiesIds];
+            state.selectedStudies = [...state.studies];
         } else {
             state.selectedStudiesIds = [];
             state.selectedStudies = [];

@@ -3,6 +3,7 @@ Pending changes in the mainline
 
 Fixes:
 - Handle quotes correctly when "PatientBirthDate" is defined in in "ShowSamePatientStudiesFilter"
+- fix #42: Studies disappear from list when unselecting them.
 
 1.2.0 (2023-12-19)
 ==================
