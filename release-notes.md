@@ -1,10 +1,11 @@
-Pending changes in the mainline
-===============================
+1.2.1 (2024-01-03)
+==================
 
 Fixes:
-- Handle quotes correctly when "PatientBirthDate" is defined in in "ShowSamePatientStudiesFilter"
+- Handle quotes correctly when "PatientBirthDate" is defined in "ShowSamePatientStudiesFilter"
 - fix #42: Studies disappear from list when unselecting them.
 - fix #34: Enable copy button when context is not secure.
+
 
 1.2.0 (2023-12-19)
 ==================
