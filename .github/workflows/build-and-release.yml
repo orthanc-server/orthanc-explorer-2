@@ -112,7 +112,7 @@ jobs:
         path: WebApplication/dist
 
     - name: install Mercurial on MacOS
-      if: runner.os == 'MacOSX'
+      if: runner.os == 'MacOS'
       run: pip3 install mercurial
 
     - name: Configure CMake
