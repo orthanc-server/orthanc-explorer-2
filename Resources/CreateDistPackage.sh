@@ -52,4 +52,4 @@ docker run -t ${DOCKER_FLAGS} --rm \
        -v ${ROOT_DIR}/WebApplication:/source/WebApplication:ro \
        -v ${ROOT_DIR}/WebApplication/dist/:/target:rw \
        ${IMAGE} \
-       bash /source/build.sh ${VERSION}
+       bash /source/build.sh
