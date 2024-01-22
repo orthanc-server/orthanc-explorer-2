@@ -272,6 +272,7 @@ export default {
             "Remove": removeTags,
             "Keep": keepTags,
             "KeepSource": keepSource,
+            "KeepLabels": true,
             "Force": true,
             "Synchronous": false
         }))
