@@ -6,6 +6,7 @@ let allLanguages = [
     { name: "Italiano", key: "it" },
     { name: "ქართული", key: "ka" },
     { name: "Русский", key: "ru" },
+    { name: "Slovensko", key: "si" },
     { name: "Українська", key: "uk" },
     { name: '中文', key: 'zh' }
     // { name: 'Português', key: 'pt' },

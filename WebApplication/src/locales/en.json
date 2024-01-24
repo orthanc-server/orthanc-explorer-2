@@ -194,9 +194,9 @@
     "this_patient_has_other_studies_show" : "Show them!",
     "token" : {
         "token_being_checked_html": "Your token is being checked.",
-        "error_token_invalid_html": "Your token is invalid.<br/>Check you have pasted it completely or contact the person who has provided it to you.",
+        "error_token_invalid_html": "Your token is invalid.<br/>Check if you have pasted it completely, or contact the person who has provided it to you.",
         "error_token_expired_html": "Your token has expired.",
-        "error_token_unknown_html": "Your token is invalid.<br/>Check you have pasted it completely or contact the person who has provided it to you."
+        "error_token_unknown_html": "Your token is invalid.<br/>Check if you have pasted it completely, or contact the person who has provided it to you."
     },
     "trace": "Trace",
     "upload": "Upload",
@@ -206,7 +206,7 @@
     "view_in_meddream": "View in MedDream",
     "view_in_ohif": "View in OHIF",
     "view_in_ohif_vr": "View in OHIF Volume Rendering mode",
-    "view_in_ohif_tmtv": "View en OHIF Total Metabolic Tumor Volume mode",
+    "view_in_ohif_tmtv": "View in OHIF Total Metabolic Tumor Volume mode",
     "view_in_osimis": "View in OsimisViewer",
     "view_in_stone": "View in StoneViewer",
     "view_in_volview": "View in VolView",

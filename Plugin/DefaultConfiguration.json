@@ -158,7 +158,7 @@
             // Defines the list of languages available in the language picker
             // ex: "AvailableLanguages" : ["en", "fr"],
             // ex: "AvailableLanguages" : []  -> this won't show the language picker at all and force usage of the DefaultLanguage
-            "AvailableLanguages": ["en", "de", "es", "fr", "it", "ka", "ru", "uk", "zh"],
+            "AvailableLanguages": ["en", "de", "es", "fr", "it", "ka", "ru", "si", "uk", "zh"],
             
             // Force the default language.  If null (default), the language is the language from the visitor's browser.
             // ex: "DefaultLanguage" : "en"
