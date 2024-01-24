@@ -3,7 +3,8 @@ Pending changes in the mainline
 
 Changes:
 - Now keeping labels when modifying a study or a series.  
-  This requires Orthanc 1.12.3 that has not been released yet.
+  This fix requires Orthanc 1.12.3 that has not been released yet.
+- Added Slovenian translations
 
 
 1.2.1 (2024-01-03)
