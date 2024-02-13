@@ -37,7 +37,7 @@ export default {
         <tr>
             <td width="80%" class="cut-text">
                 <TagsTree 
-                    :tags="tags">
+                    :tags="headers">
                 </TagsTree>
             </td>
             <td width="20%" class="instance-button-group">
@@ -50,6 +50,13 @@ export default {
                 :instanceTags="this.tags"
                 @deletedResource="onDeletedInstance"
                 ></ResourceButtonGroup>
+            </td>
+        </tr>
+        <tr>
+            <td width="80%" class="cut-text">
+                <TagsTree 
+                    :tags="tags">
+                </TagsTree>
             </td>
         </tr>
     </table>
