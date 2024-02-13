@@ -11,7 +11,7 @@ import TokenLinkButton from "./TokenLinkButton.vue"
 import BulkLabelsModal from "./BulkLabelsModal.vue"
 
 export default {
-    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags"],
+    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags", "instanceHeaders"],
     setup() {
         return {
         }
@@ -20,7 +20,8 @@ export default {
     data() {
         return {
             isBulkLabelModalVisible: false,
-            isWsiButtonEnabled: false
+            isWsiButtonEnabled: false,
+            isPdfPreview: false,
         };
     },
     async mounted() {
@@ -28,6 +29,8 @@ export default {
             let seriesInstances = await api.getSeriesInstances(this.resourceOrthancId);
             let firstInstancetags = await api.getSimplifiedInstanceTags(seriesInstances[0]['ID']);
             this.isWsiButtonEnabled = firstInstancetags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6";
+        } else if (this.resourceLevel == 'instance') {
+            this.isPdfPreview = this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
         }
     },
     methods: {
@@ -326,7 +329,11 @@ export default {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
         instancePreviewUrl() {
-            return api.getInstancePreviewUrl(this.resourceOrthancId);
+            if (this.isPdfPreview) {
+                return api.getInstancePdfUrl(this.resourceOrthancId);
+            } else {
+                return api.getInstancePreviewUrl(this.resourceOrthancId);
+            }
         },
         instanceDownloadUrl() {
             return api.getInstanceDownloadUrl(this.resourceOrthancId);

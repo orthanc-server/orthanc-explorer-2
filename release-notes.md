@@ -6,6 +6,7 @@ Changes:
   This fix requires Orthanc 1.12.3.
 - Added Slovenian translations
 - Now showing the DICOM header content at instance level (TransferSyntax, ...)
+- Instance preview now handles PDF correctly.
 
 
 1.2.1 (2024-01-03)

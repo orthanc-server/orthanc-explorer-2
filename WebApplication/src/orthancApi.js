@@ -435,6 +435,9 @@ export default {
     getInstancePreviewUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/preview";
     },
+    getInstancePdfUrl(orthancId) {
+        return orthancApiUrl + "instances/" + orthancId + "/pdf";
+    },
     getInstanceDownloadUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/file";
     },

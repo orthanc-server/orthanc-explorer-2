@@ -48,6 +48,7 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"
                 :instanceTags="this.tags"
+                :instanceHeaders="this.headers"
                 @deletedResource="onDeletedInstance"
                 ></ResourceButtonGroup>
             </td>
