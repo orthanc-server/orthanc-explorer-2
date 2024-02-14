@@ -7,6 +7,7 @@ Changes:
 - Added Slovenian translations
 - Now showing the DICOM header content at instance level (TransferSyntax, ...)
 - Instance preview now handles PDF correctly.
+- Now displaying #Patients and MaximumPatientCount in Settings.
 
 
 1.2.1 (2024-01-03)

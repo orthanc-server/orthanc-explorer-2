@@ -38,6 +38,9 @@ export default {
             }
             return this.statistics.TotalDiskSizeMB + " MB";
         },
+        hasMaxPatientCount() {
+            return this.system.MaximumPatientCount > 0;
+        },
         hasMaxStorageSize() {
             return this.system.MaximumStorageSize > 0;
         },
@@ -60,6 +63,11 @@ export default {
             <table class="table">
                 <tbody>
                     <tr>
+                        <th scope="row" class="w-50 header"># {{$t('patients')}}</th>
+                        <td v-if="!hasMaxPatientCount" class="value">{{ statistics.CountPatients }}</td>
+                        <td v-if="hasMaxPatientCount" class="value">{{ statistics.CountPatients }} / {{ system.MaximumPatientCount }} ({{ system.MaximumStorageMode }})</td>
+                    </tr>
+                    <tr>
                         <th scope="row" class="w-50 header"># {{$t('studies')}}</th>
                         <td class="value">{{ statistics.CountStudies }}</td>
                     </tr>
@@ -74,7 +82,7 @@ export default {
                     <tr>
                         <th scope="row" class="header">{{$t('storage_size')}}</th>
                         <td v-if="!hasMaxStorageSize" class="value">{{ totalDiskSize }}</td>
-                        <td v-if="hasMaxStorageSize" class="value">{{ totalDiskSize }} / {{ maxStorageSize }} ( {{ system.MaximumStorageMode }})</td>
+                        <td v-if="hasMaxStorageSize" class="value">{{ totalDiskSize }} / {{ maxStorageSize }} ({{ system.MaximumStorageMode }})</td>
                     </tr>
                 </tbody>
             </table>
