@@ -13,6 +13,7 @@ Changes:
 Fixes:
 - fixed delete on multiple selection in Firefox
 
+
 1.2.1 (2024-01-03)
 ==================
 
