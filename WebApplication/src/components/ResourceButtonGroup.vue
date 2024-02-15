@@ -45,8 +45,13 @@ export default {
         },
         deleteResource(event) {
             if (this.resourceLevel == 'bulk') {
-                api.deleteResources(this.resourcesOrthancId);
-                window.location.reload();
+                api.deleteResources(this.resourcesOrthancId)
+                    .then(() => {
+                        window.location.reload();
+                    })
+                    .catch((reason) => {
+                        console.error("failed to delete resources : ", this.resourceOrthancId, reason);
+                    });
             } else {
                 api.deleteResource(this.resourceLevel, this.resourceOrthancId)
                     .then(() => {

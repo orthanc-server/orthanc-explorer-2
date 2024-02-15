@@ -10,6 +10,9 @@ Changes:
 - Now displaying #Patients and MaximumPatientCount in Settings.
 
 
+Fixes:
+- fixed delete on multiple selection in Firefox
+
 1.2.1 (2024-01-03)
 ==================
 
