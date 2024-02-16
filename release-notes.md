@@ -1,5 +1,5 @@
-Pending changes in the mainline
-===============================
+1.2.2 (2024-02-16)
+==================
 
 Changes:
 - Now keeping labels when modifying a study or a series.  
