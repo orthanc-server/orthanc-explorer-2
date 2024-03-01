@@ -43,7 +43,7 @@ Json::Value pluginsConfiguration_;
 bool hasUserProfile_ = false;
 bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
-
+std::string customCssVariablesPath_;
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
 void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
@@ -90,6 +90,36 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
     OrthancPluginAnswerBuffer(context, output, resource, s.size(), Orthanc::EnumerationToString(mime));
   }
 }
+
+// serves either the default CSS variables or a custom file CSS
+void ServeCssVariables(OrthancPluginRestOutput* output,
+                       const char* url,
+                       const OrthancPluginHttpRequest* request)
+{
+  OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
+
+  if (request->method != OrthancPluginHttpMethod_Get)
+  {
+    OrthancPluginSendMethodNotAllowed(context, output, "GET");
+  }
+  else
+  {
+    std::string cssFileContent;
+
+    if (customCssVariablesPath_.empty())
+    { // serve the default CSS
+      Orthanc::EmbeddedResources::GetFileResource(cssFileContent, Orthanc::EmbeddedResources::DEFAULT_CSS_VARIABLES);
+    }
+    else
+    {
+      Orthanc::SystemToolbox::ReadFile(cssFileContent, customCssVariablesPath_);
+    }
+
+    const char* resource = cssFileContent.size() ? cssFileContent.c_str() : NULL;
+    OrthancPluginAnswerBuffer(context, output, resource, cssFileContent.size(), Orthanc::EnumerationToString(Orthanc::MimeType_Css));
+  }
+}
+
 
 void RedirectRoot(OrthancPluginRestOutput* output,
                   const char* url,
@@ -181,6 +211,11 @@ void ReadConfiguration()
     }
 
     MergeJson(pluginJsonConfiguration_, jsonConfig);
+
+    if (jsonConfig.isMember("CustomCssVariablesPath") && jsonConfig["CustomCssVariablesPath"].isString())
+    {
+      customCssVariablesPath_ = jsonConfig["CustomCssVariablesPath"].asString();
+    }
   }
 
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
@@ -600,6 +635,11 @@ extern "C"
         CheckRootUrlIsValid(oe2BaseUrl_, "Root", false);
 
         OrthancPlugins::LogWarning("Root URI to the Orthanc-Explorer 2 application: " + oe2BaseUrl_);
+
+
+        OrthancPlugins::RegisterRestCallback
+          <ServeCssVariables>
+          (oe2BaseUrl_ + "app/customizable/variables.css", true);
 
         // we need to mix the "routing" between the server and the frontend (vue-router)
         // first part are the files that are 'static files' that must be served by the backend

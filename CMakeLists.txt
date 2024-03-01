@@ -162,6 +162,7 @@ if (STANDALONE_BUILD)
     WEB_APPLICATION_INDEX   ${WEBAPP_DIST_PATH}/index.html
     WEB_APPLICATION_INDEX_LANDING   ${WEBAPP_DIST_PATH}/token-landing.html
     WEB_APPLICATION_INDEX_RETRIEVE_AND_VIEW   ${WEBAPP_DIST_PATH}/retrieve-and-view.html
+    DEFAULT_CSS_VARIABLES   ${CMAKE_SOURCE_DIR}/WebApplication/src/assets/css/_variables.css
     )
 else()
   add_definitions(-DORTHANC_STANDALONE=0)

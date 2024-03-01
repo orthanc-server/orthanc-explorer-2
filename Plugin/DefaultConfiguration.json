@@ -12,6 +12,10 @@
         // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
         "IsDefaultOrthancUI": false,
 
+        // Path to a custom CSS files that includes custom values for variables.
+        // Must be based on this default file: https://github.com/orthanc-server/orthanc-explorer-2/blob/master/WebApplication/src/assets/css/_variables.css
+        // "CustomCssVariablesPath": "/home/my/path/to/custom.css",
+
         // This block of configuration is transmitted as is to the frontend application.
         // Make sure not to store any secret here
         "UiOptions" : {

@@ -1,3 +1,9 @@
+Changes:
+- Theming the interface:
+  - New configuration "CustomCssVariablesPath" to replace default CSS variables
+    by custom values - mainly for colors.
+
+
 1.2.2 (2024-02-16)
 ==================
 

@@ -2,6 +2,18 @@
 export default {
     async created() {
         console.log("Creating App...");
+
+        {// Load the CSS dynamically since it can be a custom css
+            console.log("Loading the customizable CSS variables ...");
+
+            let link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'customizable/variables.css';
+    
+            document.getElementsByTagName('HEAD')[0].appendChild(link);
+        }
+
         await this.$store.dispatch('configuration/load');
         await this.$store.dispatch('studies/initialLoad');
         await this.$store.dispatch('labels/refresh');
