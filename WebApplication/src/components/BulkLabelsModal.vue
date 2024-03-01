@@ -214,7 +214,7 @@ export default {
                             <div class="col-md-12">
                                 <p v-for="message in messages" :key="message">
                                     <span v-html="message.part1"></span> 
-                                    <span v-for="label in message.labels" :key="label" class="label badge bg-info">{{ label }}</span>
+                                    <span v-for="label in message.labels" :key="label" class="label badge">{{ label }}</span>
                                     <span v-html="message.part2"></span>
                                 </p>
                             </div>
@@ -235,5 +235,6 @@ export default {
 .label {
     margin-left: 2px;
     margin-left: 2px;
+    background-color: var(--label-bg-color);
 }
 </style>

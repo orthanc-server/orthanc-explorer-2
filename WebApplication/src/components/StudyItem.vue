@@ -143,7 +143,7 @@ export default {
         <tr v-show="showLabels">
             <td></td>
             <td colspan="100%" class="label-row">
-                <span v-for="label in fields.Labels" :key="label" class="label badge bg-info">{{ label }}</span>
+                <span v-for="label in fields.Labels" :key="label" class="label badge">{{ label }}</span>
                 <span v-if="!hasLabels">&nbsp;</span>
             </td>
         </tr>

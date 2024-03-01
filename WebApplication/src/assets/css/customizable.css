@@ -1,0 +1,52 @@
+/* Customized CSS.  
+This CSS is loaded after all other CSS files have been loaded 
+therefore, it overrides all other definitions */
+:root {
+    
+    --table-filters-bg-color: rgb(240, 240, 240);
+    --table-filters-is-searching-color: #fda90d86;
+    --table-filters-is-not-searching-color: #0d6dfd86;
+    --table-filters-placeholder-shown-color: green; /* does not work ! */
+    --table-filters-placeholder-shown-bg-color: rgb(245, 245, 245);
+    --table-filters-placeholder-not-shown-color: black; /* does not work ! */
+    --table-filters-placeholder-not-shown-bg-color: white;
+
+
+    --study-odd-color: rgb(250, 250, 255);
+    --study-hover-color: rgb(235, 235, 255);
+    --study-selected-color: rgb(240, 240, 255);
+
+    --series-odd-color: rgb(235, 235, 240);
+    --series-hover-color: rgb(220, 220, 240);
+    --series-selected-color: rgb(225, 225, 240);
+
+    --instance-odd-color: rgb(220, 220, 225);
+    --instance-hover-color: rgb(205, 205, 225);
+    --instance-selected-color: rgb(210, 210, 225);
+
+    --details-top-margin: 25px;
+
+    --nav-bar-width: 260px;
+
+    --nav-side-color: rgb(255, 255, 255);
+    --nav-side-bg-color: #2e353d;
+    --nav-side-sub-bg-color: #181c20;
+    --nav-side-selected-bg-color: #4f5b69;
+    --nav-side-hover-bg-color: #3e454d;
+    --nav-side-submenu-color: rgb(255, 255, 255);
+    --nav-side-active-border-color: #d19b3d;
+
+    --label-bg-color: rgb(10, 200, 240);
+
+    /* you may also customize global bootstrap variables */
+    /* --bs-info-rgb: 255, 26, 35; */
+}
+
+
+/* optional, you may e.g. customize bootstrap buttons or any other class that is declared globally */
+
+/*  
+.btn-primary {
+    --bs-btn-color: white;
+    --bs-btn-bg: red;
+}  */

@@ -98,7 +98,7 @@ export default {
         <tr v-if="!uiOptions.EnableEditLabels">
             <td colspan="100%">
                 {{  $t('labels.study_details_title') }}
-                <span v-for="label in labelsModel" :key="label" class="label badge bg-info">{{ label }}</span>
+                <span v-for="label in labelsModel" :key="label" class="label badge">{{ label }}</span>
             </td>
         </tr>
         <tr>

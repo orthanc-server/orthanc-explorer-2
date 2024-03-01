@@ -295,8 +295,8 @@ export default {
 
 .nav-side-menu ul .active,
 .nav-side-menu li .active {
-    border-left: 3px solid #d19b3d;
-    background-color: #4f5b69;
+    border-left: 3px solid var(--nav-side-active-border-color);
+    background-color: var(--nav-side-selected-bg-color);
 }
 
 .nav-side-menu ul .sub-menu li.active,
@@ -313,17 +313,17 @@ export default {
 .nav-side-menu ul .sub-menu li,
 .nav-side-menu li .sub-menu li {
     display: flex;
-    background-color: #181c20;
+    background-color: var(--nav-side-sub-bg-color);
     border: none;
     line-height: 28px;
-    border-bottom: 1px solid #23282e;
+    border-bottom: 1px solid var(--nav-side-bg-color);
     margin-left: 0px;
 }
 
 .nav-side-menu ul .sub-menu li:hover,
 .nav-side-menu li .sub-menu li:hover {
-    border-left: 3px solid #d19b3d;
-    background-color: #4f5b69;
+    border-left: 3px solid var(--nav-side-active-border-color);
+    background-color: var(--nav-side-selected-bg-color);
 }
 
 .nav-side-menu ul .sub-menu li:before,
@@ -340,8 +340,8 @@ export default {
 .nav-side-menu li {
     margin-left: -10px;
     padding-left: 0px;
-    border-left: 3px solid #2e353d;
-    border-bottom: 1px solid #23282e;
+    border-left: 3px solid var(--nav-side-bg-color);
+    border-bottom: 1px solid var(--nav-side-bg-color);
 }
 
 .nav-side-menu li a {
@@ -356,8 +356,8 @@ export default {
 }
 
 .nav-side-menu li:hover {
-    border-left: 3px solid #d19b3d;
-    background-color: #4f5b69;
+    border-left: 3px solid var(--nav-side-active-border-color);
+    background-color: var(--nav-side-selected-bg-color);
 }
 
 .nav-side-menu .menu-list .menu-content {

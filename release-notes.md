@@ -1,6 +1,6 @@
 Changes:
 - Theming the interface:
-  - New configuration "CustomCssVariablesPath" to replace default CSS variables
+  - New configuration "CustomCssPath" to replace default CSS
     by custom values - mainly for colors.
 
 

@@ -43,7 +43,7 @@ Json::Value pluginsConfiguration_;
 bool hasUserProfile_ = false;
 bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
-std::string customCssVariablesPath_;
+std::string customCssPath_;
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
 void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
@@ -106,17 +106,27 @@ void ServeCssVariables(OrthancPluginRestOutput* output,
   {
     std::string cssFileContent;
 
-    if (customCssVariablesPath_.empty())
+    if (customCssPath_.empty())
     { // serve the default CSS
       Orthanc::EmbeddedResources::GetFileResource(cssFileContent, Orthanc::EmbeddedResources::DEFAULT_CSS_VARIABLES);
     }
     else
     {
-      Orthanc::SystemToolbox::ReadFile(cssFileContent, customCssVariablesPath_);
+      Orthanc::SystemToolbox::ReadFile(cssFileContent, customCssPath_);
     }
 
     const char* resource = cssFileContent.size() ? cssFileContent.c_str() : NULL;
-    OrthancPluginAnswerBuffer(context, output, resource, cssFileContent.size(), Orthanc::EnumerationToString(Orthanc::MimeType_Css));
+    size_t size = cssFileContent.size();
+
+    // include an ETag for correct cache handling
+    OrthancPlugins::OrthancString md5;
+    md5.Assign(OrthancPluginComputeMd5(OrthancPlugins::GetGlobalContext(), resource, size));
+
+    std::string etag = "\"" + std::string(md5.GetContent()) + "\"";
+    OrthancPluginSetHttpHeader(OrthancPlugins::GetGlobalContext(), output, "ETag", etag.c_str());
+    OrthancPluginSetHttpHeader(OrthancPlugins::GetGlobalContext(), output, "Cache-Control", "no-cache");
+
+    OrthancPluginAnswerBuffer(context, output, resource, size, Orthanc::EnumerationToString(Orthanc::MimeType_Css));
   }
 }
 
@@ -212,9 +222,9 @@ void ReadConfiguration()
 
     MergeJson(pluginJsonConfiguration_, jsonConfig);
 
-    if (jsonConfig.isMember("CustomCssVariablesPath") && jsonConfig["CustomCssVariablesPath"].isString())
+    if (jsonConfig.isMember("CustomCssPath") && jsonConfig["CustomCssPath"].isString())
     {
-      customCssVariablesPath_ = jsonConfig["CustomCssVariablesPath"].asString();
+      customCssPath_ = jsonConfig["CustomCssPath"].asString();
     }
   }
 
