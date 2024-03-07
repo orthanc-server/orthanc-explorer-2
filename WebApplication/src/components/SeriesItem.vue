@@ -116,22 +116,13 @@ export default {
     border-bottom: 0px !important;
 }
 
-.series-table > tbody > tr:hover {
-    background-color: var(--series-hover-color);
-}
-
-.series-table > tbody > tr.series-row-expanded:hover {
-    background-color: var(--series-selected-color);
-}
-.series-table > tbody > tr.series-details-expanded:hover {
-    background-color: var(--series-selected-color);
-}
 .series-details-expanded {
-    background-color: var(--series-selected-color);
+    background-color: var(--series-details-bg-color);
 
     border-top: 0px !important;
     border-bottom: 3px !important;
     border-style: solid !important;
     border-color: black !important;
 }
+
 </style>

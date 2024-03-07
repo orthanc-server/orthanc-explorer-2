@@ -95,7 +95,7 @@ export default {
 }
 
 .instance-row-expanded {
-    background-color: var(--instance-selected-color);
+    background-color: var(--instance-details-bg-color);
     font-weight: 700;
 
     border-top: 3px !important;
@@ -107,20 +107,9 @@ export default {
     border-bottom: 0px !important;
 }
 
-.instance-table > tbody > tr:hover {
-    background-color: var(--instance-hover-color);
-}
-
-.instance-table > tbody > tr.instance-row-expanded:hover {
-    background-color: var(--instance-selected-color);
-}
-.instance-table > tbody > tr.instance-details-expanded:hover {
-    background-color: var(--instance-selected-color);
-}
-
 
 .instance-details-expanded {
-    background-color: var(--instance-selected-color);
+    background-color: var(--instance-details-bg-color);
 
     border-top: 0px !important;
     border-bottom: 3px !important;

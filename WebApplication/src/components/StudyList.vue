@@ -104,6 +104,13 @@ export default {
             }
             return this.studiesIds.length == this.uiOptions.MaxStudiesDisplayed; // in this case, the result has been limited
         },
+        isDarkMode() {
+            // hack to switch the theme: get the value from our custom css
+            let bootstrapTheme = document.documentElement.getAttribute("data-bs-theme"); // for production
+            bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');  // for dev
+            console.log("DatePicker color mode is ", bootstrapTheme);
+            return bootstrapTheme == "dark";
+        },
         isSearchAsYouTypeEnabled() {
             return this.uiOptions.StudyListSearchMode == "search-as-you-type";
         },
@@ -663,15 +670,15 @@ export default {
 <template>
     <div>
         <table class="table table-responsive table-sm study-table table-borderless">
-            <thead>
-                <th width="2%" scope="col" class="study-table-header"></th>
+            <thead class="study-table-header">
+                <th width="2%" scope="col" ></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                     v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                     class="study-table-title">{{
                         columnTitle(columnTag)
                     }}</th>
             </thead>
-            <thead class="study-filters" v-on:keyup.enter="search">
+            <thead class="study-table-filters" v-on:keyup.enter="search">
                 <th scope="col">
                     <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
                         data-bs-toggle="tooltip" title="Clear filter">
@@ -679,15 +686,15 @@ export default {
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                    <div v-if="columnTag == 'StudyDate'" class="study-list-date-picker">
+                    <div v-if="columnTag == 'StudyDate'">
                     <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
                         :enable-time-picker="false" range :preset-ranges="datePickerPresetRanges" format="yyyyMMdd"
-                        preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]">
+                        preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                         <template #yearly="{ label, range, presetDateRange }">
                             <span @click="presetDateRange(range)">{{ label }}</span>
                         </template>
                     </Datepicker>
-                </div>
+                    </div>
                     <div v-else-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
                             data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
@@ -711,10 +718,10 @@ export default {
                                     data-bs-toggle="dropdown">{{ $t('close') }}</button></li>
                         </ul>
                     </div>
-                    <div v-else-if="columnTag == 'PatientBirthDate'" class="study-list-date-picker">
+                    <div v-else-if="columnTag == 'PatientBirthDate'">
                     <Datepicker v-model="filterPatientBirthDateForDatePicker"
                         :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
-                        arrow-navigation :highlight-week-days="[0, 6]">
+                        arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                     </Datepicker>
                     </div>
                     <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
@@ -722,63 +729,61 @@ export default {
                         v-bind:class="getFilterClass(columnTag)" />
                 </th>
             </thead>
-            <tbody>
-                <tr class="actions-header">
-                    <td width="2%" scope="col">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" v-model="allSelected"
-                                :indeterminate="isPartialSelected" @click="clickSelectAll">
+            <thead class="study-table-actions">
+                <th width="2%" scope="col">
+                    <div class="form-check" style="margin-left: 1.9rem">
+                        <input class="form-check-input" type="checkbox" v-model="allSelected"
+                            :indeterminate="isPartialSelected" @click="clickSelectAll">
+                    </div>
+                </th>
+                <th width="98%" colspan="10" scope="col">
+                    <div class="row g-1">
+                        <div class="col-4 study-list-bulk-buttons">
+                            <ResourceButtonGroup :resourceLevel="'bulk'">
+                            </ResourceButtonGroup>
                         </div>
-                    </td>
-                    <td width="98%" colspan="10" scope="col" class="study-table-header">
-                        <div class="row g-1">
-                            <div class="col-3 study-list-bulk-buttons">
-                                <ResourceButtonGroup :resourceLevel="'bulk'">
-                                </ResourceButtonGroup>
+                        <div class="col-6">
+                            <div v-if="!isSearching && isLoadingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
+                                <span v-if="isLoadingLatestStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
+                                    aria-hidden="true"></span>{{
+                                        $t('loading_latest_studies') }}
                             </div>
-                            <div class="col-7">
-                                <div v-if="!isSearching && isLoadingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
-                                    <span v-if="isLoadingLatestStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
-                                        aria-hidden="true"></span>{{
-                                            $t('loading_latest_studies') }}
-                                </div>
-                                <div v-else-if="!isSearching && isDisplayingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i>{{
-                                            $t('displaying_latest_studies') }}
-                                </div>
-                                <div v-else-if="!isSearching && notShowingAllResults" class="alert alert-danger study-list-alert"
-                                    role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('not_showing_all_results') }} ! !
-                                </div>
-                                <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
-                                    class="alert alert-warning study-list-alert" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('enter_search') }}
-                                </div>
-                                <div v-else-if="!isSearching && isStudyListEmpty"
-                                    class="alert alert-warning study-list-alert" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('no_result_found') }}
-                                </div>
-                                <div v-else-if="isSearching" class="alert alert-secondary study-list-alert" role="alert">
-                                    <span v-if="isSearching" class="spinner-border spinner-border-sm alert-icon" role="status"
-                                        aria-hidden="true"></span>{{
-                                            $t('searching') }}
-                                </div>
+                            <div v-else-if="!isSearching && isDisplayingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>{{
+                                        $t('displaying_latest_studies') }}
                             </div>
-                            <div class="col-2">
-                                <button @click="search" v-if="isSearchButtonEnabled" type="submit"
-                                    class="form-control study-list-filter btn filter-button btn-secondary search-button"
-                                    data-bs-toggle="tooltip"
-                                    :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
-                                    title="Search">
-                                    <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
-                                    <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
-                                        aria-hidden="true"></span>
-                                </button>
+                            <div v-else-if="!isSearching && notShowingAllResults" class="alert alert-danger study-list-alert"
+                                role="alert">
+                                <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('not_showing_all_results') }} ! !
+                            </div>
+                            <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
+                                class="alert alert-warning study-list-alert" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('enter_search') }}
+                            </div>
+                            <div v-else-if="!isSearching && isStudyListEmpty"
+                                class="alert alert-warning study-list-alert" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('no_result_found') }}
+                            </div>
+                            <div v-else-if="isSearching" class="alert alert-secondary study-list-alert" role="alert">
+                                <span v-if="isSearching" class="spinner-border spinner-border-sm alert-icon" role="status"
+                                    aria-hidden="true"></span>{{
+                                        $t('searching') }}
                             </div>
                         </div>
-                    </td>
-                </tr>
-            </tbody>
+                        <div class="col-2">
+                            <button @click="search" v-if="isSearchButtonEnabled" type="submit"
+                                class="form-control study-list-filter btn filter-button btn-secondary search-button"
+                                data-bs-toggle="tooltip"
+                                :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                title="Search">
+                                <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+                                <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                                    aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </th>
+            </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId"
                 @deletedStudy="onDeletedStudy">
             </StudyItem>

@@ -20,7 +20,6 @@
 
 
 input.form-control.study-list-filter {
-  color: black;
   margin-top: var(--filter-margin);
   margin-bottom: var(--filter-margin);
   padding-top: var(--filter-padding);
@@ -30,6 +29,7 @@ input.form-control.study-list-filter {
 
 .filter-button {
   border-bottom-width: thin !important;
+  border-color: var(--bs-border-color);
 }
 
 .search-button {
@@ -46,22 +46,7 @@ input.form-control.study-list-filter {
   border-color: var(--table-filters-is-searching-color) !important;
 }
 
-/* input.form-control.study-list-filter::placeholder {
-  color: var(--table-filters-placeholder-not-shown-color);
-} */
-
-input.form-control.study-list-filter:not(:placeholder-shown) {
-  color: var(--table-filters-placeholder-not-shown-color);
-  background-color: var(--table-filters-placeholder-not-shown-bg-color);
-}
-
-input.form-control.study-list-filter:placeholder-shown {
-  color: var(--table-filters-placeholder-shown-color);
-  background-color: var(--table-filters-placeholder-shown-bg-color);
-} 
-
 button.form-control.study-list-filter {
-  color: black;
   margin-top: var(--filter-margin);
   margin-bottom: var(--filter-margin);
   padding-top: var(--filter-padding);
@@ -69,8 +54,7 @@ button.form-control.study-list-filter {
 }
 
 .study-table-header {
-  text-align: left;
-  padding-left: 10px;
+  background-color: var(--study-table-header-bg-color) !important;
 }
 
 .study-table-title {
@@ -85,17 +69,52 @@ button.form-control.study-list-filter {
   border-top: 0px !important;
 } */
 
-.study-table> :nth-child(odd) {
-  background-color: var(--study-odd-color)
+.study-table {
+}
+
+.study-table> :nth-child(odd) >tr >td{
+  background-color: var(--study-odd-bg-color);
+}
+
+.study-table> :nth-child(even) >tr >td{
+  background-color: var(--study-even-bg-color);
+}
+
+/* only on the first child of each tbody to prevent hover over the labels row */
+.study-table>tbody>tr:first-child:hover > * {
+  background-color: var(--study-hover-color);
+}
+
+.study-table > tbody > tr.study-row-expanded:hover > *{
+  background-color: var(--study-details-bg-color);
+}
+.study-table > tbody > tr.study-details-expanded:hover > *{
+  background-color: var(--study-details-bg-color);
 }
 
 .study-table> :last-child {
   border-bottom-width: thin;
 }
 
-.study-filters th {
+.study-table tr:hover {
+  background-color: var(--study-hover-color);
+}
+
+
+.study-table-filters {
+  background-color: var(--study-table-filter-bg-color);
+}
+
+.study-table-filters > th > div {
+  background-color: var(--study-table-filter-bg-color);
+}
+
+.study-table-filters > th > div > button{
+  background-color: var(--bs-table-bg);
+}
+
+.study-table-filters th {
   text-align: left;
-  background-color: var(--table-filters-bg-color);
   padding-left: 10px !important;
   padding-top: 0px;
   padding-bottom: 0px;
@@ -129,9 +148,31 @@ button.form-control.study-list-filter {
   margin-right: 0.7rem;
 }
 
-.actions-header {
-  background-color: var(--table-filters-bg-color);
-  text-align: left;
+.study-table-actions > th {
+  background-color: var(--study-table-actions-bg-color) !important;
   vertical-align: middle;
-  padding-left: 10px;
+}
+
+.study-table-actions > th > div {
+  background-color: var(--study-table-actions-bg-color) !important;
+  text-align: left;
+}
+
+.study-details-table {
+  margin-top: var(--details-top-margin);
+  margin-left: 5%;
+  width: 95% !important;
+  font-size: 0.9rem;
+}
+
+.study-details-table>:not(caption) >* >* {
+  background-color: var(--study-details-bg-color) !important;
+}
+
+.study-details-table >* >* {
+  background-color: var(--study-details-bg-color) !important;
+}
+
+.study-details-table td {
+  vertical-align: top;
 }

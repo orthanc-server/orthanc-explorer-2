@@ -110,9 +110,28 @@ export default {
     border-color: black !important;
 }
 
-.series-table>:nth-child(odd) {
-    background-color: var(--series-odd-color);
+.series-table {
 }
+
+.series-table>:nth-child(odd) >* >* {
+    background-color: var(--series-odd-bg-color);
+}
+
+.series-table>:nth-child(even) >* >* {
+    background-color: var(--series-even-bg-color);
+}
+
+.series-table > tbody > tr:hover > *{
+    background-color: var(--series-hover-color);
+}
+
+.series-table > tbody > tr.series-row-expanded:hover > * {
+    background-color: var(--series-details-bg-color);
+}
+.series-table > tbody > tr.series-details-expanded:hover > * {
+    background-color: var(--series-details-bg-color);
+}
+
 
 .series-table-header {
     text-align: left;

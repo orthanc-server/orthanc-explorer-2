@@ -68,13 +68,22 @@ export default {
     margin-top: var(--details-top-margin);
     margin-left: 5%;
     width: 95% !important;
-    background-color: var(--instance-selected-color);
+    background-color: var(--instance-details-bg-color) !important;
     font-size: 0.8rem;
 }
 
 .instance-details-table td {
     vertical-align: top;
 }
+
+.instance-details-table>:not(caption) >* >* {
+  background-color: var(--instance-details-bg-color) !important;
+}
+
+.instance-details-table >* >* {
+  background-color: var(--instance-details-bg-color) !important;
+}
+
 
 .details-label {
     font-weight: 700;

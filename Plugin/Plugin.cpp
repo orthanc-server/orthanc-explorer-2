@@ -44,6 +44,8 @@ bool hasUserProfile_ = false;
 bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
 std::string customCssPath_;
+std::string theme_ = "light";
+
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
 void ServeEmbeddedFolder(OrthancPluginRestOutput* output,
@@ -86,15 +88,20 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
     std::string s;
     Orthanc::EmbeddedResources::GetFileResource(s, file);
 
+    if (file == Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX && theme_ != "light")
+    {
+      boost::replace_all(s, "data-bs-theme=\"light\"", "data-bs-theme=\"" + theme_ + "\"");
+    }
+
     const char* resource = s.size() ? s.c_str() : NULL;
     OrthancPluginAnswerBuffer(context, output, resource, s.size(), Orthanc::EnumerationToString(mime));
   }
 }
 
-// serves either the default CSS variables or a custom file CSS
-void ServeCssVariables(OrthancPluginRestOutput* output,
-                       const char* url,
-                       const OrthancPluginHttpRequest* request)
+// serves either the default CSS or a custom file CSS
+void ServeCustomCss(OrthancPluginRestOutput* output,
+                    const char* url,
+                    const OrthancPluginHttpRequest* request)
 {
   OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
 
@@ -106,13 +113,23 @@ void ServeCssVariables(OrthancPluginRestOutput* output,
   {
     std::string cssFileContent;
 
-    if (customCssPath_.empty())
-    { // serve the default CSS
-      Orthanc::EmbeddedResources::GetFileResource(cssFileContent, Orthanc::EmbeddedResources::DEFAULT_CSS_VARIABLES);
-    }
-    else
+    if (strstr(url, "custom.css") != NULL)
     {
-      Orthanc::SystemToolbox::ReadFile(cssFileContent, customCssPath_);
+      if (theme_ == "dark")
+      {
+        Orthanc::EmbeddedResources::GetFileResource(cssFileContent, Orthanc::EmbeddedResources::DEFAULT_CSS_DARK);
+      }
+      else
+      {
+        Orthanc::EmbeddedResources::GetFileResource(cssFileContent, Orthanc::EmbeddedResources::DEFAULT_CSS_LIGHT);
+      }
+
+      if (!customCssPath_.empty())
+      { // append the custom CSS
+        std::string customCssFileContent;
+        Orthanc::SystemToolbox::ReadFile(customCssFileContent, customCssPath_);
+        cssFileContent += "\n/* Appending the custom CSS */\n" + customCssFileContent;
+      }
     }
 
     const char* resource = cssFileContent.size() ? cssFileContent.c_str() : NULL;
@@ -225,6 +242,16 @@ void ReadConfiguration()
     if (jsonConfig.isMember("CustomCssPath") && jsonConfig["CustomCssPath"].isString())
     {
       customCssPath_ = jsonConfig["CustomCssPath"].asString();
+      if (!Orthanc::SystemToolbox::IsExistingFile(customCssPath_))
+      {
+        LOG(ERROR) << "Unable to accesss the 'CustomCssPath': " << customCssPath_;
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile);
+      }
+    }
+
+    if (jsonConfig.isMember("Theme") && jsonConfig["Theme"].isString() && jsonConfig["Theme"].asString() == "dark")
+    {
+      theme_ = "dark";
     }
   }
 
@@ -648,8 +675,8 @@ extern "C"
 
 
         OrthancPlugins::RegisterRestCallback
-          <ServeCssVariables>
-          (oe2BaseUrl_ + "app/customizable/variables.css", true);
+          <ServeCustomCss>
+          (oe2BaseUrl_ + "app/customizable/custom.css", true);
 
         // we need to mix the "routing" between the server and the frontend (vue-router)
         // first part are the files that are 'static files' that must be served by the backend

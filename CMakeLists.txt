@@ -162,7 +162,8 @@ if (STANDALONE_BUILD)
     WEB_APPLICATION_INDEX   ${WEBAPP_DIST_PATH}/index.html
     WEB_APPLICATION_INDEX_LANDING   ${WEBAPP_DIST_PATH}/token-landing.html
     WEB_APPLICATION_INDEX_RETRIEVE_AND_VIEW   ${WEBAPP_DIST_PATH}/retrieve-and-view.html
-    DEFAULT_CSS_VARIABLES   ${CMAKE_SOURCE_DIR}/WebApplication/src/assets/css/customizable.css
+    DEFAULT_CSS_LIGHT   ${CMAKE_SOURCE_DIR}/WebApplication/src/assets/css/defaults-light.css
+    DEFAULT_CSS_DARK   ${CMAKE_SOURCE_DIR}/WebApplication/src/assets/css/defaults-dark.css
     )
 else()
   add_definitions(-DORTHANC_STANDALONE=0)

@@ -1,5 +1,7 @@
 Changes:
 - Theming the interface:
+  - New configuration "Theme" to select the default
+    "light" or "dark" theme.
   - New configuration "CustomCssPath" to replace default CSS
     by custom values - mainly for colors.
 

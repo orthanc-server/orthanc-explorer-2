@@ -58,6 +58,9 @@ export default {
 </template>
 
 <style>
+.instance-table {
+}
+
 .instance-table> :not(:first-child) {
     border-top: 0px !important;
 }
@@ -68,17 +71,34 @@ export default {
     border-color: black !important;
 }
 
-.instance-table>:nth-child(odd) {
-    background-color: var(--instance-odd-color);
+.instance-table>:nth-child(odd) >* >* {
+    background-color: var(--instance-odd-bg-color);
 }
 
-.instance-table-header {
-    text-align: left;
-    padding-left: 10px;
+.instance-table>:nth-child(even) >* >* {
+    background-color: var(--instance-even-bg-color);
 }
 
 .instance-table td {
     text-align: left;
     padding-left: 10px;
 }
+
+.instance-table > tbody > tr:hover > * {
+    background-color: var(--instance-hover-color);
+}
+
+.instance-table > tbody > tr.instance-row-expanded:hover > * {
+    background-color: var(--instance-details-bg-color);
+}
+.instance-table > tbody > tr.instance-details-expanded:hover > * {
+    background-color: var(--instance-details-bg-color);
+}
+
+
+.instance-table-header {
+    text-align: left;
+    padding-left: 10px;
+}
+
 </style>

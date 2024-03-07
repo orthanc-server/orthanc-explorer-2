@@ -79,12 +79,20 @@ export default {
     margin-top: var(--details-top-margin);
     margin-left: 5%;
     width: 95% !important;
-    background-color: var(--series-selected-color);
+    background-color: var(--series-details-bg-color);
     font-size: 0.8rem;
 }
 
 .series-details-table td {
     vertical-align: top;
+}
+
+.series-details-table>:not(caption) >* >* {
+  background-color: var(--series-details-bg-color) !important;
+}
+
+.series-details-table >* >* {
+  background-color: var(--series-details-bg-color) !important;
 }
 
 </style>

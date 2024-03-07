@@ -78,20 +78,6 @@ export default {
     </table>
 </template>
 
-<style scoped>
-.study-details-table {
-    margin-top: var(--details-top-margin);
-    margin-left: 5%;
-    width: 95% !important;
-    background-color: var(--study-selected-color);
-    font-size: 0.9rem;
-}
-
-.study-details-table td {
-    vertical-align: top;
-}
-
-</style>
 <style>
 .study-button-group i {
     font-size: 1.4rem;

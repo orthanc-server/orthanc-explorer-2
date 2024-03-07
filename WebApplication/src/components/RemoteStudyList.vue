@@ -141,6 +141,20 @@ export default {
         columnTooltip(tagName) {
             return this.columnTitle(tagName);
         },
+        columnWidth(tagName) {
+            if (tagName in this.columns) {
+                return this.columns[tagName].width;
+            } else {
+                return "10%";
+            }
+        },
+        columnExtraClass(tagName) {
+            if (tagName in this.columns) {
+                return this.columns[tagName].extraClasses;
+            } else {
+                return "";
+            }
+        },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
             for (const modality of this.uiOptions.ModalitiesFilter) {
@@ -446,12 +460,12 @@ export default {
 <template>
     <div>
         <table class="table table-responsive table-sm study-table">
-            <thead>
-                <th width="2%" scope="col" class="study-table-header"></th>
-                <th width="5%" scope="col" class="study-table-header"></th>
+            <thead class="study-table-header">
+                <th width="2%" scope="col"></th>
+                <th width="5%" scope="col"></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
-                    v-bind:title="columnTooltip(columnTag)" v-bind:width="columns[columnTag].width"
-                    v-bind:class="'study-table-header cut-text ' + columns[columnTag].extraClasses">{{
+                    v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
+                    v-bind:class="'cut-text ' + columnExtraClass(columnTag)">{{
                     columnTitle(columnTag)
                     }}</th>
             </thead>
