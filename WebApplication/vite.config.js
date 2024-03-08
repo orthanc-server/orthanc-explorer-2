@@ -18,7 +18,8 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         landing: resolve(__dirname, 'token-landing.html'),
         retrieve: resolve(__dirname, 'retrieve-and-view.html')
-      }
+      },
+      external: ['customizable/custom-logo']
     }
   },
   css: {

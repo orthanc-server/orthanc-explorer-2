@@ -16,8 +16,9 @@
         // Allowed values: "light", "dark"
         "Theme": "light",
 
-        // Path to a custom CSS files that includes custom values for variables.
-        // Must be based on these default files: 
+        // Path to custom CSS file or logo.
+        // The custom CSS are applied after these default files and they are loaded after all other CSS.  
+        // You may actually override any CSS value or variable from the application. 
         //   - https://github.com/orthanc-server/orthanc-explorer-2/blob/master/WebApplication/src/assets/css/defaults-dark.css
         //   - https://github.com/orthanc-server/orthanc-explorer-2/blob/master/WebApplication/src/assets/css/defaults-light.css
         // "CustomCssPath": "/home/my/path/to/custom.css",
