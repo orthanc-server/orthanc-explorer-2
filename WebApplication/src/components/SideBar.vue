@@ -28,7 +28,9 @@ export default {
             statistics: state => state.studies.statistics,
             labelsFilter: state => state.studies.labelsFilter,
             jobs: state => state.jobs.jobsIds,
-            allLabels: state => state.labels.allLabels
+            allLabels: state => state.labels.allLabels,
+            hasCustomLogo: state => state.configuration.hasCustomLogo,
+            customLogoUrl: state => state.configuration.customLogoUrl,
         }),
 
         hasQueryableDicomWebServers() {
@@ -54,7 +56,7 @@ export default {
         },
         orthancApiUrl() {
             return orthancApiUrl;
-        }
+        },
     },
     methods: {
         selectModality(modality) {
@@ -119,8 +121,20 @@ export default {
 </script>
 <template>
     <div class="nav-side-menu">
-        <div>
-            <img class="orthanc-logo" src="..//assets/images/orthanc.png" height="48" />
+        <div v-if="!hasCustomLogo">
+            <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
+        </div>
+        <div v-if="hasCustomLogo && customLogoUrl">
+            <img class="custom-logo" :src="customLogoUrl" />
+        </div>
+        <div v-if="hasCustomLogo && !customLogoUrl">
+            <img class="custom-logo" src="customizable/custom-logo"/>
+        </div>
+        <div v-if="hasCustomLogo">
+            <p class="powered-by-orthanc">
+            powered by
+            <img src="../assets/images/orthanc.png" />
+            </p>
         </div>
         <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
             <p>{{ system.Name }}</p>
@@ -255,6 +269,19 @@ export default {
 
 .orthanc-logo {
     filter: brightness(50);
+    height: 48px;
+}
+
+.powered-by-orthanc > img {
+    filter: brightness(50);
+    max-width: 50%;
+    height: auto;
+}
+
+.custom-logo {
+    padding: 4px;
+    max-width: 90%;
+    height: auto;
 }
 
 .nav-side-menu {

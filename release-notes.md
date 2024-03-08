@@ -1,9 +1,10 @@
 Changes:
 - Theming the interface:
-  - New configuration "Theme" to select the default
-    "light" or "dark" theme.
-  - New configuration "CustomCssPath" to replace default CSS
-    by custom values - mainly for colors.
+  - New configurations:
+    -  "Theme" to select the default "light" or "dark" theme.
+    -  "CustomCssPath" to complement the default CSS by a custom one.
+    -  "CustomLogoPath" to provide your own custom logo from disk.
+    -  "CustomLogoUrl" to provide your own custom logo from an external url.
 
 
 1.2.2 (2024-02-16)

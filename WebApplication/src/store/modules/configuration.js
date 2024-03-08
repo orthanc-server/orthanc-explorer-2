@@ -15,7 +15,9 @@ const state = () => ({
     tokens: {},
     loaded: false,
     system: {},
-    ohifDataSource: "dicom-web"
+    ohifDataSource: "dicom-web",
+    customLogoUrl: null,
+    hasCustomLogo: false, 
 })
 
 ///////////////////////////// GETTERS
@@ -56,6 +58,10 @@ const mutations = {
     },
     setTokens(state, { tokens }) {
         state.tokens = tokens;
+    },
+    setCustomLogo(state, { customLogoUrl, hasCustomLogo }) {
+        state.hasCustomLogo = hasCustomLogo;
+        state.customLogoUrl = customLogoUrl;
     }
 
 }
@@ -98,6 +104,14 @@ const actions = {
             commit('setUserProfile', { profile: oe2Config['Profile']});
         }
         document._mustTranslateDicomTags = oe2Config['UiOptions']['TranslateDicomTags'];
+
+        if ('HasCustomLogo' in oe2Config) {
+            let customLogoUrl = null;
+            if ('CustomLogoUrl' in oe2Config) {
+                customLogoUrl = oe2Config['CustomLogoUrl']
+            }
+            commit('setCustomLogo', { customLogoUrl: customLogoUrl, hasCustomLogo: oe2Config['HasCustomLogo']});
+        }
 
         for (const [pluginName, pluginConfiguration] of Object.entries(oe2Config['Plugins'])) {
 
