@@ -19,7 +19,6 @@ export default defineConfig({
         landing: resolve(__dirname, 'token-landing.html'),
         retrieve: resolve(__dirname, 'retrieve-and-view.html')
       },
-      external: ['customizable/custom-logo']
     }
   },
   css: {

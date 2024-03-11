@@ -30,9 +30,15 @@ export default {
             jobs: state => state.jobs.jobsIds,
             allLabels: state => state.labels.allLabels,
             hasCustomLogo: state => state.configuration.hasCustomLogo,
-            customLogoUrl: state => state.configuration.customLogoUrl,
+            configuration: state => state.configuration,
         }),
-
+        customLogoUrl() {
+            if (this.hasCustomLogo && this.configuration.customLogoUrl) {
+                return this.customLogoUrl;
+            } else {
+                return "./customizable/custom-logo";
+            }
+        },
         hasQueryableDicomWebServers() {
             return false; // TODO this.queryableDicomWebServers.length > 0;
         },
@@ -124,11 +130,8 @@ export default {
         <div v-if="!hasCustomLogo">
             <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
         </div>
-        <div v-if="hasCustomLogo && customLogoUrl">
+        <div v-if="hasCustomLogo">
             <img class="custom-logo" :src="customLogoUrl" />
-        </div>
-        <div v-if="hasCustomLogo && !customLogoUrl">
-            <img class="custom-logo" src="customizable/custom-logo"/>
         </div>
         <div v-if="hasCustomLogo">
             <p class="powered-by-orthanc">

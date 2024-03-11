@@ -23,7 +23,7 @@ therefore, it overrides all other definitions */
     --instance-details-bg-color: var(--instance-selected-color);
 
     --study-table-header-bg-color: var(--study-even-bg-color);
-    --study-table-filter-bg-color: rgb(100, 100, 130);
+    --study-table-filter-bg-color: rgb(40, 40, 60);
     --study-table-actions-bg-color: var(--study-table-filter-bg-color);
     
     --table-filters-is-searching-color: #fda90d86;

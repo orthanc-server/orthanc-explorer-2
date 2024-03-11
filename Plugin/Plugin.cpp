@@ -101,8 +101,8 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
 }
 
 void ServeCustomLogo(OrthancPluginRestOutput* output,
-                    const char* url,
-                    const OrthancPluginHttpRequest* request)
+                     const char* url,
+                     const OrthancPluginHttpRequest* request)
 {
   OrthancPluginContext* context = OrthancPlugins::GetGlobalContext();
 
