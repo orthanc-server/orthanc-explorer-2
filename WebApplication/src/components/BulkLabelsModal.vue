@@ -232,9 +232,4 @@ export default {
 </template>
 
 <style>
-.label {
-    margin-left: 2px;
-    margin-left: 2px;
-    background-color: var(--label-bg-color);
-}
 </style>

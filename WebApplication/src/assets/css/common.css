@@ -176,3 +176,15 @@ button.form-control.study-list-filter {
 .study-details-table td {
   vertical-align: top;
 }
+
+/* for the StudyItem */
+.label {
+  margin-left: 2px;
+  margin-left: 2px;
+  background-color: var(--label-bg-color);
+}
+
+/* for the tag editor */
+.tags-badge.bg-info  {
+  background-color: var(--label-bg-color) !important;
+}
