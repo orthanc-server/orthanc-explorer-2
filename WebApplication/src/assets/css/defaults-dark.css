@@ -6,24 +6,24 @@ therefore, it overrides all other definitions */
 
     --study-even-bg-color: rgb(55, 55, 60);
     --study-odd-bg-color: rgb(45, 45, 50);
-    --study-hover-color:  rgb(30, 150, 255);
+    --study-hover-color:  rgb(100, 98, 95);
     --study-selected-color: rgb(40, 40, 45);
     --study-details-bg-color: var(--study-selected-color);
 
     --series-even-bg-color: rgb(45, 45, 50);
     --series-odd-bg-color: rgb(35, 35, 40);
-    --series-hover-color:  rgb(30, 150, 255);
+    --series-hover-color:  var(--study-hover-color);
     --series-selected-color: rgb(30, 30, 35);
     --series-details-bg-color: var(--series-selected-color);
 
     --instance-odd-bg-color: rgb(35, 35, 40);
     --instance-even-bg-color: rgb(30, 30, 35);
-    --instance-hover-color:  rgb(30, 150, 255);
+    --instance-hover-color:  var(--study-hover-color);
     --instance-selected-color: rgb(20, 20, 25);
     --instance-details-bg-color: var(--instance-selected-color);
 
     --study-table-header-bg-color: var(--study-even-bg-color);
-    --study-table-filter-bg-color: rgb(40, 40, 60);
+    --study-table-filter-bg-color: rgb(60, 60, 59);
     --study-table-actions-bg-color: var(--study-table-filter-bg-color);
     
     --table-filters-is-searching-color: #fda90d86;
@@ -34,14 +34,14 @@ therefore, it overrides all other definitions */
     --nav-bar-width: 260px;
 
     --nav-side-color: rgb(255, 255, 255);
-    --nav-side-bg-color: #2e353d;
+    --nav-side-bg-color: rgb(30, 36, 42);
     --nav-side-sub-bg-color: #181c20;
     --nav-side-selected-bg-color: #4f5b69;
     --nav-side-hover-bg-color: #3e454d;
     --nav-side-submenu-color: rgb(255, 255, 255);
     --nav-side-active-border-color: #d19b3d;
 
-    --label-bg-color: rgb(10, 200, 240);
+    --label-bg-color: rgb(61, 116, 141);
 
     /* you may also customize global bootstrap variables */
     --bs-border-color: rgb(110, 160, 200);

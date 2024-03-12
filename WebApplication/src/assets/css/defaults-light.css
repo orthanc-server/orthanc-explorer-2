@@ -13,13 +13,13 @@ a CustomCssPath, the custom file will be loaded after this one*/
 
     --series-even-bg-color: rgb(240, 240, 240);
     --series-odd-bg-color: rgb(235, 235, 235);
-    --series-hover-color: rgb(60, 180, 255);
+    --series-hover-color: var(--study-hover-color);
     --series-selected-color: rgb(225, 225, 225);
     --series-details-bg-color: var(--series-selected-color);
 
     --instance-odd-bg-color: rgb(230, 230, 230);
     --instance-even-bg-color: rgb(225, 225, 225);
-    --instance-hover-color: rgb(60, 180, 255);
+    --instance-hover-color: var(--study-hover-color);
     --instance-selected-color: rgb(215, 215, 215);
     --instance-details-bg-color: var(--instance-selected-color);
     
