@@ -68,18 +68,25 @@
                 "ohif": "bi bi-grid",
                 "ohif-vr": "bi bi-grid-1x2",
                 "ohif-tmtv": "bi bi-grid-3x3-gap",
+                "ohif-seg": "fa-solid fa-shapes fa-button",
+                "ohif-micro": "fa-solid fa-microscope fa-button",
                 "meddream": "bi bi-columns-gap",
-                "volview": "bi bi-box"
+                "volview": "bi bi-box",
+                "wsi": "fa-solid fa-microscope fa-button"
             },
             // Defines the order in which the viewer icons should appear in the interface
+            // OHIF viewers modes that are not listed here, won't appear in the interface.
             "ViewersOrdering" : [
                 "osimis-web-viewer",
                 "stone-webviewer",
                 "ohif",
                 "ohif-vr",
                 "ohif-tmtv",
+                "ohif-seg",
+                // "ohif-micro", // currently disabled, this is still experimental in OHIF
                 "meddream",
-                "volview"
+                "volview",
+                "wsi"
             ],
 
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list

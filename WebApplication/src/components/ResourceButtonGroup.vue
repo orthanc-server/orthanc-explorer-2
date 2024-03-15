@@ -20,17 +20,39 @@ export default {
     data() {
         return {
             isBulkLabelModalVisible: false,
-            isWsiButtonEnabled: false,
+            isWsiSeries: false,
             isPdfPreview: false,
+            modalitiesList: []
         };
     },
     async mounted() {
         if (this.resourceLevel == 'series') {
             let seriesInstances = await api.getSeriesInstances(this.resourceOrthancId);
-            let firstInstancetags = await api.getSimplifiedInstanceTags(seriesInstances[0]['ID']);
-            this.isWsiButtonEnabled = firstInstancetags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6";
+            let firstInstanceTags = await api.getSimplifiedInstanceTags(seriesInstances[0]['ID']);
+            this.modalitiesList = [firstInstanceTags["Modality"]];
+            this.isWsiSeries = firstInstanceTags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6" || firstInstanceTags["Modality"] == "SM";
         } else if (this.resourceLevel == 'instance') {
             this.isPdfPreview = this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
+        } else if (this.resourceLevel == 'study') {
+            // build the modalitiesList to enable/disable viewers
+            let seriesDetails = await api.getStudySeries(this.resourceOrthancId);
+            let modalitiesSet = new Set();
+            for (let seriesDetail of seriesDetails) {
+                modalitiesSet.add(seriesDetail["MainDicomTags"]["Modality"])
+            }
+            this.modalitiesList = Array.from(modalitiesSet);
+            console.log(this.modalitiesList);
+        } else if (this.resourceLevel == 'bulk') {
+            // build the modalitiesList to enable/disable viewers
+            let modalitiesSet = new Set();
+            for (let selectedStudyId of this.selectedStudiesIds) {
+                let seriesDetails = await api.getStudySeries(selectedStudyId);
+                for (let seriesDetail of seriesDetails) {
+                    modalitiesSet.add(seriesDetail["MainDicomTags"]["Modality"])
+                }
+            }
+            this.modalitiesList = Array.from(modalitiesSet);
+            console.log(this.modalitiesList);
         }
     },
     methods: {
@@ -105,19 +127,15 @@ export default {
                         return viewersIcons[viewer];
                     }
 
-                    if (this.hasOhifViewer && forViewer == "ohif") {
-                        return viewersIcons[viewer];
-                    }
-
-                    if (this.hasOhifViewer && forViewer == "ohif-vr") {
-                        return viewersIcons[viewer];
-                    }
-
-                    if (this.hasOhifViewer && forViewer == "ohif-tmtv") {
+                    if (this.hasOhifViewer && ["ohif", "ohif-vr", "ohif-tmtv", "ohif-seg", "ohif-micro"].includes(forViewer)) {
                         return viewersIcons[viewer];
                     }
 
                     if (this.hasMedDreamViewer && forViewer == "meddream") {
+                        return viewersIcons[viewer];
+                    }
+
+                    if (this.hasWsiViewer && forViewer == "wsi") {
                         return viewersIcons[viewer];
                     }
                 }
@@ -211,10 +229,13 @@ export default {
             }
         },
         hasWsiButton() {
-            if (this.resourceLevel != 'series' || !("wsi" in this.installedPlugins)) {
+            if (this.resourceLevel != 'series' || !this.hasWsiViewer) {
                 return false;
             }
             return true;
+        },
+        isWsiButtonEnabled() {
+            return this.isWsiSeries;
         },
         wsiViewerUrl() {
             return api.getWsiViewerUrl(this.resourceOrthancId);
@@ -236,6 +257,9 @@ export default {
         },
         osimisViewerUrl() {
             return api.getOsimisViewerUrl(this.resourceLevel, this.resourceOrthancId);
+        },
+        hasWsiViewer() {
+            return "wsi" in this.installedPlugins;
         },
         hasStoneViewer() {
             return "stone-webviewer" in this.installedPlugins;
@@ -271,6 +295,18 @@ export default {
             return this.uiOptions.EnableOpenInOhifViewer || this.uiOptions.EnableOpenInOhifViewer3;
         },
         hasOhifViewerButton() {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif")) {
+                return false;
+            }
+            // disable if it only contains non images modalities: 
+            let modalitiesSet = new Set(this.modalitiesList);
+            modalitiesSet = modalitiesSet.difference(new Set(['SM', 'ECG', 'SR', 'SEG']));
+
+            if (modalitiesSet.size == 0)
+            {
+                return false;
+            }
+
             if (this.uiOptions.EnableOpenInOhifViewer3) {
                 return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
@@ -278,6 +314,16 @@ export default {
             }
         },
         hasOhifViewerButtonVr() {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-vr")) {
+                return false;
+            }
+
+            // only for CT, PT and MR
+            if (!(this.modalitiesList.includes("CT") || this.modalitiesList.includes("PT") || this.modalitiesList.includes("MR")))
+            {
+                return false;
+            }
+
             if (this.uiOptions.EnableOpenInOhifViewer3) {
                 return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
@@ -285,6 +331,52 @@ export default {
             }
         },
         hasOhifViewerButtonTmtv() {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-tmtv")) {
+                return false;
+            }
+
+            // from isValidMode() in OHIF code
+            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM")))
+            {
+                return false;
+            }
+
+            if (this.uiOptions.EnableOpenInOhifViewer3) {
+                return this.hasOhifViewer && (this.resourceLevel == 'study');
+            } else {
+                return false;
+            }
+        },
+        hasOhifViewerButtonSeg() {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-seg")) {
+                return false;
+            }
+
+            // from isValidMode() in OHIF code
+            // disable if it only contains modalities that are not supported by this mode: 
+            let modalitiesSet = new Set(this.modalitiesList);
+            modalitiesSet = modalitiesSet.difference(new Set(['SM', 'US', 'MG', 'OT', 'DOC', 'CR']));
+
+            if (modalitiesSet.size == 0) {
+                return false;
+            }
+ 
+            if (this.uiOptions.EnableOpenInOhifViewer3) {
+                return this.hasOhifViewer && (this.resourceLevel == 'study');
+            } else {
+                return false;
+            }
+        },
+        hasOhifViewerButtonMicroscopy() {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-micro")) {
+                return false;
+            }
+            
+            // Must have at least one SM series
+            if (!this.modalitiesList.includes("SM")) {
+                return false;
+            }
+
             if (this.uiOptions.EnableOpenInOhifViewer3) {
                 return this.hasOhifViewer && (this.resourceLevel == 'study');
             } else {
@@ -300,7 +392,13 @@ export default {
         ohifViewerUrlTmtv() {
             return this.getOhifViewerUrl('tmtv');
         },
-        isOhifButtonEnabled() {
+        ohifViewerUrlSeg() {
+            return this.getOhifViewerUrl('seg');
+        },
+        ohifViewerUrlMicro() {
+            return this.getOhifViewerUrl('microscopy');
+        },
+        isOhifButtonBasicViewerEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
                 return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
             } else { // OHIF V2
@@ -317,6 +415,21 @@ export default {
         isOhifButtonTmtvEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
                 return (this.resourceLevel == 'study');
+            } else { // OHIF V2
+                return false;
+            }
+        },
+        isOhifButtonMicroscopyEnabled() {
+            if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
+
+                return (this.resourceLevel == 'study');
+            } else { // OHIF V2
+                return false;
+            }
+        },
+        isOhifButtonSegEnabled() {
+            if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
+               return (this.resourceLevel == 'study');
             } else { // OHIF V2
                 return false;
             }
@@ -378,6 +491,15 @@ export default {
         },
         ohifViewerIconTmtv() {
             return this.getViewerIcon("ohif-tmtv");
+        },
+        ohifViewerIconSeg() {
+            return this.getViewerIcon("ohif-seg");
+        },
+        ohifViewerIconMicro() {
+            return this.getViewerIcon("ohif-micro");
+        },
+        wsiViewerIcon() {
+            return this.getViewerIcon("wsi");
         },
         deleteResourceTitle() {
             const texts = {
@@ -484,7 +606,7 @@ export default {
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif' && hasOhifViewerButton"
-                    :disabled="!isOhifButtonEnabled"
+                    :disabled="!isOhifButtonBasicViewerEnabled"
                     :iconClass="ohifViewerIcon" :level="computedResourceLevel" :linkUrl="ohifViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
@@ -503,6 +625,20 @@ export default {
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_tmtv')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
+
+                <TokenLinkButton v-if="viewer == 'ohif-seg' && hasOhifViewerButtonSeg"
+                    :disabled="!isOhifButtonSegEnabled"
+                    :iconClass="ohifViewerIconSeg" :level="computedResourceLevel" :linkUrl="ohifViewerUrlSeg"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_seg')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
+
+                <TokenLinkButton v-if="viewer == 'ohif-micro' && hasOhifViewerButtonMicroscopy"
+                    :disabled="!isOhifButtonMicroscopyEnabled"
+                    :iconClass="ohifViewerIconMicro" :level="computedResourceLevel" :linkUrl="ohifViewerUrlMicro"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_microscopy')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
             </span>
             <TokenLinkButton v-if="this.resourceLevel == 'instance'"
                 :iconClass="'bi bi-binoculars'" :level="this.resourceLevel" :linkUrl="instancePreviewUrl"
@@ -511,7 +647,7 @@ export default {
             </TokenLinkButton>
             <TokenLinkButton v-if="hasWsiButton"
                 :hidden="!isWsiButtonEnabled"
-                :iconClass="'fa-solid fa-microscope fa-button'" :level="this.resourceLevel" :linkUrl="wsiViewerUrl"
+                :iconClass="wsiViewerIcon" :level="this.resourceLevel" :linkUrl="wsiViewerUrl"
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_wsi_viewer')"
                 :tokenType="'viewer-instant-link'" :opensInNewTab="true">
             </TokenLinkButton>

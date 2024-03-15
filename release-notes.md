@@ -5,7 +5,13 @@ Changes:
     -  "CustomCssPath" to complement the default CSS by a custom one.
     -  "CustomLogoPath" to provide your own custom logo from disk.
     -  "CustomLogoUrl" to provide your own custom logo from an external url.
-
+- OHIF Integration:
+  - Added support for `Segmentation` and `Microscopy` modes.  The `Microscopy`
+    mode is disabled by default since it is not stable yet.
+  - You can now enable/disable OHIF viewer modes by including/removing them
+    from the `ViewersIcons` configuration.
+- Configurations:
+  - Updated default values for `ViewersIcons` and `ViewersOrdering`.
 
 1.2.2 (2024-02-16)
 ==================
