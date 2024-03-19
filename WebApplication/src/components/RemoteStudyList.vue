@@ -544,16 +544,12 @@ export default {
                         </Datepicker>
                     </div>
 
-                    <!-- <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('StudyDate')"/> -->
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
                         v-model="filterAccessionNumber" placeholder="1234" v-bind:class="getFilterClass('AccessionNumber')"/>
                     <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientID" placeholder="1234" v-bind:class="getFilterClass('PatientID')"/>
                     <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
-                    <!-- <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('PatientBirthDate')"/> -->
                     <div v-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
                             id="dropdown-modalities-button" aria-expanded="false"><span

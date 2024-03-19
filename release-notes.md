@@ -13,7 +13,11 @@ Changes:
     from the `ViewersOrdering` configuration.
 - Configurations:
   - Updated default values for `ViewersIcons` and `ViewersOrdering`.
-- Internals:
+- Added date pickers in the Remote Study List (when performing searches on
+  remote modalities)
+
+
+Internals:
   - Updated all JS libraries.
 
 

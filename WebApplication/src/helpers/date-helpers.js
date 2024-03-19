@@ -61,7 +61,7 @@ export default {
         return output;
     },
     formatDateForDisplay(dicomDate) {
-        if (dicomDate.length == 8) {
+        if (dicomDate && dicomDate.length == 8) {
             let d = parse(dicomDate, "yyyyMMdd", new Date());
             return format(d, "dd/MM/yyyy");
         } else {
