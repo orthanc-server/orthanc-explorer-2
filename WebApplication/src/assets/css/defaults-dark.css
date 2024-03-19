@@ -43,6 +43,8 @@ therefore, it overrides all other definitions */
 
     --label-bg-color: rgb(61, 116, 141);
 
+    --form-placeholder-color: #888;
+
     /* you may also customize global bootstrap variables */
     --bs-border-color: rgb(110, 160, 200);
     /* --bs-info-rgb: 255, 26, 35; */

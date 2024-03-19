@@ -5,7 +5,7 @@ import ResourceButtonGroup from "./ResourceButtonGroup.vue"
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
-import resourceHelpers from "../helpers/resource-helpers"
+import dateHelpers from "../helpers/date-helpers"
 import $ from "jquery"
 import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
 import api from "../orthancApi";
@@ -46,16 +46,6 @@ document._studyColumns = {
         "width": "10%"
     }
 };
-
-document._datePickerPresetRanges = [
-    { tLabel: 'date_picker.today', range: [new Date(), new Date()] },
-    { tLabel: 'date_picker.yesterday', range: [subDays(new Date(), 1), subDays(new Date(), 1)] },
-    { tLabel: 'date_picker.this_week', range: [startOfWeek(new Date()), new Date()] },
-    { tLabel: 'date_picker.last_week', range: [startOfWeek(subDays(new Date(), 7)), endOfWeek(subDays(new Date(), 7))] },
-    { tLabel: 'date_picker.this_month', range: [startOfMonth(new Date()), endOfMonth(new Date())] },
-    { tLabel: 'date_picker.last_month', range: [startOfMonth(subMonths(new Date(), 1)), endOfMonth(subMonths(new Date(), 1))] },
-    { tLabel: 'date_picker.last_12_months', range: [subYears(new Date(), 1), new Date()] },
-];
 
 export default {
     props: [],
@@ -186,7 +176,7 @@ export default {
             this.updateFilter('StudyDate', newValue, oldValue);
         },
         filterStudyDateForDatePicker(newValue, oldValue) {
-            let dicomNewValue = this.formatDateFromDatePicker(newValue);
+            let dicomNewValue = dateHelpers.formatDateFromDatePicker(newValue);
             if (dicomNewValue == null) {
                 dicomNewValue = "";
             }
@@ -197,7 +187,7 @@ export default {
             this.updateFilter('PatientBirthDate', newValue, oldValue);
         },
         filterPatientBirthDateForDatePicker(newValue, oldValue) {
-            let dicomNewValue = this.formatDateFromDatePicker(newValue);
+            let dicomNewValue = dateHelpers.formatDateFromDatePicker(newValue);
             if (dicomNewValue == null) {
                 dicomNewValue = "";
             }
@@ -436,10 +426,10 @@ export default {
                     this.filterLabels = value;
                 } else if (key == "StudyDate") {
                     this.filterStudyDate = value;
-                    this.filterStudyDateForDatePicker = resourceHelpers.parseDateForDatePicker(value);
+                    this.filterStudyDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
                 } else if (key == "PatientBirthDate") {
                     this.filterPatientBirthDate = value;
-                    this.filterPatientBirthDateForDatePicker = resourceHelpers.parseDateForDatePicker(value);
+                    this.filterPatientBirthDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
                 } else if (key == "ModalitiesInStudy") {
                     const modalities = value.split('\\');
                     if (modalities.length > 0) {
@@ -638,32 +628,6 @@ export default {
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });
         },
-        formatDateFromDatePicker(dates) {
-            let output = "";
-            if (dates == null) {
-                output = null;
-            }
-            else if (dates instanceof Date) {
-                output = resourceHelpers.toDicomDate(dates);
-            }
-            else if (dates instanceof Array) {
-                if (dates.length == 2 && (dates[0] != null && dates[0].getFullYear != undefined) && (dates[1] != null && dates[1].getFullYear != undefined)) {
-                    if (resourceHelpers.toDicomDate(dates[0]) == resourceHelpers.toDicomDate(dates[1])) {
-                        output = resourceHelpers.toDicomDate(dates[0]);
-                    } else {
-                        output = resourceHelpers.toDicomDate(dates[0]) + "-" + resourceHelpers.toDicomDate(dates[1]);
-                    }
-                } else if (dates.length >= 1 && dates[0].getFullYear != undefined) {
-                    output = resourceHelpers.toDicomDate(dates[0]);
-                } else if (dates.length == 2 && typeof dates[0] == 'string' && typeof dates[1] == 'string') {
-                    output = dates[0] + "-" + dates[1];
-                } else if (dates.length == 1 && typeof dates[0] == 'string') {
-                    output = dates[0];
-                }
-            }
-            console.log("formatDateFromDatePicker", dates, output);
-            return output;
-        },
     },
     components: { StudyItem, ResourceButtonGroup }
 }
@@ -690,13 +654,13 @@ export default {
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <div v-if="columnTag == 'StudyDate'">
-                    <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                        :enable-time-picker="false" range :preset-ranges="datePickerPresetRanges" :format="datePickerFormat"
-                        :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
-                        <template #yearly="{ label, range, presetDateRange }">
-                            <span @click="presetDateRange(range)">{{ label }}</span>
-                        </template>
-                    </Datepicker>
+                        <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
+                            :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                            :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                            <template #yearly="{ label, range, presetDate }">
+                                <span @click="presetDate(range)">{{ label }}</span>
+                            </template>
+                        </Datepicker>
                     </div>
                     <div v-else-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
@@ -722,10 +686,10 @@ export default {
                         </ul>
                     </div>
                     <div v-else-if="columnTag == 'PatientBirthDate'">
-                    <Datepicker v-model="filterPatientBirthDateForDatePicker"
-                        :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
-                        arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
-                    </Datepicker>
+                        <Datepicker v-model="filterPatientBirthDateForDatePicker"
+                            :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
+                            arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                        </Datepicker>
                     </div>
                     <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
                         v-model="this.filterGenericTags[columnTag]" v-bind:placeholder="getFilterPlaceholder(columnTag)"

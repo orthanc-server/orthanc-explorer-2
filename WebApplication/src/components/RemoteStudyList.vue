@@ -3,6 +3,7 @@ import RemoteStudyItem from "./RemoteStudyItem.vue"
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
+import dateHelpers from "../helpers/date-helpers"
 import $ from "jquery"
 import api from "../orthancApi"
 
@@ -48,10 +49,12 @@ export default {
     data() {
         return {
             filterStudyDate: '',
+            filterStudyDateForDatePicker: '',
+            filterPatientBirthDate: '',
+            filterPatientBirthDateForDatePicker: '',
             filterAccessionNumber: '',
             filterPatientID: '',
             filterPatientName: '',
-            filterPatientBirthDate: '',
             filterStudyDescription: '',
             filterModalities: {},
             allModalities: true,
@@ -60,6 +63,7 @@ export default {
             updatingRoute: false,
             initializingModalityFilter: false,
             columns: document._remoteStudyColumns,
+            datePickerPresetRanges: document._datePickerPresetRanges,
             remoteMode: null,
             remoteSource: null,
             studies: [],
@@ -80,7 +84,17 @@ export default {
         },
         placeholderDate() {
             return this.uiOptions.DateFormat;
-        }
+        },
+        isDarkMode() {
+            // hack to switch the theme: get the value from our custom css
+            let bootstrapTheme = document.documentElement.getAttribute("data-bs-theme"); // for production
+            bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');  // for dev
+            console.log("DatePicker color mode is ", bootstrapTheme);
+            return bootstrapTheme == "dark";
+        },
+        datePickerFormat() {
+            return this.uiOptions.DateFormat;
+        }        
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -108,6 +122,22 @@ export default {
         filterStudyDate(newValue, oldValue) {
             this.updateFilter('StudyDate', newValue, oldValue);
         },
+        filterStudyDateForDatePicker(newValue, oldValue) {
+            let dicomNewValue = dateHelpers.formatDateFromDatePicker(newValue);
+            if (dicomNewValue == null) {
+                dicomNewValue = "";
+            }
+            // console.log("watch filterStudyDateForDatePicker", newValue, dicomNewValue);
+            this.filterStudyDate = dicomNewValue;
+        },
+        filterPatientBirthDateForDatePicker(newValue, oldValue) {
+            let dicomNewValue = dateHelpers.formatDateFromDatePicker(newValue);
+            if (dicomNewValue == null) {
+                dicomNewValue = "";
+            }
+            // console.log("watch filterPatientBirthDateForDatePicker", newValue, dicomNewValue);
+            this.filterPatientBirthDate = dicomNewValue;
+        },
         filterAccessionNumber(newValue, oldValue) {
             this.updateFilter('AccessionNumber', newValue, oldValue);
         },
@@ -125,13 +155,19 @@ export default {
         },
     },
     async created() {
-        // console.log("StudyList: created");
+        this.messageBus.on('language-changed', this.translateDatePicker);
+        this.messageBus.on('filter-label-changed', this.updateLabelsFilter);
     },
     async mounted() {
         // console.log("StudyList: mounted");
         this.updateFilterFromRoute(this.$route.query);
     },
     methods: {
+        translateDatePicker(languageKey) {
+            for (let i in document._datePickerPresetRanges) {
+                document._datePickerPresetRanges[i].label = this.$t(document._datePickerPresetRanges[i].tLabel);
+            }
+        },
         columnTitle(tagName) {
             if (tagName == "seriesCount") {
                 return this.$i18n.t('series_count_header');
@@ -296,6 +332,7 @@ export default {
             for (const [key, value] of Object.entries(filters)) {
                 if (key == "StudyDate") {
                     this.filterStudyDate = value;
+                    this.filterStudyDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
                 } else if (key == "AccessionNumber") {
                     this.filterAccessionNumber = value;
                 } else if (key == "PatientID") {
@@ -304,6 +341,7 @@ export default {
                     this.filterPatientName = value;
                 } else if (key == "PatientBirthDate") {
                     this.filterPatientBirthDate = value;
+                    this.filterPatientBirthDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
                 } else if (key == "StudyDescription") {
                     this.filterStudyDescription = value;
                 } else if (key == "ModalitiesInStudy") {
@@ -490,16 +528,32 @@ export default {
                     </button>
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                    <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('StudyDate')"/>
+                    <div v-if="columnTag == 'StudyDate'">
+                        <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
+                            :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                            :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                            <template #yearly="{ label, range, presetDate }">
+                                <span @click="presetDate(range)">{{ label }}</span>
+                            </template>
+                        </Datepicker>
+                    </div>
+                    <div v-else-if="columnTag == 'PatientBirthDate'">
+                        <Datepicker v-model="filterPatientBirthDateForDatePicker"
+                            :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
+                            arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                        </Datepicker>
+                    </div>
+
+                    <!-- <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
+                        v-model="filterStudyDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('StudyDate')"/> -->
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
                         v-model="filterAccessionNumber" placeholder="1234" v-bind:class="getFilterClass('AccessionNumber')"/>
                     <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientID" placeholder="1234" v-bind:class="getFilterClass('PatientID')"/>
                     <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
-                    <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('PatientBirthDate')"/>
+                    <!-- <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
+                        v-model="filterPatientBirthDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('PatientBirthDate')"/> -->
                     <div v-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
                             id="dropdown-modalities-button" aria-expanded="false"><span
@@ -526,13 +580,13 @@ export default {
         <!-- <div v-if="!isSearching && notShowingAllResults" class="alert alert-danger bottom-fixed-alert" role="alert">
             <i class="bi bi-exclamation-triangle-fill"></i> {{$t('not_showing_all_results')}} !
         </div> -->
-        <div v-if="!isSearching && isFilterEmpty" class="alert alert-warning bottom-fixed-alert" role="alert">
+        <div v-if="!isSearching && isFilterEmpty" class="alert alert-warning bottom-fixed-alert m-2" role="alert">
             <i class="bi bi-exclamation-triangle-fill"></i> {{$t('enter_search')}}
         </div>
-        <div v-else-if="!isSearching && isStudyListEmpty" class="alert alert-warning bottom-fixed-alert" role="alert">
+        <div v-else-if="!isSearching && isStudyListEmpty" class="alert alert-warning bottom-fixed-alert m-2" role="alert">
             <i class="bi bi-exclamation-triangle-fill"></i> {{$t('no_result_found')}}
         </div>
-        <div v-else-if="isSearching" class="alert alert-secondary bottom-fixed-alert" role="alert">
+        <div v-else-if="isSearching" class="alert alert-secondary bottom-fixed-alert m-2" role="alert">
              <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> {{$t('searching')}} !
         </div>
     </div>

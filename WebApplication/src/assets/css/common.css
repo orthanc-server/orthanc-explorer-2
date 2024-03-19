@@ -188,3 +188,8 @@ button.form-control.study-list-filter {
 .tags-badge.bg-info  {
   background-color: var(--label-bg-color) !important;
 }
+
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: var(--form-placeholder-color);
+  opacity: 1; /* Firefox */
+}

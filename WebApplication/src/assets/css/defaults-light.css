@@ -44,6 +44,7 @@ a CustomCssPath, the custom file will be loaded after this one*/
 
     --label-bg-color: rgb(10, 200, 240);
 
+    --form-placeholder-color: #CCC;
 
     /* you may also customize global bootstrap variables */
     /* --bs-border-color: rgb(110, 160, 200); */

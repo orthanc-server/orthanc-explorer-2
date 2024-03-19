@@ -5,8 +5,6 @@ import ModifyModal from "./ModifyModal.vue"
 import $ from "jquery"
 import { mapState } from "vuex"
 import api from "../orthancApi"
-import resourceHelpers from "../helpers/resource-helpers"
-import clipboardHelpers from "../helpers/clipboard-helpers"
 
 
 export default {

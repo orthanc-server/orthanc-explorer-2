@@ -4,7 +4,7 @@ import StudyDetails from "./StudyDetails.vue";
 import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
-import resourceHelpers from "../helpers/resource-helpers"
+import dateHelpers from "../helpers/date-helpers"
 
 export default {
     props: ["studyId"],
@@ -96,10 +96,10 @@ export default {
             return this.fields && this.fields.Labels && this.fields.Labels.length > 0;
         },
         formatedPatientBirthDate() {
-            return resourceHelpers.formatDateForDisplay(this.fields.PatientMainDicomTags.PatientBirthDate, this.uiOptions.DateFormat);
+            return dateHelpers.formatDateForDisplay(this.fields.PatientMainDicomTags.PatientBirthDate, this.uiOptions.DateFormat);
         },
         formatedStudyDate() {
-            return resourceHelpers.formatDateForDisplay(this.fields.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
+            return dateHelpers.formatDateForDisplay(this.fields.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
         }
     },
     components: { SeriesList, StudyDetails }

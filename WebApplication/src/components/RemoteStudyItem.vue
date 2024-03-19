@@ -2,7 +2,7 @@
 import RemoteStudyDetails from "./RemoteStudyDetails.vue";
 import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
-import resourceHelpers from "../helpers/resource-helpers"
+import dateHelpers from "../helpers/date-helpers"
 
 
 export default {
@@ -60,10 +60,10 @@ export default {
             }
         },
         formatedPatientBirthDate() {
-            return resourceHelpers.formatDateForDisplay(this.studyFields.PatientBirthDate, this.uiOptions.DateFormat);
+            return dateHelpers.formatDateForDisplay(this.studyFields.PatientBirthDate, this.uiOptions.DateFormat);
         },
         formatedStudyDate() {
-            return resourceHelpers.formatDateForDisplay(this.studyFields.StudyDate, this.uiOptions.DateFormat);
+            return dateHelpers.formatDateForDisplay(this.studyFields.StudyDate, this.uiOptions.DateFormat);
         }
     },
     components: { RemoteStudyDetails }
