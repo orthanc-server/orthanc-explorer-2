@@ -1,5 +1,5 @@
 <script>
-import Uppie from "uppie/uppie.min.js"
+import {uppie} from "uppie"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
 
@@ -83,15 +83,13 @@ export default {
     props: [],
     data() {
         return {
-            uppie: null,
             uploadCounter: 0,
             lastUploadReports: {}
         };
     },
     mounted() {
-        this.uppie = new Uppie();
-        this.uppie(document.querySelector("#filesUpload"), this.uppieUploadHandler);
-        this.uppie(document.querySelector("#foldersUpload"), this.uppieUploadHandler);
+        uppie(document.querySelector("#filesUpload"), this.uppieUploadHandler);
+        uppie(document.querySelector("#foldersUpload"), this.uppieUploadHandler);
     },
     methods: {
         onDrop(ev) {

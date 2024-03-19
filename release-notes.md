@@ -9,9 +9,12 @@ Changes:
   - Added support for `Segmentation` and `Microscopy` modes.  The `Microscopy`
     mode is disabled by default since it is not stable yet.
   - You can now enable/disable OHIF viewer modes by including/removing them
-    from the `ViewersIcons` configuration.
+    from the `ViewersOrdering` configuration.
 - Configurations:
   - Updated default values for `ViewersIcons` and `ViewersOrdering`.
+- Internals:
+  - Updated all JS libraries.
+
 
 1.2.2 (2024-02-16)
 ==================
