@@ -41,7 +41,6 @@ export default {
                 modalitiesSet.add(seriesDetail["MainDicomTags"]["Modality"])
             }
             this.modalitiesList = Array.from(modalitiesSet);
-            console.log(this.modalitiesList);
         } else if (this.resourceLevel == 'bulk') {
             // build the modalitiesList to enable/disable viewers
             let modalitiesSet = new Set();
@@ -294,15 +293,15 @@ export default {
         hasOhifViewer() {
             return this.uiOptions.EnableOpenInOhifViewer || this.uiOptions.EnableOpenInOhifViewer3;
         },
-        hasOhifViewerButton() {
+        hasOhifViewerButton() { // Basic viewer
             if (!this.uiOptions.ViewersOrdering.includes("ohif")) {
                 return false;
             }
             // disable if it only contains non images modalities: 
-            let modalitiesSet = new Set(this.modalitiesList);
-            modalitiesSet = modalitiesSet.difference(new Set(['SM', 'ECG', 'SR', 'SEG']));
+            let modalities = this.modalitiesList;
+            modalities = modalities.filter(x => !['SM', 'ECG', 'SR', 'SEG'].includes(x));  // since Set.difference is not supported on Firefox as of March 2024
 
-            if (modalitiesSet.size == 0)
+            if (modalities.length == 0)
             {
                 return false;
             }
@@ -352,12 +351,17 @@ export default {
                 return false;
             }
 
-            // from isValidMode() in OHIF code
-            // disable if it only contains modalities that are not supported by this mode: 
-            let modalitiesSet = new Set(this.modalitiesList);
-            modalitiesSet = modalitiesSet.difference(new Set(['SM', 'US', 'MG', 'OT', 'DOC', 'CR']));
+            // // from isValidMode() in OHIF code
+            // // disable if it only contains modalities that are not supported by this mode: 
+            // let modalities = this.modalitiesList;
+            // modalities = modalities.filter(x => !['SM', 'US', 'MG', 'OT', 'DOC', 'CR'].includes(x));  // since Set.difference is not supported on Firefox as of March 2024
+            // if (modalities.length == 0) {
+            //     return false;
+            // }
 
-            if (modalitiesSet.size == 0) {
+            // disable if it is not reconstructible
+            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM")))
+            {
                 return false;
             }
  
