@@ -2,6 +2,8 @@
 import RemoteStudyDetails from "./RemoteStudyDetails.vue";
 import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import resourceHelpers from "../helpers/resource-helpers"
+
 
 export default {
     props: ["studyFields", "id", "remoteMode", "remoteSource"],  // studyFields = the "answer" from Orthanc to /modalities/.../queries -> /queries/.../answers?expand
@@ -57,6 +59,12 @@ export default {
                 return "?";
             }
         },
+        formatedPatientBirthDate() {
+            return resourceHelpers.formatDateForDisplay(this.studyFields.PatientBirthDate, this.uiOptions.DateFormat);
+        },
+        formatedStudyDate() {
+            return resourceHelpers.formatDateForDisplay(this.studyFields.StudyDate, this.uiOptions.DateFormat);
+        }
     },
     components: { RemoteStudyDetails }
 }
@@ -83,7 +91,7 @@ export default {
                     v-if="columnTag=='StudyDate'"
                     data-bs-toggle="tooltip"
                     v-bind:title="studyFields.StudyDate"
-                >{{ studyFields.StudyDate }}
+                >{{ formatedStudyDate }}
                 </span>
                 <span
                     v-if="columnTag=='AccessionNumber'"
@@ -107,7 +115,7 @@ export default {
                     v-if="columnTag=='PatientBirthDate'"
                     data-bs-toggle="tooltip"
                     v-bind:title="studyFields.PatientBirthDate"
-                >{{ studyFields.PatientBirthDate }}
+                >{{ formatedPatientBirthDate }}
                 </span>
                 <span
                     v-if="columnTag=='StudyDescription'"

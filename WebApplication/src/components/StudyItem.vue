@@ -4,6 +4,7 @@ import StudyDetails from "./StudyDetails.vue";
 import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
+import resourceHelpers from "../helpers/resource-helpers"
 
 export default {
     props: ["studyId"],
@@ -93,6 +94,12 @@ export default {
         },
         hasLabels() {
             return this.fields && this.fields.Labels && this.fields.Labels.length > 0;
+        },
+        formatedPatientBirthDate() {
+            return resourceHelpers.formatDateForDisplay(this.fields.PatientMainDicomTags.PatientBirthDate, this.uiOptions.DateFormat);
+        },
+        formatedStudyDate() {
+            return resourceHelpers.formatDateForDisplay(this.fields.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
         }
     },
     components: { SeriesList, StudyDetails }
@@ -112,7 +119,7 @@ export default {
                 :class="{ 'text-center': columnTag in ['modalities', 'seriesCount'] }" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId">
                 <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.MainDicomTags.StudyDate">{{ fields.MainDicomTags.StudyDate }}
+                    v-bind:title="fields.MainDicomTags.StudyDate">{{ formatedStudyDate }}
                 </span>
                 <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.AccessionNumber">{{ fields.MainDicomTags.AccessionNumber }}
@@ -124,8 +131,7 @@ export default {
                     v-bind:title="fields.PatientMainDicomTags.PatientName">{{ fields.PatientMainDicomTags.PatientName }}
                 </span>
                 <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.PatientMainDicomTags.PatientBirthDate">{{
-                        fields.PatientMainDicomTags.PatientBirthDate }}
+                    v-bind:title="fields.PatientMainDicomTags.PatientBirthDate">{{ formatedPatientBirthDate }}
                 </span>
                 <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
                     v-bind:title="fields.MainDicomTags.StudyDescription">{{ fields.MainDicomTags.StudyDescription }}

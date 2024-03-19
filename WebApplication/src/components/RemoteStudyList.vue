@@ -77,6 +77,9 @@ export default {
         },
         isStudyListEmpty() {
             return this.studies.length == 0;
+        },
+        placeholderDate() {
+            return this.uiOptions.DateFormat;
         }
     },
     watch: {
@@ -488,7 +491,7 @@ export default {
                 </th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <input v-if="columnTag == 'StudyDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterStudyDate" placeholder="20220130" v-bind:class="getFilterClass('StudyDate')"/>
+                        v-model="filterStudyDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('StudyDate')"/>
                     <input v-if="columnTag == 'AccessionNumber'" type="text" class="form-control study-list-filter"
                         v-model="filterAccessionNumber" placeholder="1234" v-bind:class="getFilterClass('AccessionNumber')"/>
                     <input v-if="columnTag == 'PatientID'" type="text" class="form-control study-list-filter"
@@ -496,7 +499,7 @@ export default {
                     <input v-if="columnTag == 'PatientName'" type="text" class="form-control study-list-filter"
                         v-model="filterPatientName" placeholder="John^Doe" v-bind:class="getFilterClass('PatientName')"/>
                     <input v-if="columnTag == 'PatientBirthDate'" type="text" class="form-control study-list-filter"
-                        v-model="filterPatientBirthDate" placeholder="19740815" v-bind:class="getFilterClass('PatientBirthDate')"/>
+                        v-model="filterPatientBirthDate" :placeholder="placeholderDate" v-bind:class="getFilterClass('PatientBirthDate')"/>
                     <div v-if="columnTag == 'modalities'" class="dropdown">
                         <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle" data-bs-toggle="dropdown"
                             id="dropdown-modalities-button" aria-expanded="false"><span

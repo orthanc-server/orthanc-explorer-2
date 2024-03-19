@@ -189,6 +189,11 @@
             // if false: "PatientID" is displayed as "PatientID" in all languages
             "TranslateDicomTags" : true,
 
+            // Display format for dates in the study list based on these definitions: https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
+            // example: "dd/MM/yyyy" for European Format,
+            //          "yyyyMMdd" for DICOM format
+            "DateFormat": "yyyyMMdd",
+
             // modifications dialog options
             "Modifications": {
                 // Modes define options to the /modify route:

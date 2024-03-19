@@ -126,6 +126,9 @@ export default {
         isStudyListEmpty() {
             return this.studiesIds.length == 0;
         },
+        datePickerFormat() {
+            return this.uiOptions.DateFormat;
+        }
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -688,8 +691,8 @@ export default {
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <div v-if="columnTag == 'StudyDate'">
                     <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                        :enable-time-picker="false" range :preset-ranges="datePickerPresetRanges" format="yyyyMMdd"
-                        preview-format="yyyyMMdd" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                        :enable-time-picker="false" range :preset-ranges="datePickerPresetRanges" :format="datePickerFormat"
+                        :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                         <template #yearly="{ label, range, presetDateRange }">
                             <span @click="presetDateRange(range)">{{ label }}</span>
                         </template>
@@ -720,7 +723,7 @@ export default {
                     </div>
                     <div v-else-if="columnTag == 'PatientBirthDate'">
                     <Datepicker v-model="filterPatientBirthDateForDatePicker"
-                        :enable-time-picker="false" range format="yyyyMMdd" preview-format="yyyyMMdd" text-input
+                        :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
                         arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                     </Datepicker>
                     </div>

@@ -1,3 +1,5 @@
+import { parse, format } from "date-fns"
+
 export default {
     getResourceTitle(resourceType, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags) {
         let title = [];
@@ -53,5 +55,9 @@ export default {
             return [new Date(match[1], match[2]-1, match[3]), null];
         }
         return null;
+    },
+    formatDateForDisplay(dicomDate) {
+        let d = parse(dicomDate, "yyyyMMdd", new Date());
+        return format(d, "dd/MM/yyyy");
     }
 }

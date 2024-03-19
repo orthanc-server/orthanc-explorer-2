@@ -1,10 +1,11 @@
 Changes:
 - Theming the interface:
   - New configurations:
-    -  "Theme" to select the default "light" or "dark" theme.
-    -  "CustomCssPath" to complement the default CSS by a custom one.
-    -  "CustomLogoPath" to provide your own custom logo from disk.
-    -  "CustomLogoUrl" to provide your own custom logo from an external url.
+    - "Theme" to select the default "light" or "dark" theme.
+    - "CustomCssPath" to complement the default CSS by a custom one.
+    - "CustomLogoPath" to provide your own custom logo from disk.
+    - "CustomLogoUrl" to provide your own custom logo from an external url.
+    - "DateFormat" to customize the date format in study list and in the date pickers.
 - OHIF Integration:
   - Added support for `Segmentation` and `Microscopy` modes.  The `Microscopy`
     mode is disabled by default since it is not stable yet.
