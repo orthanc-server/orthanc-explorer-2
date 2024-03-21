@@ -217,7 +217,7 @@ export default {
             }
         },
         hasShareButton() {
-            return (this.uiOptions.EnableShares && "authorization" in this.installedPlugins);
+            return (this.uiOptions.EnableShares && "authorization" in this.installedPlugins && ['bulk', 'study'].includes(this.resourceLevel));
         },
         isShareEnabled() {
             if (this.resourceLevel == 'bulk') {
