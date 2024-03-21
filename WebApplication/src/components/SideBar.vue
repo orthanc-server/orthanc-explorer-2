@@ -127,120 +127,124 @@ export default {
 </script>
 <template>
     <div class="nav-side-menu">
-        <div v-if="!hasCustomLogo">
-            <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
-        </div>
-        <div v-if="hasCustomLogo">
-            <img class="custom-logo" :src="customLogoUrl" />
-        </div>
-        <div v-if="hasCustomLogo">
-            <p class="powered-by-orthanc">
-            powered by
-            <img src="../assets/images/orthanc.png" />
-            </p>
-        </div>
-        <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
-            <p>{{ system.Name }}</p>
-        </div>
-        <div class="menu-list">
-            <ul id="menu-content" class="menu-content collapse out">
-                <li class="d-flex align-items-center fix-router-link">
-                    <router-link class="router-link" to="/">
-                        <i class="fa fa-x-ray fa-lg menu-icon"></i>{{ $t('local_studies') }}
-                        <span class="study-count ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies
-                        }}</span>
-                    </router-link>
-                </li>
-                <ul v-if="allLabels.length > 0" class="sub-menu" id="labels-list">
-                    <li v-for="label in allLabels" :key="label"
-                    v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
-                        <i class="fa fa-tag label-icon"></i>
-                        {{ label }}
-                    </li>
-                </ul>
-
-                <li v-if="uiOptions.EnableUpload" class="d-flex align-items-center" data-bs-toggle="collapse"
-                    data-bs-target="#upload-handler">
-                    <i class="fa fa-file-upload fa-lg menu-icon"></i>{{ $t('upload') }}
-                    <span class="ms-auto"></span>
-                </li>
-                <div v-if="uiOptions.EnableUpload" class="collapse" id="upload-handler">
-                    <UploadHandler />
-                </div>
-
-                <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"
-                    data-bs-target="#modalities-list">
-                    <i class="fa fa-radiation fa-lg menu-icon"></i>{{ $t('dicom_modalities') }}
-                    <span class="arrow ms-auto"></span>
-                </li>
-                <ul class="sub-menu collapse" id="modalities-list" ref="modalities-collapsible">
-                    <li v-for="modality in queryableDicomModalities" :key="modality"
-                        v-bind:class="{ 'active': this.isSelectedModality(modality) }" @click="selectModality(modality)">
-                        <router-link class="router-link"
-                            :to="{ path: '/filtered-remote-studies', query: { remoteMode: 'dicom', remoteSource: modality } }">
-                            {{ modality }}
+        <div class="nav-side-content">
+            <div v-if="!hasCustomLogo">
+                <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
+            </div>
+            <div v-if="hasCustomLogo">
+                <img class="custom-logo" :src="customLogoUrl" />
+            </div>
+            <div v-if="hasCustomLogo">
+                <p class="powered-by-orthanc">
+                powered by
+                <img src="../assets/images/orthanc.png" />
+                </p>
+            </div>
+            <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
+                <p>{{ system.Name }}</p>
+            </div>
+            <div class="menu-list">
+                <ul id="menu-content" class="menu-content collapse out">
+                    <li class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/">
+                            <i class="fa fa-x-ray fa-lg menu-icon"></i>{{ $t('local_studies') }}
+                            <span class="study-count ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies
+                            }}</span>
                         </router-link>
-                        <span v-if="this.isEchoRunning(modality)" class="ms-auto spinner-border spinner-border-sm"
-                            data-bs-toggle="tooltip" title="Checking connectivity"></span>
-                        <span v-else-if="this.isEchoSuccess(modality)" class="ms-auto"><i
-                                class="bi bi-check2 text-success echo-status" data-bs-toggle="tooltip"
-                                title="C-Echo succeeded"></i></span>
-                        <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status" data-bs-toggle="tooltip"
-                                title="C-Echo failed"></i></span>
                     </li>
-                </ul>
+                    <ul v-if="allLabels.length > 0" class="sub-menu" id="labels-list">
+                        <li v-for="label in allLabels" :key="label"
+                        v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
+                            <i class="fa fa-tag label-icon"></i>
+                            {{ label }}
+                        </li>
+                    </ul>
 
-                <li v-if="hasQueryableDicomWebServers" class="d-flex align-items-center" data-bs-toggle="collapse"
-                    data-bs-target="#dicomweb-servers-list">
-                    <i class="fa fa-globe fa-lg menu-icon"></i>{{ $t('dicom_web_servers') }}
-                    <span class="arrow ms-auto"></span>
-                </li>
-                <ul class="sub-menu collapse" id="dicomweb-servers-list">
-                    <li v-for="server in queryableDicomWebServers" :key="server" class="active">
-                        <a href="#">{{ server }} (TODO)</a>
+                    <li v-if="uiOptions.EnableUpload" class="d-flex align-items-center" data-bs-toggle="collapse"
+                        data-bs-target="#upload-handler">
+                        <i class="fa fa-file-upload fa-lg menu-icon"></i>{{ $t('upload') }}
+                        <span class="ms-auto"></span>
                     </li>
-                </ul>
+                    <div v-if="uiOptions.EnableUpload" class="collapse" id="upload-handler">
+                        <UploadHandler />
+                    </div>
 
-                <li v-if="hasAccessToSettings" class="d-flex align-items-center fix-router-link">
-                    <router-link class="router-link" to="/settings">
-                        <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings') }}
-                    </router-link>
-                </li>
+                    <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"
+                        data-bs-target="#modalities-list">
+                        <i class="fa fa-radiation fa-lg menu-icon"></i>{{ $t('dicom_modalities') }}
+                        <span class="arrow ms-auto"></span>
+                    </li>
+                    <ul class="sub-menu collapse" id="modalities-list" ref="modalities-collapsible">
+                        <li v-for="modality in queryableDicomModalities" :key="modality"
+                            v-bind:class="{ 'active': this.isSelectedModality(modality) }" @click="selectModality(modality)">
+                            <router-link class="router-link"
+                                :to="{ path: '/filtered-remote-studies', query: { remoteMode: 'dicom', remoteSource: modality } }">
+                                {{ modality }}
+                            </router-link>
+                            <span v-if="this.isEchoRunning(modality)" class="ms-auto spinner-border spinner-border-sm"
+                                data-bs-toggle="tooltip" title="Checking connectivity"></span>
+                            <span v-else-if="this.isEchoSuccess(modality)" class="ms-auto"><i
+                                    class="bi bi-check2 text-success echo-status" data-bs-toggle="tooltip"
+                                    title="C-Echo succeeded"></i></span>
+                            <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status" data-bs-toggle="tooltip"
+                                    title="C-Echo failed"></i></span>
+                        </li>
+                    </ul>
 
-                <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center fix-router-link">
-                    <a v-bind:href="this.orthancApiUrl + 'app/explorer.html'">
-                        <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t('legacy_ui') }}
-                    </a><span class="ms-auto"></span>
-                </li>
-                <li v-if="hasLogout" class="d-flex align-items-center" data-bs-toggle="collapse"
-                    data-bs-target="#profile-list">
-                    <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
-                    <span class="arrow ms-auto"></span>
-                </li>
-                <ul class="sub-menu collapse" id="profile-list" ref="profile-collapsible">
-                    <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center fix-router-link">
-                        <a v-bind:href="'#'" @click="changePassword($event)">
-                            <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
+                    <li v-if="hasQueryableDicomWebServers" class="d-flex align-items-center" data-bs-toggle="collapse"
+                        data-bs-target="#dicomweb-servers-list">
+                        <i class="fa fa-globe fa-lg menu-icon"></i>{{ $t('dicom_web_servers') }}
+                        <span class="arrow ms-auto"></span>
+                    </li>
+                    <ul class="sub-menu collapse" id="dicomweb-servers-list">
+                        <li v-for="server in queryableDicomWebServers" :key="server" class="active">
+                            <a href="#">{{ server }} (TODO)</a>
+                        </li>
+                    </ul>
+
+                    <li v-if="hasAccessToSettings" class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/settings">
+                            <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings') }}
+                        </router-link>
+                    </li>
+
+                    <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center fix-router-link">
+                        <a v-bind:href="this.orthancApiUrl + 'app/explorer.html'">
+                            <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t('legacy_ui') }}
                         </a><span class="ms-auto"></span>
                     </li>
-                    <li v-if="hasLogout" class="d-flex align-items-center fix-router-link">
-                        <a v-bind:href="'#'" @click="logout($event)">
-                            <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
+                    <li v-if="hasLogout" class="d-flex align-items-center" data-bs-toggle="collapse"
+                        data-bs-target="#profile-list">
+                        <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
+                        <span class="arrow ms-auto"></span>
+                    </li>
+                    <ul class="sub-menu collapse" id="profile-list" ref="profile-collapsible">
+                        <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center fix-router-link">
+                            <a v-bind:href="'#'" @click="changePassword($event)">
+                                <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
+                            </a><span class="ms-auto"></span>
+                        </li>
+                        <li v-if="hasLogout" class="d-flex align-items-center fix-router-link">
+                            <a v-bind:href="'#'" @click="logout($event)">
+                                <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
+                            </a><span class="ms-auto"></span>
+                        </li>
+                    </ul>
+                    <li v-if="hasJobs" class="d-flex align-items-center">
+                        <a href="#">
+                            <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{ $t('my_jobs') }}
                         </a><span class="ms-auto"></span>
                     </li>
+                    <div v-if="hasJobs" class="collapse show" id="jobs-list">
+                        <JobsList />
+                    </div>
                 </ul>
-                <li v-if="hasJobs" class="d-flex align-items-center">
-                    <a href="#">
-                        <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{ $t('my_jobs') }}
-                    </a><span class="ms-auto"></span>
-                </li>
-                <div v-if="hasJobs" class="collapse show" id="jobs-list">
-                    <JobsList />
+            </div>
+            <div class="bottom-side-bar">
+                <div class="bottom-side-bar-button">
+                    <LanguagePicker/>
                 </div>
-            </ul>
-        </div>
-        <div class="bottom-side-bar">
-            <LanguagePicker />
+            </div>
         </div>
     </div>
 </template>
@@ -293,9 +297,28 @@ export default {
     font-weight: 200;
     background-color: var(--nav-side-bg-color);
     color: var(--nav-side-color);
-    height: 100%;
 }
 
+.nav-side-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.bottom-side-bar {
+    flex: 1;
+    align-self: flex-end;
+    width: 100%;    
+    position: relative;
+    min-height: 5rem;
+}
+
+.bottom-side-bar-button { /* for the language picker */
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+    height: 3rem;    
+}
 
 .nav-side-menu ul,
 .nav-side-menu li {
@@ -415,9 +438,4 @@ export default {
     line-height: 28px;
 }
 
-.bottom-side-bar {
-    position: absolute;
-    bottom: 1rem;
-    width: 100%;
-}
 </style>
