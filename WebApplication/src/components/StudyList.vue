@@ -63,7 +63,6 @@ export default {
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
-            updatingRoute: false,
             initializingModalityFilter: false,
             searchTimerHandler: {},
             columns: document._studyColumns,
@@ -122,11 +121,7 @@ export default {
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
-            // console.log("StudyList: route changed")
-            if (!this.updatingRoute) {
-                this.updateFilterFromRoute(this.$route.query);
-            }
-            this.updatingRoute = false;
+            this.updateFilterFromRoute(this.$route.query);
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is called when opening the page (with a filter or not)
@@ -395,7 +390,7 @@ export default {
             this.reloadStudyList();
         },
         async updateFilterFromRoute(filters) {
-            // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
+            //console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
 
             this.updatingFilterUi = true;
             await this.$store.dispatch('studies/clearFilterNoReload');
@@ -554,7 +549,6 @@ export default {
                 newUrl = "/filtered-studies?" + activeFilters.join('&');
             }
 
-            this.updatingRoute = true;  // cleared in watcher
             this.$router.replace(newUrl);
         },
         async reloadStudyList() {

@@ -115,7 +115,7 @@ export default {
                 </ul>
                 <p v-if="hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1">
                     {{ $t('this_patient_has_other_studies', { count: samePatientStudiesCount }) }}.
-                    <router-link v-bind:to='samePatientStudiesLink' >
+                    <router-link :to='samePatientStudiesLink' >
                         {{ $t('this_patient_has_other_studies_show') }}
                     </router-link>
                 </p>

@@ -146,6 +146,7 @@
     "orthanc_version": "Version orthanc",
     "overwrite_instances": "Écraser les instances",
     "page_not_found": "Page introuvable !",
+    "patients": "Patients",
     "plugin": "Plugin",
     "plugins_not_enabled": "Les plugins qui sont chargés mais pas activés ou configurés correctement sont ",
     "preview": "Aperçu",

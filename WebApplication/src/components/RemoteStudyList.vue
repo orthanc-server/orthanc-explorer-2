@@ -60,7 +60,6 @@ export default {
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
-            updatingRoute: false,
             initializingModalityFilter: false,
             columns: document._remoteStudyColumns,
             datePickerPresetRanges: document._datePickerPresetRanges,
@@ -98,11 +97,7 @@ export default {
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
-            // console.log("StudyList: route changed")
-            if (!this.updatingRoute) {
-                this.updateFilterFromRoute(this.$route.query);
-            }
-            this.updatingRoute = false;
+            this.updateFilterFromRoute(this.$route.query);
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is called when opening the page (with a filter or not)
@@ -488,8 +483,7 @@ export default {
             if (activeFilters.length > 0) {
                 newUrl = "/filtered-remote-studies?" + activeFilters.join('&');
             }
-
-            this.updatingRoute = true;  // cleared in watcher
+            
             this.$router.replace(newUrl);
         }
     },

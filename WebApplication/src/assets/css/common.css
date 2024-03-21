@@ -193,3 +193,39 @@ button.form-control.study-list-filter {
   color: var(--form-placeholder-color);
   opacity: 1; /* Firefox */
 }
+
+.job-card {
+  margin-bottom: 2px;
+}
+
+.job-card a {
+  /* color: black; */
+}
+
+.job-card-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.job-pct-pill {
+  width: 50px;
+  margin-right: 5px;
+}
+
+.jobs-header {
+  text-align: left;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.jobs-body {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.jobs-body a {
+  text-decoration: underline;
+}

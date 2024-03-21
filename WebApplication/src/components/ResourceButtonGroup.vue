@@ -51,7 +51,6 @@ export default {
                 }
             }
             this.modalitiesList = Array.from(modalitiesSet);
-            console.log(this.modalitiesList);
         }
     },
     methods: {
@@ -729,7 +728,7 @@ export default {
                         <i class="bi bi-code-slash"></i>
                     </span>
                 </button>
-                <ul class="dropdown-menu bg-dropdown" aria-labelledby="apiDropdownMenuId"
+                <ul class="dropdown-menu" aria-labelledby="apiDropdownMenuId"
                     v-if="uiOptions.EnableApiViewMenu">
                     <li>
                         <button class="dropdown-item" href="#" @click="copyIdToClipboard">{{ $t('copy_orthanc_id')
@@ -790,13 +789,13 @@ export default {
                         <i class="bi bi-send"></i>
                     </span>
                 </button>
-                <ul class="dropdown-menu bg-dropdown" aria-labelledby="sendToDropdownMenuId" v-if="hasSendTo">
+                <ul class="dropdown-menu" aria-labelledby="sendToDropdownMenuId" v-if="hasSendTo">
                     <li v-if="hasSendToPeers" class="dropdown-submenu">
                         <a class="dropdown-item" @click="toggleSubMenu" href="#">
                             {{ $t('send_to.orthanc_peer') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
-                        <ul class="dropdown-menu bg-dropdown">
+                        <ul class="dropdown-menu">
                             <li v-for="peer in orthancPeers" :key="peer">
                                 <a class="dropdown-item" @click="sendToOrthancPeer(peer)">{{ peer }}</a>
                             </li>
@@ -807,7 +806,7 @@ export default {
                             {{ $t('send_to.transfers') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
-                        <ul class="dropdown-menu bg-dropdown">
+                        <ul class="dropdown-menu">
                             <li v-for="peer in orthancPeers" :key="peer">
                                 <a class="dropdown-item" @click="sendToOrthancPeerWithTransfers(peer)">{{ peer }}</a>
                             </li>
@@ -818,7 +817,7 @@ export default {
                             {{ $t('send_to.dicom_web') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
-                        <ul class="dropdown-menu bg-dropdown">
+                        <ul class="dropdown-menu">
                             <li v-for="dwServer in targetDicomWebServers" :key="dwServer">
                                 <a class="dropdown-item" @click="sendToDicomWebServer(dwServer)">{{ dwServer }}</a>
                             </li>
@@ -829,7 +828,7 @@ export default {
                             {{ $t('send_to.dicom') }}
                             <i class="bi bi-caret-down"></i>
                         </a>
-                        <ul class="dropdown-menu bg-dropdown">
+                        <ul class="dropdown-menu">
                             <li v-for="modality in targetDicomModalities" :key="modality">
                                 <a class="dropdown-item" @click="sendToDicomModality(modality)">{{ modality }}</a>
                             </li>
@@ -842,9 +841,6 @@ export default {
 </template>
 
 <style>
-.bg-dropdown {
-    background-color: rgb(220, 220, 220);
-}
 
 .dropdown-submenu {
     position: relative;
