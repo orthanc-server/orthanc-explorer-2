@@ -141,7 +141,8 @@
                 "PatientID",
                 "PatientName",
                 "PatientBirthDate",
-                "PatientSex"
+                "PatientSex",
+                "OtherPatientIDs"
             ],
 
             // The list of study level tags that are displayed in the study details and in the modification dialog.

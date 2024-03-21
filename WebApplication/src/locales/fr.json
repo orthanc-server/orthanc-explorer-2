@@ -39,6 +39,7 @@
         "ModalitiesInStudy": "Modalités",
         "NumberOfFrames": "Nombre d'images", 
         "NumberOfStudyRelatedSeries": "Nombre de séries",
+        "OtherPatientIDs": "Autres ID Patient",
         "PatientBirthDate": "Date de naissance",
         "PatientID": "ID Patient",
         "PatientName": "Nom",

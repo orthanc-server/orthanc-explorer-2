@@ -15,7 +15,7 @@ Changes:
   - Updated default values for `ViewersIcons` and `ViewersOrdering`.
 - Added date pickers in the Remote Study List (when performing searches on
   remote modalities)
-
+- When editing a study, it is now possible to add an `OtherPatientIDs` DICOM tag.
 
 Internals:
   - Updated all JS libraries.
