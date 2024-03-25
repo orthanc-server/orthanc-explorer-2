@@ -1,3 +1,6 @@
+1.3.0 (2024-03-25)
+==================
+
 Changes:
 - Theming the interface:
   - New configurations:
@@ -8,9 +11,10 @@ Changes:
     - "DateFormat" to customize the date format in study list and in the date pickers.
 - OHIF Integration:
   - Added support for `Segmentation` and `Microscopy` modes.  The `Microscopy`
-    mode is disabled by default since it is not stable yet.
+    mode is disabled by default since it is not stable yet in OHIF.
   - You can now enable/disable OHIF viewer modes by including/removing them
     from the `ViewersOrdering` configuration.
+  - OHIF buttons are now visible/hidden depending on the content of the study.
 - Configurations:
   - Updated default values for `ViewersIcons` and `ViewersOrdering`.
 - Added date pickers in the Remote Study List (when performing searches on

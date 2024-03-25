@@ -1435,4 +1435,13 @@ void GetHttpHeaders(std::map<std::string, std::string>& result, const OrthancPlu
                          IWebDavCollection& collection);
   };
 #endif
+
+  void SetRootUri(const std::string& pluginIdentifier,
+                  const std::string& uri);
+
+  void SetDescription(const std::string& pluginIdentifier,
+                      const std::string& description);
+
+  void ExtendOrthancExplorer(const std::string& pluginIdentifier,
+                             const std::string& javascript);
 }

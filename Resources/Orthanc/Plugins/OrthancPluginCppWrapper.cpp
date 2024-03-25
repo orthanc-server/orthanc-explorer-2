@@ -4026,4 +4026,48 @@ namespace OrthancPlugins
       result[request->headersKeys[i]] = request->headersValues[i];
     }    
   }
+
+#if !ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 12, 4)
+  static void SetPluginProperty(const std::string& pluginIdentifier,
+                                _OrthancPluginProperty property,
+                                const std::string& value)
+  {
+    _OrthancPluginSetPluginProperty params;
+    params.plugin = pluginIdentifier.c_str();
+    params.property = property;
+    params.value = value.c_str();
+
+    GetGlobalContext()->InvokeService(GetGlobalContext(), _OrthancPluginService_SetPluginProperty, &params);
+  }
+#endif
+
+  void SetRootUri(const std::string& pluginIdentifier,
+                  const std::string& uri)
+  {
+#if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 12, 4)
+    OrthancPluginSetRootUri2(GetGlobalContext(), pluginIdentifier.c_str(), uri.c_str());
+#else
+    SetPluginProperty(pluginIdentifier, _OrthancPluginProperty_RootUri, uri);
+#endif
+  }
+
+  void SetDescription(const std::string& pluginIdentifier,
+                      const std::string& description)
+  {
+#if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 12, 4)
+    OrthancPluginSetDescription2(GetGlobalContext(), pluginIdentifier.c_str(), description.c_str());
+#else
+    SetPluginProperty(pluginIdentifier, _OrthancPluginProperty_Description, description);
+#endif
+  }
+
+  void ExtendOrthancExplorer(const std::string& pluginIdentifier,
+                             const std::string& javascript)
+  {
+#if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 12, 4)
+    OrthancPluginExtendOrthancExplorer2(GetGlobalContext(), pluginIdentifier.c_str(), javascript.c_str());
+#else
+    SetPluginProperty(pluginIdentifier, _OrthancPluginProperty_OrthancExplorer, javascript);
+#endif
+  }
 }

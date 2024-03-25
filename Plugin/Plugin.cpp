@@ -29,6 +29,8 @@
 
 #include <EmbeddedResources.h>
 
+#define ORTHANC_PLUGIN_NAME  "orthanc-explorer-2"
+
 // we are using Orthanc 1.11.0 API (RequestedTags in tools/find)
 #define ORTHANC_CORE_MINIMAL_MAJOR     1
 #define ORTHANC_CORE_MINIMAL_MINOR     11
@@ -713,7 +715,7 @@ extern "C"
       return -1;
     }
 
-    OrthancPluginSetDescription(context, "Advanced User Interface for Orthanc");
+    OrthancPlugins::SetDescription(ORTHANC_PLUGIN_NAME, "Advanced User Interface for Orthanc");
 
     try
     {
@@ -769,7 +771,7 @@ extern "C"
         OrthancPlugins::RegisterRestCallback<GetOE2PreLoginConfiguration>(oe2BaseUrl_ + "api/pre-login-configuration", true);
 
         std::string pluginRootUri = oe2BaseUrl_ + "app/";
-        OrthancPluginSetRootUri(context, pluginRootUri.c_str());
+        OrthancPlugins::SetRootUri(ORTHANC_PLUGIN_NAME, pluginRootUri.c_str());
 
         if (pluginJsonConfiguration_["IsDefaultOrthancUI"].asBool())
         {
@@ -817,7 +819,7 @@ extern "C"
 
   ORTHANC_PLUGINS_API const char* OrthancPluginGetName()
   {
-    return "orthanc-explorer-2";
+    return ORTHANC_PLUGIN_NAME;
   }
 
 
