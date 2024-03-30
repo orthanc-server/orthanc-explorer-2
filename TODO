@@ -86,5 +86,4 @@ Ideas bag:
 - show statistics/event logs: e.g: would be nice to see how many instances
   have been received recently (from where)
 - add a button to export a whole series to jpeg (Chamrousse)
-
-
+- add a text editor to associate a radiology report or note with a study, storing it as an attachment (cf. https://discourse.orthanc-server.org/t/oe2-inclusion-of-reporting-note/)
