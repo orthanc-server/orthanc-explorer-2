@@ -615,6 +615,9 @@ export default {
             if (!this.shouldStopLoadingLatestStudies) {
                 if (fromChangeId > 0 && this.latestStudiesIds.size < this.statistics.CountStudies) {
                     setTimeout(() => {this.loadStudiesFromChange(Math.max(0, Math.max(0, fromChangeId - 1000)), 1000)}, 1);
+                } else {
+                    this.isLoadingLatestStudies = false;
+                    this.isDisplayingLatestStudies = true;
                 }
             } else {
                 this.isLoadingLatestStudies = false;
