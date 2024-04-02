@@ -598,7 +598,7 @@ export default {
                     try {
                         const study = await api.getStudy(change["ID"]);
                         if (this.filterLabels.length == 0 || this.filterLabels.filter(l => study["Labels"].includes(l)).length > 0) {
-                            this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study });
+                            this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study, reloadStats: false });
                         }
 
                         this.latestStudiesIds.add(change["ID"]);
@@ -612,8 +612,10 @@ export default {
                     }
                 }
             }
-            if (!this.shouldStopLoadingLatestStudies && fromChangeId > 0) {
-                this.loadStudiesFromChange(Math.max(0, Math.max(0, fromChangeId - 1000)), 1000);
+            if (!this.shouldStopLoadingLatestStudies) {
+                if (fromChangeId > 0 && this.latestStudiesIds.size < this.statistics.CountStudies) {
+                    setTimeout(() => {this.loadStudiesFromChange(Math.max(0, Math.max(0, fromChangeId - 1000)), 1000)}, 1);
+                }
             } else {
                 this.isLoadingLatestStudies = false;
                 this.isDisplayingLatestStudies = true;

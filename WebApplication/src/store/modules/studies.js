@@ -210,8 +210,11 @@ const actions = {
     async addStudy({ commit }, payload) {
         const studyId = payload['studyId'];
         const study = payload['study'];
+        const reloadStats = payload['reloadStats'];
         commit('addStudy', { studyId: studyId, study: study });
-        this.dispatch('studies/loadStatistics');
+        if (reloadStats) {
+            this.dispatch('studies/loadStatistics');
+        }
     },
     async selectStudy({ commit }, payload) {
         const studyId = payload['studyId'];

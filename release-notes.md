@@ -1,3 +1,9 @@
+Pending changes in the mainline
+===============================
+
+Fixes:
+  - [Issue #51](https://github.com/orthanc-server/orthanc-explorer-2/issues/51) Stop calling /changes once all studies are displayed.
+
 1.3.0 (2024-03-25)
 ==================
 
