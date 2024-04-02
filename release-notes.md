@@ -3,6 +3,8 @@ Pending changes in the mainline
 
 Fixes:
   - [Issue #51](https://github.com/orthanc-server/orthanc-explorer-2/issues/51) Stop calling /changes once all studies are displayed.
+  - [Issue #52](https://github.com/orthanc-server/orthanc-explorer-2/issues/52) Removed duplicate calls to /studies/../series and /series/../instances.
+
 
 1.3.0 (2024-03-25)
 ==================

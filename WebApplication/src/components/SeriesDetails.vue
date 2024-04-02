@@ -3,6 +3,7 @@ import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import InstanceList from "./InstanceList.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
 import { mapState, mapGetters } from "vuex"
+import api from "../orthancApi";
 
 export default {
     props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'instancesIds'],
@@ -11,12 +12,16 @@ export default {
     },
     data() {
         return {
+            seriesInstances: []
         };
     },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
         }),
+    },
+    async mounted() {
+        this.seriesInstances = await api.getSeriesInstances(this.seriesId);
     },
     components: { ResourceButtonGroup, InstanceList, ResourceDetailText },
     methods: {
@@ -54,6 +59,7 @@ export default {
                 :studyMainDicomTags="this.studyMainDicomTags"
                 :seriesMainDicomTags="this.seriesMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"
+                :seriesInstances="this.seriesInstances"
                 :customClass="'instance-button-group'"
                 @deletedResource="onDeletedSeries"
                 ></ResourceButtonGroup>
@@ -67,6 +73,7 @@ export default {
                     :patientMainDicomTags="this.patientMainDicomTags"
                     :studyMainDicomTags="this.studyMainDicomTags"
                     :instancesIds="this.instancesIds"
+                    :seriesInstances="this.seriesInstances"
                     @deletedInstance="onDeletedInstance"
                 ></InstanceList>
             </td>

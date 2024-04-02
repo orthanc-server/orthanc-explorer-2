@@ -3,7 +3,7 @@ import InstanceItem from "./InstanceItem.vue"
 import api from "../orthancApi"
 
 export default {
-    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
+    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'seriesInstances'],
     emits: ['deletedInstance'],
     data() {
         return {
@@ -22,12 +22,15 @@ export default {
             }
         }
     },
-    async mounted() {
-        const response = await api.getSeriesInstances(this.seriesId)
-        for (const instanceInfo of response) {
-            this.instancesInfo[instanceInfo.ID] = instanceInfo;
+    watch: {
+        seriesInstances(newValue, oldValue) {
+            for (const instanceInfo of this.seriesInstances) {
+                this.instancesInfo[instanceInfo.ID] = instanceInfo;
+            }
+            this.loaded = true;
         }
-        this.loaded = true;
+    },
+    async mounted() {
     },
     methods: {
         onDeletedInstance(instanceId) {
