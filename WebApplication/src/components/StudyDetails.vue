@@ -15,6 +15,7 @@ export default {
     data() {
         return {
             samePatientStudiesCount: 0,
+            studySeries: [],
             hasLoadedSamePatientsStudiesCount: false,
             labelsModel: [],
             allLabelsLocalCopy: new Set()
@@ -26,6 +27,7 @@ export default {
     },
     async mounted() {
         this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, this.uiOptions.ShowSamePatientStudiesFilter)).length;
+        this.studySeries = (await api.getStudySeries(this.studyId));
         this.hasLoadedSamePatientsStudiesCount = true;
         Tags.init();
     },
@@ -126,14 +128,14 @@ export default {
             <td width="20%" class="study-button-group">
                 <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
                     :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                    :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" @deletedResource="onDeletedStudy">
+                    :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" :studySeries="this.studySeries" @deletedResource="onDeletedStudy">
                 </ResourceButtonGroup>
             </td>
         </tr>
         <tr>
             <td colspan="100">
                 <SeriesList :studyId="this.studyId" :studyMainDicomTags="this.studyMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags" @deletedStudy="onDeletedStudy"></SeriesList>
+                    :patientMainDicomTags="this.patientMainDicomTags" :studySeries="this.studySeries" @deletedStudy="onDeletedStudy"></SeriesList>
             </td>
         </tr>
     </table>

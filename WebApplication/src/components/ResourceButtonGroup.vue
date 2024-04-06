@@ -11,7 +11,7 @@ import TokenLinkButton from "./TokenLinkButton.vue"
 import BulkLabelsModal from "./BulkLabelsModal.vue"
 
 export default {
-    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags", "instanceHeaders"],
+    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags", "instanceHeaders", "studySeries", "seriesInstances"],
     setup() {
         return {
         }
@@ -25,33 +25,37 @@ export default {
             modalitiesList: []
         };
     },
-    async mounted() {
-        if (this.resourceLevel == 'series') {
-            let seriesInstances = await api.getSeriesInstances(this.resourceOrthancId);
-            let firstInstanceTags = await api.getSimplifiedInstanceTags(seriesInstances[0]['ID']);
-            this.modalitiesList = [firstInstanceTags["Modality"]];
-            this.isWsiSeries = firstInstanceTags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6" || firstInstanceTags["Modality"] == "SM";
-        } else if (this.resourceLevel == 'instance') {
-            this.isPdfPreview = this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
-        } else if (this.resourceLevel == 'study') {
-            // build the modalitiesList to enable/disable viewers
-            let seriesDetails = await api.getStudySeries(this.resourceOrthancId);
-            let modalitiesSet = new Set();
-            for (let seriesDetail of seriesDetails) {
-                modalitiesSet.add(seriesDetail["MainDicomTags"]["Modality"])
-            }
-            this.modalitiesList = Array.from(modalitiesSet);
-        } else if (this.resourceLevel == 'bulk') {
-            // build the modalitiesList to enable/disable viewers
-            let modalitiesSet = new Set();
-            for (let selectedStudyId of this.selectedStudiesIds) {
-                let seriesDetails = await api.getStudySeries(selectedStudyId);
-                for (let seriesDetail of seriesDetails) {
+    watch: {
+        async seriesInstances(newValue, oldValue) {
+            if (this.resourceLevel == 'series') {
+                let firstInstanceTags = await api.getSimplifiedInstanceTags(this.seriesInstances[0]['ID']);
+                this.modalitiesList = [firstInstanceTags["Modality"]];
+                this.isWsiSeries = firstInstanceTags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6" || firstInstanceTags["Modality"] == "SM";
+            } else if (this.resourceLevel == 'instance') {
+                this.isPdfPreview = this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
+            } else if (this.resourceLevel == 'study') {
+                // build the modalitiesList to enable/disable viewers
+                let modalitiesSet = new Set();
+                for (let seriesDetail of this.studySeries) {
                     modalitiesSet.add(seriesDetail["MainDicomTags"]["Modality"])
                 }
+                this.modalitiesList = Array.from(modalitiesSet);
+            } else if (this.resourceLevel == 'bulk') {
+                // build the modalitiesList to enable/disable viewers
+                let modalitiesSet = new Set();
+                for (let selectedStudyId of this.selectedStudiesIds) {
+                    let seriesDetails = await api.getStudySeries(selectedStudyId);
+                    for (let seriesDetail of seriesDetails) {
+                        modalitiesSet.add(seriesDetail["MainDicomTags"]["Modality"])
+                    }
+                }
+                this.modalitiesList = Array.from(modalitiesSet);
             }
-            this.modalitiesList = Array.from(modalitiesSet);
+
         }
+    },
+
+    async mounted() {
     },
     methods: {
         toggleSubMenu(event) {
@@ -165,8 +169,6 @@ export default {
                 }
             }
         },
-    },
-    watch: {
     },
     computed: {
         ...mapState({

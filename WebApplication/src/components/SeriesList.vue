@@ -5,7 +5,7 @@ import SeriesItem from "./SeriesItem.vue"
 import { translateDicomTag } from "../locales/i18n"
 
 export default {
-    props: ['studyId', 'patientMainDicomTags', 'studyMainDicomTags'],
+    props: ['studyId', 'patientMainDicomTags', 'studyMainDicomTags', 'studySeries'],
     emits: ['deletedStudy'],
     data() {
         return {
@@ -17,6 +17,13 @@ export default {
             let keys = Object.keys(this.seriesInfo);
             keys.sort((a, b) => (parseInt(this.seriesInfo[a].MainDicomTags.SeriesNumber) > parseInt(this.seriesInfo[b].MainDicomTags.SeriesNumber) ? 1 : -1))
             return keys;
+        }
+    },
+    watch: {
+        studySeries(newValue, oldValue) {
+            for (const series of this.studySeries) {
+                this.seriesInfo[series["ID"]] = series;
+            }
         }
     },
     methods: {
@@ -40,14 +47,6 @@ export default {
                 this.$emit("deletedStudy", this.studyId);
             }
         }
-    },
-    async mounted() {
-        const studyResponse = await api.getStudySeries(this.studyId);
-
-        for (const series of studyResponse) {
-            this.seriesInfo[series["ID"]] = series;
-        }
-
     },
     components: { SeriesItem }
 }

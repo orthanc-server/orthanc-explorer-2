@@ -113,7 +113,7 @@ export default {
                 const studyResponse = await api.getStudy(studyId);
                 this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
 
-                this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId });
+                this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId, reloadStats: true });
             }
         },
         async uploadFiles(files) {

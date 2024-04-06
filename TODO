@@ -85,5 +85,5 @@ Ideas bag:
 - browse orthanc peer (probably need to extend the Orthanc API to avoid CORS issues)
 - show statistics/event logs: e.g: would be nice to see how many instances
   have been received recently (from where)
-- add a button to export a whole series to jpeg (Chamrousse)
+- add a button to export a whole series to jpeg (Chamrousse): we could reuse [this python code](https://orthanc.uclouvain.be/book/plugins/python.html#generating-a-mosaic-for-a-dicom-series) and trigger it from a [custom button](https://github.com/orthanc-server/orthanc-explorer-2/issues/18) (once we have implemented them !!!)
 - add a text editor to associate a radiology report or note with a study, storing it as an attachment (cf. https://discourse.orthanc-server.org/t/oe2-inclusion-of-reporting-note/)

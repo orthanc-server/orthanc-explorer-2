@@ -51,21 +51,20 @@ export default {
         }
     },
     async mounted() {
-        this.reset();
-
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
             // move the modal to body to avoid z-index issues: https://weblog.west-wind.com/posts/2016/sep/14/bootstrap-modal-dialog-showing-under-modal-background
             document.querySelector('body').appendChild(e.target);
             this.reset();
         });
     },
-    watch: {
-    },
     methods: {
         async reset() {
             this.step = 'init';
-            this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
-            this.hasLoadedSamePatientsStudiesCount = true;
+            if (!this.hasLoadedSamePatientsStudiesCount) {
+                console.log("loading", this.hasLoadedSamePatientsStudiesCount);
+                this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
+                this.hasLoadedSamePatientsStudiesCount = true;
+            }
 
             this.tags = {};
             this.originalTags = {};
