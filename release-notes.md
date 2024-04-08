@@ -4,6 +4,7 @@ Pending changes in the mainline
 Fixes:
   - [Issue #51](https://github.com/orthanc-server/orthanc-explorer-2/issues/51) Stop calling /changes once all studies are displayed.
   - [Issue #52](https://github.com/orthanc-server/orthanc-explorer-2/issues/52) Removed duplicate calls to /studies/../series and /series/../instances.
+  - [Issue #54](https://github.com/orthanc-server/orthanc-explorer-2/issues/54) OHIF disappeared after #52 fix
   - Removed duplicate calls to /tools/find in Modification modal
 
 
