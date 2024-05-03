@@ -303,11 +303,12 @@ export default {
             if (!this.uiOptions.ViewersOrdering.includes("ohif")) {
                 return false;
             }
+
             // disable if it only contains non images modalities: 
             let modalities = this.modalitiesList;
             modalities = modalities.filter(x => !['SM', 'ECG', 'SR', 'SEG'].includes(x));  // since Set.difference is not supported on Firefox as of March 2024
 
-            if (modalities.length == 0)
+            if (modalities.length == 0 && this.resourceLevel != "bulk") // we can not check the modalities list for bulk mode
             {
                 return false;
             }
@@ -324,7 +325,8 @@ export default {
             }
 
             // only for CT, PT and MR
-            if (!(this.modalitiesList.includes("CT") || this.modalitiesList.includes("PT") || this.modalitiesList.includes("MR")))
+            if (!(this.modalitiesList.includes("CT") || this.modalitiesList.includes("PT") || this.modalitiesList.includes("MR"))
+                && this.resourceLevel != "bulk") // we can not check the modalities list for bulk mode)
             {
                 return false;
             }
@@ -341,13 +343,14 @@ export default {
             }
 
             // from isValidMode() in OHIF code
-            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM")))
+            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM"))
+                && this.resourceLevel != "bulk") // we can not check the modalities list for bulk mode)
             {
                 return false;
             }
 
             if (this.uiOptions.EnableOpenInOhifViewer3) {
-                return this.hasOhifViewer && (this.resourceLevel == 'study');
+                return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
                 return false;
             }
@@ -366,13 +369,14 @@ export default {
             // }
 
             // disable if it is not reconstructible
-            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM")))
+            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM"))
+                && this.resourceLevel != "bulk") // we can not check the modalities list for bulk mode)
             {
                 return false;
             }
  
             if (this.uiOptions.EnableOpenInOhifViewer3) {
-                return this.hasOhifViewer && (this.resourceLevel == 'study');
+                return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
                 return false;
             }
@@ -383,12 +387,12 @@ export default {
             }
             
             // Must have at least one SM series
-            if (!this.modalitiesList.includes("SM")) {
+            if (!this.modalitiesList.includes("SM") && this.resourceLevel != "bulk") {// we can not check the modalities list for bulk mode)
                 return false;
             }
 
             if (this.uiOptions.EnableOpenInOhifViewer3) {
-                return this.hasOhifViewer && (this.resourceLevel == 'study');
+                return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
             } else {
                 return false;
             }
@@ -424,7 +428,7 @@ export default {
         },
         isOhifButtonTmtvEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study');
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
             } else { // OHIF V2
                 return false;
             }
@@ -432,14 +436,14 @@ export default {
         isOhifButtonMicroscopyEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
 
-                return (this.resourceLevel == 'study');
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
             } else { // OHIF V2
                 return false;
             }
         },
         isOhifButtonSegEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-               return (this.resourceLevel == 'study');
+               return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
             } else { // OHIF V2
                 return false;
             }
