@@ -171,7 +171,7 @@ export default {
             this.updateFilter('StudyDate', newValue, oldValue);
         },
         filterStudyDateForDatePicker(newValue, oldValue) {
-            let dicomNewValue = dateHelpers.formatDateFromDatePicker(newValue);
+            let dicomNewValue = dateHelpers.dicomDateFromDatePicker(newValue);
             if (dicomNewValue == null) {
                 dicomNewValue = "";
             }
@@ -182,7 +182,7 @@ export default {
             this.updateFilter('PatientBirthDate', newValue, oldValue);
         },
         filterPatientBirthDateForDatePicker(newValue, oldValue) {
-            let dicomNewValue = dateHelpers.formatDateFromDatePicker(newValue);
+            let dicomNewValue = dateHelpers.dicomDateFromDatePicker(newValue);
             if (dicomNewValue == null) {
                 dicomNewValue = "";
             }

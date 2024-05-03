@@ -1,6 +1,8 @@
 <script>
 import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import { translateDicomTag } from "../locales/i18n"
+import dateHelpers from "../helpers/date-helpers"
+import { mapState, mapGetters } from "vuex"
 
 
 export default {
@@ -18,12 +20,20 @@ export default {
     methods: {
     },
     computed: {
+        ...mapState({
+            uiOptions: state => state.configuration.uiOptions,
+        }),
         title() {
             return translateDicomTag(this.$i18n.t, this.$i18n.te, this.tag);
         },
         value() {
             if (this.hasValue) {
-                return this.tags[this.tag];
+                let value = this.tags[this.tag];
+                if (dateHelpers.isDateTag(this.tag)) {
+                    return dateHelpers.formatDateForDisplay(value, this.uiOptions.DateFormat)
+                } else {
+                    return value;
+                }
             } else {
                 return "";
             }

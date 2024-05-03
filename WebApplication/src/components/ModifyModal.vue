@@ -2,6 +2,7 @@
 import { mapState } from "vuex"
 import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import resourceHelpers from "../helpers/resource-helpers"
+import dateHelpers from "../helpers/date-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import api from "../orthancApi"
 import { v4 as uuidv4 } from "uuid"
@@ -29,7 +30,8 @@ export default {
     props: ["orthancId", "studyMainDicomTags", "patientMainDicomTags", "seriesMainDicomTags", "isAnonymization", "resourceLevel"],
     data() {
         return {
-            tags: {},                                       // the tag values entered in the dialog
+            tags: {},                                      // the tag values entered in the dialog
+            dateTags: {},                                  // same as tags but only for dates (for the DatePicker)
             originalTags: {},                              // the original tag values
             removedTags: {},
             insertedTags: new Set(),
@@ -58,6 +60,14 @@ export default {
         });
     },
     methods: {
+        setTagsFromDicomTags(mainDicomTags) {
+            for (const [k, v] of Object.entries(mainDicomTags)) {
+                this.tags[k] = v;
+                if (dateHelpers.isDateTag(k)) {
+                    this.dateTags[k] = dateHelpers.fromDicomDate(v);
+                }
+            }
+        },
         async reset() {
             this.step = 'init';
             if (!this.hasLoadedSamePatientsStudiesCount) {
@@ -302,7 +312,8 @@ export default {
                         } else {
                             console.log("create-new-study-from-series: warning accepted, copying existing Patient tags");
                             this.tags['PatientName'] = targetPatient['MainDicomTags']['PatientName'];
-                            this.tags['PatientBirthDate'] = targetPatient['MainDicomTags']['PatientBirthDate'];
+                            this.tags['PatientBirthDate'] = this.tags['PatientBirthDate'] = targetPatient['MainDicomTags']['PatientBirthDate'];
+                            this.dateTags['PatientBirthDate'] = dateHelpers.fromDicomDate(targetPatient['MainDicomTags']['PatientBirthDate']);
                             this.tags['PatientSex'] = targetPatient['MainDicomTags']['PatientSex'];
                         }
                     }
@@ -356,6 +367,7 @@ export default {
                     this.tags['PatientID'] = uuid;
                     this.tags['PatientName'] = 'Anonymized ' + uuid.substr(0, 8);
                     this.tags['PatientBirthDate'] = '';
+                    this.dateTags['PatientBirthDate'] = null;
                     this.tags['PatientSex'] = '';
                     if ('StudyDescription' in this.studyMainDicomTags) {
                         this.tags['StudyDescription'] = this.studyMainDicomTags['StudyDescription'];
@@ -365,17 +377,11 @@ export default {
                     this.tags['PatientID'] = this.patientMainDicomTags['PatientID'];
                 } else if (action == 'modify-any-tags-in-one-study') {
                     this.tags = {};
-                    for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
-                        this.tags[k] = v;
-                    }
-                    for (const [k, v] of Object.entries(this.studyMainDicomTags)) {
-                        this.tags[k] = v;
-                    }
+                    this.setTagsFromDicomTags(this.patientMainDicomTags);
+                    this.setTagsFromDicomTags(this.studyMainDicomTags);
                 } else if (action == 'modify-patient-tags-in-all-studies') {
                     this.tags = {};
-                    for (const [k, v] of Object.entries(this.patientMainDicomTags)) {
-                        this.tags[k] = v;
-                    }
+                    this.setTagsFromDicomTags(this.patientMainDicomTags);
                 } else if (action == 'attach-series-to-existing-study') {
                     this.tags = {};
                     this.tags['StudyInstanceUID'] = "";
@@ -384,13 +390,12 @@ export default {
                     this.tags['PatientID'] = '';
                     this.tags['PatientName'] = '';
                     this.tags['PatientBirthDate'] = '';
+                    this.dateTags['PatientBirthDate'] = null;
                     this.tags['PatientSex'] = '';
                     this.tags['StudyDescription'] = '';
                 } else if (action == 'modify-series-tags') {
                     this.tags = {};
-                    for (const [k, v] of Object.entries(this.seriesMainDicomTags)) {
-                        this.tags[k] = v;
-                    }
+                    this.setTagsFromDicomTags(this.seriesMainDicomTags);
                 } else if (action == 'anonymize-series') {
                     const uuid = uuidv4();
 
@@ -398,6 +403,7 @@ export default {
                     this.tags['PatientID'] = uuid;
                     this.tags['PatientName'] = 'Anonymized ' + uuid.substr(0, 8);
                     this.tags['PatientBirthDate'] = '';
+                    this.dateTags['PatientBirthDate'] = null;
                     this.tags['PatientSex'] = '';
                     if ('StudyDescription' in this.studyMainDicomTags) {
                         this.tags['StudyDescription'] = this.studyMainDicomTags['StudyDescription'];
@@ -446,6 +452,9 @@ export default {
             }
             return true;
         },
+        isDateTag(tag) {
+            return dateHelpers.isDateTag(tag);
+        },
         isDicomUid(tag) {
             return ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'].indexOf(tag) != -1;
         },
@@ -477,6 +486,7 @@ export default {
             if (this.removedTags[tag] && this.insertedTags.has(tag)) {
                 // the tag has been inserted, remove it completely
                 delete this.tags[tag];
+                delete this.dateTags[tag];
                 delete this.originalTags[tag];
                 delete this.removedTags[tag];
                 this.insertedTags.delete(tag);
@@ -494,6 +504,9 @@ export default {
 
             console.log("insert tag " + tag, this.tags, this.removedTags);
             this.tags[tag] = "";
+            if (dateHelpers.isDateTag(tag)) {
+                this.dateTags[tag] = null;
+            }
             this.removedTags[tag] = false;
             this.originalTags[tag] = null;
             this.insertedTags.add(tag);
@@ -557,7 +570,7 @@ export default {
         },
         areTagsModified() {
             let areTagsRemoved = false;
-            for (const [k, v] of Object.entries(this.removedTags)) {
+            for (const [, v] of Object.entries(this.removedTags)) {
                 if (v) {
                     areTagsRemoved = true;
                 }
@@ -566,7 +579,11 @@ export default {
         },
         modifiedTags() {
             let modifiedTags = {};
-            for (const [k, v] of Object.entries(this.tags)) {
+            
+            for (const [k,] of Object.entries(this.tags)) {
+                if (dateHelpers.isDateTag(k)) {
+                    this.tags[k] = dateHelpers.dicomDateFromDatePicker(this.dateTags[k]);
+                }
                 if (this.tags[k] != this.originalTags[k] && !this.removedTags[k]) {
                     modifiedTags[k] = this.tags[k];
                 }
@@ -580,7 +597,7 @@ export default {
                 tags = tags.concat(this.uiOptions.PatientMainTags);
             }
             const that = this;
-            tags = tags.filter(function (value, index, arr) {
+            tags = tags.filter(function (value) {
                 return !(value in that.originalTags);
             })
 
@@ -633,7 +650,18 @@ export default {
                     return this.areTagsModified;
                 }
             }
-        }
+        },
+        isDarkMode() {
+            // hack to switch the theme: get the value from our custom css
+            let bootstrapTheme = document.documentElement.getAttribute("data-bs-theme"); // for production
+            bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');  // for dev
+            console.log("DatePicker color mode is ", bootstrapTheme);
+            return bootstrapTheme == "dark";
+        },
+        datePickerFormat() {
+            return this.uiOptions.DateFormat;
+        }        
+
     },
     components: { CopyToClipboardButton }
 
@@ -722,7 +750,7 @@ export default {
 
                 <!-- ------------------------------------------ step 'tags' --------------------------------------------------->
                 <div v-if="step == 'tags'" class="modal-body">
-                    <div class="container">
+                    <div class="container" style="min-height: 50vh"> <!-- min height for the date picker-->
                         <div v-for="(item, key) in tags" :key="key" class="row">
                             <!----  label  ---->
                             <div class="col-md-5" :class="{ 'striked-through': isRemovedTag(key) }">
@@ -734,8 +762,15 @@ export default {
                                 <input v-if="true" type="text" class="form-control" disabled :class="{ 'striked-through': !isDicomUid(key) }"
                                     v-model="originalTags[key]" />
                             </div>
-                            <div v-if="isEditableTag(key)" class="col-md-6">
+                            <div v-if="isEditableTag(key) && !isDateTag(key)" class="col-md-6">
                                 <input v-if="true" type="text" class="form-control" v-model="tags[key]" />
+                            </div>
+
+                            <div v-if="isEditableTag(key) && isDateTag(key)" class="col-md-6">
+                                <Datepicker v-model="dateTags[key]" :range="false"
+                                    :enable-time-picker="false" :format="datePickerFormat"
+                                    :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                </Datepicker>
                             </div>
 
                             <div v-if="isAutogeneratedDicomUid(key)" class="col-md-6">
@@ -768,7 +803,7 @@ export default {
                                         {{ $t('modify.insert_tag') }}
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li v-for="(key, i) in insertableTags" :key="key" :value="key"><a
+                                        <li v-for="key of insertableTags" :key="key" :value="key"><a
                                                 class="dropdown-item" href="#" @click="insertTag($event, key)">{{ key }}</a>
                                         </li>
                                     </ul>
