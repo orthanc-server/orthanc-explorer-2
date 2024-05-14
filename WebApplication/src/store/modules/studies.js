@@ -55,7 +55,19 @@ const getters = {
         return query;
     },
     isFilterEmpty: (state, getters) => {
-        return Object.keys(getters.filterQuery).length == 0 && (!state.labelsFilter || state.labelsFilter.length == 0);
+        for (const [k, v] of Object.entries(state.dicomTagsFilters)) {
+            if (k == 'ModalitiesInStudy') {
+                if (v && v != 'NONE') {
+                    return false;
+                }
+            } else {
+                if (v && v.length >= 1) {
+                    return false;
+                }
+            }
+        }
+        // dicomTags filter is empty, check the labels
+        return (!state.labelsFilter || state.labelsFilter.length == 0);
     }
 }
 

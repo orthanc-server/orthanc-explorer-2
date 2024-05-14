@@ -146,8 +146,12 @@ export default {
         filterModalities: {
             handler(newValue, oldValue) {
                 if (!this.updatingFilterUi && !this.initializingModalityFilter) {
-                    //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
-                    this.updateFilter('ModalitiesInStudy', this.getModalityFilter(), null);
+                    if (this.isSearchAsYouTypeEnabled) {
+                        //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
+                        this.updateFilter('ModalitiesInStudy', this.getModalityFilter(), null);
+                    } else {
+                        this.getModalityFilter(); // to update all/none status
+                    }
                 }
             },
             deep: true
@@ -514,6 +518,8 @@ export default {
             for (const [key, value] of Object.entries(this.filterModalities)) {
                 this.filterModalities[key] = newValue;
             }
+
+            this.getModalityFilter(); // to update the state of "all"/"none"
         },
         modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
             ev.stopPropagation();
@@ -680,8 +686,7 @@ export default {
                                 <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
                                         v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
                             </li>
-                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter"
-                                    data-bs-toggle="dropdown">{{ $t('close') }}</button></li>
+                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close') }}</button></li>
                         </ul>
                     </div>
                     <div v-else-if="columnTag == 'PatientBirthDate'">
