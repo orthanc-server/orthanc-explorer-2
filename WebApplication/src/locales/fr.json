@@ -1,4 +1,13 @@
 {
+    "add_series": {
+        "button_title": "Ajouter une série",
+        "drop_file": "Déposez ici un fichier PDF, image ou STL",
+        "error_add_series_unexpected_error_html": "Erreur inattendue lors de l'ajout de la sérier', vérifiez les logs d'Orthanc",
+        "modal_title": "Ajouter une nouvelle série à l'examen",
+        "select_file": "Choisir un fichier",
+        "unrecognized_file_format": "Format de fichier non reconnu.  Seuls les format PDF, images (JPG et PNG) et STL sont supportés.",
+        "uploaded_file": "Le fichier {name} ({size}) est de type {type}."
+    },
     "all_modalities": "Toutes",
     "anonymize": "Anonymiser",
     "cancel": "Annuler",

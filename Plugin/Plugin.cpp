@@ -598,6 +598,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       Json::Value& uiOptions = oe2Configuration["UiOptions"];
       UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "all|view");
       UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
+      UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
       UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
       UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
       UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "all|download");

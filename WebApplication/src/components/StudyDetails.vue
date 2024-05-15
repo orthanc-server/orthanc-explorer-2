@@ -24,10 +24,11 @@ export default {
     async created() {
         this.labelsModel = this.labels;
         this.allLabelsLocalCopy = await api.loadAllLabels();
+        this.messageBus.on('added-series-to-study-' + this.studyId, this.reloadSeriesList);
     },
     async mounted() {
         this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, this.uiOptions.ShowSamePatientStudiesFilter)).length;
-        this.studySeries = (await api.getStudySeries(this.studyId));
+        this.reloadSeriesList();
         this.hasLoadedSamePatientsStudiesCount = true;
         Tags.init();
     },
@@ -60,6 +61,9 @@ export default {
         },
         hasLabel(label) {
             return this.labelsModel.includes(label);
+        },
+        async reloadSeriesList() {
+            this.studySeries = (await api.getStudySeries(this.studyId));
         }
     },
     watch: {

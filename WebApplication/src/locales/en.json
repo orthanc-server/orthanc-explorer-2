@@ -1,4 +1,13 @@
 {
+    "add_series": {
+        "button_title": "Add a series",
+        "drop_file": "Drop a single PDF, image or STL file here or",
+        "error_add_series_unexpected_error_html": "Unexpected error while adding a series, check Orthanc logs",
+        "modal_title": "Add a new series to study",
+        "select_file": "Select a file",
+        "unrecognized_file_format": "Unrecognized file format.  Only PDF, image files and STL files are supported",
+        "uploaded_file": "The file {name} ({size}) is of {type} type."
+    },
     "all_modalities": "All",
     "anonymize": "Anonymize",
     "cancel": "Cancel",

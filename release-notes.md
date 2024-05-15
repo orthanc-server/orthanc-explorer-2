@@ -1,6 +1,12 @@
 Pending changes in the mainline
 ===============================
 
+Changes:
+- Added a "Add series" button to the study to create new series from PDF, images or STL files
+  - New configurations:
+    - "EnableAddSeries"
+    - "AddSeriesDefaultTags"
+
 Fixes:
   - [Issue #51](https://github.com/orthanc-server/orthanc-explorer-2/issues/51) Stop calling /changes once all studies are displayed.
   - [Issue #52](https://github.com/orthanc-server/orthanc-explorer-2/issues/52) Removed duplicate calls to /studies/../series and /series/../instances.

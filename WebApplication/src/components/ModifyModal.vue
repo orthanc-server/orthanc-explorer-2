@@ -37,6 +37,7 @@ export default {
             insertedTags: new Set(),
             samePatientStudiesCount: 0,
             hasLoadedSamePatientsStudiesCount: false,
+            errorMessageId: null,
             warningMessageId: null,
             jobProgressComplete: 0,
             jobProgressFailed: 0,
@@ -71,7 +72,7 @@ export default {
         async reset() {
             this.step = 'init';
             if (!this.hasLoadedSamePatientsStudiesCount) {
-                console.log("loading", this.hasLoadedSamePatientsStudiesCount);
+                // console.log("loading", this.hasLoadedSamePatientsStudiesCount);
                 this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
                 this.hasLoadedSamePatientsStudiesCount = true;
             }

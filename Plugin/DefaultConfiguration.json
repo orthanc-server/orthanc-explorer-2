@@ -50,6 +50,31 @@
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
             "ShareDurations": [0, 7, 15, 30, 90, 365],  // The share durations proposed in the UI
 
+            "EnableAddSeries": true,                    // Enables the "Add series" button
+            "AddSeriesDefaultTags": {                   // Default tag values when adding a new series of each type ("pdf", "image" or "stl")
+                "pdf" : {
+                    "SeriesDescription": "Report",
+                    "Modality": "DOC",
+                    "SeriesDate": "$TODAY$",            // Allowed keywords: $TODAY$, $STUDY_DATE$, $FILE_DATE$
+                    "AcquisitionDate": "$TODAY$",
+                    "ContentDate": "$TODAY$"
+                },
+                "image" : {
+                    "SeriesDescription": "Picture",
+                    "Modality": "XC",
+                    "SeriesDate": "$TODAY$",
+                    "AcquisitionDate": "$TODAY$",
+                    "ContentDate": "$TODAY$"
+                },
+                "stl" : {
+                    "SeriesDescription": "Model",
+                    "Modality": "M3D",
+                    "SeriesDate": "$TODAY$",
+                    "AcquisitionDate": "$TODAY$",
+                    "ContentDate": "$TODAY$"
+                }
+            },
+
             // If both OHIF viewer configurations are enabled, only the v3 is taken into account
             "EnableOpenInOhifViewer": false,            // Enables a "open in OHIF viewer" button.  Note: OHIF can not be used together with KeyCloak (https://community.ohif.org/t/ohif-orthanc-token-to-access-a-single-study/727)
             "OhifViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://ohif.my.site/" means that link to OHIF will look like http://ohif.my.site/Viewer/1.2.3.444.5555....
@@ -173,7 +198,7 @@
 
             // The modalities to display in the Modalities filter dropdown in the Study List
             "ModalitiesFilter": [
-                "CR", "CT", "DR", "DX", "KO", "MG", "MR", "NM", "OT", "PR", "PT", "PX", "RTDOSE", "RTSTRUCT", "RTPLAN", "SEG", "SR", "US", "XA", "XC"
+                "CR", "CT", "DOC", "DR", "DX", "KO", "MG", "MR", "NM", "OT", "PR", "PT", "PX", "RTDOSE", "RTSTRUCT", "RTPLAN", "SEG", "SR", "US", "XA", "XC"
             ],
 
             // Defines the list of languages available in the language picker

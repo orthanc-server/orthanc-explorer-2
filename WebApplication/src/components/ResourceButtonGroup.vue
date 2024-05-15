@@ -2,6 +2,7 @@
 import Modal from "./Modal.vue"
 import ShareModal from "./ShareModal.vue"
 import ModifyModal from "./ModifyModal.vue"
+import AddSeriesModal from "./AddSeriesModal.vue"
 import $ from "jquery"
 import { mapState } from "vuex"
 import api from "../orthancApi"
@@ -21,7 +22,6 @@ export default {
         return {
             isBulkLabelModalVisible: false,
             isWsiSeries: false,
-            isPdfPreview: false,
             modalitiesList: []
         };
     },
@@ -53,11 +53,6 @@ export default {
                 this.isWsiSeries = firstInstanceTags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6" || firstInstanceTags["Modality"] == "SM";
             }
         },
-        async instanceHeaders(newValue, oldValue) {
-            if (this.resourceLevel == 'instance') {
-                this.isPdfPreview = this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
-            }
-        }
     },
 
     async mounted() {
@@ -232,6 +227,9 @@ export default {
             } else {
                 return true;
             }
+        },
+        hasAddSeriesButton() {
+            return (this.uiOptions.EnableAddSeries && this.resourceLevel == 'study');
         },
         hasWsiButton() {
             if (this.resourceLevel != 'series' || !this.hasWsiViewer) {
@@ -460,6 +458,13 @@ export default {
         medDreamViewerUrl() {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
+        isPdfPreview() {
+            if (this.resourceLevel == 'instance') {
+                return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
+            } else {
+                return false;
+            }
+        },
         instancePreviewUrl() {
             if (this.isPdfPreview) {
                 return api.getInstancePdfUrl(this.resourceOrthancId);
@@ -583,7 +588,7 @@ export default {
             }
         }
     },
-    components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal }
+    components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal, AddSeriesModal }
 }
 </script>
 
@@ -731,6 +736,17 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="true"></ModifyModal>
         </div>
+        <div class="btn-group" >
+            <button v-if="hasAddSeriesButton" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                v-bind:data-bs-target="'#add-series-modal-' + this.resourceOrthancId">
+                <i class="bi bi-file-earmark-plus" data-bs-toggle="tooltip" :title="$t('add_series.button_title')"></i>
+            </button>
+            <AddSeriesModal v-if="hasAddSeriesButton" :id="'add-series-modal-' + this.resourceOrthancId"
+                :orthancStudyId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags"></AddSeriesModal>
+        </div>
+
+
         <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
             <div class="dropdown">
                 <button v-if="uiOptions.EnableApiViewMenu" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"

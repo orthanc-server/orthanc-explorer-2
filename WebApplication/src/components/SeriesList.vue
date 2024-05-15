@@ -45,6 +45,8 @@ export default {
             delete this.seriesInfo[seriesId];
             if (Object.keys(this.seriesInfo).length == 0) {
                 this.$emit("deletedStudy", this.studyId);
+            } else {
+                this.messageBus.emit('deleted-series-from-study-' + this.studyId);
             }
         }
     },

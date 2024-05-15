@@ -21,6 +21,8 @@ export default {
     created() {
         this.messageBus.on('selected-all', this.onSelectedStudy);
         this.messageBus.on('unselected-all', this.onUnselectedStudy);
+        this.messageBus.on('added-series-to-study-' + this.studyId, () => {this.onStudyUpdated(this.studyId)});
+        this.messageBus.on('deleted-series-from-study-' + this.studyId, () => {this.onStudyUpdated(this.studyId)});
     },
     async mounted() {
         const study = this.studies.filter(s => s["ID"] == this.studyId)[0];
@@ -61,7 +63,7 @@ export default {
         onDeletedStudy(studyId) {
             this.$emit("deletedStudy", this.studyId);
         },
-        async onLabelsUpdated(studyId) {
+        async onStudyUpdated(studyId) {
             await this.$store.dispatch('studies/reloadStudy', {
                 'studyId': studyId,
                 'study': await api.getStudy(studyId)
@@ -158,7 +160,7 @@ export default {
             v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
             <td v-if="loaded && expanded" colspan="100">
                 <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.fields.MainDicomTags"
-                    :patientMainDicomTags="this.fields.PatientMainDicomTags" :labels="this.fields.Labels" @deletedStudy="onDeletedStudy" @studyLabelsUpdated="onLabelsUpdated"></StudyDetails>
+                    :patientMainDicomTags="this.fields.PatientMainDicomTags" :labels="this.fields.Labels" @deletedStudy="onDeletedStudy" @studyLabelsUpdated="onStudyUpdated"></StudyDetails>
             </td>
         </tr>
     </tbody>

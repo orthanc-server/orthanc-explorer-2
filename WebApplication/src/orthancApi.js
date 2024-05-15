@@ -198,6 +198,13 @@ export default {
     async uploadFile(filecontent) {
         return (await axios.post(orthancApiUrl + "instances", filecontent)).data;
     },
+    async createDicom(parentId, content, tags) {
+        return (await axios.post(orthancApiUrl + "tools/create-dicom", {
+            "Parent": parentId,
+            "Tags": tags,
+            "Content": content
+        })).data
+    },
     async getPatient(orthancId) {
         return (await axios.get(orthancApiUrl + "patients/" + orthancId)).data;
     },
