@@ -1,5 +1,5 @@
-Pending changes in the mainline
-===============================
+1.4.0 (2024-05-16)
+==================
 
 Changes:
 - Added a "Add series" button to the study to create new series from PDF, images or STL files
