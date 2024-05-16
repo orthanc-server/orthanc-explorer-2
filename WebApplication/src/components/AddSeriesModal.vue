@@ -42,6 +42,7 @@ export default {
             this.warningMessageId = null;
             this.errorMessageId = null;
             this.seriesTags = {};
+            document.getElementById("addSeriesFileUpload-" + this.orthancStudyId).value = null;
         },
         setError(errorMessageId) {
             this.step = 'error';
@@ -98,6 +99,7 @@ export default {
             this.analyzeFile(event.target.files[0]);
         },
         async analyzeFile(file) {
+            console.log("analyzeFile", file);
             this.uploadedFileDate = file.lastModifiedDate;
             this.uploadedFileHumanSize = this.getHumanSize(file.size);
             this.uploadedFileName = file.name;
