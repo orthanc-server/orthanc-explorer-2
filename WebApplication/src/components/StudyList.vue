@@ -59,7 +59,7 @@ export default {
             filterModalities: {},
             filterGenericTags : {},
             oldFilterGenericTags : {},
-            filterLabels: {},
+            filterLabels: [],
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
