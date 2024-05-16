@@ -30,14 +30,11 @@ UI improvements:
 - show job details (need improvement in Orthanc API itself)
 - include an "all jobs" panel and not only our jobs (https://discourse.orthanc-server.org/t/oe2-inclusion-of-jobs-panel-in-explorer-2/3708)
 
-- add an "attach PDF button" at study level
-
 - list last studies received (through DICOM or upload)
 
 - UI customization:
  - add custom actions per study/series/instances
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
- - hide/show standard actions -> probably to be handled once user management is implemented
 
 - make table sortable and faster search by maintaining a cache DB (SQLite in each Orthanc instance handled by the oe2 plugin)
   - only for studies.  with a few indexed tags (the ones from the UI table)
@@ -54,8 +51,6 @@ UI improvements:
 - in local study list, display the number of studies that are present on a remote modality for this patient (e.g: a cold archive)
   - Add a button to fetch all these data (todo: find a way to delete them after a while ?)
   - same with dicom-web and peers ?
-
-- display and search dates with other formats: DD/MM/YYYY (https://discourse.orthanc-server.org/t/date-format-oe2/3833)
 
 
 Configuration management (ideas + implementation notes):

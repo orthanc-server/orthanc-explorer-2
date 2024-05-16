@@ -81,8 +81,8 @@
     "ingest_transcoding": "Transcodage au stockage",
     "installed_plugins": "Plugins installés",
     "instance": "Élément",
-    "instances_number": "Nombre d'éléments",
-    "instances": "Éléments",
+    "instances_number": "Nombre d'instances",
+    "instances": "Instances",
     "labels" : {
         "add_button": "Ajouter",
         "add_labels_message_html": "<strong>Ajouter</strong> ces étiquettes aux examens sélectionnés",
