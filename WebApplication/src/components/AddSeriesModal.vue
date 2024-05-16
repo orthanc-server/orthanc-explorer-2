@@ -59,6 +59,15 @@ export default {
                     }
                 }
 
+
+                // if no AcquisitionDate and ContentDate, copy it from SeriesDate ...
+                if (!("AcquisitionDate" in tags)) {
+                    tags["AcquisitionDate"] = tags["SeriesDate"]
+                }
+                if (!("ContentDate" in tags)) {
+                    tags["ContentDate"] = tags["SeriesDate"]
+                }
+
                 await api.createDicom(this.orthancStudyId, this.uploadedFileBase64Content, tags);
                 let closeButton = document.getElementById('add-series-close-'+ this.orthancStudyId);
                 closeButton.click();

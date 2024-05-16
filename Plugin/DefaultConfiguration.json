@@ -55,23 +55,17 @@
                 "pdf" : {
                     "SeriesDescription": "Report",
                     "Modality": "DOC",
-                    "SeriesDate": "$TODAY$",            // Allowed keywords: $TODAY$, $STUDY_DATE$, $FILE_DATE$
-                    "AcquisitionDate": "$TODAY$",
-                    "ContentDate": "$TODAY$"
+                    "SeriesDate": "$TODAY$"             // Allowed keywords: $TODAY$, $STUDY_DATE$, $FILE_DATE$
                 },
                 "image" : {
                     "SeriesDescription": "Picture",
                     "Modality": "XC",
-                    "SeriesDate": "$TODAY$",
-                    "AcquisitionDate": "$TODAY$",
-                    "ContentDate": "$TODAY$"
+                    "SeriesDate": "$TODAY$"
                 },
                 "stl" : {
                     "SeriesDescription": "Model",
                     "Modality": "M3D",
-                    "SeriesDate": "$TODAY$",
-                    "AcquisitionDate": "$TODAY$",
-                    "ContentDate": "$TODAY$"
+                    "SeriesDate": "$TODAY$"
                 }
             },
 
