@@ -100,7 +100,8 @@
         "remove_labels_placeholder": "Labels to remove",
         "removed_labels_message_part_1_html": "Removed labels ",
         "removed_labels_message_part_2_html": " from <strong>{count}</strong> studies",
-        "study_details_title": "Labels"
+        "study_details_title": "Labels",
+        "valid_alphabet_warning": "Only allowed characthers in labels are: latin letters, numbers, - and _"
     },
     "legacy_ui": "Legacy UI",
     "loading_latest_studies": "Loading most recent studies",

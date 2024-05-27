@@ -7,6 +7,24 @@ import ResourceDetailText from "./ResourceDetailText.vue";
 import api from "../orthancApi";
 import Tags from "bootstrap5-tags/tags.js"
 
+window.filterLabel = (str) => {
+    const regexLabel = new RegExp("^[0-9\-\_a-zA-Z]+$");
+    if (!regexLabel.test(str)) {
+        const invalidLabelTips = document.querySelectorAll('.invalid-label-tips');
+            invalidLabelTips.forEach(element => {
+                element.classList.remove('invalid-label-tips-hidden');
+            })
+        setTimeout(() => {
+            const invalidLabelTips = document.querySelectorAll('.invalid-label-tips');
+            invalidLabelTips.forEach(element => {
+                element.classList.add('invalid-label-tips-hidden');
+            })
+        }, 8000);
+    } 
+
+    return str.replace(/[^0-9\-\_a-zA-Z]/gi, '');
+}
+
 export default {
     props: ['studyId', 'studyMainDicomTags', 'patientMainDicomTags', 'labels'],
     emits: ["deletedStudy", "studyLabelsUpdated"],
@@ -92,9 +110,10 @@ export default {
     <table class="table table-responsive table-sm study-details-table">
         <tr v-if="uiOptions.EnableEditLabels">
             <td colspan="100%">
-                {{  $t('labels.study_details_title') }}
+                <label for="labelsEdit" class="form-label">{{  $t('labels.study_details_title') }} <span class="invalid-label-tips invalid-label-tips-hidden">{{ $t('labels.valid_alphabet_warning') }}</span></label>
                 <select class="form-select" id="labelsEdit" name="tags[]" v-model="labelsModel" multiple
                     data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
+                    data-input-filter="filterLabel"
                     :placeholder="$t('labels.add_labels_placeholder')">
                     <option v-for="label in allLabelsLocalCopy" :key="label" :value="label" :selected="hasLabel(label)">{{ label }}
                     </option>
@@ -149,4 +168,15 @@ export default {
 .study-button-group i {
     font-size: 1.4rem;
 }
+
+.invalid-label-tips {
+    color: red;
+    font-weight: 600;
+    margin-left: 2rem;
+} 
+
+.invalid-label-tips-hidden {
+    display: none;
+} 
+
 </style>
