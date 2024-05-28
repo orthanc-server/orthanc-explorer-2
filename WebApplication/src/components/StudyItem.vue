@@ -11,7 +11,7 @@ export default {
     emits: ["deletedStudy"],
     data() {
         return {
-            fields: {},
+            study: {},
             loaded: false,
             expanded: false,
             collapseElement: null,
@@ -25,10 +25,9 @@ export default {
         this.messageBus.on('deleted-series-from-study-' + this.studyId, () => {this.onStudyUpdated(this.studyId)});
     },
     async mounted() {
-        const study = this.studies.filter(s => s["ID"] == this.studyId)[0];
-        this.fields = study;
+        this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
         this.loaded = true;
-        this.seriesIds = study.Series;
+        this.seriesIds = this.study.Series;
         this.selected = this.selectedStudiesIds.indexOf(this.studyId) != -1;
 
         if (!this.$refs['study-collapsible-details']) {
@@ -68,8 +67,7 @@ export default {
                 'studyId': studyId,
                 'study': await api.getStudy(studyId)
             })
-            const study = this.studies.filter(s => s["ID"] == this.studyId)[0];
-            this.fields = study;
+            this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
         },
         onSelectedStudy() {
             this.selected = true;
@@ -89,19 +87,19 @@ export default {
             allLabels: state => state.labels.allLabels
         }),
         modalitiesInStudyForDisplay() {
-            return this.fields.RequestedTags.ModalitiesInStudy.split('\\').join(',');
+            return this.study.RequestedTags.ModalitiesInStudy.split('\\').join(',');
         },
         showLabels() {
             return !this.expanded && ((this.allLabels && this.allLabels.length > 0));
         },
         hasLabels() {
-            return this.fields && this.fields.Labels && this.fields.Labels.length > 0;
+            return this.study && this.study.Labels && this.study.Labels.length > 0;
         },
         formatedPatientBirthDate() {
-            return dateHelpers.formatDateForDisplay(this.fields.PatientMainDicomTags.PatientBirthDate, this.uiOptions.DateFormat);
+            return dateHelpers.formatDateForDisplay(this.study.PatientMainDicomTags.PatientBirthDate, this.uiOptions.DateFormat);
         },
         formatedStudyDate() {
-            return dateHelpers.formatDateForDisplay(this.fields.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
+            return dateHelpers.formatDateForDisplay(this.study.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
         }
     },
     components: { SeriesList, StudyDetails }
@@ -121,37 +119,37 @@ export default {
                 :class="{ 'text-center': columnTag in ['modalities', 'seriesCount'] }" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId">
                 <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.MainDicomTags.StudyDate">{{ formatedStudyDate }}
+                    v-bind:title="study.MainDicomTags.StudyDate">{{ formatedStudyDate }}
                 </span>
                 <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.MainDicomTags.AccessionNumber">{{ fields.MainDicomTags.AccessionNumber }}
+                    v-bind:title="study.MainDicomTags.AccessionNumber">{{ study.MainDicomTags.AccessionNumber }}
                 </span>
                 <span v-else-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.PatientMainDicomTags.PatientID">{{ fields.PatientMainDicomTags.PatientID }}
+                    v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
                 </span>
                 <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.PatientMainDicomTags.PatientName">{{ fields.PatientMainDicomTags.PatientName }}
+                    v-bind:title="study.PatientMainDicomTags.PatientName">{{ study.PatientMainDicomTags.PatientName }}
                 </span>
                 <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.PatientMainDicomTags.PatientBirthDate">{{ formatedPatientBirthDate }}
+                    v-bind:title="study.PatientMainDicomTags.PatientBirthDate">{{ formatedPatientBirthDate }}
                 </span>
                 <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
-                    v-bind:title="fields.MainDicomTags.StudyDescription">{{ fields.MainDicomTags.StudyDescription }}
+                    v-bind:title="study.MainDicomTags.StudyDescription">{{ study.MainDicomTags.StudyDescription }}
                 </span>
                 <span v-else-if="columnTag == 'modalities'" data-bs-toggle="tooltip"
                     v-bind:title="modalitiesInStudyForDisplay">{{
                         modalitiesInStudyForDisplay }}
                 </span>
-                <span v-else-if="columnTag == 'seriesCount'">{{ fields.Series.length }}
+                <span v-else-if="columnTag == 'seriesCount'">{{ study.Series.length }}
                 </span>
-                <span v-else>{{ fields.MainDicomTags[columnTag] }}
+                <span v-else>{{ study.MainDicomTags[columnTag] }}
                 </span>
             </td>
         </tr>
         <tr v-show="showLabels">
             <td></td>
             <td colspan="100%" class="label-row">
-                <span v-for="label in fields.Labels" :key="label" class="label badge">{{ label }}</span>
+                <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
                 <span v-if="!hasLabels">&nbsp;</span>
             </td>
         </tr>
@@ -159,8 +157,8 @@ export default {
             :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded': expanded }"
             v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
             <td v-if="loaded && expanded" colspan="100">
-                <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.fields.MainDicomTags"
-                    :patientMainDicomTags="this.fields.PatientMainDicomTags" :labels="this.fields.Labels" @deletedStudy="onDeletedStudy" @studyLabelsUpdated="onStudyUpdated"></StudyDetails>
+                <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.study.MainDicomTags"
+                    :patientMainDicomTags="this.study.PatientMainDicomTags" :labels="this.study.Labels" @deletedStudy="onDeletedStudy" @studyLabelsUpdated="onStudyUpdated"></StudyDetails>
             </td>
         </tr>
     </tbody>

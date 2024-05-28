@@ -3,6 +3,8 @@ import { mapState } from "vuex"
 import api from "../orthancApi";
 import Tags from "bootstrap5-tags/tags.js"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import LabelsEditor from "./LabelsEditor.vue";
+
 
 export default {
     props: ["resourcesOrthancId", "resourceLevel"],
@@ -20,7 +22,7 @@ export default {
     },
     async mounted() {
         this.reset();
-        Tags.init();
+        // Tags.init();
 
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
             // move the modal to body to avoid z-index issues: https://weblog.west-wind.com/posts/2016/sep/14/bootstrap-modal-dialog-showing-under-modal-background
@@ -68,6 +70,12 @@ export default {
             this.clearAllInProgress = false;
 
             this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+        },
+        onLabelsToAddChanged(labelsToAdd) {
+            this.labelsToAdd = labelsToAdd;
+        },
+        onLabelsToRemoveChanged(labelsToRemove) {
+            this.labelsToRemove = labelsToRemove;
         },
         async addLabels() {
             this.addInProgress = true;
@@ -128,6 +136,49 @@ export default {
             
             this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
         },
+        onclick(event) {
+            // console.log("click", event);
+            // HACK to close the LabelsEditor drop down when clicking outside since it does not work when the 
+            // LabelsEditor is inside a modal
+            // return;
+            event.preventDefault();
+
+            for (let labelsEditorId of ['#select-addLabels', '#select-removeLabels']) {
+                let el = document.querySelector(labelsEditorId);
+                const inst = Tags.getInstance(el);
+                if (inst && !el.contains(event.target) && inst._dropElement.classList.contains('show')) {
+                    inst.hideSuggestions();
+                }
+            }
+            return;
+
+            // let list = document.querySelectorAll( "select[multiple]");
+            // for (let i = 0; i < list.length; i++) {
+            //     const inst = Tags.getInstance(list[i]);
+            //     if (inst) {
+            //         inst.hideSuggestions()
+            //     }
+            // }
+            // return
+
+            // for (let labelsEditorId of ['#addLabels', '#removeLabels']) {
+            //     let div = document.querySelector(labelsEditorId);
+            //     if (div) {
+            //         let isOutsideAll = true;
+            //         for (let childElements of div.childNodes) {
+            //             if (childElements.contains(event.target)) {
+            //                 isOutsideAll = false;
+            //                 // console.log('inside', childElements);
+            //             } else {
+            //                 //console.log('outside', childElements);
+            //             }
+            //         }
+            //         if (isOutsideAll) {
+            //             div.querySelector('.tags-menu').classList.remove('show');
+            //         }
+            //     }
+            // }
+        }
     },
     computed: {
         ...mapState({
@@ -141,6 +192,7 @@ export default {
             return !this.removeInProgress && this.labelsToRemove.length > 0;
         }
     },
+    components: { LabelsEditor },
 };
 </script>
 
@@ -154,7 +206,7 @@ export default {
                 </div>
 
                 <div class="modal-body">
-                    <div class="container">
+                    <div class="container" @click="onclick">
                         <div class="row border-bottom py-3">
                             <div class="col-md-9">
                                 <p v-html="$t('labels.clear_all_labels_message_html')"></p>
@@ -170,14 +222,7 @@ export default {
                         <div class="row border-bottom py-3">
                             <div class="col-md-12"><p v-html="$t('labels.add_labels_message_html')"></p></div>
                             <div class="col-md-9">
-                                <select class="form-select" id="addLabels" name="tags[]" v-model="labelsToAdd" multiple
-                                data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-                                :placeholder="$t('labels.add_labels_placeholder')">
-                                    <!-- <option v-for="label in allLabels" :id="label" :key="label" :value="label">{{ label }}
-                                    </option> -->
-                                    <option v-for="label in allLabels" :key="label" :value="label" :selected="isLabelToAdd(label)">{{ label }}
-                                    </option>
-                                </select>
+                                <LabelsEditor id="addLabels" :labels="labelsToAdd" :studyId="null" @labelsUpdated="onLabelsToAddChanged"></LabelsEditor>
                             </div>
                             <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100"
@@ -192,14 +237,7 @@ export default {
                             <div class="col-md-12">
                                 <p v-html="$t('labels.remove_labels_message_html')"></p></div>
                                 <div class="col-md-9">
-                                <select class="form-select" id="removeLabels" name="tags[]" v-model="labelsToRemove" multiple
-                                data-allow-clear="true" data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-                                :placeholder="$t('labels.remove_labels_placeholder')">
-                                    <option v-for="label in allLabels" :key="label" :value="label" :selected="isLabelToRemove(label)">{{ label }}
-                                    </option>
-                                    <!-- <option v-for="label in allLabels" :id="label" :key="label" :value="label">{{ label }}
-                                    </option> -->
-                                </select>
+                                    <LabelsEditor id="removeLabels" :labels="labelsToRemove" :studyId="null" @labelsUpdated="onLabelsToRemoveChanged"></LabelsEditor>
                             </div>
                             <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100"
