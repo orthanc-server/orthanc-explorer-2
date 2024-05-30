@@ -160,6 +160,11 @@
     "patients": "Patients",
     "plugin": "Plugin",
     "plugins_not_enabled": "Les plugins qui sont chargés mais non-activés ou configurés correctement sont ",
+    "plugins" : {
+        "delayed_deletion" : {
+            "pending_files_count": "Delayed Deletion plugin: Fichiers à effacer"
+        }
+    },
     "preview": "Aperçu",
     "profile": "Profil",
     "retrieve_and_view": {

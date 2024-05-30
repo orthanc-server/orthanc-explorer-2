@@ -1,6 +1,10 @@
 Pending changes in the mainline
 ===============================
 
+Changes:
+- Settings: if the [Delayed Deletion plugin](https://orthanc.uclouvain.be/book/plugins/delayed-deletion-plugin.html) 
+  is enabled, display the number of files pending deletion.
+
 Fixes:
   - Prevent using invalid characters when adding labels to a study.
 

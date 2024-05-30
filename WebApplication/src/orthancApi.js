@@ -250,6 +250,9 @@ export default {
     async getStatistics() {
         return (await axios.get(orthancApiUrl + "statistics")).data;
     },
+    async getDelayedDeletionStatus() {
+        return (await axios.get(orthancApiUrl + "plugins/delayed-deletion/status")).data;
+    },
     async generateUid(level) {
         return (await axios.get(orthancApiUrl + "tools/generate-uid?level=" + level)).data;
     },

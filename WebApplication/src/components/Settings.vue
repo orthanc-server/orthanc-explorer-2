@@ -9,11 +9,16 @@ export default {
     emits: [],
     data() {
         return {
-            verboseLevel: "default"
+            verboseLevel: "default",
+            delayedDeletionPendingFilesCount: 0
         };
     },
     async mounted() {
         this.verboseLevel = await api.getVerboseLevel();
+        const status = await api.getDelayedDeletionStatus();
+        if (this.hasDelayedDeletionPlugin) {
+            this.delayedDeletionPendingFilesCount = status["FilesPendingDeletion"];
+        }
     },
     methods: {
         async setVerboseLevel(level) {
@@ -52,7 +57,11 @@ export default {
                 return (Math.round(this.system.MaximumStorageSize/1024*100) / 100) + " GB"; 
             }
             return this.system.MaximumStorageSize + " MB";
+        },
+        hasDelayedDeletionPlugin() {
+            return 'delayed-deletion' in this.installedPlugins && this.installedPlugins['delayed-deletion'].Enabled;
         }
+        
     },
 }
 </script>
@@ -83,6 +92,10 @@ export default {
                         <th scope="row" class="header">{{$t('storage_size')}}</th>
                         <td v-if="!hasMaxStorageSize" class="value">{{ totalDiskSize }}</td>
                         <td v-if="hasMaxStorageSize" class="value">{{ totalDiskSize }} / {{ maxStorageSize }} ({{ system.MaximumStorageMode }})</td>
+                    </tr>
+                    <tr v-if="hasDelayedDeletionPlugin">
+                        <th scope="row" class="w-50 header"># {{$t('plugins.delayed_deletion.pending_files_count')}}</th>
+                        <td class="value">{{ delayedDeletionPendingFilesCount }}</td>
                     </tr>
                 </tbody>
             </table>
