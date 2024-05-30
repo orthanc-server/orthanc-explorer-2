@@ -10,7 +10,7 @@ window.filterLabel = (str) => {
 }
 
 export default {
-    props: ['labels', 'studyId', 'id'],
+    props: ['labels', 'studyId', 'id', 'title'],
     emits: ["labelsUpdated"],
     setup() {
     },
@@ -21,10 +21,8 @@ export default {
         };
     },
     async created() {
-        // this.labelsModel = this.labels;
-        //this.allLabelsLocalCopy = this.allLabels;
-        this.labelsModel = [];
-        this.allLabelsLocalCopy = ["a", "b", "c"];
+        this.labelsModel = this.labels;
+        this.allLabelsLocalCopy = this.allLabels;
     },
     async mounted() {
         Tags.init();
@@ -34,6 +32,13 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             allLabels: state => state.labels.allLabels,
         }),
+        getTitle() {
+            console.log(this.title);
+            if (!this.title) {
+                return this.$t('labels.study_details_title');
+            }
+            return this.$t(this.title)
+        }
     },
     components: {},
     methods: {
@@ -66,25 +71,20 @@ export default {
 
 
 <template>
-    <!-- <div :id="id"> -->
-        <!-- <label :for="'select-'+id" class="form-label">{{ $t('labels.study_details_title') }} <span
+    <div :id="id">
+        <label :for="'select-' + id" class="form-label"><span v-html="getTitle"></span><span
                 class="invalid-label-tips invalid-label-tips-hidden">{{ $t('labels.valid_alphabet_warning')
-                }}</span></label> -->
-        <!-- <select class="form-select" :id="'select-'+id" name="tags[]" v-model="labelsModel" multiple data-allow-clear="true"
-            data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-            data-input-filter="filterLabel" :placeholder="$t('labels.add_labels_placeholder')">
-            <option v-for="label in allLabelsLocalCopy" :key="label" :value="label" :selected="hasLabel(label)">{{ label
-                }}
-            </option>
-        </select> -->
-        <select class="form-select" :id="'select-'+id" name="tags[]" v-model="labelsModel" multiple data-allow-clear="true"
-            data-show-all-suggestions="true" data-allow-new="true" data-badge-style="info"
-             :placeholder="$t('labels.add_labels_placeholder')">
+                }}</span>
+        </label>
+
+        <select class="form-select" :id="'select-' + id" name="tags[]" v-model="labelsModel" multiple
+            data-allow-clear="true" data-allow-new="true" data-badge-style="info" data-input-filter="filterLabel"
+            :placeholder="$t('labels.add_labels_placeholder')">
             <option v-for="label in allLabelsLocalCopy" :key="label" :value="label" :selected="hasLabel(label)">{{ label
                 }}
             </option>
         </select>
-    <!-- </div> -->
+    </div>
 </template>
 
 <style>

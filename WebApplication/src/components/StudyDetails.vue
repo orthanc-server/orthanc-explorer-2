@@ -58,9 +58,6 @@ export default {
         },
         async labelsUpdated() {
             this.$emit("studyLabelsUpdated", this.studyId);
-
-            // update the side bar
-            // setTimeout(() => {this.$store.dispatch('labels/refresh')}, 100);
         }
     },
     watch: {
@@ -74,7 +71,7 @@ export default {
     <table class="table table-responsive table-sm study-details-table">
         <tr v-if="uiOptions.EnableEditLabels">
             <td colspan="100%">
-                <LabelsEditor :labels="labels" :studyId="studyId" @labelsUpdated="labelsUpdated"></LabelsEditor>
+                <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :studyId="studyId" @labelsUpdated="labelsUpdated"></LabelsEditor>
             </td>
         </tr>
         <tr v-if="!uiOptions.EnableEditLabels">

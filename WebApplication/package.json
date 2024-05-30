@@ -14,7 +14,7 @@
     "axios": "^1.6.8",
     "bootstrap": "5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "bootstrap5-tags": "^1.7.1",
+    "bootstrap5-tags": "^1.7.2",
     "jquery": "^3.7.1",
     "keycloak-js": "^24.0.1",
     "mitt": "^3.0.1",
