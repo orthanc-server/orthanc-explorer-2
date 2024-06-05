@@ -169,7 +169,7 @@ export default {
             }
         },
         async uppieUploadHandler(event, formData, files) {
-            this.uploadFiles(event.target.files);
+            await this.uploadFiles(event.target.files);
 
             // reset input for next upload
             document.getElementById('filesUpload').value = null;
