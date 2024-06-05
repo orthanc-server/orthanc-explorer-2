@@ -1,5 +1,5 @@
-Pending changes in the mainline
-===============================
+1.4.1 (2024-06-05)
+==================
 
 Changes:
 - Settings: if the [Delayed Deletion plugin](https://orthanc.uclouvain.be/book/plugins/delayed-deletion-plugin.html) 
@@ -8,6 +8,7 @@ Changes:
 Fixes:
   - Prevent using invalid characters when adding labels to a study.
   - [Issue #58](https://github.com/orthanc-server/orthanc-explorer-2/issues/58) Upload function only uploads the first file.
+
 
 1.4.0 (2024-05-16)
 ==================
