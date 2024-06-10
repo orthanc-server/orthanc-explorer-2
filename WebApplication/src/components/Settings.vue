@@ -68,7 +68,7 @@ export default {
 <template>
     <div class="settings">
         <div>
-            <h5>{{$t('statistics')}}</h5>
+            <h5>{{$t('settings.statistics')}}</h5>
             <table class="table">
                 <tbody>
                     <tr>
@@ -89,7 +89,7 @@ export default {
                         <td class="value">{{ statistics.CountInstances }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('storage_size')}}</th>
+                        <th scope="row" class="header">{{$t('settings.storage_size')}}</th>
                         <td v-if="!hasMaxStorageSize" class="value">{{ totalDiskSize }}</td>
                         <td v-if="hasMaxStorageSize" class="value">{{ totalDiskSize }} / {{ maxStorageSize }} ({{ system.MaximumStorageMode }})</td>
                     </tr>
@@ -101,42 +101,42 @@ export default {
             </table>
         </div>
         <div>
-            <h5>{{$t('orthanc_system_info')}}</h5>
+            <h5>{{$t('settings.orthanc_system_info')}}</h5>
             <table class="table">
                 <tbody>
                     <tr>
-                        <th scope="row" class="w-50 header">{{$t('orthanc_version')}}</th>
+                        <th scope="row" class="w-50 header">{{$t('settings.orthanc_version')}}</th>
                         <td class="value">{{ system.Version }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('dicom_AET')}}</th>
+                        <th scope="row" class="header">{{$t('settings.dicom_AET')}}</th>
                         <td class="value">{{ system.DicomAet }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('orthanc_name')}}</th>
+                        <th scope="row" class="header">{{$t('settings.orthanc_name')}}</th>
                         <td class="value">{{ system.Name }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('dicom_port')}}</th>
+                        <th scope="row" class="header">{{$t('settings.dicom_port')}}</th>
                         <td class="value">{{ system.DicomPort }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('ingest_transcoding')}}</th>
+                        <th scope="row" class="header">{{$t('settings.ingest_transcoding')}}</th>
                         <td class="value">{{ system.IngestTranscoding }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('overwrite_instances')}}</th>
+                        <th scope="row" class="header">{{$t('settings.overwrite_instances')}}</th>
                         <td class="value">{{ system.OverwriteInstances }}</td>
                     </tr>
                     <tr>
-                        <th scope="row" class="header">{{$t('storage_compression')}}</th>
+                        <th scope="row" class="header">{{$t('settings.storage_compression')}}</th>
                         <td class="value">{{ system.StorageCompression }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div>
-            <h5>{{$t('verbosity_level')}}</h5>
+            <h5>{{$t('settings.verbosity_level')}}</h5>
             <div>
             <button type="button" class="btn mx-2" @click="setVerboseLevel('default')" :class="{'btn-primary': verboseLevel=='default', 'btn-secondary': verboseLevel != 'default'}">{{$t('default')}}</button>
             <button type="button" class="btn mx-2" @click="setVerboseLevel('verbose')" :class="{'btn-primary': verboseLevel=='verbose', 'btn-secondary': verboseLevel != 'verbose'}">{{$t('verbose')}}</button>
@@ -144,8 +144,8 @@ export default {
             </div>
         </div>
         <div>
-            <h5>{{$t('installed_plugins')}}</h5>
-            <p class="m-2">{{$t('plugins_not_enabled')}} <span style="text-decoration: line-through;">{{$t('striked_through')}}</span></p>
+            <h5>{{$t('settings.installed_plugins')}}</h5>
+            <p class="m-2">{{$t('settings.plugins_not_enabled')}} <span style="text-decoration: line-through;">{{$t('settings.striked_through')}}</span></p>
             <table class="table">
                 <tbody>
                     <tr v-for="(configuration, plugin) in installedPlugins" :key="plugin"

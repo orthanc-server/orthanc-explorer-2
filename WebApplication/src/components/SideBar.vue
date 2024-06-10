@@ -204,7 +204,7 @@ export default {
 
                     <li v-if="hasAccessToSettings" class="d-flex align-items-center fix-router-link">
                         <router-link class="router-link" to="/settings">
-                            <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings') }}
+                            <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings.title') }}
                         </router-link>
                     </li>
 
