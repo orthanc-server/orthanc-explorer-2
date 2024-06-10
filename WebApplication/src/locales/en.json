@@ -187,11 +187,13 @@
         "orthanc_system_info": "Orthanc System Info",
         "orthanc_version": "Orthanc Version",
         "overwrite_instances": "Overwrite instances",
+        "permissions": "Permissions",
         "plugins_not_enabled": "Plugins that are loaded but not enabled or not configured correctly are ",
         "statistics": "Statistics",
         "storage_compression": "Storage Compression",
         "storage_size": "Storage Size",
         "striked_through": "striked-through",
+        "title": "Settings",
         "verbosity_level": "Verbosity Level"
     },
     "share": {

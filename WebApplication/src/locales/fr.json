@@ -192,6 +192,7 @@
         "storage_compression": "Compression du stockage",
         "storage_size": "Espace utilisé",
         "striked_through": "barrés",
+        "title": "Paramètres",
         "verbosity_level": "Niveau de verbosité des logs"
     },
     "share": {

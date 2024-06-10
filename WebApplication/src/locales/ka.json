@@ -152,6 +152,7 @@
         "storage_compression": "ფაილების საცავის კომპრესია",
         "storage_size": "ფაილების საცავის ზომა",
         "striked_through": "გახაზულია",
+        "title": "პარამეტრები",
         "verbosity_level": "ლოგირების დონე"
     },
     "share": {

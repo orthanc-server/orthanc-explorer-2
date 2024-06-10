@@ -152,6 +152,7 @@
         "storage_compression": "Compressione di archiviazione",
         "storage_size": "Dimensioni di archiviazione",
         "striked_through": "Colpito",
+        "title": "Impostazioni",
         "verbosity_level": "Livello Prolisso"
     },
     "share": {

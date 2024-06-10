@@ -172,6 +172,7 @@
         "storage_compression": "Сжатие хранилища",
         "storage_size": "Размер хранилища",
         "striked_through": "зачеркнутые",
+        "title": "Настройка",
         "verbosity_level": "Уровень подробности"
     },
     "share": {

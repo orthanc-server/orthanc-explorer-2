@@ -152,6 +152,7 @@
         "storage_compression": "Compresión de almacenamiento",
         "storage_size": "Tamaño de almacenamiento",
         "striked_through": "tachado",
+        "title": "Configuraciones",
         "verbosity_level": "Nivel de Verbosidad"
     },
     "share": {

@@ -172,6 +172,7 @@
         "storage_compression": "Speicherkompression",
         "storage_size": "Speichergröße",
         "striked_through": "durchgestrichen",
+        "title": "Einstellungen",
         "verbosity_level": "Ausführlichkeitsstufe"
     },
     "share": {

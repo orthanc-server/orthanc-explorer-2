@@ -170,6 +170,7 @@
         "storage_compression": "存储压缩",
         "storage_size": "存储大小",
         "striked_through": "删除线",
+        "title": "设置",
         "verbosity_level": "详细级别"
     },
     "share": {
