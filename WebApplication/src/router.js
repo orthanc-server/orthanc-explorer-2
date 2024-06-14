@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Settings from './components/Settings.vue'
+import SettingsLabels from './components/SettingsLabels.vue'
+import SettingsPermissions from './components/SettingsPermissions.vue'
 import StudyList from './components/StudyList.vue'
 import RemoteStudyList from './components/RemoteStudyList.vue'
 import SideBar from './components/SideBar.vue'
@@ -49,6 +51,20 @@ export const router = createRouter({
       components: {
         SideBarView: SideBar,
         ContentView: Settings,
+      },
+    },
+    {
+      path: '/settings-labels',
+      components: {
+        SideBarView: SideBar,
+        ContentView: SettingsLabels,
+      },
+    },
+    {
+      path: '/settings-permissions',
+      components: {
+        SideBarView: SideBar,
+        ContentView: SettingsPermissions,
       },
     },
     {

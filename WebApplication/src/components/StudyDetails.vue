@@ -123,14 +123,4 @@ export default {
     font-size: 1.4rem;
 }
 
-.invalid-label-tips {
-    color: red;
-    font-weight: 600;
-    margin-left: 2rem;
-} 
-
-.invalid-label-tips-hidden {
-    display: none;
-} 
-
 </style>

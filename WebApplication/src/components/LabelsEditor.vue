@@ -33,7 +33,7 @@ export default {
             allLabels: state => state.labels.allLabels,
         }),
         getTitle() {
-            console.log(this.title);
+            //console.log(this.title);
             if (!this.title) {
                 return this.$t('labels.study_details_title');
             }

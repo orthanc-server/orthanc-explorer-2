@@ -250,6 +250,15 @@ export default {
     async getStatistics() {
         return (await axios.get(orthancApiUrl + "statistics")).data;
     },
+    async getPermissionsList() {
+        return (await axios.get(orthancApiUrl + "auth/settings/permissions")).data;
+    },
+    async getRolesConfig() {
+        return (await axios.get(orthancApiUrl + "auth/settings/roles")).data;
+    },
+    async setRolesConfig(roles) {
+        return (await axios.put(orthancApiUrl + "auth/settings/roles", roles)).data;
+    },
     async getDelayedDeletionStatus() {
         return (await axios.get(orthancApiUrl + "plugins/delayed-deletion/status")).data;
     },
