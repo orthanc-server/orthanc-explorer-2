@@ -114,7 +114,7 @@ export default {
 </template>
 <style scoped>
 h5 {
-    margin-top: 50px;
+    margin-top: 1rem;
     margin-bottom: 15px;
     margin-left: 50px;
 }
@@ -129,15 +129,15 @@ h6 {
 
 .labels-list {
     display: flex;
-    flex-flow: column wrap;
-    height: 60vh;
+    flex-flow: row wrap;
     margin: 2px;
     overflow: overlay;
 }
 
 .labels-item {
+    flex: 0 1 auto;
     min-width: 15vw;
-    min-height: 3rem;
+    height: 3rem;
     padding-left: 0.5rem;
     padding-bottom: 0;
     padding-right: 0.2rem;
@@ -147,23 +147,6 @@ h6 {
 
 .w-15 {
     width: 15%;
-}
-
-.w-10 {
-    width: 15%;
-}
-
-.disabled-plugin {
-    text-decoration: line-through;
-}
-
-.header {
-    padding-left: 15px;
-}
-
-.value {
-    text-align: right;
-    padding-right: 15px;
 }
 
 .instructions {

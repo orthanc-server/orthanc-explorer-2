@@ -162,7 +162,7 @@ export default {
                         <th scope="row" class="w-25 header">{{ plugin }}</th>
                         <td class="w-50 value">{{ configuration.Description }}</td>
                         <td class="w-15 value">{{ configuration.Version }}</td>
-                        <td class="w-10 value" v-if="!this.tokens.RequiredForLinks">
+                        <td class="w-15 value" v-if="!this.tokens.RequiredForLinks">
                             <!-- If tokens are required for links, no need to display links to plugin UI, they usually don't support links and won't work -->
                             <a v-if="configuration.RootUri && configuration.Enabled" type="button"
                                 class="btn btn-primary" v-bind:href="configuration.RootUri">{{ $t('open') }}</a>
@@ -189,10 +189,6 @@ h6 {
 }
 
 .w-15 {
-    width: 15%;
-}
-
-.w-10 {
     width: 15%;
 }
 

@@ -17,8 +17,6 @@ export default {
             selectedLabelPermissions: [],
             selectedGlobalPermissions: [],
             hasAllLabelsAllowed: false,
-            hasEditLabels: false,
-            hasAdminPermissions: false,
             currentConfig: {},
             originalConfig: {},
             selectedRole: null,
@@ -37,12 +35,6 @@ export default {
             if (newValue) {
                 this.selectedLabels = [];
             }
-            this.updateHasChanged();
-        },
-        hasEditLabels(newValue, oldValue) {
-            this.updateHasChanged();
-        },
-        hasAdminPermissions(newValue, oldValue) {
             this.updateHasChanged();
         },
         selectedRole(newValue, oldValue) {
@@ -68,8 +60,12 @@ export default {
                 this.allLabels = await api.loadAllLabels();
             }
 
-            let firstRole = Object.keys(this.currentConfig["roles"])[0];
-            this.selectRole(firstRole);
+            if (this.selectedRole == null) {
+                let firstRole = Object.keys(this.currentConfig["roles"])[0];
+                this.selectRole(firstRole);
+            } else {
+                this.selectRole(this.selectedRole);
+            }
             this.updateHasChanged();
         },
         filterLabelPermissions(permissionsList, expandAll) {
@@ -94,14 +90,9 @@ export default {
             // write the definition of the role we are leaving into the "json" structure
             if (this.selectedRole != null) {
                 let config = JSON.parse(JSON.stringify(this.currentConfig)); // make a copy
-                // write the definition of the role we are leaving into the "json" structure
-                config["roles"][this.selectedRole]["permissions"] = [...this.selectedLabelPermissions];
-                if (this.hasEditLabels) {
-                    config["roles"][this.selectedRole]["permissions"].push("edit-labels");
-                }
-                if (this.hasAdminPermissions) {
-                    config["roles"][this.selectedRole]["permissions"].push("admin-permissions");
-                }
+                let permissions = [...this.selectedLabelPermissions].concat(this.selectedGlobalPermissions);
+                config["roles"][this.selectedRole]["permissions"] = permissions;
+
                 if (this.hasAllLabelsAllowed) {
                     config["roles"][this.selectedRole]["authorized-labels"] = ["*"];
                 } else {
@@ -121,11 +112,9 @@ export default {
 
             this.selectedRole = role;
             this.selectedLabelPermissions = this.filterLabelPermissions(this.currentConfig["roles"][this.selectedRole]["permissions"], true);
-            this.selectedLabelPermissions = this.filterGlobalPermissions(this.currentConfig["roles"][this.selectedRole]["permissions"], true);
+            this.selectedGlobalPermissions = this.filterGlobalPermissions(this.currentConfig["roles"][this.selectedRole]["permissions"], true);
             this.selectedLabels = this.currentConfig["roles"][this.selectedRole]["authorized-labels"];
             this.hasAllLabelsAllowed = this.currentConfig["roles"][this.selectedRole]["authorized-labels"].indexOf("*") != -1;
-            this.hasEditLabels = this.currentConfig["roles"][this.selectedRole]["permissions"].indexOf("edit-labels") != -1
-            this.hasAdminPermissions = this.currentConfig["roles"][this.selectedRole]["permissions"].indexOf("admin-permissions") != -1
         },
         isRoleSelected(role) {
             return this.selectedRole == role;
@@ -141,6 +130,7 @@ export default {
             } else {
                 this.selectedLabels.push(label);
             }
+            this.updateHasChanged();
         },
         selectAllLabels() {
             this.selectedLabels = [...this.allLabels];
@@ -152,7 +142,7 @@ export default {
             if (labelOrGlobal == "label") {
                 return this.selectedLabelPermissions.indexOf(perm) != -1;
             } else {
-                this.selectedGlobalPermissions.indexOf(perm) != -1;
+                return this.selectedGlobalPermissions.indexOf(perm) != -1;
             }
         },
         toggleSelectedPermission(event, perm, labelOrGlobal) {
@@ -172,6 +162,7 @@ export default {
                     this.selectedGlobalPermissions.push(perm);
                 }
             }
+            this.updateHasChanged();
         },
         clearSelectedLabelPermissions() {
             this.selectedLabelPermissions = [];
@@ -266,27 +257,28 @@ export default {
                 </div>
                 <div class="col-3 ">
                     <p class="">
-                        <button type="button" class="btn btn-sm btn-secondary m-1"
-                            @click="selectAllLabelPermissions()">{{
-                $t('settings.select_all_label_permissions') }}</button>
-                        <button type="button" class="btn btn-sm btn-secondary m-1"
-                            @click="clearSelectedLabelPermissions()">{{
-                $t('settings.permissions_clear_selection') }}</button>
+                        <button type="button" class="btn btn-select btn-secondary" @click="selectAllLabelPermissions()"
+                            data-bs-toggle="tooltip" :title="$t('settings.select_all_label_permissions')"><i
+                                class="bi bi-list-check"></i></button>
+                        <button type="button" class="btn btn-select btn-secondary"
+                            @click="clearSelectedLabelPermissions()" data-bs-toggle="tooltip"
+                            :title="$t('settings.permissions_clear_selection')"><i class="bi bi-x-circle"></i></button>
                     </p>
                 </div>
                 <div class="col-6">
                     <p class="">
-                        <button type="button" class="btn btn-sm btn-secondary m-1" @click="selectAllLabels()"
-                            :disabled="hasAllLabelsAllowed">{{
-                $t('settings.labels_select_all_currents') }}</button>
-                        <button type="button" class="btn btn-sm btn-secondary m-1" @click="clearSelectedLabels()"
-                            :disabled="hasAllLabelsAllowed">{{ $t('settings.labels_clear_selection') }}</button>
+                        <button type="button" class="btn btn-select btn-secondary" @click="selectAllLabels()"
+                            :disabled="hasAllLabelsAllowed" data-bs-toggle="tooltip"
+                            :title="$t('settings.labels_select_all_currents')"><i class="bi bi-list-check"></i></button>
+                        <button type="button" class="btn btn-select btn-secondary" @click="clearSelectedLabels()"
+                            :disabled="hasAllLabelsAllowed" data-bs-toggle="tooltip"
+                            :title="$t('settings.labels_clear_selection')"><i class="bi bi-x-circle"></i></button>
                     </p>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-3 border-end border-3 permissions-body">
+                <div class="col-3 border-end border-3 permissions-body" style="height:auto">
                     <div class="list-group">
                         <button v-for="role in this.allRoles" :key="role" type="button"
                             class="list-group-item list-group-item-action" :class="{ 'active': isRoleSelected(role) }"
@@ -296,22 +288,18 @@ export default {
                 <div class="col-3 permissions-body">
                     <div class="list-group">
                         <label v-for="perm in labelPermissions" :key="perm" class="list-group-item"
-                            :class="{ 'active': isPermissionSelected(perm) }"
-                            @click="toggleSelectedPermission($event, perm)">
+                            :class="{ 'active': isPermissionSelected(perm, 'label') }"
+                            @click="toggleSelectedPermission($event, perm, 'label')">
                             {{ perm }}
                         </label>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="list-group">
-                        <button v-for="label in labels" :key="label" class="list-group-item list-group-item-with-button"
-                            :class="{ 'active': isLabelSelected(label), 'opacity-50': hasAllLabelsAllowed }"
-                            :disabled="hasAllLabelsAllowed">
-                            <div class="d-flex justify-content-between align-items-center"
-                                @click="toggleSelectedLabel($event, label)">
-                                <span class="list-group-item-with-button-content">{{ label }}</span>
-                            </div>
-                        </button>
+                    <div class="labels-list">
+                        <button v-for="label in labels" :key="label" @click="toggleSelectedLabel($event, label)"
+                            class="labels-item border d-flex justify-content-between align-items-center" :disabled="hasAllLabelsAllowed" :class="{'is-label-selected': isLabelSelected(label), 'is-label-not-selected': !isLabelSelected(label)}">
+                            <span class="list-group-item-with-button-content">{{ label }}</span>
+                    </button>
                     </div>
                 </div>
             </div>
@@ -335,40 +323,40 @@ export default {
                 </div>
                 <div class="col-3 pt-3 permission-body-global border-top border-3">
                     <h6>{{ $t('settings.global_permissions_title') }}</h6>
-                            <p class="">
-                                <button type="button" class="btn btn-sm btn-secondary m-1"
-                                    @click="selectAllGlobalPermissions()">{{
-                $t('settings.select_all_global_permissions') }}</button>
-                                <button type="button" class="btn btn-sm btn-secondary m-1"
-                                    @click="clearSelectedGlobalPermissions()">{{
-                $t('settings.permissions_clear_selection') }}</button>
-                            </p>
-                            <div class="list-group">
-                                <label v-for="perm in globalPermissions" :key="perm" class="list-group-item"
-                                    :class="{ 'active': isPermissionSelected(perm) }"
-                                    @click="toggleSelectedPermission($event, perm)">
-                                    {{ perm }}
-                                </label>
-                            </div>
-                </div>
-                <div class="col-6 pt-3 permission-body-global border-top border-3">
+                    <p class="">
+                        <button type="button" class="btn btn-select btn-secondary" @click="selectAllGlobalPermissions()"
+                            data-bs-toggle="tooltip" :title="$t('settings.select_all_global_permissions')"><i
+                                class="bi bi-list-check"></i></button>
+                        <button type="button" class="btn btn-select btn-secondary"
+                            @click="clearSelectedGlobalPermissions()" data-bs-toggle="tooltip"
+                            :title="$t('settings.permissions_clear_selection')"><i class="bi bi-x-circle"></i></button>
+                    </p>
+                    <div class="list-group">
+                        <label v-for="perm in globalPermissions" :key="perm" class="list-group-item"
+                            :class="{ 'active': isPermissionSelected(perm, 'global') }"
+                            @click="toggleSelectedPermission($event, perm, 'global')">
+                            {{ perm }}
+                        </label>
                     </div>
                 </div>
+                <div class="col-6 pt-3 permission-body-global border-top border-3">
+                </div>
+            </div>
 
 
 
-            <div class="d-flex justify-content-end mt-2">
+            <div class="d-flex justify-content-end mt-2 mb-4">
                 <button type="button" class="btn btn-primary mx-1" :disabled="!hasChanged" @click="save"> {{ $t('save')
                     }}</button>
                 <button type="button" class="btn btn-secondary mx-1" :disabled="!hasChanged" @click="cancel">{{
-                    $t('cancel') }}</button>
+                $t('cancel') }}</button>
             </div>
         </div>
     </div>
 </template>
 <style scoped>
 h5 {
-    margin-top: 50px;
+    margin-top: 1rem;
     margin-bottom: 15px;
     margin-left: 50px;
 }
@@ -385,19 +373,6 @@ h6 {
     width: 15%;
 }
 
-.w-10 {
-    width: 15%;
-}
-
-.header {
-    padding-left: 15px;
-}
-
-.value {
-    text-align: right;
-    padding-right: 15px;
-}
-
 .instructions {
     margin-left: 1rem;
 }
@@ -411,13 +386,44 @@ h6 {
     overflow: overlay;
 }
 
-.permissions-body-global {
-    height: 100%;
+.labels-list {
+    display: flex;
+    flex-flow: row wrap;
+    max-height: 35vh;
+    margin: 2px;
     overflow: overlay;
 }
 
-.permissions-body-2 {
-    height: 50vh;
-    overflow: overlay;
+.labels-item {
+    flex: 0 1 auto;
+    min-width: 10vw;
+    height: 3rem;
+    padding-left: 0.5rem;
+    padding-bottom: 0;
+    padding-right: 0.2rem;
+    padding-top: 0;
+    margin: 3px;
+}
+
+.w-15 {
+    width: 15%;
+}
+
+.btn-select {
+    margin: 0.2rem;
+    padding-left: 0.40rem;
+    padding-right: 0.40rem;
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+    font-size: larger;
+}
+
+.is-label-selected {
+    /* background-color: var(--bs-list-group-active-bg); */
+    background-color: var(--label-bg-color);
+}
+
+.is-label-not-selected {
+    background-color: var(--bs-body-bg);
 }
 </style>
