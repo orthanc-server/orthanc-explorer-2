@@ -48,6 +48,9 @@ export default {
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;
         },
+        hasAccessToSettingsLabelsAndPermissions() {
+            return this.hasAccessToSettings && this.userProfile != null && (this.userProfile.permissions.indexOf("admin-permissions") != -1);
+        },
         hasJobs() {
             return this.jobs.length > 0;
         },
@@ -211,10 +214,10 @@ export default {
                         <li>
                             <router-link class="router-link" to="/settings">{{ $t('settings.system_info') }}</router-link>
                         </li>
-                        <li>
+                        <li v-if="hasAccessToSettingsLabelsAndPermissions">
                             <router-link class="router-link" to="/settings-labels">{{ $t('settings.labels_title') }}</router-link>
                         </li>
-                        <li>
+                        <li v-if="hasAccessToSettingsLabelsAndPermissions">
                             <router-link class="router-link" to="/settings-permissions">{{ $t('settings.permissions') }}</router-link>
                         </li>
                     </ul>
