@@ -1,3 +1,9 @@
+Pending changes
+===============
+
+Fixes:
+  - [Issue #57](https://github.com/orthanc-server/orthanc-explorer-2/issues/57) Avoid double calls to tools/find when selecting a label or clicking on `search` button
+
 1.4.1 (2024-06-05)
 ==================
 

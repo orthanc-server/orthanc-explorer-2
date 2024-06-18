@@ -37,7 +37,7 @@ const getters = {
     filterQuery: (state) => {
         let query = {};
         for (const [k, v] of Object.entries(state.dicomTagsFilters)) {
-            if (v && v.length >= 1) {
+            if (v && v.length >= 1 && k != 'labels') {
                 if (['StudyDate', 'PatientBirthDate'].indexOf(k) != -1) {
                     // for dates, accept only exactly 8 chars
                     if (v.length >= 8) {
@@ -201,7 +201,7 @@ const actions = {
                 commit('setStudiesIds', { studiesIds: studiesIds });
                 commit('setStudies', { studies: studies });
             } catch (err) {
-                console.log("Find studies cancelled");
+                console.log("Find studies cancelled", err);
             } finally {
                 commit('setIsSearching', { isSearching: false});
             }

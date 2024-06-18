@@ -63,6 +63,7 @@ export default {
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
+            updatingRouteWithoutReload: false,
             initializingModalityFilter: false,
             searchTimerHandler: {},
             columns: document._studyColumns,
@@ -121,7 +122,9 @@ export default {
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
-            this.updateFilterFromRoute(this.$route.query);
+            if (!this.updatingRouteWithoutReload) {
+                this.updateFilterFromRoute(this.$route.query);
+            }
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is called when opening the page (with a filter or not)
@@ -313,8 +316,9 @@ export default {
                 return;
             }
 
-            if (dicomTagName == "labels" && newValue != oldValue) {
+            if (dicomTagName == "labels" && newValue != oldValue) { // labels -> update directly
                 this._updateLabelsFilter(newValue);
+                return;
             }
 
             if (!this.isSearchAsYouTypeEnabled) {
@@ -384,13 +388,13 @@ export default {
         },
         _updateLabelsFilter(labels) {
             this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
-            this.updateUrl();
+            this.updateUrlNoReload();
             this.reloadStudyList();
         },
         _updateFilter(dicomTagName, value) {
             this.searchTimerHandler[dicomTagName] = null;
             this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
-            this.updateUrl();
+            this.updateUrlNoReload();
             this.reloadStudyList();
         },
         async updateFilterFromRoute(filters) {
@@ -484,8 +488,8 @@ export default {
                         await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });    
                     }
                 }
+                await this.updateUrlNoReload();
                 await this.reloadStudyList();
-                this.updateUrl();
             }
         },
         async clearFilters() {
@@ -530,7 +534,12 @@ export default {
             ev.preventDefault();
             ev.stopPropagation();
         },
-        updateUrl() {
+        async updateUrlNoReload() {
+            this.updatingRouteWithoutReload = true;
+            await this.updateUrl();
+            this.updatingRouteWithoutReload = false;
+        },
+        async updateUrl() {
             let activeFilters = [];
             if (this.clipFilter("StudyDate", this.filterStudyDate)) {
                 activeFilters.push('StudyDate=' + this.filterStudyDate);
@@ -555,7 +564,7 @@ export default {
                 newUrl = "/filtered-studies?" + activeFilters.join('&');
             }
 
-            this.$router.replace(newUrl);
+            await this.$router.replace(newUrl);
         },
         async reloadStudyList() {
             // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
