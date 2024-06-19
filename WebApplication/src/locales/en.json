@@ -180,7 +180,7 @@
     "series_count_header": "# series",
     "series_plural": "Series",
     "settings": {
-        "allow_all_currents_and_futures_labels": "Allow all current and future labels (*)",
+        "allow_all_currents_and_futures_labels": "All current and future labels (*)",
         "create_new_label": "Create new label",
         "dicom_AET": "DICOM AET",
         "dicom_port": "DICOM Port",
