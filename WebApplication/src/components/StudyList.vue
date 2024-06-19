@@ -283,6 +283,7 @@ export default {
             let allSelected = true;
             let selected = [];
 
+            // console.log("getModalityFilter", this.filterModalities);
             for (const [key, value] of Object.entries(this.filterModalities)) {
                 allSelected &= value;
                 if (value) {
@@ -309,19 +310,17 @@ export default {
                 return;
             }
 
-            // console.log("StudyList: updateFilter", this.updatingFilterUi);
-
-            if (dicomTagName == "ModalitiesInStudy" && oldValue == null) { // not text: e.g. modalities in study -> update directly
-                this._updateFilter(dicomTagName, newValue);
-                return;
-            }
-
-            if (dicomTagName == "labels" && newValue != oldValue) { // labels -> update directly
+            if (dicomTagName == "labels" && newValue != oldValue) { // labels -> always update directly
                 this._updateLabelsFilter(newValue);
                 return;
             }
 
-            if (!this.isSearchAsYouTypeEnabled) {
+            if (!this.isSearchAsYouTypeEnabled) { // if we are using a "search-button", don't update filter now
+                return;
+            }
+
+            if (dicomTagName == "ModalitiesInStudy" && oldValue == null) { // not text: e.g. modalities in study -> update directly
+                this._updateFilter(dicomTagName, newValue);
                 return;
             }
 
@@ -482,11 +481,16 @@ export default {
             if (this.isSearching) {
                 await this.$store.dispatch('studies/cancelSearch');
             } else {
-                await this.$store.dispatch('studies/clearFilterNoReload');
-                for (const tag of this.uiOptions.StudyListColumns) {
-                    if (['modalities', 'seriesCount'].indexOf(tag) == -1) {
-                        await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });    
+                {
+                    // update filters with the value of filter controls when we click the search button
+                    await this.$store.dispatch('studies/clearFilterNoReload');
+                    for (const tag of this.uiOptions.StudyListColumns) {
+                        if (['modalities', 'seriesCount'].indexOf(tag) == -1) {
+                            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });    
+                        }
                     }
+                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.getModalityFilter() });    
+                    await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: this.filterLabels });
                 }
                 await this.updateUrlNoReload();
                 await this.reloadStudyList();
