@@ -63,6 +63,7 @@ export default {
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
+            updatingRouteWithoutReload: false,
             initializingModalityFilter: false,
             searchTimerHandler: {},
             columns: document._studyColumns,
@@ -121,7 +122,9 @@ export default {
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
-            this.updateFilterFromRoute(this.$route.query);
+            if (!this.updatingRouteWithoutReload) {
+                this.updateFilterFromRoute(this.$route.query);
+            }
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is called when opening the page (with a filter or not)
@@ -280,6 +283,7 @@ export default {
             let allSelected = true;
             let selected = [];
 
+            // console.log("getModalityFilter", this.filterModalities);
             for (const [key, value] of Object.entries(this.filterModalities)) {
                 allSelected &= value;
                 if (value) {
@@ -306,18 +310,17 @@ export default {
                 return;
             }
 
-            // console.log("StudyList: updateFilter", this.updatingFilterUi);
-
-            if (dicomTagName == "ModalitiesInStudy" && oldValue == null) { // not text: e.g. modalities in study -> update directly
-                this._updateFilter(dicomTagName, newValue);
+            if (dicomTagName == "labels" && newValue != oldValue) { // labels -> always update directly
+                this._updateLabelsFilter(newValue);
                 return;
             }
 
-            if (dicomTagName == "labels" && newValue != oldValue) {
-                this._updateLabelsFilter(newValue);
+            if (!this.isSearchAsYouTypeEnabled) { // if we are using a "search-button", don't update filter now
+                return;
             }
 
-            if (!this.isSearchAsYouTypeEnabled) {
+            if (dicomTagName == "ModalitiesInStudy" && oldValue == null) { // not text: e.g. modalities in study -> update directly
+                this._updateFilter(dicomTagName, newValue);
                 return;
             }
 
@@ -384,13 +387,13 @@ export default {
         },
         _updateLabelsFilter(labels) {
             this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
-            this.updateUrl();
+            this.updateUrlNoReload();
             this.reloadStudyList();
         },
         _updateFilter(dicomTagName, value) {
             this.searchTimerHandler[dicomTagName] = null;
             this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
-            this.updateUrl();
+            this.updateUrlNoReload();
             this.reloadStudyList();
         },
         async updateFilterFromRoute(filters) {
@@ -478,14 +481,19 @@ export default {
             if (this.isSearching) {
                 await this.$store.dispatch('studies/cancelSearch');
             } else {
-                await this.$store.dispatch('studies/clearFilterNoReload');
-                for (const tag of this.uiOptions.StudyListColumns) {
-                    if (['modalities', 'seriesCount'].indexOf(tag) == -1) {
-                        await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });    
+                {
+                    // update filters with the value of filter controls when we click the search button
+                    await this.$store.dispatch('studies/clearFilterNoReload');
+                    for (const tag of this.uiOptions.StudyListColumns) {
+                        if (['modalities', 'seriesCount'].indexOf(tag) == -1) {
+                            await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });    
+                        }
                     }
+                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.getModalityFilter() });    
+                    await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: this.filterLabels });
                 }
+                await this.updateUrlNoReload();
                 await this.reloadStudyList();
-                this.updateUrl();
             }
         },
         async clearFilters() {
@@ -530,7 +538,12 @@ export default {
             ev.preventDefault();
             ev.stopPropagation();
         },
-        updateUrl() {
+        async updateUrlNoReload() {
+            this.updatingRouteWithoutReload = true;
+            await this.updateUrl();
+            this.updatingRouteWithoutReload = false;
+        },
+        async updateUrl() {
             let activeFilters = [];
             if (this.clipFilter("StudyDate", this.filterStudyDate)) {
                 activeFilters.push('StudyDate=' + this.filterStudyDate);
@@ -555,7 +568,7 @@ export default {
                 newUrl = "/filtered-studies?" + activeFilters.join('&');
             }
 
-            this.$router.replace(newUrl);
+            await this.$router.replace(newUrl);
         },
         async reloadStudyList() {
             // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
