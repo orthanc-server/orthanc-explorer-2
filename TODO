@@ -34,7 +34,25 @@ UI improvements:
 - list last studies received (through DICOM or upload)
 
 - UI customization:
- - add custom actions per study/series/instances
+ - add custom actions per study/series/instances:
+   - configuration suggestion:
+     {
+       "CustomButtons": [
+         {
+           "Name": "Process study",   // the text will appear in the button tooltip
+           "Icon": "bi bi-glass",     
+           "Level": "Study",
+           "ActionUrl": "../../my-python-plugin/my-route",  // this route can be templated with e.g: ../../my-python-plugin/my-route?StudyInstanceUID=$resource-dicom-id$&orthanc-id=$resource-orthanc-id$&level=$resource-level$"
+           "ActionMethod": "POST",
+           "ActionPostPayloadTemplate": {
+             "dicom-id": "$resource-dicom-id$",
+             "orthanc-id": "$resource-orthanc-id$"
+           }
+           "EnabledUrl": "../../my-python-plugin/my-route-enabled", // optional: a GET route that returns true/false if the custom button must be enabled/disabled for this resource.  It shall be templated as well
+           
+         }
+       ]
+     }
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
 
 - make table sortable and faster search by maintaining a cache DB (SQLite in each Orthanc instance handled by the oe2 plugin)
