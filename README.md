@@ -13,7 +13,7 @@ Binaries are available:
 - in the [Windows Installers](https://orthanc.uclouvain.be/downloads/windows-64/installers/index.html) (64bits version only),
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
-- in the [osimis/orthanc](https://hub.docker.com/r/osimis/orthanc) Docker images,
+- in the [orthancteam/orthanc](https://hub.docker.com/r/orthancteam/orthanc) Docker images,
   the plugin is enabled but, right now, the legacy Orthanc Explorer 
   remains the default UI.  Note that, in a future release, OE2 will become the default UI for Orthanc in the Windows Installers.
 
@@ -40,49 +40,47 @@ accessible at http://localhost:8042/ui/app/ . If `IsDefaultOrthancUI`
 is set to `true`, Orthanc Explorer 2 will replace the built-in Orthanc
 Explorer.
 
-If you are using Docker, the easiest way to try the new Orthanc Explorer 2 is to run this command and then open a browser in http://localhost:8042/ (login: orthanc, pwd: orthanc)
+If you are using Docker, the easiest way to try the new Orthanc Explorer 2 is to run this command and then open a browser in http://localhost:8042/ui/app/ (login: orthanc, pwd: orthanc)
 
 ```shell
-docker pull osimis/orthanc:orthanc-mainline
-docker run -p 8042:8042 --env OE2_ENABLED=true  osimis/orthanc:orthanc-mainline
+docker pull orthancteam/orthanc:latest
+docker run -p 8042:8042 orthancteam/orthanc:latest
 ```
 
 
-## Development
+## Front-end development
 
 Prerequisites:
-```
-apt install nginx
-```
 
-This project has been bootstrapped with:
+- install `nodejs` version 14 or higher and `npm` version 6 or higher
+- install nginx
 
-```shell
-npm init vite@latest orthanc-explorer-2 -- --template vue
-```
-
-To bootstrap it on your machine:
+Then, to continuously build and serve the front-end code on your machine, in a shell, type:
 
 ```shell
 cd WebApplication
 npm install
 npm run dev
 ```
+Npm will then serve the `/ui/app/` static code (HTML/JS).
 
-To run the UI together with Orthanc on http://localhost:9999/ui/app/
+Then, launch an Orthanc with the OE2 plugin already enabled and listening on localhost:8043.  This can be achieved with by typing this command in another shell:
 
-in a shell:
 ```shell
-cd WebApplication
-npm run dev
-``` 
+docker run -p 8043:8042 -e ORTHANC__AUTHENTICATION_ENABLED=false orthancteam/orthanc:24.6.2
+```
+This Orthanc will serve the `/ui/api/` routes.
 
-in another shell:
+In third shell, type:
+
 ```shell
 sudo ./scripts/start-nginx.sh
 ``` 
+This will launch an nginx server that will implement reverse proxies to serve both the static code and the Orthanc Rest API on a single endpoind.
+You may then open http://localhost:9999/ui/app/ to view and debug your current front-end code.  As soon as you modify a `WebApplication` source file, the UI shall reload automatically in the browser.
 
-This assumes you have an orhtanc listening on localhost:8043.  Edit scripts/nginx-dev.conf if needed.
+Edit scripts/nginx-dev.conf if needed.
+
 
 ## Compilation
 
@@ -147,6 +145,4 @@ git push
 
 ### Contributions
 
-Feel free to fork this project, modify it and submit pull requests.  However,
-you'll have to sign a CLA to transfer the ownership of your contribution to
-Osimis before your contributions can be reviewed and accepted (CLA process to come).
+Feel free to fork this project, modify it and submit pull requests.
