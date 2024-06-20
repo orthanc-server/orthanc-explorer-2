@@ -16,7 +16,7 @@
     "bootstrap-icons": "^1.11.3",
     "bootstrap5-tags": "^1.7.2",
     "jquery": "^3.7.1",
-    "keycloak-js": "^24.0.1",
+    "keycloak-js": "^24.0.5",
     "mitt": "^3.0.1",
     "uppie": "^4.0.0",
     "uuid": "^9.0.1",
