@@ -1,3 +1,4 @@
+- add a "reset" button (on Windows, to reload the config after you have changed it without going to the Services -> Orthanc -> Restart)
 - show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)
 - handle the EnableLabels "permission"
 
