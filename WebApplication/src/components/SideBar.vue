@@ -215,7 +215,7 @@ export default {
                             <router-link class="router-link" to="/settings">{{ $t('settings.system_info') }}</router-link>
                         </li>
                         <li v-if="hasAccessToSettingsLabelsAndPermissions">
-                            <router-link class="router-link" to="/settings-labels">{{ $t('settings.labels_title') }}</router-link>
+                            <router-link class="router-link" to="/settings-labels">{{ $t('settings.available_labels_title') }}</router-link>
                         </li>
                         <li v-if="hasAccessToSettingsLabelsAndPermissions">
                             <router-link class="router-link" to="/settings-permissions">{{ $t('settings.permissions') }}</router-link>

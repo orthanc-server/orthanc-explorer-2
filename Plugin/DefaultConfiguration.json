@@ -44,7 +44,10 @@
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
+
             "EnableEditLabels": true,                   // Enables labels management (create/delete/assign/unassign)
+            "AvailableLabels": [],                      // If not empty, this list prevents the creation of new labels and only allows add/remove of the listed labels.
+                                                        // This configuration may be overriden when you use Keycloak and an auth-service that implements roles/permissions API.
 
             "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 

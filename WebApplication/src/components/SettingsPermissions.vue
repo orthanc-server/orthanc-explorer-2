@@ -53,10 +53,10 @@ export default {
             this.currentConfig = JSON.parse(JSON.stringify(this.originalConfig));
             this.allLabelPermissions = this.filterLabelPermissions(await api.getPermissionsList(), false);
             this.allGlobalPermissions = this.filterGlobalPermissions(await api.getPermissionsList(), false);
-            this.allLabels = this.currentConfig["allowed-labels"];
+            this.allLabels = this.currentConfig["available-labels"];
 
             if (this.allLabels.length == 0) {
-                console.log("The allowed-labels list is empty, getting the list of all current labels");
+                console.log("The available-labels list is empty, getting the list of all current labels");
                 this.allLabels = await api.loadAllLabels();
             }
 
@@ -185,10 +185,10 @@ export default {
             return this.hasChanged = (original != current);
         },
         async save() {
-            // reload the allowed-labels in case they have changed since we've loaded them and update the roles
+            // reload the available-labels in case they have changed since we've loaded them and update the roles
             let fromApi = await api.getRolesConfig();
             let current = this.getCurrentUiRoles();
-            current["allowed-labels"] = fromApi["allowed-labels"];
+            current["available-labels"] = fromApi["available-labels"];
             await api.setRolesConfig(current);
             this.reset();
         },

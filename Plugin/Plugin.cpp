@@ -582,40 +582,59 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       oe2Configuration["CustomLogoUrl"] = customLogoUrl_;
     }
 
+    Json::Value& uiOptions = oe2Configuration["UiOptions"];
+
     if (hasUserProfile_)
     {
-      // get the user profile from the auth plugin
-      std::map<std::string, std::string> headers;
-      OrthancPlugins::GetHttpHeaders(headers, request);
+      {// get the user profile from the auth plugin (and the auth-service)
+        std::map<std::string, std::string> headers;
+        OrthancPlugins::GetHttpHeaders(headers, request);
 
-      Json::Value userProfile;
-      OrthancPlugins::RestApiGet(userProfile, "/auth/user/profile", headers, true);
+        Json::Value userProfile;
+        OrthancPlugins::RestApiGet(userProfile, "/auth/user/profile", headers, true);
 
-      // modify the UiOptions based on the user profile
-      std::list<std::string> permissions;
-      Orthanc::SerializationToolbox::ReadListOfStrings(permissions, userProfile, "permissions");
+        // modify the UiOptions based on the user profile
+        std::list<std::string> permissions;
+        Orthanc::SerializationToolbox::ReadListOfStrings(permissions, userProfile, "permissions");
 
-      Json::Value& uiOptions = oe2Configuration["UiOptions"];
-      UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "all|view");
-      UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
-      UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
-      UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
-      UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
-      UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "all|download");
-      UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "all|download");
-      UpdateUiOptions(uiOptions["EnableDownloadDicomFile"], permissions, "all|download");
-      UpdateUiOptions(uiOptions["EnableModification"], permissions, "all|modify");
-      UpdateUiOptions(uiOptions["EnableAnonymization"], permissions, "all|anonymize");
-      UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "all|send");
-      UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
-      UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
-      UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
-      UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
+        LOG(INFO) << "Overriding \"Enable...\" in UiOptions with the permissions from the auth-service for this user-profile";
 
-      // the Legacy UI is not available with user profile since it would not refresh the tokens
-      uiOptions["EnableLinkToLegacyUi"] = false;
+        UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "all|view");
+        UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
+        UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
+        UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
+        UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
+        UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "all|download");
+        UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "all|download");
+        UpdateUiOptions(uiOptions["EnableDownloadDicomFile"], permissions, "all|download");
+        UpdateUiOptions(uiOptions["EnableModification"], permissions, "all|modify");
+        UpdateUiOptions(uiOptions["EnableAnonymization"], permissions, "all|anonymize");
+        UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "all|send");
+        UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
+        UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
+        UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
+        UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
 
-      oe2Configuration["Profile"] = userProfile;
+        // the Legacy UI is not available with user profile since it would not refresh the tokens
+        uiOptions["EnableLinkToLegacyUi"] = false;
+
+        oe2Configuration["Profile"] = userProfile;
+      }
+
+      {// get the available-labels from the auth plugin (and the auth-service)
+        std::map<std::string, std::string> headers;
+        OrthancPlugins::GetHttpHeaders(headers, request);
+
+        Json::Value rolesConfig;
+        if (OrthancPlugins::RestApiGet(rolesConfig, "/auth/settings/roles", headers, true))
+        {
+          if (rolesConfig.isObject() && rolesConfig.isMember("available-labels"))
+          {
+            LOG(INFO) << "Overriding \"AvailableLabels\" in UiOptions with the values from the auth-service";
+            uiOptions["AvailableLabels"] = rolesConfig["available-labels"];
+          }
+        }
+      }
     }
 
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();

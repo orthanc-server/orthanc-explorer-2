@@ -22,7 +22,13 @@ export default {
     },
     async created() {
         this.labelsModel = this.labels;
-        this.allLabelsLocalCopy = this.allLabels;
+        if (this.canCreateNewLabels) {
+            // if we can create new labels, we already provide all the existing ones in the list
+            this.allLabelsLocalCopy = [...this.allLabels];
+        } else {
+            // if we can not create new labels, we only provide the available ones
+            this.allLabelsLocalCopy = [...this.uiOptions.AvailableLabels];
+        }
     },
     async mounted() {
         Tags.init();
@@ -38,6 +44,16 @@ export default {
                 return this.$t('labels.study_details_title');
             }
             return this.$t(this.title)
+        },
+        canCreateNewLabels() {
+            return this.uiOptions.AvailableLabels.length == 0; // if there is no AvailableLabels list, this means we can create any new label
+        },
+        placeHolderText() {
+            if (this.canCreateNewLabels) {
+                return this.$t('labels.add_labels_placeholder');
+            } else {
+                return this.$t('labels.add_labels_placeholder_no_create');
+            }
         }
     },
     components: {},
@@ -78,8 +94,8 @@ export default {
         </label>
 
         <select class="form-select" :id="'select-' + id" name="tags[]" v-model="labelsModel" multiple
-            data-allow-clear="true" data-allow-new="true" data-badge-style="info" data-input-filter="filterLabel"
-            :placeholder="$t('labels.add_labels_placeholder')">
+            data-allow-clear="true" :data-allow-new="canCreateNewLabels" data-badge-style="info" data-input-filter="filterLabel"
+            :placeholder="placeHolderText">
             <option v-for="label in allLabelsLocalCopy" :key="label" :value="label" :selected="hasLabel(label)">{{ label
                 }}
             </option>

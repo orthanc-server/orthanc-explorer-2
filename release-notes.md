@@ -1,6 +1,10 @@
 Pending changes
 ===============
 
+Changes:
+  - Implemented a new permission UI in case you are using OE2 together with Keycloak and an authorisation service that implements an role/permission API.
+  - New configuration "AvailableLabels" to forbid creation of labels outside this list.  If the list is empty, anyone can create new labels.
+
 Fixes:
   - [Issue #57](https://github.com/orthanc-server/orthanc-explorer-2/issues/57) Avoid double calls to tools/find when selecting a label or clicking on `search` button
 

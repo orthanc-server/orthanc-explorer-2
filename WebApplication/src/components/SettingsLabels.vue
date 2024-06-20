@@ -10,9 +10,13 @@ export default {
     emits: [],
     data() {
         return {
-            allLabels: [],
+            availableLabels: [],
+            originalAvailableLabelsFromConfig: [],
+            allUsedLabels: [],
             allOriginalLabels: [],
-            newLabel: ""
+            newLabel: "",
+            limitAvailableLabels: false,
+            originalLimitAvailableLabels: false
         };
     },
     async mounted() {
@@ -22,32 +26,43 @@ export default {
         async reset() {
             let config = await api.getRolesConfig();
             this.newLabel = "";
-            this.allOriginalLabels = config["allowed-labels"];
-            if (this.allOriginalLabels.length == 0) {
-                console.log("The allowed-labels list is empty, getting the list of all current labels");
-                this.allOriginalLabels = await api.loadAllLabels();
+            this.originalAvailableLabelsFromConfig = config["available-labels"];
+            this.allUsedLabels = await api.loadAllLabels();
+            
+            if (this.originalAvailableLabelsFromConfig.length == 0) {
+                console.log("The available-labels list in the configuration is empty, getting the list of all current labels");
+                this.limitAvailableLabels = false;
+                this.allOriginalLabels = this.allUsedLabels;
+                this.availableLabels = [...this.allUsedLabels];
+            } else {
+                this.limitAvailableLabels = true;
+                this.availableLabels = [...this.originalAvailableLabelsFromConfig];
             }
-            this.allLabels = [...this.allOriginalLabels];
+            this.originalLimitAvailableLabels = this.limitAvailableLabels;
         },
         createLabel() {
-            if (this.allLabels.indexOf(this.newLabel) == -1) { // ignore it if the label is already present in the list
-                this.allLabels.push(this.newLabel);
-                this.allLabels = this.allLabels.sort();
+            if (this.availableLabels.indexOf(this.newLabel) == -1) { // ignore it if the label is already present in the list
+                this.availableLabels.push(this.newLabel);
+                this.availableLabels = this.availableLabels.sort();
             }
             this.newLabel = "";
         },
         deleteLabel(evetn, label) {
-            let index = this.allLabels.indexOf(label);
+            let index = this.availableLabels.indexOf(label);
             if (index != -1) {
-                this.allLabels.splice(index, 1);
+                this.availableLabels.splice(index, 1);
             }
-            console.log(this.allLabels);
-            console.log(this.allOriginalLabels);
+            // console.log(this.availableLabels);
+            // console.log(this.allOriginalLabels);
         },
         async save() {
-            // reload the roles in case they have changed since we've loaded them and update the allowed-labels
+            // reload the roles in case they have changed since we've loaded them and update the available-labels
             let config = await api.getRolesConfig();
-            config["allowed-labels"] = this.allLabels;
+            if (this.limitAvailableLabels) {
+                config["available-labels"] = this.availableLabels;
+            } else {
+                config["available-labels"] = [];
+            }
             await api.setRolesConfig(config);
             this.reset();
         },
@@ -58,47 +73,64 @@ export default {
             // console.log(event);
             let currentLabel = event.target.value;
             this.newLabel = LabelHelpers.filterLabel(currentLabel);
-            console.log(this.newLabel);
+            // console.log(this.newLabel);
             if (event.keyCode == 13) { // Enter = createLabel
                 this.createLabel();
             }
+        },
+        canDeleteLabel(label) {
+            // we can delete a label only if it is currently not used
+            return this.allUsedLabels.indexOf(label) == -1;
         }
     },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
         }),
-        labels() {
-            return this.allLabels;
-        },
         hasChanged() {
-            return (this.allLabels.length != this.allOriginalLabels.length)
-                || !this.allLabels.every((v, i) => v === this.allOriginalLabels[i]);
+            return (this.originalLimitAvailableLabels != this.limitAvailableLabels)
+                || (this.availableLabels.length != this.allOriginalLabels.length)
+                || !this.availableLabels.every((v, i) => v === this.allOriginalLabels[i]);
         },
     },
+    watch: {
+        // limitAvailableLabels(newValue, oldValue) {
+        //     if (newValue) {
+        //         this.availableLabels = [...this.allOriginalLabels];
+        //     } else {
+        //         this.availableLabels = [];
+        //     }
+        // }
+    }
 }
 </script>
 <template>
     <div class="settings">
         <div>
-            <h5>{{ $t('settings.labels_title') }}</h5>
-            <p class="instructions" v-html="$t('settings.labels_global_instructions_html')"></p>
+            <h5>{{ $t('settings.available_labels_title') }}</h5>
+            <p class="instructions" v-html="$t('settings.available_labels_global_instructions_html')"></p>
             <div class="w-100 p-2 mx-0">
-                <div style="height: 3rem"><label for="new-label-input" class="form-label"><span
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" value="" id="limit_labels"
+                        v-model="limitAvailableLabels">
+                    <label class="form-check-label" for="limit_labels">
+                        {{ $t('settings.labels_limit_available_labels') }}
+                    </label>
+                </div>
+                <div class="form-check" style="height: 3rem"><label for="new-label-input" class="form-label"><span
                             class="invalid-label-tips invalid-label-tips-hidden">{{ $t('labels.valid_alphabet_warning')
                             }}</span>
                     </label></div>
                 <div class="form-check d-flex">
-                    
-                    <input id="new-label-input" type="text" class="form-control w-50" v-model="newLabel" @keyup="labelKeyPressed($event)">
-                    <button type="button" class="btn btn-sm btn-secondary m-1" @click="createLabel">{{
+                    <input id="new-label-input" type="text" class="form-control w-50" v-model="newLabel" @keyup="labelKeyPressed($event)" :disabled="!limitAvailableLabels">
+                    <button type="button" class="btn btn-sm btn-secondary m-1" @click="createLabel" :disabled="!limitAvailableLabels">{{
                 $t('settings.create_new_label') }}</button>
                 </div>
                 <div class="labels-list mt-5">
-                    <div v-for="label in labels" :key="label"
+                    <div v-for="label in availableLabels" :key="label"
                         class="labels-item border d-flex justify-content-between align-items-center">
-                        <span class="list-group-item-with-button-content">{{ label }}</span>
-                        <button type="button" class="btn labels-button" @click="deleteLabel($event, label)"><i
+                        <span class="list-group-item-with-button-content" :class="{'disabled-label': !limitAvailableLabels}">{{ label }}</span>
+                        <button type="button" class="btn labels-button" @click="deleteLabel($event, label)" :disabled="!canDeleteLabel(label) || !limitAvailableLabels"><i
                                 class="bi-trash"></i></button>
                     </div>
                 </div>
@@ -145,6 +177,9 @@ h6 {
     margin: 3px;
 }
 
+.disabled-label {
+    opacity: 0.4;
+}
 .w-15 {
     width: 15%;
 }
@@ -171,9 +206,13 @@ h6 {
 
 .labels-button {
     /* background-color: #0002; */
-    border-radius: 0;
+    border-width: 0;
     padding-top: 0;
     padding-bottom: 0;
     font-size: larger;
+}
+
+.labels-button:disabled {
+    opacity: 0.2;
 }
 </style>
