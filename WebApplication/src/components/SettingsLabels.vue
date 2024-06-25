@@ -37,6 +37,7 @@ export default {
             } else {
                 this.limitAvailableLabels = true;
                 this.availableLabels = [...this.originalAvailableLabelsFromConfig];
+                this.allOriginalLabels = [...this.originalAvailableLabelsFromConfig];
             }
             this.originalLimitAvailableLabels = this.limitAvailableLabels;
         },
