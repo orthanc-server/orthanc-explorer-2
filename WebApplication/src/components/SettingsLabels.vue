@@ -65,6 +65,7 @@ export default {
                 config["available-labels"] = [];
             }
             await api.setRolesConfig(config);
+            await this.$store.dispatch('configuration/load'); // to reload the available-labels
             this.reset();
         },
         cancel() {
