@@ -203,6 +203,9 @@ export default {
         labels() {
             return this.allLabels;
         },
+        isLabelsListEmpty() {
+            return this.allLabels.length == 0;
+        },
         labelPermissions() {
             return this.allLabelPermissions;
         },
@@ -228,7 +231,7 @@ export default {
             <div class="row">
                 <div class="col-3 border-end border-3">
                     <h6><i class="bi bi-people-fill"></i> {{ $t('settings.roles_title') }}
-                        <button class="btn btn-sm bi bi-info-circle" data-bs-toggle="popover"
+                        <button class="btn btn-sm bi bi-info-circle" data-bs-toggle="popover" data-bs-trigger="focus"
                             :data-bs-content="$t('settings.roles_description_html')"></button>
                     </h6>
                 </div>
@@ -241,13 +244,13 @@ export default {
                 </div>
                 <div class="col-3">
                     <h6><i class="bi bi-key-fill"></i>{{ $t('settings.permissions') }}
-                        <button class="btn btn-sm bi bi-info-circle" data-bs-toggle="popover"
+                        <button class="btn btn-sm bi bi-info-circle" data-bs-toggle="popover" data-bs-trigger="focus"
                             :data-bs-content="$t('settings.permissions_instructions')"></button>
                     </h6>
                 </div>
                 <div class="col-6">
                     <h6><i class="bi bi-tags-fill"></i> {{ $t('settings.labels_title') }}
-                        <button class="btn btn-sm bi bi-info-circle" data-bs-toggle="popover"
+                        <button class="btn btn-sm bi bi-info-circle" data-bs-toggle="popover" data-bs-trigger="focus"
                             :data-bs-content="$t('settings.labels_description_html')"></button>
                     </h6>
                 </div>
@@ -294,27 +297,22 @@ export default {
                         </label>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="labels-list">
-                        <button v-for="label in labels" :key="label" @click="toggleSelectedLabel($event, label)"
-                            class="labels-item border d-flex justify-content-between align-items-center" :disabled="hasAllLabelsAllowed" :class="{'is-label-selected': isLabelSelected(label), 'is-label-not-selected': !isLabelSelected(label)}">
-                            <span class="list-group-item-with-button-content">{{ label }}</span>
-                    </button>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-3 pt-3 border-end border-3">
-                </div>
-                <div class="col-3 pt-3">
-                </div>
-                <div class="col-6 pt-3">
+                <div class="col-6 mb-3">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="all_future_labels"
                             v-model="hasAllLabelsAllowed">
                         <label class="form-check-label" for="all_future_labels">
                             {{ $t('settings.allow_all_currents_and_futures_labels') }}
                         </label>
+                    </div>
+                    <div class="labels-list" :class="{'d-none': !isLabelsListEmpty}">
+                        <button v-for="label in labels" :key="label" @click="toggleSelectedLabel($event, label)"
+                            class="labels-item border d-flex justify-content-between align-items-center" :disabled="hasAllLabelsAllowed" :class="{'is-label-selected': isLabelSelected(label), 'is-label-not-selected': !isLabelSelected(label)}">
+                            <span class="list-group-item-with-button-content">{{ label }}</span>
+                        </button>
+                    </div>
+                    <div class="labels-list mt-4" :class="{'d-none': isLabelsListEmpty}">
+                        <p class="w-100 text-center">The labels list is currently empty</p>
                     </div>
                 </div>
             </div>

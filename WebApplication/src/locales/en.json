@@ -181,7 +181,7 @@
     "series_count_header": "# series",
     "series_plural": "Series",
     "settings": {
-        "allow_all_currents_and_futures_labels": "All current and future labels (*)",
+        "allow_all_currents_and_futures_labels": "All current and future labels",
         "available_labels_global_instructions_html": "Since you have enabled permissions and you are an administrator, this page enables you to create/delete the available labels.  Users won't be able to create other labels.<br/>Once you have updated this list, don't forget to click <strong>Save</strong> to apply your changes.",
         "available_labels_title": "Available labels",
         "create_new_label": "Create new label",
