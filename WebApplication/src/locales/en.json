@@ -192,8 +192,6 @@
         "labels_clear_selection": "Clear selection",
         "labels_description_html": "Labels are created/deleted in the settings/Labels page.",
         "labels_select_all_currents": "Select all currently defined labels",
-        "labels_import_existing": "Import all existing labels",
-        "labels_none": "None",
         "labels_limit_available_labels": "Limit available labels to a list",
         "labels_based_permissions_title": "Labels based permissions",
         "labels_title": "Labels",
