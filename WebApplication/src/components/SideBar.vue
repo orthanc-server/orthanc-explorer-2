@@ -49,7 +49,7 @@ export default {
             return this.uiOptions.EnableSettings;
         },
         hasAccessToSettingsLabelsAndPermissions() {
-            return this.hasAccessToSettings && this.userProfile != null && (this.userProfile.permissions.indexOf("admin-permissions") != -1);
+            return this.hasAccessToSettings && this.uiOptions.EnablePermissionsEdition;
         },
         hasJobs() {
             return this.jobs.length > 0;

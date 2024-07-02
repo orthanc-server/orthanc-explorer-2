@@ -585,6 +585,31 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
 
     if (hasUserProfile_)
     {
+      {// get the available-labels from the auth plugin (and the auth-service)
+        std::map<std::string, std::string> headers;
+        OrthancPlugins::GetHttpHeaders(headers, request);
+
+        uiOptions["EnablePermissionsEdition"] = false;
+
+        Json::Value rolesConfig;
+        if (OrthancPlugins::RestApiGet(rolesConfig, "/auth/settings/roles", headers, true))
+        {
+          if (rolesConfig.isObject() && rolesConfig.isMember("available-labels"))
+          {
+            LOG(INFO) << "Overriding \"AvailableLabels\" in UiOptions with the values from the auth-service";
+            uiOptions["AvailableLabels"] = rolesConfig["available-labels"];
+          }
+
+          LOG(INFO) << rolesConfig.toStyledString();
+
+          // if the auth-service is not fully configured, disable permissions edition
+          if (rolesConfig.isObject() && rolesConfig.isMember("roles") && rolesConfig["roles"].isObject() && rolesConfig["roles"].size() > 0)
+          {
+            uiOptions["EnablePermissionsEdition"] = true;
+          }
+        }
+      }
+
       {// get the user profile from the auth plugin (and the auth-service)
         std::map<std::string, std::string> headers;
         OrthancPlugins::GetHttpHeaders(headers, request);
@@ -613,6 +638,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
         UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
         UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
+        UpdateUiOptions(uiOptions["EnablePermissionsEdition"], permissions, "admin-permissions");
 
         // the Legacy UI is not available with user profile since it would not refresh the tokens
         uiOptions["EnableLinkToLegacyUi"] = false;
@@ -620,21 +646,8 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         oe2Configuration["Profile"] = userProfile;
       }
 
-      {// get the available-labels from the auth plugin (and the auth-service)
-        std::map<std::string, std::string> headers;
-        OrthancPlugins::GetHttpHeaders(headers, request);
-
-        Json::Value rolesConfig;
-        if (OrthancPlugins::RestApiGet(rolesConfig, "/auth/settings/roles", headers, true))
-        {
-          if (rolesConfig.isObject() && rolesConfig.isMember("available-labels"))
-          {
-            LOG(INFO) << "Overriding \"AvailableLabels\" in UiOptions with the values from the auth-service";
-            uiOptions["AvailableLabels"] = rolesConfig["available-labels"];
-          }
-        }
-      }
     }
+
 
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
     std::string answer = oe2Configuration.toStyledString();
