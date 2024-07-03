@@ -1,3 +1,6 @@
+1.5.1 (2024-07-03)
+==================
+
 Fixes:
   - Broken interface when the auth-service was not configured to implement the role/permission API
 
