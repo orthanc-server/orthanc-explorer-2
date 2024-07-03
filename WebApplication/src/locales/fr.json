@@ -193,6 +193,7 @@
         "labels_description_html": "Les étiquettes sont créées dans la pages Paramètres/Étiquettes.",
         "labels_select_all_currents": "Sélectionner toutes les étiquettes actuellement disponibles.",
         "labels_limit_available_labels": "Restreindre les étiquettes à une liste",
+        "labels_list_empty": "La liste des étiquettes est actuellement vide",
         "labels_based_permissions_title": "Permissions basées sur les étiquettes",
         "labels_title": "Étiquettes",
         "global_permissions_title": "Permissions globales",

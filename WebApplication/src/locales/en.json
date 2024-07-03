@@ -193,6 +193,7 @@
         "labels_description_html": "Labels are created/deleted in the settings/Labels page.",
         "labels_select_all_currents": "Select all currently defined labels",
         "labels_limit_available_labels": "Limit available labels to a list",
+        "labels_list_empty": "The labels list is currently empty",
         "labels_based_permissions_title": "Labels based permissions",
         "labels_title": "Labels",
         "global_permissions_title": "Global permissions",

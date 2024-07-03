@@ -1,3 +1,9 @@
+Pending changes in the mainline
+===============================
+
+Fixes:
+  - Labels list was not displayed in the "Permissions" edition UI.
+
 1.5.1 (2024-07-03)
 ==================
 
