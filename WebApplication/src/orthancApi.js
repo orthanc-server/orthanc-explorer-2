@@ -4,8 +4,8 @@ import store from "./store"
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
 
 export default {
-    updateAuthHeader() {
-        axios.defaults.headers.common['token'] = localStorage.getItem("vue-token")
+    updateAuthHeader(headerKey = "token") {
+        axios.defaults.headers.common[headerKey] = localStorage.getItem("vue-token")
     },
     async loadOe2Configuration() {
         return (await axios.get(oe2ApiUrl + "configuration")).data;

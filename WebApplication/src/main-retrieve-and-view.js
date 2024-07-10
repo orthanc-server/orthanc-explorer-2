@@ -30,10 +30,11 @@ axios.get('../api/pre-login-configuration').then((config) => {
   for (let paramName of VALID_TOKEN_PARAMS) {
       const paramValue = params.get(paramName);
 
-      if (!!paramValue) {
-          localStorage.setItem("vue-token", paramValue);
-          orthancApi.updateAuthHeader();
-      }
+      if (!paramValue) continue;
+
+      localStorage.setItem("vue-token", paramValue);
+      orthancApi.updateAuthHeader(paramName);
+      break;    
   }
 
   app.mount('#app-retrieve-and-view')
