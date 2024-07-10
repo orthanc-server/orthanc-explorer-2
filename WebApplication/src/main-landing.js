@@ -32,9 +32,8 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
       if (!paramValue) continue;
 
-      localStorage.setItem("vue-token", paramValue);
+      localStorage.setItem(paramName, paramValue);
       orthancApi.updateAuthHeader(paramName);
-      break;    
   }
 
   app.mount('#app-landing')
