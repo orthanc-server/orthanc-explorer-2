@@ -25,9 +25,7 @@ axios.get('../api/pre-login-configuration').then((config) => {
   app.use(i18n)
 
   // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API
-  const params = new URLSearchParams(router.currentRoute.value.fullPath);
-  
-  console.log("MAIN RETRIEVE", params, router.currentRoute.value);
+  const params = new URLSearchParams(window.location.search);
 
   for (let paramName of VALID_TOKEN_PARAMS) {
       const paramValue = params.get(paramName);
