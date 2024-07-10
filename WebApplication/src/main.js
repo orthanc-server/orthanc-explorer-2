@@ -103,7 +103,7 @@ axios.get('../api/pre-login-configuration').then((config) => {
             const paramValue = params.get(paramName);
 
             if (!!paramValue) {
-                localStorage.setItem("vue-token", window.keycloak.token);
+                localStorage.setItem("vue-token", paramValue);
                 orthancApi.updateAuthHeader();
             }
         }
