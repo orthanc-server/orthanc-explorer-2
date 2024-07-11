@@ -2,10 +2,11 @@ Pending changes in the mainline
 ===============================
 
 Changes:
-  - Authorization tokens can be provided in the as query args in the URL e.g: http://localhost:8042/ui/app/?token=my-token
+  - Authorization tokens can be provided in the URL as query args e.g: http://localhost:8042/ui/app/?token=my-token
     or /ui/app/filtered-studies?StudyDescription=PET&token=my-token  and these tokens will be included as HTTP headers 
-    in all requests.  Note that the query args must be positioned before the '#' in the URL.
+    in all requests issued by OE2.  Note that the query args must be positioned before the '#' in the URL.
     List of valid tokens are "token", "auth-token", "authorization".
+  - Now sorting the results of a search by StudyDate.
 
 
 Fixes:

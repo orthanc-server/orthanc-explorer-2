@@ -196,7 +196,8 @@ const actions = {
         if (!getters.isFilterEmpty) {
             try {
                 commit('setIsSearching', { isSearching: true});
-                const studies = (await api.findStudies(getters.filterQuery, state.labelsFilter, "All"));
+                let studies = (await api.findStudies(getters.filterQuery, state.labelsFilter, "All"));
+                studies.sort((a, b) => (a.MainDicomTags.StudyDate ?? "") < (b.MainDicomTags.StudyDate ?? "") ? 1 : -1)
                 let studiesIds = studies.map(s => s['ID']);
                 commit('setStudiesIds', { studiesIds: studiesIds });
                 commit('setStudies', { studies: studies });
