@@ -1,6 +1,13 @@
 Pending changes in the mainline
 ===============================
 
+Changes:
+  - Authorization tokens can be provided in the as query args in the URL e.g: http://localhost:8042/ui/app/?token=my-token
+    or /ui/app/filtered-studies?StudyDescription=PET&token=my-token  and these tokens will be included as HTTP headers 
+    in all requests.  Note that the query args must be positioned before the '#' in the URL.
+    List of valid tokens are "token", "auth-token", "authorization".
+
+
 Fixes:
   - Labels list was not displayed in the "Permissions" edition UI.
 
