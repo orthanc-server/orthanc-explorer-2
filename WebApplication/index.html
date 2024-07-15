@@ -9,10 +9,11 @@
       // Custom bit of code to redirect to /app/ if the uri is /app
       // The reason for this is that the path to assets is relative
       // so it won't work for /app but it will for /app/
-      const currentUri = window.location.href;
+      const currentUri = new URL(window.location.href);
 
-      if (currentUri.endsWith("app")) {
-        window.location.href = currentUri + "/";
+      if (currentUri.pathname.endsWith("app")) {
+        currentUri.pathname += "/";
+        window.location.href = currentUri.toString();
       }
     </script>
   </head>
