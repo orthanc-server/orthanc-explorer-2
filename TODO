@@ -18,8 +18,6 @@ UI improvements:
   - configuration to hide DICOM UID options and select the right one directly for a given setup.
   - add a Series Description renamer (one dialog to edit SeriesNumber + SeriesDescription of a study)
 
-- ui/app (with missing /) shall open the interface too
-
 - show attachments
 
 - support dicom-web plugin (QIDO-RS UI)

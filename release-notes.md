@@ -11,6 +11,8 @@ Changes:
 
 Fixes:
   - Labels list was not displayed in the "Permissions" edition UI.
+  - Opening /ui/app now redirects to /ui/app/ instead of failing opening the UI.
+
 
 1.5.1 (2024-07-03)
 ==================
