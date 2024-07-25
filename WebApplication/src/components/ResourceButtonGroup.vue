@@ -131,8 +131,26 @@ export default {
                     const jobId = await api.remoteDicomRetrieveResource(this.capitalizeFirstLetter(this.resourceLevel), this.studiesRemoteSource, moveQuery, this.system.DicomAet);
                     this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.capitalizeFirstLetter(this.resourceLevel) + ' from (' + this.studiesRemoteSource + ')'});
                 }
-            } else {
-                console.log("TODO");
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
+                let resources;
+                if (this.resourceLevel == "bulk") {
+                    resources = this.selectedStudies.map(s => { return {"Study": s['ID']}});
+                } else if (this.resourceLevel == "study") {
+                    resources = [{"Study": this.studyMainDicomTags.StudyInstanceUID}];
+                } else if (this.resourceLevel == "series") {
+                    resources = [{
+                        "Study": this.studyMainDicomTags.StudyInstanceUID,
+                        "Series": this.seriesMainDicomTags.SeriesInstanceUID
+                    }];
+                } else if (this.resourceLevel == "instance") {
+                    resources = [{
+                        "Study": this.studyMainDicomTags.StudyInstanceUID,
+                        "Series": this.seriesMainDicomTags.SeriesInstanceUID,
+                        "Instance": this.instanceTags.SOPInstanceUID
+                    }];
+                }
+                const jobId = await api.wadoRsRetrieve(this.studiesRemoteSource, resources);
+                this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.capitalizeFirstLetter(this.resourceLevel) + ' from (' + this.studiesRemoteSource + ')'});
             }
         },
         capitalizeFirstLetter(level) {

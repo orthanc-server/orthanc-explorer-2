@@ -89,7 +89,11 @@ export default {
             allLabels: state => state.labels.allLabels
         }),
         modalitiesInStudyForDisplay() {
-            return this.study.RequestedTags.ModalitiesInStudy.split('\\').join(',');
+            if (this.study.RequestedTags.ModalitiesInStudy) {
+                return this.study.RequestedTags.ModalitiesInStudy.split('\\').join(',');
+            } else {
+                return "";
+            }
         },
         showLabels() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
@@ -110,10 +114,8 @@ export default {
         seriesCount() {
             if (this.study.sourceType == SourceType.LOCAL_ORTHANC) {
                 return this.study.Series.length;
-            } else if (this.study.sourceType == SourceType.REMOTE_DICOM) {
+            } else if (this.study.sourceType == SourceType.REMOTE_DICOM || this.study.sourceType == SourceType.REMOTE_DICOM_WEB) {
                 return this.study.MainDicomTags.NumberOfStudyRelatedSeries;
-            } else {
-                console.log("TODO");
             }
         }
     },

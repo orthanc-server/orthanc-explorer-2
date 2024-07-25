@@ -22,10 +22,8 @@ export default {
         instancesCount() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
                 return this.seriesInfo.Instances.length;
-            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
                 return this.seriesInfo.MainDicomTags.NumberOfSeriesRelatedInstances;
-            } else {
-                console.log("TODO");
             }
         }
     },

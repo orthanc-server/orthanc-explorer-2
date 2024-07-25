@@ -214,7 +214,7 @@ const actions = {
                 if (state.sourceType == SourceType.LOCAL_ORTHANC) {
                     studies = (await api.findStudies(getters.filterQuery, state.labelsFilter, "All"));
                     studies.sort((a, b) => (a.MainDicomTags.StudyDate ?? "") < (b.MainDicomTags.StudyDate ?? "") ? 1 : -1);
-                } else if (state.sourceType == SourceType.REMOTE_DICOM) {
+                } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
                     // make sure to fill all columns of the StudyList
                     let filters = {
                         "PatientBirthDate": "",
@@ -230,7 +230,14 @@ const actions = {
                     for (const [k, v] of Object.entries(getters.filterQuery)) {
                         filters[k] = v;
                     }
-                    let remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
+
+                    let remoteStudies;
+                    if (state.sourceType == SourceType.REMOTE_DICOM) {
+                        remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
+                    } else if (state.sourceType == SourceType.REMOTE_DICOM_WEB) {
+                        remoteStudies = (await api.qidoRs("Study", state.remoteSource, filters, true /* isUnique */));
+                    }
+                    
                     // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
                     studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
                 }

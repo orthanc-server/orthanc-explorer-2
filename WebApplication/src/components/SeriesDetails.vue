@@ -42,6 +42,20 @@ export default {
                 "MainDicomTags": s
             }})
             this.seriesInstances = this.seriesInstances.sort((a, b) => (parseInt(a.MainDicomTags.InstanceNumber) ?? a.MainDicomTags.SOPInstanceUID) < (parseInt(b.MainDicomTags.InstanceNumber) ?? b.MainDicomTags.SOPInstanceUID) ? 1 : -1);
+        } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
+            let remoteInstances = (await api.qidoRs("Instance", this.studiesRemoteSource, {
+                    "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
+                    "SeriesInstanceUID": this.seriesMainDicomTags.SeriesInstanceUID,
+                    "SOPInstanceUID": "",
+                    "InstanceNumber": "",
+                    "NumberOfFrames": ""
+                },
+                false /* isUnique */));
+            this.seriesInstances = remoteInstances.map(s => { return {
+                "ID": s["SOPInstanceUID"],
+                "MainDicomTags": s
+            }})
+            this.seriesInstances = this.seriesInstances.sort((a, b) => (parseInt(a.MainDicomTags.InstanceNumber) ?? a.MainDicomTags.SOPInstanceUID) < (parseInt(b.MainDicomTags.InstanceNumber) ?? b.MainDicomTags.SOPInstanceUID) ? 1 : -1);
         }
     },
     components: { ResourceButtonGroup, InstanceList, ResourceDetailText },

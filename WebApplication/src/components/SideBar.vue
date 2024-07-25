@@ -44,7 +44,7 @@ export default {
             }
         },
         hasQueryableDicomWebServers() {
-            return false; // TODO this.queryableDicomWebServers.length > 0;
+            return this.queryableDicomWebServers.length > 0;
         },
         hasQueryableDicomModalities() {
             return this.uiOptions.EnableDicomModalities && this.queryableDicomModalities.length > 0;
@@ -65,19 +65,22 @@ export default {
             return this.userProfile != null && this.userProfile.name;
         },
         displayedStudyCount() {
-            return this.studiesIds.length;
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+                return this.studiesIds.length;
+            } else {
+                return "-";
+            }
         },
         orthancApiUrl() {
             return orthancApiUrl;
         },
     },
     methods: {
-        // selectModality(modality) {
-        //     this.selectedModality = modality;
-        // },
         isSelectedModality(modality) {
-            // return this.selectedModality === modality;
             return this.studiesSourceType == SourceType.REMOTE_DICOM && this.studiesRemoteSource == modality;
+        },
+        isSelectedDicomWebServer(server) {
+            return this.studiesSourceType == SourceType.REMOTE_DICOM_WEB && this.studiesRemoteSource == server;
         },
         isEchoRunning(modality) {
             return this.modalitiesEchoStatus[modality] == null;
@@ -205,8 +208,11 @@ export default {
                         <span class="arrow ms-auto"></span>
                     </li>
                     <ul class="sub-menu collapse" id="dicomweb-servers-list">
-                        <li v-for="server in queryableDicomWebServers" :key="server" class="active">
-                            <a href="#">{{ server }} (TODO)</a>
+                        <li v-for="server in queryableDicomWebServers" :key="server" v-bind:class="{ 'active': this.isSelectedDicomWebServer(server) }">
+                            <router-link class="router-link"
+                                :to="{ path: '/filtered-studies', query: { 'source-type': 'dicom-web', 'remote-source': server } }">
+                                {{ server }}
+                            </router-link>
                         </li>
                     </ul>
 

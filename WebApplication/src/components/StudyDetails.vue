@@ -79,10 +79,23 @@ export default {
         async reloadSeriesList() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
                 this.studySeries = (await api.getStudySeries(this.studyId));
-            } else {
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
                 let remoteSeries = (await api.remoteDicomFind("Series", this.studiesRemoteSource, {
                     "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
                     "PatientID": this.patientMainDicomTags.PatientID,
+                    "NumberOfSeriesRelatedInstances": "",
+                    "Modality": "",
+                    "SeriesDescription": "",
+                    "SeriesNumber": ""
+                    },
+                    false /* isUnique */));
+                this.studySeries = remoteSeries.map(s => { return {
+                    "ID": s["SeriesInstanceUID"],
+                    "MainDicomTags": s
+                }})
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
+                let remoteSeries = (await api.qidoRs("Series", this.studiesRemoteSource, {
+                    "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
                     "NumberOfSeriesRelatedInstances": "",
                     "Modality": "",
                     "SeriesDescription": "",

@@ -156,21 +156,21 @@ export default {
         return response.data['ID'];
     },
     async cancelRemoteDicomFind() {
-        if (window.axioRemoteDicomFindAbortController) {
-            window.axioRemoteDicomFindAbortController.abort();
-            window.axioRemoteDicomFindAbortController = null;
+        if (window.axiosRemoteDicomFindAbortController) {
+            window.axiosRemoteDicomFindAbortController.abort();
+            window.axiosRemoteDicomFindAbortController = null;
         }
     },
     async remoteDicomFind(level, remoteModality, filterQuery, isUnique) {
         if (isUnique) {
             await this.cancelRemoteDicomFind();
-            window.axioRemoteDicomFindAbortController = new AbortController();
+            window.axiosRemoteDicomFindAbortController = new AbortController();
         }
         
         try {
             let axiosOptions = {}
             if (isUnique) {
-                axiosOptions['signal'] = window.axioRemoteDicomFindAbortController.signal
+                axiosOptions['signal'] = window.axiosRemoteDicomFindAbortController.signal
             }
             const queryResponse = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/query", {
                     "Level": level,
@@ -187,6 +187,70 @@ export default {
             console.log("Error during query:", err);  // TODO: display error to user
             return {};
         }
+    },
+    async qidoRs(level, remoteServer, filterQuery, isUnique){
+        if (isUnique) {
+            await this.cancelQidoRs();
+            window.axiosQidoRsAbortController = new AbortController();
+        }
+        
+        try {
+            let axiosOptions = {}
+            if (isUnique) {
+                axiosOptions['signal'] = window.axiosQidoRsAbortController.signal
+            }
+            let uri = null;
+            if (level == "Study") {
+                uri = "/studies";
+            } else if (level == "Series") {
+                uri = "/studies/" + filterQuery["StudyInstanceUID"] + "/series";
+                delete filterQuery["StudyInstanceUID"];  // we don't need it the filter since it is in the url
+            } else if (level == "Instance") {
+                uri = "/studies/" + filterQuery["StudyInstanceUID"] + "/series/" + filterQuery["SeriesInstanceUID"] + "/instances";
+                delete filterQuery["StudyInstanceUID"];  // we don't need it the filter since it is in the url
+                delete filterQuery["SeriesInstanceUID"];
+            }
+            let args = {...filterQuery};
+            args["limit"] = String(store.state.configuration.uiOptions.MaxStudiesDisplayed);
+            args["fuzzymatching"] = "true";
+            
+            const queryResponse = (await axios.post(orthancApiUrl + "dicom-web/servers/" + remoteServer + "/qido", {
+                    "Uri": uri,
+                    "Arguments": args
+                }, 
+                axiosOptions
+                )).data;
+            // transform the response into something similar to a DICOM C-Find API response
+            let responses = [];
+            for (let qr of queryResponse) {
+                let r = {}
+                for (const [k, v] of Object.entries(qr)) {
+                    if (v.Value) {
+                        r[v.Name] = v.Value;
+                    }
+                }
+                responses.push(r);
+            }
+            return responses;
+        } catch (err)
+        {
+            console.log("Error during query:", err);  // TODO: display error to user
+            return {};
+        }
+    },
+    async cancelQidoRs() {
+        if (window.axiosQidoRsAbortController) {
+            window.axiosQidoRsAbortController.abort();
+            window.axiosQidoRsAbortController = null;
+        }
+    },
+    async wadoRsRetrieve(remoteServer, resources){
+        const retrieveJob = (await axios.post(orthancApiUrl + "dicom-web/servers/" + remoteServer + "/retrieve", {
+                "Resources": resources,
+                "Asynchronous": true
+            }
+            )).data;
+        return retrieveJob["ID"];
     },
     async remoteDicomRetrieveResource(level, remoteModality, filterQuery, targetAet) {
         const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/move", {

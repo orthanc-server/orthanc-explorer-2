@@ -429,6 +429,7 @@ export default {
             //console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
 
             this.updatingFilterUi = true;
+            await this.$store.dispatch('studies/clearStudies');
             await this.$store.dispatch('studies/clearFilterNoReload');
             var keyValueFilters = {};
 
