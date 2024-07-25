@@ -143,6 +143,10 @@ export default {
             return null;
         }
     },
+    async studyExists(studyInstanceUid) {
+        const response = (await axios.post(orthancApiUrl + "tools/lookup", studyInstanceUid));
+        return response.data.length >= 1;
+    },
     async mergeSeriesInExistingStudy({seriesIds, targetStudyId, keepSource}) {
         const response = (await axios.post(orthancApiUrl + "studies/" + targetStudyId + "/merge", {
             "Resources": seriesIds,
@@ -151,41 +155,55 @@ export default {
         }));
         return response.data['ID'];
     },
-    async cancelRemoteDicomFindStudies() {
-        if (window.axioRemoteDicomFindStudiesAbortController) {
-            window.axioRemoteDicomFindStudiesAbortController.abort();
-            window.axioRemoteDicomFindStudiesAbortController = null;
+    async cancelRemoteDicomFind() {
+        if (window.axioRemoteDicomFindAbortController) {
+            window.axioRemoteDicomFindAbortController.abort();
+            window.axioRemoteDicomFindAbortController = null;
         }
     },
-    async remoteDicomFindStudies(remoteModality, filterQuery) {
-        await this.cancelRemoteDicomFindStudies();
-        window.axioRemoteDicomFindStudiesAbortController = new AbortController();
+    async remoteDicomFind(level, remoteModality, filterQuery, isUnique) {
+        if (isUnique) {
+            await this.cancelRemoteDicomFind();
+            window.axioRemoteDicomFindAbortController = new AbortController();
+        }
         
         try {
+            let axiosOptions = {}
+            if (isUnique) {
+                axiosOptions['signal'] = window.axioRemoteDicomFindAbortController.signal
+            }
             const queryResponse = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/query", {
-                    "Level": "Study",
+                    "Level": level,
                     "Query": filterQuery
                 }, 
-                {
-                    signal: window.axioRemoteDicomFindStudiesAbortController.signal
-                })).data;
-            console.log(queryResponse);
+                axiosOptions
+                )).data;
+            // console.log(queryResponse);
             const answers = (await axios.get(orthancApiUrl + "queries/" + queryResponse["ID"] + "/answers?expand&simplify")).data;
-            console.log(answers);
+            // console.log(answers);
             return answers;
         } catch (err)
         {
             console.log("Error during query:", err);  // TODO: display error to user
             return {};
         }
-
     },
-    async remoteDicomRetrieveStudy(remoteModality, filterQuery, targetAet, level) {
+    async remoteDicomRetrieveResource(level, remoteModality, filterQuery, targetAet) {
         const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/move", {
             "Level": level,
             "Resources" : [
                 filterQuery
             ],
+            "TargetAet": targetAet,
+            "Synchronous": false
+        }));
+        
+        return response.data['ID'];
+    },
+    async remoteDicomRetrieveResources(level, remoteModality, filterQueries, targetAet) {
+        const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/move", {
+            "Level": level,
+            "Resources" : filterQueries,
             "TargetAet": targetAet,
             "Synchronous": false
         }));

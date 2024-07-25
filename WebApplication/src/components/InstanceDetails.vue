@@ -2,6 +2,8 @@
 import api from "../orthancApi";
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import TagsTree from "./TagsTree.vue";
+import { mapState, mapGetters } from "vuex"
+import SourceType from '../helpers/source-type';
 
 export default {
     props: ['instanceId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
@@ -14,11 +16,24 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            uiOptions: state => state.configuration.uiOptions,
+            studiesSourceType: state => state.studies.sourceType,
+        }),
     },
     async mounted() {
-        this.tags = (await api.getInstanceTags(this.instanceId));
-
-        this.headers = (await api.getInstanceHeader(this.instanceId));
+        if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+            this.tags = (await api.getInstanceTags(this.instanceId));
+            this.headers = (await api.getInstanceHeader(this.instanceId));
+        } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
+            this.tags = {
+                "0008,0018" : {
+                    "Name": "SOPInstanceUID",
+                    "Type": "String",
+                    "Value": this.instanceId
+                }
+            }
+        }
         this.loaded = true;
     },
     components: { ResourceButtonGroup, TagsTree },

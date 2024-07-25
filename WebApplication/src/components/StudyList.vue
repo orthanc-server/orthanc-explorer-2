@@ -10,6 +10,7 @@ import $ from "jquery"
 import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
 import api from "../orthancApi";
 import { ref } from 'vue';
+import SourceType from "../helpers/source-type";
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy", "labels"]
 
@@ -74,6 +75,8 @@ export default {
             shouldStopLoadingLatestStudies: false,
             isLoadingLatestStudies: false,
             isDisplayingLatestStudies: false,
+            sourceType: SourceType.LOCAL_ORTHANC,
+            remoteSource: null,
         };
     },
     computed: {
@@ -89,29 +92,55 @@ export default {
             'studies/isFilterEmpty', // -> this['studies/isFilterEmpty']
         ]),
         notShowingAllResults() {
-            if (this.studiesIds.length >= this.statistics.CountStudies) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+                if (this.studiesIds.length >= this.statistics.CountStudies) {
+                    return false;
+                }
+                return this.studiesIds.length == this.uiOptions.MaxStudiesDisplayed; // in this case, the result has been limited
+            } else {
                 return false;
             }
-            return this.studiesIds.length == this.uiOptions.MaxStudiesDisplayed; // in this case, the result has been limited
         },
         isDarkMode() {
             // hack to switch the theme: get the value from our custom css
             let bootstrapTheme = document.documentElement.getAttribute("data-bs-theme"); // for production
             bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');  // for dev
-            console.log("DatePicker color mode is ", bootstrapTheme);
+            // console.log("DatePicker color mode is ", bootstrapTheme);
             return bootstrapTheme == "dark";
         },
+        isRemoteDicom() {
+            return this.sourceType == SourceType.REMOTE_DICOM;
+        },
+        isRemoteDicomWeb() {
+            return this.sourceType == SourceType.REMOTE_DICOM_WEB;
+        },
         isSearchAsYouTypeEnabled() {
-            return this.uiOptions.StudyListSearchMode == "search-as-you-type";
+            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+                return this.uiOptions.StudyListSearchMode == "search-as-you-type";
+            } else {
+                return false;
+            }
         },
         isSearchButtonEnabled() {
-            return this.uiOptions.StudyListSearchMode == "search-button";
+            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+                return this.uiOptions.StudyListSearchMode == "search-button";
+            } else {
+                return true;
+            }
         },
         showEmptyStudyListIfNoSearch() {
-            return this.uiOptions.StudyListContentIfNoSearch == "empty";
+            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+                return this.uiOptions.StudyListContentIfNoSearch == "empty";
+            } else {
+                return true;
+            }
         },
         showLastReceivedIfNoSearch() {
-            return this.uiOptions.StudyListContentIfNoSearch == "most-recents";
+            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+                return this.uiOptions.StudyListContentIfNoSearch == "most-recents";
+            } else {
+                return false;
+            }
         },
         isStudyListEmpty() {
             return this.studiesIds.length == 0;
@@ -253,7 +282,7 @@ export default {
             if (tagName in this.columns) {
                 return this.columns[tagName].width;
             } else {
-                return this.columns[undefined].width;
+                return this.columns["undefined"].width;
             }
         },
         clearModalityFilter() {
@@ -403,6 +432,19 @@ export default {
             await this.$store.dispatch('studies/clearFilterNoReload');
             var keyValueFilters = {};
 
+            if ("source-type" in filters && "remote-source" in filters) {
+                if (filters["source-type"].toLowerCase() === "dicom") {
+                    this.sourceType = SourceType.REMOTE_DICOM;
+                } else if (filters["source-type"].toLowerCase() === "dicom-web") {
+                    this.sourceType = SourceType.REMOTE_DICOM_WEB;
+                }
+                this.remoteSource = filters["remote-source"];
+            } else {
+                this.sourceType = SourceType.LOCAL_ORTHANC;
+                this.remoteSource = null;
+            }
+            await this.$store.dispatch('studies/updateSource', { 'source-type': this.sourceType, 'remote-source': this.remoteSource });
+
             for (const [filterKey, filterValue] of Object.entries(filters)) {
                 if (filterKey == "labels") {
                     const labels = filterValue.split(",");
@@ -545,6 +587,16 @@ export default {
         },
         async updateUrl() {
             let activeFilters = [];
+
+            if (this.sourceType != SourceType.LOCAL_ORTHANC) {
+                if (this.sourceType == SourceType.REMOTE_DICOM) {
+                    activeFilters.push('source-type=dicom');
+                } else if (this.sourceType == SourceType.REMOTE_DICOM_WEB) {
+                    activeFilters.push('source-type=dicom-web');
+                }
+                activeFilters.push('remote-source=' + this.remoteSource);
+            }
+
             if (this.clipFilter("StudyDate", this.filterStudyDate)) {
                 activeFilters.push('StudyDate=' + this.filterStudyDate);
             }
@@ -574,7 +626,7 @@ export default {
             // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
             const shouldShowMostRecentsWithLabel = this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.isFilteringOnlyOnLabels();
 
-            if (this['studies/isFilterEmpty'] || shouldShowMostRecentsWithLabel) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && (this['studies/isFilterEmpty'] || shouldShowMostRecentsWithLabel)) {
                 await this.$store.dispatch('studies/clearStudies');
                 if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
                     return;
@@ -654,6 +706,12 @@ export default {
 
 <template>
     <div>
+        <div v-if="isRemoteDicom || isRemoteDicomWeb" class="remote-browsing-warning">
+            <div>
+                <p v-if="isRemoteDicom" v-html="$t('remote_dicom_browsing', { source: remoteSource})"></p>
+                <p v-if="isRemoteDicomWeb" v-html="$t('remote_dicom_web_browsing', { source: remoteSource})"></p>
+            </div>
+        </div>
         <table class="table table-responsive table-sm study-table table-borderless">
             <thead class="study-table-header">
                 <th width="2%" scope="col" ></th>
@@ -784,6 +842,169 @@ export default {
     --filter-padding: 2px;
 }
 
-/* styles are in common.css because they are shared between the StudyList and the RemoteStudyList */
+input.form-control.study-list-filter {
+  margin-top: var(--filter-margin);
+  margin-bottom: var(--filter-margin);
+  padding-top: var(--filter-padding);
+  padding-bottom: var(--filter-padding);
+  border-bottom-width: thin;
+}
 
+.filter-button {
+  border-bottom-width: thin !important;
+  border-color: var(--bs-border-color);
+}
+
+.search-button {
+  padding-left: 0px !important;
+}
+
+.is-not-searching {
+  background-color: var(--table-filters-is-not-searching-color) !important;
+  border-color: var(--table-filters-is-not-searching-color) !important;
+}
+
+.is-searching {
+  background-color: var(--table-filters-is-searching-color) !important;
+  border-color: var(--table-filters-is-searching-color) !important;
+}
+
+button.form-control.study-list-filter {
+  margin-top: var(--filter-margin);
+  margin-bottom: var(--filter-margin);
+  padding-top: var(--filter-padding);
+  padding-bottom: var(--filter-padding);
+}
+
+.study-table-header {
+  background-color: var(--study-table-header-bg-color) !important;
+}
+
+.study-table-title {
+  text-align: left;
+  padding-left: 4px;
+  padding-right: 4px;
+  vertical-align: middle;
+  line-height: 1.2rem;
+}
+
+/* .study-table> :not(:first-child) {
+  border-top: 0px !important;
+} */
+
+.study-table {
+}
+
+.study-table> :nth-child(odd) >tr >td{
+  background-color: var(--study-odd-bg-color);
+}
+
+.study-table> :nth-child(even) >tr >td{
+  background-color: var(--study-even-bg-color);
+}
+
+/* only on the first child of each tbody to prevent hover over the labels row */
+.study-table>tbody>tr:first-child:hover > * {
+  background-color: var(--study-hover-color);
+}
+
+.study-table > tbody > tr.study-row-expanded:hover > *{
+  background-color: var(--study-details-bg-color);
+}
+.study-table > tbody > tr.study-details-expanded:hover > *{
+  background-color: var(--study-details-bg-color);
+}
+
+.study-table> :last-child {
+  border-bottom-width: thin;
+}
+
+.study-table tr:hover {
+  background-color: var(--study-hover-color);
+}
+
+
+.study-table-filters {
+  background-color: var(--study-table-filter-bg-color);
+}
+
+.study-table-filters > th > div {
+  background-color: var(--study-table-filter-bg-color);
+}
+
+.study-table-filters > th > div > button{
+  background-color: var(--bs-table-bg);
+}
+
+.study-table-filters th {
+  text-align: left;
+  padding-left: 10px !important;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-bottom: 5px;
+  vertical-align: middle;    
+}
+
+.study-table td {
+  text-align: left;
+  padding-left: 10px;
+}
+
+.study-list-alert {
+  margin-top: var(--filter-margin);
+  margin-bottom: var(--filter-margin);
+  padding-top: var(--filter-padding);
+  padding-bottom: var(--filter-padding);
+}
+
+.study-list-bulk-buttons {
+  margin-top: var(--filter-margin);
+}
+
+.is-invalid-filter {
+  /* background-color: #f7dddf !important; */
+  border-color: red !important;
+  box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25) !important;
+}
+
+.alert-icon {
+  margin-right: 0.7rem;
+}
+
+.study-table-actions > th {
+  background-color: var(--study-table-actions-bg-color) !important;
+  vertical-align: middle;
+}
+
+.study-table-actions > th > div {
+  background-color: var(--study-table-actions-bg-color) !important;
+  text-align: left;
+}
+
+.study-details-table {
+  margin-top: var(--details-top-margin);
+  margin-left: 5%;
+  width: 95% !important;
+  font-size: 0.9rem;
+}
+
+.study-details-table>:not(caption) >* >* {
+  background-color: var(--study-details-bg-color) !important;
+}
+
+.study-details-table >* >* {
+  background-color: var(--study-details-bg-color) !important;
+}
+
+.study-details-table td {
+  vertical-align: top;
+}
+
+.remote-browsing-warning {
+    background-color: var(--study-list-remote-bg-color);
+    text-align: center;
+    font-weight: 500;
+    height: 2rem;
+    line-height: 2rem;
+}
 </style>

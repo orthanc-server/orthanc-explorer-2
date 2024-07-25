@@ -159,6 +159,7 @@
     },
     "preview": "Preview",
     "profile": "Profile",
+    "retrieve": "Retrieve",
     "retrieve_and_view": {
         "finding_locally": "Checking if the study is already available locally.",
         "finding_remotely": "Searching for the study in remote DICOM nodes.",
@@ -166,6 +167,8 @@
         "retrieved_html": "Retrieved <strong>{count}</strong> instances.",
         "retrieving": "Retrieving study."
     },
+    "remote_dicom_browsing": "You are currently browsing the <strong>{source}</strong> remote <strong>DICOM</strong> node",
+    "remote_dicom_web_browsing": "You are currently browsing the <strong>{source}</strong> remote <strong>DICOMWeb</strong> server",
     "save": "Save",
     "searching": "Searching...",
     "select_files": "Select Files",
@@ -235,6 +238,9 @@
     "this_patient_has_no_other_studies": "This patient has no other studies.",
     "this_patient_has_other_studies": "This patient has {count} studies in total.",
     "this_patient_has_other_studies_show": "Show them!",
+    "this_remote_patient_has_local_studies": "This patient has {count} studies already stored locally.",
+    "this_study_is_already_stored_locally": "This study is already stored locally.",
+    "this_study_is_already_stored_locally_show": "Show it!",
     "token": {
         "error_token_expired_html": "Your token has expired.",
         "error_token_invalid_html": "Your token is invalid.<br/>Check if you have pasted it completely, or contact the person who has provided it to you.",

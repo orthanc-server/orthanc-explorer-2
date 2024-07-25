@@ -10,6 +10,8 @@ import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import TokenLinkButton from "./TokenLinkButton.vue"
 import BulkLabelsModal from "./BulkLabelsModal.vue"
+import SourceType from '../helpers/source-type';
+
 
 export default {
     props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags", "instanceHeaders", "studySeries", "seriesInstances"],
@@ -47,7 +49,7 @@ export default {
             }
         },
         async seriesInstances(newValue, oldValue) {
-            if (this.resourceLevel == 'series') {
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'series') {
                 let firstInstanceTags = await api.getSimplifiedInstanceTags(this.seriesInstances[0]['ID']);
                 this.modalitiesList = [firstInstanceTags["Modality"]];
                 this.isWsiSeries = firstInstanceTags["SOPClassUID"] == "1.2.840.10008.5.1.4.1.1.77.1.6" || firstInstanceTags["Modality"] == "SM";
@@ -104,6 +106,34 @@ export default {
         async sendToDicomModality(modality) {
             const jobId = await api.sendToDicomModality(this.resourcesOrthancId, modality);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to DICOM (' + modality + ')' });
+        },
+        async retrieve() {
+            if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
+                
+                if (this.resourceLevel == "bulk") {
+                    let moveQueries = this.selectedStudies.map(s => { return {"StudyInstanceUID": s['ID'], "PatientID": s['PatientMainDicomTags']['PatientID']}});
+
+                    const jobId = await api.remoteDicomRetrieveResources("Study", this.studiesRemoteSource, moveQueries, this.system.DicomAet);
+                    this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.selectedStudies.length  + ' studies from (' + this.studiesRemoteSource + ')'});
+                } else {
+                    let moveQuery = {
+                        "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
+                        "PatientID": this.patientMainDicomTags.PatientID
+                    };
+
+                    if (this.resourceLevel == 'series' || this.resourceLevel == 'instance') {
+                        moveQuery["SeriesInstanceUID"] = this.seriesMainDicomTags.SeriesInstanceUID;
+                    }
+                    if (this.resourceLevel == 'instance') {
+                        moveQuery["SOPInstanceUID"] = this.instanceTags["0008,0018"].Value;
+                    }
+
+                    const jobId = await api.remoteDicomRetrieveResource(this.capitalizeFirstLetter(this.resourceLevel), this.studiesRemoteSource, moveQuery, this.system.DicomAet);
+                    this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.capitalizeFirstLetter(this.resourceLevel) + ' from (' + this.studiesRemoteSource + ')'});
+                }
+            } else {
+                console.log("TODO");
+            }
         },
         capitalizeFirstLetter(level) {
             return level.charAt(0).toUpperCase() + level.slice(1);
@@ -173,6 +203,8 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            studiesSourceType: state => state.studies.sourceType,
+            studiesRemoteSource: state => state.studies.remoteSource,
             ohifDataSource: state => state.configuration.ohifDataSource,
             installedPlugins: state => state.configuration.installedPlugins,
             targetDicomWebServers: state => state.configuration.targetDicomWebServers,
@@ -191,7 +223,7 @@ export default {
             }
         },
         hasSendTo() {
-            return this.uiOptions.EnableSendTo &&
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableSendTo &&
                 (this.hasSendToDicomWeb || this.hasSendToPeers || this.hasSendToDicomModalities || this.hasSendToPeersWithTransfer);
         },
         isSendToEnabled() {
@@ -202,7 +234,8 @@ export default {
             }
         },
         hasLabelsButton() {
-            return this.uiOptions.EnableEditLabels && this.resourceLevel == 'bulk';
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC &&
+                this.uiOptions.EnableEditLabels && this.resourceLevel == 'bulk';
         },
         isLabelsEnabled() {
             if (this.resourceLevel == 'bulk') {
@@ -210,6 +243,10 @@ export default {
             } else {
                 return false;
             }
+        },
+        hasDeleteButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
+                this.uiOptions.EnableDeleteResources;
         },
         isDeleteEnabled() {
             if (this.resourceLevel == 'bulk') {
@@ -219,7 +256,8 @@ export default {
             }
         },
         hasShareButton() {
-            return (this.uiOptions.EnableShares && "authorization" in this.installedPlugins && ['bulk', 'study'].includes(this.resourceLevel));
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
+                (this.uiOptions.EnableShares && "authorization" in this.installedPlugins && ['bulk', 'study'].includes(this.resourceLevel));
         },
         isShareEnabled() {
             if (this.resourceLevel == 'bulk') {
@@ -229,9 +267,14 @@ export default {
             }
         },
         hasAddSeriesButton() {
-            return (this.uiOptions.EnableAddSeries && this.resourceLevel == 'study');
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
+                (this.uiOptions.EnableAddSeries && this.resourceLevel == 'study');
         },
         hasWsiButton() {
+            if (this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
+                return false;
+            }
+            
             if (this.resourceLevel != 'series' || !this.hasWsiViewer) {
                 return false;
             }
@@ -244,28 +287,28 @@ export default {
             return api.getWsiViewerUrl(this.resourceOrthancId);
         },
         hasSendToPeers() {
-            return this.orthancPeers.length > 0;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.orthancPeers.length > 0;
         },
         hasSendToPeersWithTransfer() {
-            return this.hasSendToPeers && ("transfers" in this.installedPlugins);
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.hasSendToPeers && ("transfers" in this.installedPlugins);
         },
         hasSendToDicomWeb() {
-            return this.targetDicomWebServers.length > 0;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.targetDicomWebServers.length > 0;
         },
         hasSendToDicomModalities() {
-            return this.targetDicomModalities.length > 0;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.targetDicomModalities.length > 0;
         },
         hasOsimisViewer() {
-            return "osimis-web-viewer" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "osimis-web-viewer" in this.installedPlugins;
         },
         osimisViewerUrl() {
             return api.getOsimisViewerUrl(this.resourceLevel, this.resourceOrthancId);
         },
         hasWsiViewer() {
-            return "wsi" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "wsi" in this.installedPlugins;
         },
         hasStoneViewer() {
-            return "stone-webviewer" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "stone-webviewer" in this.installedPlugins;
         },
         stoneViewerUrl() {
             if (this.resourceLevel == 'bulk') {
@@ -277,7 +320,8 @@ export default {
             }
         },
         hasStoneViewerButton() {
-            return this.hasStoneViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
+                this.hasStoneViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isStoneViewerButtonEnabled() {
             return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
@@ -289,7 +333,7 @@ export default {
             return api.getVolViewUrl(this.resourceLevel, this.resourceOrthancId);
         },
         hasVolViewButton() {
-            return this.hasVolView && (this.resourceLevel == 'study' || this.resourceLevel == 'series');
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.hasVolView && (this.resourceLevel == 'study' || this.resourceLevel == 'series');
         },
         isVolViewButtonEnabled() {
             return (this.resourceLevel == 'study' || this.resourceLevel == 'series');
@@ -298,7 +342,7 @@ export default {
             return this.uiOptions.EnableOpenInOhifViewer || this.uiOptions.EnableOpenInOhifViewer3;
         },
         hasOhifViewerButton() { // Basic viewer
-            if (!this.uiOptions.ViewersOrdering.includes("ohif")) {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif") || this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
                 return false;
             }
 
@@ -318,7 +362,7 @@ export default {
             }
         },
         hasOhifViewerButtonVr() {
-            if (!this.uiOptions.ViewersOrdering.includes("ohif-vr")) {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-vr") || this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
                 return false;
             }
 
@@ -336,7 +380,7 @@ export default {
             }
         },
         hasOhifViewerButtonTmtv() {
-            if (!this.uiOptions.ViewersOrdering.includes("ohif-tmtv")) {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-tmtv") || this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
                 return false;
             }
 
@@ -354,7 +398,7 @@ export default {
             }
         },
         hasOhifViewerButtonSeg() {
-            if (!this.uiOptions.ViewersOrdering.includes("ohif-seg")) {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-seg") || this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
                 return false;
             }
 
@@ -380,7 +424,7 @@ export default {
             }
         },
         hasOhifViewerButtonMicroscopy() {
-            if (!this.uiOptions.ViewersOrdering.includes("ohif-micro")) {
+            if (!this.uiOptions.ViewersOrdering.includes("ohif-micro") || this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
                 return false;
             }
             
@@ -447,7 +491,7 @@ export default {
             }
         },
         hasMedDreamViewer() {
-            return this.uiOptions.EnableOpenInMedDreamViewer;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableOpenInMedDreamViewer;
         },
         hasMedDreamViewerButton() {
             return this.hasMedDreamViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
@@ -459,11 +503,14 @@ export default {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
         isPdfPreview() {
-            if (this.resourceLevel == 'instance') {
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
                 return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
             } else {
                 return false;
             }
+        },
+        hasInstancePreviewButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance';
         },
         instancePreviewUrl() {
             if (this.isPdfPreview) {
@@ -471,6 +518,10 @@ export default {
             } else {
                 return api.getInstancePreviewUrl(this.resourceOrthancId);
             }
+        },
+        hasInstanceDownloadButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
+                this.uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance';
         },
         instanceDownloadUrl() {
             return api.getInstanceDownloadUrl(this.resourceOrthancId);
@@ -538,19 +589,40 @@ export default {
             }
             return texts[this.resourceLevel];
         },
-        isBulkDownloadZipEnabled() {
+        hasDownloadZipButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadZip && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk';
+        },
+        hasBulkDownloadZipButton() {
             if (this.system.ApiVersion < 22) // the /tools/create-archive GET route has been introduced in 1.12.2
             {
                 return false;
             }
-            return this.uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk'
         },
-        isBulkDownloadDicomDirEnabled() {
+        isBulkDownloadZipEnabled() {
+            return this.selectedStudiesIds.length > 0;
+        },
+        hasDownloadDicomDirButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk';
+        },
+        hasBulkDownloadDicomDirButton() {
             if (this.system.ApiVersion < 22) // the /tools/create-media GET route has been introduced in 1.12.2
             {
                 return false;
             }
-            return this.uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk'
+        },
+        isBulkDownloadDicomDirEnabled() {
+            return this.selectedStudiesIds.length > 0;
+        },
+        hasRetrieveButton() {
+            return this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB;
+        },
+        isRetrieveButtonEnabled() {
+            return (this.resourceLevel != 'bulk' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+        },
+        hasAnonymizationButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel != 'bulk';
         },
         isAnonymizationEnabled() {
             if (this.resourceLevel == "study" || this.resourceLevel == "series") {
@@ -559,12 +631,18 @@ export default {
                 return false;
             }
         },
+        hasModificationButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel != 'bulk';
+        },
         isModificationEnabled() {
             if (this.resourceLevel == "study" || this.resourceLevel == "series") {
                 return this.uiOptions.EnableModification;
             } else {
                 return false;
             }
+        },
+        hasApiViewButton() {
+            return  this.resourceLevel != 'bulk' && this.studiesSourceType == SourceType.LOCAL_ORTHANC
         },
         resourcesOrthancId() {
             if (this.resourceLevel == 'bulk') {
@@ -659,7 +737,7 @@ export default {
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
             </span>
-            <TokenLinkButton v-if="this.resourceLevel == 'instance'"
+            <TokenLinkButton v-if="hasInstancePreviewButton"
                 :iconClass="'bi bi-binoculars'" :level="this.resourceLevel" :linkUrl="instancePreviewUrl"
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('preview')"
                 :tokenType="'download-instant-link'" :opensInNewTab="true">
@@ -672,51 +750,51 @@ export default {
             </TokenLinkButton>
         </div>
         <div class="btn-group">
-            <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk'"
+            <TokenLinkButton v-if="hasDownloadZipButton"
                 :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="downloadZipUrl"
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')" :tokenType="'download-instant-link'">
             </TokenLinkButton>
-            <TokenLinkButton v-if="uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk'"
+            <TokenLinkButton v-if="hasBulkDownloadZipButton"
                 :iconClass="'bi bi-download'" :level="'bulk-study'" :linkUrl="downloadBulkZipUrl"
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')" :tokenType="'download-instant-link'"
                 :disabled="!isBulkDownloadZipEnabled">
             </TokenLinkButton>
-            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk'"
+            <TokenLinkButton v-if="hasDownloadDicomDirButton"
                 :iconClass="'bi bi-box-arrow-down'" :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl"
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicomdir')"
                 :tokenType="'download-instant-link'">
             </TokenLinkButton>
-            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk'"
+            <TokenLinkButton v-if="hasBulkDownloadDicomDirButton"
                 :iconClass="'bi bi-box-arrow-down'" :level="'bulk-study'" :linkUrl="downloadBulkDicomDirUrl"
                 :resourcesOrthancId="resourcesOrthancId" :title="$t('download_dicomdir')" :tokenType="'download-instant-link'"
                 :disabled="!isBulkDownloadDicomDirEnabled">
             </TokenLinkButton>
-            <TokenLinkButton v-if="uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance'"
+            <TokenLinkButton v-if="hasInstanceDownloadButton"
                 :iconClass="'bi bi-download'" :level="this.resourceLevel" :linkUrl="instanceDownloadUrl"
                 :resourcesOrthancId="[resourceOrthancId]" :title="$t('download_dicom_file')"
                 :tokenType="'download-instant-link'">
             </TokenLinkButton>
         </div>
         <div class="btn-group" >
-            <button v-if="uiOptions.EnableDeleteResources" class="btn btn-sm btn-secondary m-1" type="button"
+            <button v-if="hasDeleteButton" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId" :disabled="!isDeleteEnabled">
                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')" ></i>
             </button>
-            <Modal v-if="uiOptions.EnableDeleteResources" :id="'delete-modal-' + this.resourceOrthancId"
+            <Modal v-if="hasDeleteButton" :id="'delete-modal-' + this.resourceOrthancId"
                 :headerText="$t(this.deleteResourceTitle) + ' ' + this.resourceTitle" :okText="$t('delete')"
                 :cancelText="$t('cancel')" :bodyText="$t(this.deleteResourceBody)" @ok="deleteResource($event)">
             </Modal>
         </div>
-        <div class="btn-group">
-            <button v-if="hasShareButton" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+        <div v-if="hasShareButton" class="btn-group">
+            <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId" :disabled="!isShareEnabled">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
-            <ShareModal v-if="hasShareButton" :id="'share-modal-' + this.resourceOrthancId"
+            <ShareModal :id="'share-modal-' + this.resourceOrthancId"
                 :orthancId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"></ShareModal>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
+        <div v-if="hasModificationButton" class="btn-group">
             <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
@@ -726,7 +804,7 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="false"></ModifyModal>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
+        <div v-if="hasAnonymizationButton" class="btn-group">
             <button v-if="isAnonymizationEnabled" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId">
                 <i class="bi bi-person-slash" data-bs-toggle="tooltip" :title="$t('modify.anonymize_button_title')"></i>
@@ -736,27 +814,26 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="true"></ModifyModal>
         </div>
-        <div class="btn-group" >
-            <button v-if="hasAddSeriesButton" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+        <div v-if="hasAddSeriesButton" class="btn-group" >
+            <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#add-series-modal-' + this.resourceOrthancId">
                 <i class="bi bi-file-earmark-plus" data-bs-toggle="tooltip" :title="$t('add_series.button_title')"></i>
             </button>
-            <AddSeriesModal v-if="hasAddSeriesButton" :id="'add-series-modal-' + this.resourceOrthancId"
+            <AddSeriesModal :id="'add-series-modal-' + this.resourceOrthancId"
                 :orthancStudyId="this.resourceOrthancId" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags"></AddSeriesModal>
         </div>
 
 
-        <div class="btn-group" v-if="this.resourceLevel != 'bulk'">
+        <div class="btn-group" v-if="hasApiViewButton">
             <div class="dropdown">
-                <button v-if="uiOptions.EnableApiViewMenu" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
+                <button class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle"
                     type="button" id="apiDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
                     <span data-bs-toggle="tooltip" title="API">
                         <i class="bi bi-code-slash"></i>
                     </span>
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="apiDropdownMenuId"
-                    v-if="uiOptions.EnableApiViewMenu">
+                <ul class="dropdown-menu" aria-labelledby="apiDropdownMenuId">
                     <li>
                         <button class="dropdown-item" href="#" @click="copyIdToClipboard">{{ $t('copy_orthanc_id')
                         }}</button>
@@ -863,6 +940,12 @@ export default {
                     </li>
                 </ul>
             </div>
+        </div>
+        <div v-if="hasRetrieveButton" class="btn-group" >
+            <button class="btn btn-sm btn-secondary m-1" type="button"
+                :disabled="!isRetrieveButtonEnabled" @click="retrieve">
+                <i class="bi bi-box-arrow-in-down" data-bs-toggle="tooltip" :title="$t('retrieve')" ></i>
+            </button>
         </div>
     </div>
 </template>

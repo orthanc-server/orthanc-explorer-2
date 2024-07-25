@@ -159,6 +159,7 @@
     },
     "preview": "Aperçu",
     "profile": "Profil",
+    "retrieve": "Rapatrier",
     "retrieve_and_view": {
         "finding_locally": "Recherche de l'examen en local.",
         "finding_remotely": "Recherche de l'examen dans les modalités DICOM.",
@@ -166,6 +167,8 @@
         "retrieved_html": "<strong>{count}</strong> instances récupérées.",
         "retrieving": "L'examen est en cours de récupération."
     },
+    "remote_dicom_browsing": "Vous explorez actuellement le contenu du noeud <strong>DICOM</strong> <strong>{source}</strong>",
+    "remote_dicom_web_browsing": "Vous explorez actuellement le contenu du serveur <strong>DICOMWeb</strong> <strong>{source}</strong>",
     "save": "Enregistrer",
     "searching": "Recherche...",
     "select_files": "Choisir des fichiers",
@@ -235,6 +238,9 @@
     "this_patient_has_no_other_studies": "Ce patient n'a pas d'autres examens.",
     "this_patient_has_other_studies": "Ce patient a {count} examens au total.",
     "this_patient_has_other_studies_show": "Les afficher !",
+    "this_remote_patient_has_local_studies": "Ce patient a déjà {count} examens stockés en local.",
+    "this_study_is_already_stored_locally": "Cet examen est déjà stocké en local.",
+    "this_study_is_already_stored_locally_show": "L'afficher !",
     "token": {
         "error_token_expired_html": "Votre lien a expiré.",
         "error_token_invalid_html": "Votre lien n'est pas valide.<br/>Vérifiez que vous l'avez collé complètement ou contactez la personne qui vous l'a fourni.",

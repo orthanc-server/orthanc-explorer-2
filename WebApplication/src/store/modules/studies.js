@@ -1,4 +1,6 @@
 import api from "../../orthancApi"
+import SourceType from "../../helpers/source-type";
+
 
 const _clearedFilter = {
     StudyDate : "",
@@ -20,7 +22,9 @@ const state = () => ({
     statistics: {},
     isSearching: false,
     selectedStudiesIds: [],
-    selectedStudies: []
+    selectedStudies: [],
+    sourceType: SourceType.LOCAL_ORTHANC,
+    remoteSource: null,
 })
 
 function insert_wildcards(initialValue) {
@@ -105,6 +109,10 @@ const mutations = {
             state.labelsFilter.push(f);
         }
     },
+    setSource(state, { sourceType, remoteSource }) {
+        state.sourceType = sourceType;
+        state.remoteSource = remoteSource;
+    },
     deleteStudy(state, {studyId}) {
         const pos = state.studiesIds.indexOf(studyId);
         if (pos >= 0) {
@@ -177,6 +185,11 @@ const actions = {
         const labels = payload['labels'];
         commit('setLabelsFilter', { labels })
     },
+    async updateSource({ commit }, payload) {
+        const sourceType = payload['source-type'];
+        const remoteSource = payload['remote-source'];
+        commit('setSource', { sourceType, remoteSource });
+    },
     async clearFilter({ commit, state }) {
         commit('clearFilter');
 
@@ -196,8 +209,33 @@ const actions = {
         if (!getters.isFilterEmpty) {
             try {
                 commit('setIsSearching', { isSearching: true});
-                let studies = (await api.findStudies(getters.filterQuery, state.labelsFilter, "All"));
-                studies.sort((a, b) => (a.MainDicomTags.StudyDate ?? "") < (b.MainDicomTags.StudyDate ?? "") ? 1 : -1)
+                let studies = [];
+
+                if (state.sourceType == SourceType.LOCAL_ORTHANC) {
+                    studies = (await api.findStudies(getters.filterQuery, state.labelsFilter, "All"));
+                    studies.sort((a, b) => (a.MainDicomTags.StudyDate ?? "") < (b.MainDicomTags.StudyDate ?? "") ? 1 : -1);
+                } else if (state.sourceType == SourceType.REMOTE_DICOM) {
+                    // make sure to fill all columns of the StudyList
+                    let filters = {
+                        "PatientBirthDate": "",
+                        "PatientID": "",
+                        "AccessionNumber": "",
+                        "ModalitiesInStudy": "",
+                        "NumberOfStudyRelatedSeries": "",
+                        "PatientBirthDate": "",
+                        "StudyDescription": "",
+                        "StudyDate": ""
+                    };
+                    // overwrite with the filtered values
+                    for (const [k, v] of Object.entries(getters.filterQuery)) {
+                        filters[k] = v;
+                    }
+                    let remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
+                    // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
+                    studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
+                }
+
+                studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
                 let studiesIds = studies.map(s => s['ID']);
                 commit('setStudiesIds', { studiesIds: studiesIds });
                 commit('setStudies', { studies: studies });

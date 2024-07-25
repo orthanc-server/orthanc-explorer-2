@@ -2,6 +2,9 @@ Pending changes in the mainline
 ===============================
 
 Changes:
+  - Refactored the Remote Study List when browsing DICOM Modalities.  It is now identical to the main
+    local study list with a reduced list of actions (only the retrieve action is available).
+    - the /ui/app/#/filtered-remote-studies has been replaced by /ui/app/#/filtered-studies?source-type=dicom&remote-source=...
   - Authorization tokens can be provided in the URL as query args e.g: http://localhost:8042/ui/app/?token=my-token
     or /ui/app/filtered-studies?StudyDescription=PET&token=my-token  and these tokens will be included as HTTP headers 
     in all requests issued by OE2.  Note that the query args must be positioned before the '#' in the URL.

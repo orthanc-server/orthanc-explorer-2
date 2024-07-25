@@ -9,6 +9,7 @@ therefore, it overrides all other definitions */
     --study-hover-color:  rgb(100, 98, 95);
     --study-selected-color: rgb(40, 40, 45);
     --study-details-bg-color: var(--study-selected-color);
+    --study-list-remote-bg-color: var(--study-hover-color);
 
     --series-even-bg-color: rgb(45, 45, 50);
     --series-odd-bg-color: rgb(35, 35, 40);

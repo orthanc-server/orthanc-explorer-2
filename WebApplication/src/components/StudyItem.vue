@@ -5,6 +5,7 @@ import { mapState } from "vuex"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
 import dateHelpers from "../helpers/date-helpers"
+import SourceType from '../helpers/source-type';
 
 export default {
     props: ["studyId"],
@@ -83,6 +84,7 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             studies: state => state.studies.studies,
+            studiesSourceType: state => state.studies.sourceType,
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
             allLabels: state => state.labels.allLabels
         }),
@@ -90,7 +92,11 @@ export default {
             return this.study.RequestedTags.ModalitiesInStudy.split('\\').join(',');
         },
         showLabels() {
-            return !this.expanded && ((this.allLabels && this.allLabels.length > 0));
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+                return !this.expanded && ((this.allLabels && this.allLabels.length > 0));
+            } else {
+                return false;
+            }
         },
         hasLabels() {
             return this.study && this.study.Labels && this.study.Labels.length > 0;
@@ -100,6 +106,15 @@ export default {
         },
         formatedStudyDate() {
             return dateHelpers.formatDateForDisplay(this.study.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
+        },
+        seriesCount() {
+            if (this.study.sourceType == SourceType.LOCAL_ORTHANC) {
+                return this.study.Series.length;
+            } else if (this.study.sourceType == SourceType.REMOTE_DICOM) {
+                return this.study.MainDicomTags.NumberOfStudyRelatedSeries;
+            } else {
+                console.log("TODO");
+            }
         }
     },
     components: { SeriesList, StudyDetails }
@@ -140,7 +155,7 @@ export default {
                     v-bind:title="modalitiesInStudyForDisplay">{{
                         modalitiesInStudyForDisplay }}
                 </span>
-                <span v-else-if="columnTag == 'seriesCount'">{{ study.Series.length }}
+                <span v-else-if="columnTag == 'seriesCount'">{{ seriesCount }}
                 </span>
                 <span v-else>{{ study.MainDicomTags[columnTag] }}
                 </span>

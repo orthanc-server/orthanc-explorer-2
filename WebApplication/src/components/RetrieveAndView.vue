@@ -25,7 +25,7 @@ export default {
         if (study == null) {
             this.state = "finding-remotely";
 
-            const remoteStudies = await api.remoteDicomFindStudies(modality, {"StudyInstanceUID": this.studyInstanceUid});
+            const remoteStudies = await api.remoteDicomFind("Study", modality, {"StudyInstanceUID": this.studyInstanceUid}, true /* isUnique */);
             if (remoteStudies.length == 0) {
                 this.state = "not-found";
             } else {
@@ -34,7 +34,7 @@ export default {
                         "StudyInstanceUID": this.studyInstanceUid
                     };
 
-                    const jobId = await api.remoteDicomRetrieveStudy(modality, moveQuery, this.system.DicomAet, "Study");
+                    const jobId = await api.remoteDicomRetrieveResource("Study", modality, moveQuery, this.system.DicomAet);
                     this.state = "retrieving";
                     this.startMonitoringJob(jobId);
                 }                

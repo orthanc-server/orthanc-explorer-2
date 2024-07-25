@@ -6,13 +6,15 @@ import LanguagePicker from "./LanguagePicker.vue";
 import { mapState } from "vuex"
 import { orthancApiUrl, oe2ApiUrl } from "../globalConfigurations";
 import api from "../orthancApi"
+import SourceType from "../helpers/source-type";
+
 
 export default {
     props: [],
     emits: [],
     data() {
         return {
-            selectedModality: null,
+            // selectedModality: null,
             selectedLabel: null,
             modalitiesEchoStatus: {}
         };
@@ -31,6 +33,8 @@ export default {
             allLabels: state => state.labels.allLabels,
             hasCustomLogo: state => state.configuration.hasCustomLogo,
             configuration: state => state.configuration,
+            studiesSourceType: state => state.studies.sourceType,
+            studiesRemoteSource: state => state.studies.remoteSource,
         }),
         customLogoUrl() {
             if (this.hasCustomLogo && this.configuration.customLogoUrl) {
@@ -68,11 +72,12 @@ export default {
         },
     },
     methods: {
-        selectModality(modality) {
-            this.selectedModality = modality;
-        },
+        // selectModality(modality) {
+        //     this.selectedModality = modality;
+        // },
         isSelectedModality(modality) {
-            return this.selectedModality === modality;
+            // return this.selectedModality === modality;
+            return this.studiesSourceType == SourceType.REMOTE_DICOM && this.studiesRemoteSource == modality;
         },
         isEchoRunning(modality) {
             return this.modalitiesEchoStatus[modality] == null;
@@ -179,9 +184,9 @@ export default {
                     </li>
                     <ul class="sub-menu collapse" id="modalities-list" ref="modalities-collapsible">
                         <li v-for="modality in queryableDicomModalities" :key="modality"
-                            v-bind:class="{ 'active': this.isSelectedModality(modality) }" @click="selectModality(modality)">
+                            v-bind:class="{ 'active': this.isSelectedModality(modality) }">
                             <router-link class="router-link"
-                                :to="{ path: '/filtered-remote-studies', query: { remoteMode: 'dicom', remoteSource: modality } }">
+                                :to="{ path: '/filtered-studies', query: { 'source-type': 'dicom', 'remote-source': modality } }">
                                 {{ modality }}
                             </router-link>
                             <span v-if="this.isEchoRunning(modality)" class="ms-auto spinner-border spinner-border-sm"

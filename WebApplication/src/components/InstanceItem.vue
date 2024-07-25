@@ -42,8 +42,6 @@ export default {
             this.$emit('deletedInstance', instanceId);
         }
     },
-    computed: {
-    },
     components: { InstanceDetails }
 }
 </script>

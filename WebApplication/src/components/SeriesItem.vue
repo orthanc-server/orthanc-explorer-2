@@ -1,6 +1,9 @@
 <script>
 import SeriesDetails from "./SeriesDetails.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import { mapState, mapGetters } from "vuex"
+import SourceType from '../helpers/source-type';
+
 
 export default {
     props: ["seriesId", "seriesInfo", 'studyMainDicomTags', 'patientMainDicomTags'],
@@ -12,8 +15,21 @@ export default {
             collapseElement: null
         };
     },
+    computed: {
+        ...mapState({
+            studiesSourceType: state => state.studies.sourceType,
+        }),
+        instancesCount() {
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+                return this.seriesInfo.Instances.length;
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
+                return this.seriesInfo.MainDicomTags.NumberOfSeriesRelatedInstances;
+            } else {
+                console.log("TODO");
+            }
+        }
+    },
     mounted() {
-
         this.$refs['series-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
             if (e.target == e.currentTarget) {
                 this.expanded = true;
@@ -40,8 +56,6 @@ export default {
         onDeletedSeries() {
             this.$emit("deletedSeries", this.seriesId);
         }
-    },
-    computed: {
     },
     components: { SeriesDetails }
 }
@@ -76,7 +90,7 @@ export default {
                 class="cut-text text-center"
                 data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#series-details-' + this.seriesId"
-            >{{ seriesInfo.Instances.length }}</td>
+            >{{ instancesCount }}</td>
         </tr>
         <tr
             class="collapse"

@@ -4,6 +4,8 @@ import InstanceList from "./InstanceList.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
 import { mapState, mapGetters } from "vuex"
 import api from "../orthancApi";
+import SourceType from '../helpers/source-type';
+
 
 export default {
     props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'instancesIds'],
@@ -18,10 +20,29 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            studiesSourceType: state => state.studies.sourceType,
+            studiesRemoteSource: state => state.studies.remoteSource,
         }),
     },
     async mounted() {
-        this.seriesInstances = await api.getSeriesInstances(this.seriesId);
+        if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+            this.seriesInstances = await api.getSeriesInstances(this.seriesId);
+        } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
+            let remoteInstances = (await api.remoteDicomFind("Instance", this.studiesRemoteSource, {
+                    "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
+                    "PatientID": this.patientMainDicomTags.PatientID,
+                    "SeriesInstanceUID": this.seriesMainDicomTags.SeriesInstanceUID,
+                    "SOPInstanceUID": "",
+                    "InstanceNumber": "",
+                    "NumberOfFrames": ""
+                },
+                false /* isUnique */));
+            this.seriesInstances = remoteInstances.map(s => { return {
+                "ID": s["SOPInstanceUID"],
+                "MainDicomTags": s
+            }})
+            this.seriesInstances = this.seriesInstances.sort((a, b) => (parseInt(a.MainDicomTags.InstanceNumber) ?? a.MainDicomTags.SOPInstanceUID) < (parseInt(b.MainDicomTags.InstanceNumber) ?? b.MainDicomTags.SOPInstanceUID) ? 1 : -1);
+        }
     },
     components: { ResourceButtonGroup, InstanceList, ResourceDetailText },
     methods: {

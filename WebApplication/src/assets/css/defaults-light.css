@@ -10,6 +10,7 @@ a CustomCssPath, the custom file will be loaded after this one*/
     --study-hover-color: rgb(60, 180, 255);
     --study-selected-color: rgb(235, 235, 235);
     --study-details-bg-color: var(--study-selected-color);
+    --study-list-remote-bg-color: var(--study-hover-color);
 
     --series-even-bg-color: rgb(240, 240, 240);
     --series-odd-bg-color: rgb(235, 235, 235);
