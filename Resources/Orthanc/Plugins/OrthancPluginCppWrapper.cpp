@@ -2,7 +2,8 @@
  * Orthanc - A Lightweight, RESTful DICOM Store
  * Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
  * Department, University Hospital of Liege, Belgium
- * Copyright (C) 2017-2024 Osimis S.A., Belgium
+ * Copyright (C) 2017-2023 Osimis S.A., Belgium
+ * Copyright (C) 2024-2024 Orthanc Team SRL, Belgium
  * Copyright (C) 2021-2024 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
  *
  * This program is free software: you can redistribute it and/or
@@ -61,6 +62,7 @@ static const OrthancPluginErrorCode OrthancPluginErrorCode_NullPointer = Orthanc
 namespace OrthancPlugins
 {
   static OrthancPluginContext* globalContext_ = NULL;
+  static std::string pluginName_;
 
 
   void SetGlobalContext(OrthancPluginContext* context)
@@ -79,9 +81,19 @@ namespace OrthancPlugins
     }
   }
 
+
+  void SetGlobalContext(OrthancPluginContext* context,
+                        const char* pluginName)
+  {
+    SetGlobalContext(context);
+    pluginName_ = pluginName;
+  }
+
+
   void ResetGlobalContext()
   {
     globalContext_ = NULL;
+    pluginName_.clear();
   }
 
   bool HasGlobalContext()
@@ -99,6 +111,66 @@ namespace OrthancPlugins
     else
     {
       return globalContext_;
+    }
+  }
+
+
+#if HAS_ORTHANC_PLUGIN_LOG_MESSAGE == 1
+  void LogMessage(OrthancPluginLogLevel level,
+                  const char* file,
+                  uint32_t line,
+                  const std::string& message)
+  {
+    if (HasGlobalContext())
+    {
+#if HAS_ORTHANC_PLUGIN_LOG_MESSAGE == 1
+      const char* pluginName = (pluginName_.empty() ? NULL : pluginName_.c_str());
+      OrthancPluginLogMessage(GetGlobalContext(), message.c_str(), pluginName, file, line, OrthancPluginLogCategory_Generic, level);
+#else
+      switch (level)
+      {
+        case OrthancPluginLogLevel_Error:
+          OrthancPluginLogError(GetGlobalContext(), message.c_str());
+          break;
+
+        case OrthancPluginLogLevel_Warning:
+          OrthancPluginLogWarning(GetGlobalContext(), message.c_str());
+          break;
+
+        case OrthancPluginLogLevel_Info:
+          OrthancPluginLogInfo(GetGlobalContext(), message.c_str());
+          break;
+
+        default:
+          ORTHANC_PLUGINS_THROW_EXCEPTION(ParameterOutOfRange);
+      }
+#endif
+    }
+  }
+#endif
+
+
+  void LogError(const std::string& message)
+  {
+    if (HasGlobalContext())
+    {
+      OrthancPluginLogError(GetGlobalContext(), message.c_str());
+    }
+  }
+
+  void LogWarning(const std::string& message)
+  {
+    if (HasGlobalContext())
+    {
+      OrthancPluginLogWarning(GetGlobalContext(), message.c_str());
+    }
+  }
+
+  void LogInfo(const std::string& message)
+  {
+    if (HasGlobalContext())
+    {
+      OrthancPluginLogInfo(GetGlobalContext(), message.c_str());
     }
   }
 
@@ -233,7 +305,7 @@ namespace OrthancPlugins
 
     if (!ReadJson(target, buffer_.data, buffer_.size))
     {
-      LogError("Cannot convert some memory buffer to JSON");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot convert some memory buffer to JSON");
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
   }
@@ -265,7 +337,7 @@ namespace OrthancPlugins
     explicit PluginHttpHeaders(const std::map<std::string, std::string>& httpHeaders)
     {
       for (std::map<std::string, std::string>::const_iterator
-           it = httpHeaders.begin(); it != httpHeaders.end(); ++it)
+             it = httpHeaders.begin(); it != httpHeaders.end(); ++it)
       {
         headersKeys_.push_back(it->first.c_str());
         headersValues_.push_back(it->second.c_str());
@@ -404,7 +476,7 @@ namespace OrthancPlugins
     }
     else
     {
-      LogError("Cannot parse JSON: " + std::string(err));
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot parse JSON: " + std::string(err));
       return false;
     }
 #endif
@@ -565,13 +637,13 @@ namespace OrthancPlugins
   {
     if (str_ == NULL)
     {
-      LogError("Cannot convert an empty memory buffer to JSON");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot convert an empty memory buffer to JSON");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
     if (!ReadJson(target, str_))
     {
-      LogError("Cannot convert some memory buffer to JSON");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot convert some memory buffer to JSON");
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
   }
@@ -581,13 +653,13 @@ namespace OrthancPlugins
   {
     if (str_ == NULL)
     {
-      LogError("Cannot convert an empty memory buffer to JSON");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot convert an empty memory buffer to JSON");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
     if (!ReadJsonWithoutComments(target, str_))
     {
-      LogError("Cannot convert some memory buffer to JSON");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot convert some memory buffer to JSON");
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
   }
@@ -625,7 +697,7 @@ namespace OrthancPlugins
 
     if (body.size() > 0xffffffffu)
     {
-      LogError("Cannot handle body size > 4GB");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot handle body size > 4GB");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
@@ -645,7 +717,7 @@ namespace OrthancPlugins
 
     if (body.size() > 0xffffffffu)
     {
-      LogError("Cannot handle body size > 4GB");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot handle body size > 4GB");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
@@ -688,34 +760,6 @@ namespace OrthancPlugins
     }
   }
 
-
-  void LogError(const std::string& message)
-  {
-    if (HasGlobalContext())
-    {
-      OrthancPluginLogError(GetGlobalContext(), message.c_str());
-    }
-  }
-
-
-  void LogWarning(const std::string& message)
-  {
-    if (HasGlobalContext())
-    {
-      OrthancPluginLogWarning(GetGlobalContext(), message.c_str());
-    }
-  }
-
-
-  void LogInfo(const std::string& message)
-  {
-    if (HasGlobalContext())
-    {
-      OrthancPluginLogInfo(GetGlobalContext(), message.c_str());
-    }
-  }
-
-
   void OrthancConfiguration::LoadConfiguration()
   {
     OrthancString str;
@@ -723,7 +767,7 @@ namespace OrthancPlugins
 
     if (str.GetContent() == NULL)
     {
-      LogError("Cannot access the Orthanc configuration");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot access the Orthanc configuration");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
@@ -731,7 +775,7 @@ namespace OrthancPlugins
 
     if (configuration_.type() != Json::objectValue)
     {
-      LogError("Unable to read the Orthanc configuration");
+      ORTHANC_PLUGINS_LOG_ERROR("Unable to read the Orthanc configuration");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
   }
@@ -799,8 +843,8 @@ namespace OrthancPlugins
     {
       if (configuration_[key].type() != Json::objectValue)
       {
-        LogError("The configuration section \"" + target.path_ +
-                 "\" is not an associative array as expected");
+        ORTHANC_PLUGINS_LOG_ERROR("The configuration section \"" + target.path_ +
+                                  "\" is not an associative array as expected");
 
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
       }
@@ -822,8 +866,8 @@ namespace OrthancPlugins
 
     if (configuration_[key].type() != Json::stringValue)
     {
-      LogError("The configuration option \"" + GetPath(key) +
-               "\" is not a string as expected");
+      ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                "\" is not a string as expected");
 
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
@@ -854,8 +898,8 @@ namespace OrthancPlugins
         return true;
 
       default:
-        LogError("The configuration option \"" + GetPath(key) +
-                 "\" is not an integer as expected");
+        ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                  "\" is not an integer as expected");
 
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
@@ -873,8 +917,8 @@ namespace OrthancPlugins
 
     if (tmp < 0)
     {
-      LogError("The configuration option \"" + GetPath(key) +
-               "\" is not a positive integer as expected");
+      ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                "\" is not a positive integer as expected");
 
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
@@ -898,8 +942,8 @@ namespace OrthancPlugins
 
     if (configuration_[key].type() != Json::booleanValue)
     {
-      LogError("The configuration option \"" + GetPath(key) +
-               "\" is not a Boolean as expected");
+      ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                "\" is not a Boolean as expected");
 
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
@@ -934,8 +978,8 @@ namespace OrthancPlugins
         return true;
 
       default:
-        LogError("The configuration option \"" + GetPath(key) +
-                 "\" is not an integer as expected");
+        ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                  "\" is not an integer as expected");
 
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
@@ -994,8 +1038,8 @@ namespace OrthancPlugins
         break;
     }
 
-    LogError("The configuration option \"" + GetPath(key) +
-             "\" is not a list of strings as expected");
+    ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                              "\" is not a list of strings as expected");
 
     ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
   }
@@ -1115,8 +1159,8 @@ namespace OrthancPlugins
 
     if (configuration_[key].type() != Json::objectValue)
     {
-      LogError("The configuration option \"" + GetPath(key) +
-               "\" is not an object as expected");
+      ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                "\" is not an object as expected");
 
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
@@ -1133,8 +1177,8 @@ namespace OrthancPlugins
       }
       else
       {
-        LogError("The configuration option \"" + GetPath(key) +
-                 "\" is not a dictionary mapping strings to strings");
+        ORTHANC_PLUGINS_LOG_ERROR("The configuration option \"" + GetPath(key) +
+                                  "\" is not a dictionary mapping strings to strings");
 
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
       }
@@ -1156,7 +1200,7 @@ namespace OrthancPlugins
   {
     if (image_ == NULL)
     {
-      LogError("Trying to access a NULL image");
+      ORTHANC_PLUGINS_LOG_ERROR("Trying to access a NULL image");
       ORTHANC_PLUGINS_THROW_EXCEPTION(ParameterOutOfRange);
     }
   }
@@ -1182,7 +1226,7 @@ namespace OrthancPlugins
 
     if (image_ == NULL)
     {
-      LogError("Cannot create an image");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot create an image");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
   }
@@ -1199,7 +1243,7 @@ namespace OrthancPlugins
 
     if (image_ == NULL)
     {
-      LogError("Cannot create an image accessor");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot create an image accessor");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
   }
@@ -1213,7 +1257,7 @@ namespace OrthancPlugins
 
     if (image_ == NULL)
     {
-      LogError("Cannot uncompress a PNG image");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot uncompress a PNG image");
       ORTHANC_PLUGINS_THROW_EXCEPTION(ParameterOutOfRange);
     }
   }
@@ -1226,7 +1270,7 @@ namespace OrthancPlugins
     image_ = OrthancPluginUncompressImage(GetGlobalContext(), data, size, OrthancPluginImageFormat_Jpeg);
     if (image_ == NULL)
     {
-      LogError("Cannot uncompress a JPEG image");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot uncompress a JPEG image");
       ORTHANC_PLUGINS_THROW_EXCEPTION(ParameterOutOfRange);
     }
   }
@@ -1240,7 +1284,7 @@ namespace OrthancPlugins
     image_ = OrthancPluginDecodeDicomImage(GetGlobalContext(), data, size, frame);
     if (image_ == NULL)
     {
-      LogError("Cannot uncompress a DICOM image");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot uncompress a DICOM image");
       ORTHANC_PLUGINS_THROW_EXCEPTION(ParameterOutOfRange);
     }
   }
@@ -1654,13 +1698,13 @@ namespace OrthancPlugins
                                    unsigned int minor,
                                    unsigned int revision)
   {
-    LogError("Your version of the Orthanc core (" +
-             std::string(GetGlobalContext()->orthancVersion) +
-             ") is too old to run this plugin (version " +
-             boost::lexical_cast<std::string>(major) + "." +
-             boost::lexical_cast<std::string>(minor) + "." +
-             boost::lexical_cast<std::string>(revision) +
-             " is required)");
+    ORTHANC_PLUGINS_LOG_ERROR("Your version of the Orthanc core (" +
+                              std::string(GetGlobalContext()->orthancVersion) +
+                              ") is too old to run this plugin (version " +
+                              boost::lexical_cast<std::string>(major) + "." +
+                              boost::lexical_cast<std::string>(minor) + "." +
+                              boost::lexical_cast<std::string>(revision) +
+                              " is required)");
   }
 
   bool CheckMinimalVersion(const char* version,
@@ -1684,9 +1728,9 @@ namespace OrthancPlugins
     int aa, bb, cc = 0;
     if ((ORTHANC_SCANF(version, "%4d.%4d.%4d", &aa, &bb, &cc) != 3 &&
          ORTHANC_SCANF(version, "%4d.%4d", &aa, &bb) != 2) ||
-      aa < 0 ||
-      bb < 0 ||
-      cc < 0)
+        aa < 0 ||
+        bb < 0 ||
+        cc < 0)
     {
       return false;
     }
@@ -1740,7 +1784,7 @@ namespace OrthancPlugins
   {
     if (!HasGlobalContext())
     {
-      LogError("Bad Orthanc context in the plugin");
+      ORTHANC_PLUGINS_LOG_ERROR("Bad Orthanc context in the plugin");
       return false;
     }
 
@@ -1777,7 +1821,7 @@ namespace OrthancPlugins
     }
     else
     {
-      LogError("Inexistent peer: " + name);
+      ORTHANC_PLUGINS_LOG_ERROR("Inexistent peer: " + name);
       ORTHANC_PLUGINS_THROW_EXCEPTION(UnknownResource);
     }
   }
@@ -2061,7 +2105,7 @@ namespace OrthancPlugins
 
     if (body.size() > 0xffffffffu)
     {
-      LogError("Cannot handle body size > 4GB");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot handle body size > 4GB");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
@@ -2098,7 +2142,7 @@ namespace OrthancPlugins
 
     if (body.size() > 0xffffffffu)
     {
-      LogError("Cannot handle body size > 4GB");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot handle body size > 4GB");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
@@ -2464,7 +2508,7 @@ namespace OrthancPlugins
 
     if (id == NULL)
     {
-      LogError("Plugin cannot submit job");
+      ORTHANC_PLUGINS_LOG_ERROR("Plugin cannot submit job");
       OrthancPluginFreeJob(GetGlobalContext(), orthanc);
       ORTHANC_PLUGINS_THROW_PLUGIN_ERROR_CODE(OrthancPluginErrorCode_Plugin);
     }
@@ -2533,7 +2577,7 @@ namespace OrthancPlugins
           throw Orthanc::OrthancException(static_cast<Orthanc::ErrorCode>(status["ErrorCode"].asInt()),
                                           status["ErrorDescription"].asString());
 #else
-          LogError("Exception while executing the job: " + status["ErrorDescription"].asString());
+          ORTHANC_PLUGINS_LOG_ERROR("Exception while executing the job: " + status["ErrorDescription"].asString());
           ORTHANC_PLUGINS_THROW_PLUGIN_ERROR_CODE(status["ErrorCode"].asInt());          
 #endif
         }
@@ -2558,7 +2602,7 @@ namespace OrthancPlugins
       throw Orthanc::OrthancException(Orthanc::ErrorCode_BadFileFormat,
                                       "Expected a JSON object in the body");
 #else
-      LogError("Expected a JSON object in the body");
+      ORTHANC_PLUGINS_LOG_ERROR("Expected a JSON object in the body");
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
 #endif
     }
@@ -2574,7 +2618,7 @@ namespace OrthancPlugins
                                         "Option \"" + std::string(KEY_SYNCHRONOUS) +
                                         "\" must be Boolean");
 #else
-        LogError("Option \"" + std::string(KEY_SYNCHRONOUS) + "\" must be Boolean");
+        ORTHANC_PLUGINS_LOG_ERROR("Option \"" + std::string(KEY_SYNCHRONOUS) + "\" must be Boolean");
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
 #endif
       }
@@ -2593,7 +2637,7 @@ namespace OrthancPlugins
                                         "Option \"" + std::string(KEY_ASYNCHRONOUS) +
                                         "\" must be Boolean");
 #else
-        LogError("Option \"" + std::string(KEY_ASYNCHRONOUS) + "\" must be Boolean");
+        ORTHANC_PLUGINS_LOG_ERROR("Option \"" + std::string(KEY_ASYNCHRONOUS) + "\" must be Boolean");
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
 #endif
       }
@@ -2614,7 +2658,7 @@ namespace OrthancPlugins
                                         "Option \"" + std::string(KEY_PRIORITY) +
                                         "\" must be an integer");
 #else
-        LogError("Option \"" + std::string(KEY_PRIORITY) + "\" must be an integer");
+        ORTHANC_PLUGINS_LOG_ERROR("Option \"" + std::string(KEY_PRIORITY) + "\" must be an integer");
         ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
 #endif
       }
@@ -3135,7 +3179,7 @@ namespace OrthancPlugins
 
     if (body.size() > 0xffffffffu)
     {
-      LogError("Cannot handle body size > 4GB");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot handle body size > 4GB");
       ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
     }
 
@@ -3280,7 +3324,7 @@ namespace OrthancPlugins
     
     if (!ReadJson(answerBody, body))
     {
-      LogError("Cannot convert HTTP answer body to JSON");
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot convert HTTP answer body to JSON");
       ORTHANC_PLUGINS_THROW_EXCEPTION(BadFileFormat);
     }
   }
