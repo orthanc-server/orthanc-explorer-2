@@ -10,7 +10,7 @@
         "Root" : "/ui/",
 
         // Whether OE2 shall replace the default Orthanc Explorer interface ('/' URL will redirect to OE2)
-        "IsDefaultOrthancUI": false,
+        "IsDefaultOrthancUI": true,
 
         // Base theme for the UI (before custom CSS are applied).
         // Allowed values: "light", "dark"
@@ -99,7 +99,7 @@
             // Defines the order in which the viewer icons should appear in the interface
             // OHIF viewers modes that are not listed here, won't appear in the interface.
             "ViewersOrdering" : [
-                "osimis-web-viewer",
+                // "osimis-web-viewer",  // now deprecated
                 "stone-webviewer",
                 "ohif",
                 "ohif-vr",

@@ -1,7 +1,10 @@
-Pending changes in the mainline
-===============================
+1.5.2 (2024-08-02)
+==================
 
 Changes:
+  - POSSIBLE BREAKING CHANGE: the Osimis viewer button is not listed anymore by default.  In order
+    to re-enable it, you must provide it to the "UiOptions.ViewersOrdering" configuration.
+  - Orthanc Explorer 2 is now the default Orthanc UI when the plugin is installed.
   - Refactored the Remote Study List when browsing remote DICOM Modalities.  It is now identical to the main
     local study list with a reduced list of actions (only the retrieve action is available).
     - the /ui/app/#/filtered-remote-studies has been replaced by /ui/app/#/filtered-studies?source-type=dicom&remote-source=...
