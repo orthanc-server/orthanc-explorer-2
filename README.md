@@ -97,7 +97,7 @@ npm run build
 And then, to build the C++ plugin:
 ```
 cd /build
-cmake -DALLOW_DOWNLOADS=ON -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_ORTHANC_SDK=OFF /sources/orthanc-explorer-2/
+cmake -DWEBAPP_DIST_SOURCE=LOCAL -DALLOW_DOWNLOADS=ON -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_ORTHANC_SDK=OFF /sources/orthanc-explorer-2/
 make -j 4
 ```
 
@@ -112,7 +112,7 @@ npm run build
 cd ..
 mkdir build-lsb
 cd build-lsb
-LSB_CC=gcc-4.8 LSB_CXX=g++-4.8 cmake -DCMAKE_TOOLCHAIN_FILE=../Resources/Orthanc/Toolchains/LinuxStandardBaseToolchain.cmake -DALLOW_DOWNLOADS=ON -DSTATIC_BUILD=ON -DUSE_LEGACY_JSONCPP=ON ..
+LSB_CC=gcc-4.8 LSB_CXX=g++-4.8 cmake -DCMAKE_TOOLCHAIN_FILE=../Resources/Orthanc/Toolchains/LinuxStandardBaseToolchain.cmake -DALLOW_DOWNLOADS=ON -DSTATIC_BUILD=ON -DUSE_LEGACY_JSONCPP=ON -DWEBAPP_DIST_SOURCE=WEB ..
 make -j4
 ```
 
@@ -130,7 +130,7 @@ npm run build
 cd ..
 mkdir build-system
 cd build-system
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DORTHANC_FRAMEWORK_SOURCE=system -DUSE_SYSTEM_GOOGLE_TEST=OFF -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DORTHANC_FRAMEWORK_SOURCE=system -DUSE_SYSTEM_GOOGLE_TEST=OFF -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DWEBAPP_DIST_SOURCE=LOCAL
 make -j4
 ```
 

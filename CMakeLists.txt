@@ -44,13 +44,13 @@ endif()
 # Parameters of the build
 set(STATIC_BUILD OFF CACHE BOOL "Static build of the third-party libraries (necessary for Windows)")
 set(STANDALONE_BUILD ON CACHE BOOL "Standalone build (all the resources are embedded, necessary for releases)")
-set(ALLOW_DOWNLOADS OFF CACHE BOOL "Allow CMake to download packages")
+set(ALLOW_DOWNLOADS ON CACHE BOOL "Allow CMake to download packages")
 set(ORTHANC_FRAMEWORK_SOURCE "${ORTHANC_FRAMEWORK_DEFAULT_SOURCE}" CACHE STRING "Source of the Orthanc framework (can be \"system\", \"hg\", \"archive\", \"web\" or \"path\")")
 set(ORTHANC_FRAMEWORK_VERSION "${ORTHANC_FRAMEWORK_DEFAULT_VERSION}" CACHE STRING "Version of the Orthanc framework")
 set(ORTHANC_FRAMEWORK_ARCHIVE "" CACHE STRING "Path to the Orthanc archive, if ORTHANC_FRAMEWORK_SOURCE is \"archive\"")
 set(ORTHANC_FRAMEWORK_ROOT "" CACHE STRING "Path to the Orthanc source directory, if ORTHANC_FRAMEWORK_SOURCE is \"path\"")
 set(WEBAPP_DIST_PATH "${CMAKE_SOURCE_DIR}/WebApplication/dist" CACHE STRING "Path to the WebApplication/dist folder (the output of 'npm run build')")
-set(WEBAPP_DIST_SOURCE "WEB" CACHE STRING "Source for the WebApplication/dist folder ('LOCAL' = assume it is build localy, 'WEB' = download it from web)")
+set(WEBAPP_DIST_SOURCE "LOCAL" CACHE STRING "Source for the WebApplication/dist folder ('LOCAL' = assume it is build localy, 'WEB' = download it from web)")
 set(WEBAPP_DIST_VERSION "${PLUGIN_VERSION}" CACHE STRING "Version of WebApplication/dist folder to download")
 file(TO_CMAKE_PATH "${WEBAPP_DIST_PATH}" WEBAPP_DIST_PATH)
 
@@ -147,6 +147,7 @@ if (APPLE)
 endif()
 
 if (${WEBAPP_DIST_SOURCE} STREQUAL "WEB")
+  SET(WEBAPP_DIST_PATH "${CMAKE_BINARY_DIR}/dist")  # downloading the WEB version -> don't modify source folder
   if (${WEBAPP_DIST_VERSION} STREQUAL "mainline")
     set(WEBAPP_DIST_VERSION "master")  # the branch is named master, not mainline
   endif()
