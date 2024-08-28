@@ -3,8 +3,8 @@ import { parse, format, endOfMonth, endOfYear, startOfMonth, startOfYear, subMon
 document._datePickerPresetRanges = [
     { tLabel: 'date_picker.today', value: [new Date(), new Date()] },
     { tLabel: 'date_picker.yesterday', value: [subDays(new Date(), 1), subDays(new Date(), 1)] },
-    { tLabel: 'date_picker.this_week', value: [startOfWeek(new Date()), new Date()] },
-    { tLabel: 'date_picker.last_week', value: [startOfWeek(subDays(new Date(), 7)), endOfWeek(subDays(new Date(), 7))] },
+    { tLabel: 'date_picker.this_week', value: [startOfWeek(new Date(), { weekStartsOn: 1 }), new Date()] },
+    { tLabel: 'date_picker.last_week', value: [startOfWeek(subDays(new Date(), 7), { weekStartsOn: 1 }), endOfWeek(subDays(new Date(), 7), { weekStartsOn: 1 })] },
     { tLabel: 'date_picker.this_month', value: [startOfMonth(new Date()), endOfMonth(new Date())] },
     { tLabel: 'date_picker.last_month', value: [startOfMonth(subMonths(new Date(), 1)), endOfMonth(subMonths(new Date(), 1))] },
     { tLabel: 'date_picker.last_12_months', value: [subYears(new Date(), 1), new Date()] },

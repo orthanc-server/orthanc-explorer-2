@@ -4,6 +4,7 @@ Pending changes
 Fixes:
   - Fixed the "UiOptions.EnableApiView" that was not taken into account.  The API View button was always visible.
   - [Issue #65](https://github.com/orthanc-server/orthanc-explorer-2/issues/65) SeriesCount column is empty.
+  - [Issue #63](https://github.com/orthanc-server/orthanc-explorer-2/issues/63) This/last week selection in Date picker now starts on monday.
 
 
 1.6.0 (2024-08-02)
