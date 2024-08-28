@@ -112,10 +112,10 @@ export default {
             return dateHelpers.formatDateForDisplay(this.study.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
         },
         seriesCount() {
-            if (this.study.sourceType == SourceType.LOCAL_ORTHANC) {
-                return this.study.Series.length;
-            } else if (this.study.sourceType == SourceType.REMOTE_DICOM || this.study.sourceType == SourceType.REMOTE_DICOM_WEB) {
+            if (this.study.sourceType == SourceType.REMOTE_DICOM || this.study.sourceType == SourceType.REMOTE_DICOM_WEB) {
                 return this.study.MainDicomTags.NumberOfStudyRelatedSeries;
+            } else if (this.study.Series) {
+                return this.study.Series.length;
             }
         }
     },
