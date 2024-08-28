@@ -78,6 +78,7 @@
     "frames": "frames",
     "instance": "Instance",
     "instances": "Instances",
+    "instances_count_header": "# instances",
     "instances_number": "Number of instances",
     "labels": {
         "add_button": "Add",
@@ -182,6 +183,7 @@
     },
     "series": "Series",
     "series_count_header": "# series",
+    "series_and_instances_count_header": "# Ser/Inst",
     "series_plural": "Series",
     "settings": {
         "allow_all_currents_and_futures_labels": "All current and future labels",

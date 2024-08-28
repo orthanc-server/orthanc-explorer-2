@@ -1,6 +1,6 @@
 import api from "../../orthancApi"
 import SourceType from "../../helpers/source-type";
-
+import store from "../../store"
 
 const _clearedFilter = {
     StudyDate : "",
@@ -220,12 +220,16 @@ const actions = {
                         "PatientBirthDate": "",
                         "PatientID": "",
                         "AccessionNumber": "",
-                        "ModalitiesInStudy": "",
-                        "NumberOfStudyRelatedSeries": "",
                         "PatientBirthDate": "",
                         "StudyDescription": "",
                         "StudyDate": ""
                     };
+
+                    // request values for e.g ModalitiesInStudy, NumberOfStudyRelatedSeries
+                    for (let t of store.state.configuration.requestedTagsForStudyList) {
+                        filters[t] = "";
+                    }
+
                     // overwrite with the filtered values
                     for (const [k, v] of Object.entries(getters.filterQuery)) {
                         filters[k] = v;

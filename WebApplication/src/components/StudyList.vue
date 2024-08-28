@@ -43,6 +43,12 @@ document._studyColumns = {
     "seriesCount": {
         "width": "4%"
     },
+    "instancesCount": {
+        "width": "4%"
+    },
+    "seriesAndInstancesCount": {
+        "width": "7%"
+    },
     "undefined": {
         "width": "10%"
     }
@@ -160,7 +166,7 @@ export default {
             // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
             this.initModalityFilter();
             for (const tag of this.uiOptions.StudyListColumns) {
-            if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount'].indexOf(tag) == -1) {
+            if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                 this.filterGenericTags[tag] = '';
             }
         }
@@ -269,6 +275,10 @@ export default {
         columnTitle(tagName) {
             if (tagName == "seriesCount") {
                 return this.$i18n.t('series_count_header');
+            } else if (tagName == "instancesCount") {
+                return this.$i18n.t('instances_count_header');
+            } else if (tagName == "seriesAndInstancesCount") {
+                return this.$i18n.t('series_and_instances_count_header');
             } else if (tagName == "modalities") {
                 return translateDicomTag(this.$i18n.t, this.$i18n.te, "ModalitiesInStudy");
             } else {
@@ -391,7 +401,7 @@ export default {
             return "";
         },
         hasFilter(tagName) {
-            return ['seriesCount'].indexOf(tagName) == -1;
+            return ['seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tagName) == -1;
         },
         getFilterPlaceholder(tagName) {
             if (tagName in this.columns && this.columns[tagName].placeholder) {
@@ -502,7 +512,7 @@ export default {
             this.filterPatientBirthDateForDatePicker = null;
             this.filterGenericTags = {};
             for (const tag of this.uiOptions.StudyListColumns) {
-                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount'].indexOf(tag) == -1) {
+                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                     this.filterGenericTags[tag] = '';
                 }
             }
@@ -512,7 +522,7 @@ export default {
         isFilteringOnlyOnLabels() {
             let hasGenericTagFilter = false;
             for (const tag of this.uiOptions.StudyListColumns) {
-                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount'].indexOf(tag) == -1) {
+                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                     if (this.filterGenericTags[tag] && this.filterGenericTags[tag] != '') {
                         hasGenericTagFilter = true;
                     }
@@ -528,7 +538,7 @@ export default {
                     // update filters with the value of filter controls when we click the search button
                     await this.$store.dispatch('studies/clearFilterNoReload');
                     for (const tag of this.uiOptions.StudyListColumns) {
-                        if (['modalities', 'seriesCount'].indexOf(tag) == -1) {
+                        if (['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                             await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });    
                         }
                     }

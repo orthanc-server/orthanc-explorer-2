@@ -146,6 +146,8 @@
             //  - special columns:
             //    - "modalities": the list of modalities in the study
             //    - "seriesCount": the number of series in the study
+            //    - "instancesCount": the number of instances in the study
+            //    - "seriesAndInstancesCount": a combined value with the number of series/instances in the study
             "StudyListColumns" : [
                 "PatientBirthDate",
                 "PatientName",
@@ -154,7 +156,7 @@
                 "StudyDate",
                 "modalities",
                 "AccessionNumber",
-                "seriesCount"
+                "seriesAndInstancesCount"
             ],
 
             // The list of patient level tags that are displayed in the study details and in the modification dialog.

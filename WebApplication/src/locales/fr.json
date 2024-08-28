@@ -78,6 +78,7 @@
     "frames": "Frames",
     "instance": "Élément",
     "instances": "Instances",
+    "instances_count_header": "# instances",    
     "instances_number": "Nombre d'instances",
     "labels": {
         "add_button": "Ajouter",
@@ -182,6 +183,7 @@
     },
     "series": "Série",
     "series_count_header": "# séries",
+    "series_and_instances_count_header": "# Ser/Inst",
     "series_plural": "Séries",
     "settings": {
         "allow_all_currents_and_futures_labels": "Toutes les étiquettes actuelles et futures",

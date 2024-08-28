@@ -82,9 +82,7 @@ export default {
             "Level": "Study",
             "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
             "Query": filterQuery,
-            "RequestedTags": [
-                "ModalitiesInStudy"
-            ],
+            "RequestedTags": store.state.configuration.requestedTagsForStudyList,
             "Expand": true
         };
         if (labels && labels.length > 0) {
@@ -292,7 +290,7 @@ export default {
     },
     async getStudy(orthancId) {
         // returns the same result as a findStudies (including RequestedTags !)
-        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=ModalitiesInStudy")).data;
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=" + store.state.configuration.requestedTagsForStudyList.join(';'))).data;
     },
     async getStudySeries(orthancId) {
         return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/series")).data;

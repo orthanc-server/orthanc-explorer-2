@@ -1,8 +1,13 @@
 Pending changes
 ===============
 
+Changes:
+  - new configuration values for "UiOptions.StudyListColumns":
+    - "instancesCount" to show the number of instances in a study
+    - "seriesAndInstancesCount" to show the number of series/instances in a study.  This now replaces "seriesCount" in the default configuration.
+
 Fixes:
-  - Fixed the "UiOptions.EnableApiView" that was not taken into account.  The API View button was always visible.
+  - Fixed the "UiOptions.EnableApiView" configuration that was not taken into account.  The API View button was always visible.
   - [Issue #65](https://github.com/orthanc-server/orthanc-explorer-2/issues/65) SeriesCount column is empty.
   - [Issue #63](https://github.com/orthanc-server/orthanc-explorer-2/issues/63) This/last week selection in Date picker now starts on monday.
 

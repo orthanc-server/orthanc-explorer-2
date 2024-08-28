@@ -18,6 +18,7 @@ const state = () => ({
     ohifDataSource: "dicom-web",
     customLogoUrl: null,
     hasCustomLogo: false, 
+    requestedTagsForStudyList: []
 })
 
 ///////////////////////////// GETTERS
@@ -29,6 +30,16 @@ const getters = {
 const mutations = {
     setUiOptions(state, { uiOptions }) {
         state.uiOptions = uiOptions;
+
+        if (uiOptions.StudyListColumns.indexOf('modalities') != -1) {
+            state.requestedTagsForStudyList.push('ModalitiesInStudy')
+        }
+        if (uiOptions.StudyListColumns.indexOf('instancesCount') != -1 || uiOptions.StudyListColumns.indexOf('seriesAndInstancesCount') != -1) {
+            state.requestedTagsForStudyList.push('NumberOfStudyRelatedInstances')
+        }
+        if (uiOptions.StudyListColumns.indexOf('seriesCount') != -1 || uiOptions.StudyListColumns.indexOf('seriesAndInstancesCount') != -1) {
+            state.requestedTagsForStudyList.push('NumberOfStudyRelatedSeries')
+        }
     },
     setUserProfile(state, { profile }) {
         state.userProfile = profile;

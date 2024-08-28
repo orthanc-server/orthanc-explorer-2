@@ -117,7 +117,22 @@ export default {
             } else if (this.study.Series) {
                 return this.study.Series.length;
             }
+        },
+        instancesCount() {
+            if (this.study.RequestedTags) {
+                return this.study.RequestedTags.NumberOfStudyRelatedInstances;
+            }
+        },
+        seriesAndInstancesCount() {
+            const seriesCount = this.seriesCount;
+            const instancesCount = this.instancesCount;
+            if (instancesCount) {
+                return String(seriesCount) + "/" + String(instancesCount);
+            } else {
+                return seriesCount;
+            }
         }
+
     },
     components: { SeriesList, StudyDetails }
 }
@@ -133,7 +148,7 @@ export default {
                 </div>
             </td>
             <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text"
-                :class="{ 'text-center': columnTag in ['modalities', 'seriesCount'] }" data-bs-toggle="collapse"
+                :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId">
                 <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip"
                     v-bind:title="study.MainDicomTags.StudyDate">{{ formatedStudyDate }}
@@ -157,7 +172,14 @@ export default {
                     v-bind:title="modalitiesInStudyForDisplay">{{
                         modalitiesInStudyForDisplay }}
                 </span>
-                <span v-else-if="columnTag == 'seriesCount'">{{ seriesCount }}
+                <span v-else-if="columnTag == 'seriesCount'" data-bs-toggle="tooltip"
+                v-bind:title="seriesCount">{{ seriesCount }}
+                </span>
+                <span v-else-if="columnTag == 'instancesCount'" data-bs-toggle="tooltip"
+                v-bind:title="instancesCount">{{ instancesCount }}
+                </span>
+                <span v-else-if="columnTag == 'seriesAndInstancesCount'" data-bs-toggle="tooltip"
+                v-bind:title="seriesAndInstancesCount">{{ seriesAndInstancesCount }}
                 </span>
                 <span v-else>{{ study.MainDicomTags[columnTag] }}
                 </span>
