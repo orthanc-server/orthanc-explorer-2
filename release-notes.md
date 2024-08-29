@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.6.1 (2024-08-29)
+==================
 
 Changes:
   - new configuration values for "UiOptions.StudyListColumns":
