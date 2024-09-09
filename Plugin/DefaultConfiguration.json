@@ -24,6 +24,10 @@
         // "CustomCssPath": "/home/my/path/to/custom.css",
         // "CustomLogoUrl": "https://my.company/logo.png",
         // "CustomLogoPath": "/home/my/path/to/logo.png",
+        // "CustomFavIconPath": "/home/my/path/to/favicon.ico",     // note: this can be a .png, .svg or .ico file
+        
+        // Custom Window/Tab Title
+        // "CustomTitle": "Orthanc Explorer 2",
 
         // This block of configuration is transmitted as is to the frontend application.
         // Make sure not to store any secret here

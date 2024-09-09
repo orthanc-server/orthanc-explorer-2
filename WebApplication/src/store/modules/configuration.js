@@ -124,6 +124,12 @@ const actions = {
             commit('setCustomLogo', { customLogoUrl: customLogoUrl, hasCustomLogo: oe2Config['HasCustomLogo']});
         }
 
+        if ('CustomTitle' in oe2Config) {
+            document.title = oe2Config['CustomTitle'];
+        } else {
+            document.title = "Orthanc Explorer 2";
+        }
+
         for (const [pluginName, pluginConfiguration] of Object.entries(oe2Config['Plugins'])) {
 
             commit('setInstalledPlugin', { plugin: pluginName, pluginConfiguration: pluginConfiguration})

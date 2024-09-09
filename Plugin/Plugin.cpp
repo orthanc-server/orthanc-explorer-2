@@ -49,6 +49,14 @@ std::string customCssPath_;
 std::string theme_ = "light";
 std::string customLogoPath_;
 std::string customLogoUrl_;
+std::string customFavIconPath_;
+std::string customTitle_;
+
+enum CustomFilesPath
+{
+  CustomFilesPath_Logo,
+  CustomFilesPath_FavIcon
+};
 
 
 template <enum Orthanc::EmbeddedResources::DirectoryResourceId folder>
@@ -102,7 +110,8 @@ void ServeEmbeddedFile(OrthancPluginRestOutput* output,
   }
 }
 
-void ServeCustomLogo(OrthancPluginRestOutput* output,
+template <enum CustomFilesPath customFile> 
+void ServeCustomFile(OrthancPluginRestOutput* output,
                      const char* url,
                      const OrthancPluginHttpRequest* request)
 {
@@ -114,22 +123,35 @@ void ServeCustomLogo(OrthancPluginRestOutput* output,
   }
   else
   {
-    std::string logoFileContent;
+    std::string fileContent;
+    std::string customFileContent;
+    std::string customFilePath;
+    if (customFile == CustomFilesPath_FavIcon)
+    {
+      customFilePath = customFavIconPath_;
+    }
+    else if (customFile == CustomFilesPath_Logo)
+    {
+      customFilePath = customLogoPath_;
+    }
+    else
+    {
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_NotImplemented);
+    }
 
-    std::string customCssFileContent;
-    Orthanc::SystemToolbox::ReadFile(logoFileContent, customLogoPath_);
-    Orthanc::MimeType mimeType = Orthanc::SystemToolbox::AutodetectMimeType(customLogoPath_);
+    Orthanc::SystemToolbox::ReadFile(fileContent, customFilePath);
+    Orthanc::MimeType mimeType = Orthanc::SystemToolbox::AutodetectMimeType(customFilePath);
 
     // include an ETag for correct cache handling
     OrthancPlugins::OrthancString md5;
-    size_t size = logoFileContent.size();
-    md5.Assign(OrthancPluginComputeMd5(OrthancPlugins::GetGlobalContext(), logoFileContent.c_str(), size));
+    size_t size = fileContent.size();
+    md5.Assign(OrthancPluginComputeMd5(OrthancPlugins::GetGlobalContext(), fileContent.c_str(), size));
 
     std::string etag = "\"" + std::string(md5.GetContent()) + "\"";
     OrthancPluginSetHttpHeader(OrthancPlugins::GetGlobalContext(), output, "ETag", etag.c_str());
     OrthancPluginSetHttpHeader(OrthancPlugins::GetGlobalContext(), output, "Cache-Control", "no-cache");
 
-    OrthancPluginAnswerBuffer(context, output, logoFileContent.c_str(), size, Orthanc::EnumerationToString(mimeType));
+    OrthancPluginAnswerBuffer(context, output, fileContent.c_str(), size, Orthanc::EnumerationToString(mimeType));
   }
 }
 
@@ -302,6 +324,21 @@ void ReadConfiguration()
     if (jsonConfig.isMember("Theme") && jsonConfig["Theme"].isString() && jsonConfig["Theme"].asString() == "dark")
     {
       theme_ = "dark";
+    }
+
+    if (jsonConfig.isMember("CustomFavIconPath") && jsonConfig["CustomFavIconPath"].isString())
+    {
+      customFavIconPath_ = jsonConfig["CustomFavIconPath"].asString();
+      if (!Orthanc::SystemToolbox::IsExistingFile(customFavIconPath_))
+      {
+        LOG(ERROR) << "Unable to accesss the 'CustomFavIconPath': " << customFavIconPath_;
+        throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile);
+      }
+    }
+
+    if (jsonConfig.isMember("CustomTitle") && jsonConfig["CustomTitle"].isString())
+    {
+      customTitle_ = jsonConfig["CustomTitle"].asString();
     }
   }
 
@@ -581,6 +618,11 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       oe2Configuration["CustomLogoUrl"] = customLogoUrl_;
     }
 
+    if (!customTitle_.empty())
+    {
+      oe2Configuration["CustomTitle"] = customTitle_;
+    }
+
     Json::Value& uiOptions = oe2Configuration["UiOptions"];
 
     if (hasUserProfile_)
@@ -769,7 +811,7 @@ extern "C"
         if (!customLogoPath_.empty())
         {
           OrthancPlugins::RegisterRestCallback
-            <ServeCustomLogo>
+            <ServeCustomFile<CustomFilesPath_Logo> >
             (oe2BaseUrl_ + "app/customizable/custom-logo", true);
         }
 
@@ -787,10 +829,19 @@ extern "C"
         OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX_RETRIEVE_AND_VIEW, Orthanc::MimeType_Html> >
           (oe2BaseUrl_ + "app/retrieve-and-view.html", true);
-        OrthancPlugins::RegisterRestCallback
-          <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_FAVICON, Orthanc::MimeType_Ico> >
-          (oe2BaseUrl_ + "app/favicon.ico", true);
         
+        if (customFavIconPath_.empty())
+        {
+          OrthancPlugins::RegisterRestCallback
+            <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_FAVICON, Orthanc::MimeType_Ico> >
+            (oe2BaseUrl_ + "app/favicon.ico", true);
+        }
+        else
+        {
+          OrthancPlugins::RegisterRestCallback
+            <ServeCustomFile<CustomFilesPath_FavIcon> >
+            (oe2BaseUrl_ + "app/favicon.ico", true);
+        }        
         // second part are all the routes that are actually handled by vue-router and that are actually returning the same file (index.html)
         OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX, Orthanc::MimeType_Html> >

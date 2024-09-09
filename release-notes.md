@@ -1,3 +1,11 @@
+Pending changes in the mainline
+===============================
+
+Changes:
+  - new configuration "CustomFavIconPath" to customize the FavIcon
+  - new configuration "CustomTitle" to customize the tab/window title
+
+
 1.6.1 (2024-08-29)
 ==================
 
