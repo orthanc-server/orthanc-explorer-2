@@ -4,6 +4,9 @@ Pending changes in the mainline
 Changes:
   - new configuration "CustomFavIconPath" to customize the FavIcon
   - new configuration "CustomTitle" to customize the tab/window title
+  - new configurations to modify the PatientName display:
+    - "PatientNameCapture", a Javascript regular expression to capture the words of PatientName
+    - "PatientNameFormatting", a replacement expression using the captured words
 
 Fixes:
   - Fixed (again) the "UiOptions.EnableApiViewMenu" configuration that was not taken into account.  The API View button was never visible.

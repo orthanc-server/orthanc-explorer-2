@@ -1,4 +1,5 @@
 import api from "../../orthancApi"
+import resourceHelpers from "../../helpers/resource-helpers"
 
 ///////////////////////////// STATE
 const state = () => ({
@@ -128,6 +129,11 @@ const actions = {
             document.title = oe2Config['CustomTitle'];
         } else {
             document.title = "Orthanc Explorer 2";
+        }
+
+        if ('UiOptions' in oe2Config && 'PatientNameFormatting' in oe2Config['UiOptions'] && 'PatientNameCapture' in oe2Config['UiOptions']) {
+            resourceHelpers.patientNameCapture = oe2Config['UiOptions']['PatientNameCapture'];
+            resourceHelpers.patientNameFormatting = oe2Config['UiOptions']['PatientNameFormatting'];
         }
 
         for (const [pluginName, pluginConfiguration] of Object.entries(oe2Config['Plugins'])) {

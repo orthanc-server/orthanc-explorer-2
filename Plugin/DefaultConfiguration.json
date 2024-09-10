@@ -223,6 +223,15 @@
             //          "yyyyMMdd" for DICOM format
             "DateFormat": "yyyyMMdd",
 
+            // PatientName transformation for display.  This requires a Regex for capturing and one expression for formatting.
+            // If PatientNameFormatting is not defined, no transformation occurs (this is the default behaviour).
+            // The Regex is a Javascript regex and is applied this way:
+            // FormattedName = PatientName.replace(new RegExp(PatientNameCapture), PatientNameFormatting);
+            // in example, to capture carets separated names and re-order them, one would use:
+            // FormattedName = PatientName.replace(new RegExp("([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?"), '$1 $3 $2');
+            "PatientNameCapture" : "([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?",
+            // "PatientNameFormatting": "$1 $3 $2"
+
             // modifications dialog options
             "Modifications": {
                 // Modes define options to the /modify route:

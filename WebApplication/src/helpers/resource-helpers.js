@@ -31,4 +31,13 @@ export default {
         return title.join(" | ");
     },
 
+    patientNameCapture : "([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?",
+    patientNameFormatting : null,
+    formatPatientName(originalPatientName) {
+        if (this.patientNameFormatting) {
+            return originalPatientName.replace(new RegExp(this.patientNameCapture), this.patientNameFormatting);
+        } else {
+            return originalPatientName;
+        }
+    }
 }

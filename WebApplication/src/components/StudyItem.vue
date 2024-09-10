@@ -6,6 +6,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
 import dateHelpers from "../helpers/date-helpers"
 import SourceType from '../helpers/source-type';
+import resourceHelpers from "../helpers/resource-helpers";
 
 export default {
     props: ["studyId"],
@@ -105,10 +106,13 @@ export default {
         hasLabels() {
             return this.study && this.study.Labels && this.study.Labels.length > 0;
         },
-        formatedPatientBirthDate() {
+        formattedPatientName() {
+            return resourceHelpers.formatPatientName(this.study.PatientMainDicomTags.PatientName);
+        },
+        formattedPatientBirthDate() {
             return dateHelpers.formatDateForDisplay(this.study.PatientMainDicomTags.PatientBirthDate, this.uiOptions.DateFormat);
         },
-        formatedStudyDate() {
+        formattedStudyDate() {
             return dateHelpers.formatDateForDisplay(this.study.MainDicomTags.StudyDate, this.uiOptions.DateFormat);
         },
         seriesCount() {
@@ -151,7 +155,7 @@ export default {
                 :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId">
                 <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip"
-                    v-bind:title="study.MainDicomTags.StudyDate">{{ formatedStudyDate }}
+                    v-bind:title="study.MainDicomTags.StudyDate">{{ formattedStudyDate }}
                 </span>
                 <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
                     v-bind:title="study.MainDicomTags.AccessionNumber">{{ study.MainDicomTags.AccessionNumber }}
@@ -160,10 +164,10 @@ export default {
                     v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
                 </span>
                 <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
-                    v-bind:title="study.PatientMainDicomTags.PatientName">{{ study.PatientMainDicomTags.PatientName }}
+                    v-bind:title="study.PatientMainDicomTags.PatientName">{{ formattedPatientName }}
                 </span>
                 <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
-                    v-bind:title="study.PatientMainDicomTags.PatientBirthDate">{{ formatedPatientBirthDate }}
+                    v-bind:title="study.PatientMainDicomTags.PatientBirthDate">{{ formattedPatientBirthDate }}
                 </span>
                 <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
                     v-bind:title="study.MainDicomTags.StudyDescription">{{ study.MainDicomTags.StudyDescription }}
