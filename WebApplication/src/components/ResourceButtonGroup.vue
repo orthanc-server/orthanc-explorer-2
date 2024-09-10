@@ -660,7 +660,7 @@ export default {
             }
         },
         hasApiViewButton() {
-            return  this.resourceLevel != 'bulk' && this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableApiView;
+            return  this.resourceLevel != 'bulk' && this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableApiViewMenu;
         },
         resourcesOrthancId() {
             if (this.resourceLevel == 'bulk') {

@@ -5,6 +5,9 @@ Changes:
   - new configuration "CustomFavIconPath" to customize the FavIcon
   - new configuration "CustomTitle" to customize the tab/window title
 
+Fixes:
+  - Fixed (again) the "UiOptions.EnableApiViewMenu" configuration that was not taken into account.  The API View button was never visible.
+
 
 1.6.1 (2024-08-29)
 ==================
@@ -15,7 +18,7 @@ Changes:
     - "seriesAndInstancesCount" to show the number of series/instances in a study.  This now replaces "seriesCount" in the default configuration.
 
 Fixes:
-  - Fixed the "UiOptions.EnableApiView" configuration that was not taken into account.  The API View button was always visible.
+  - Fixed the "UiOptions.EnableApiViewMenu" configuration that was not taken into account.  The API View button was always visible.
   - [Issue #65](https://github.com/orthanc-server/orthanc-explorer-2/issues/65) SeriesCount column is empty.
   - [Issue #63](https://github.com/orthanc-server/orthanc-explorer-2/issues/63) This/last week selection in Date picker now starts on monday.
   - [Bug #232](https://orthanc.uclouvain.be/bugs/show_bug.cgi?id=232) Clarified compilation instructions and use LOCAL dist folder by default.
