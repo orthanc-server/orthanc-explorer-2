@@ -153,6 +153,9 @@ export default {
         },
         datePickerFormat() {
             return this.uiOptions.DateFormat;
+        },
+        hasPrimaryViewerIcon() {
+            return this.sourceType == SourceType.LOCAL_ORTHANC;
         }
     },
     watch: {
@@ -726,6 +729,7 @@ export default {
         <table class="table table-responsive table-sm study-table table-borderless">
             <thead class="study-table-header">
                 <th width="2%" scope="col" ></th>
+                <th v-if="hasPrimaryViewerIcon" width="3%" scope="col" ></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                     v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                     class="study-table-title">{{
@@ -739,6 +743,7 @@ export default {
                         <i class="fa-regular fa-circle-xmark"></i>
                     </button>
                 </th>
+                <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <div v-if="columnTag == 'StudyDate'">
                         <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"

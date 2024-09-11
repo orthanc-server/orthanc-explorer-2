@@ -77,11 +77,21 @@ export default {
         isDropDownItem() {
             return this.linkType == "dropdown-item";
         },
+        isIcon() {
+            return this.linkType == "icon";
+        },
         classes() {
             if (this.disabled) {
                 return "btn-secondary disabled-link";
             } else {
                 return "btn-secondary";
+            }
+        },
+        divClasses() {
+            if (this.linkType == "icon") {
+                return "div-icon"
+            } else {
+                return "";
             }
         }
     },
@@ -90,13 +100,18 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div :class="divClasses">
         <a v-if="isButton" class="btn btn-sm m-1" type="button"
             data-bs-toggle="tooltip" :title="title" @click="clicked" :target="target" :href="linkUrl" :class="classes">
             <i :class="iconClass"></i>
         </a>
         <a v-if="isDropDownItem" class="dropdown-item" :target="target" @click="clicked"
-            :href="linkUrl">{{ title }}</a>
+            :href="linkUrl">{{ title }}
+        </a>
+        <a v-if="isIcon" class="icon" :target="target" @click="clicked"
+            :href="linkUrl">
+            <i :class="iconClass" style="padding-top: 4px;"></i>
+        </a>
     </div>
 </template>
 
@@ -106,5 +121,22 @@ export default {
     pointer-events: none;
     background-color: #6c757d;
     opacity: 0.65;
+}
+
+.icon {
+    color: var(--bs-table-color);
+    width: 100%;    /* increase the size of the clickable area */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+}
+
+.div-icon {
+    width: 100%;    /* increase the size of the clickable area */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
 }
 </style>

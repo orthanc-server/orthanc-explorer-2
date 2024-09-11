@@ -7,6 +7,7 @@ import api from "../orthancApi";
 import dateHelpers from "../helpers/date-helpers"
 import SourceType from '../helpers/source-type';
 import resourceHelpers from "../helpers/resource-helpers";
+import TokenLinkButton from "./TokenLinkButton.vue";
 
 export default {
     props: ["studyId"],
@@ -135,21 +136,34 @@ export default {
             } else {
                 return seriesCount;
             }
+        },
+        hasPrimaryViewerIcon() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC;
+        },
+        primaryViewerUrl() {
+            return resourceHelpers.getPrimaryViewerUrl("study", this.study.ID, this.study.MainDicomTags.StudyInstanceUID);
         }
-
     },
-    components: { SeriesList, StudyDetails }
+    components: { SeriesList, StudyDetails, TokenLinkButton }
 }
 </script>
 
 
 <template>
     <tbody>
-        <tr v-if="loaded" :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
+        <tr v-if="loaded" :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }" @dblclick="doubleClicked">
             <td>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="selected" @click="clickedSelect">
                 </div>
+            </td>
+            <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
+                <TokenLinkButton v-if="primaryViewerUrl"
+                    level="study" :linkUrl="primaryViewerUrl"
+                    :resourcesOrthancId="study.ID" linkType="icon"
+                    iconClass="bi bi-eye-fill"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
             </td>
             <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text"
                 :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }" data-bs-toggle="collapse"
@@ -258,5 +272,9 @@ export default {
 .label-row {
     border-top: 0px !important;
     border-bottom: 0px !important;
+}
+
+.td-viewer-icon {
+    padding: 0; /* to maximize click space for the icon */
 }
 </style>
