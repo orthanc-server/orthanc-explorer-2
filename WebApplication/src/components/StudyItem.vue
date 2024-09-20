@@ -169,7 +169,7 @@ export default {
                 :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId">
                 <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip"
-                    v-bind:title="study.MainDicomTags.StudyDate">{{ formattedStudyDate }}
+                    v-bind:title="formattedStudyDate">{{ formattedStudyDate }}
                 </span>
                 <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
                     v-bind:title="study.MainDicomTags.AccessionNumber">{{ study.MainDicomTags.AccessionNumber }}
@@ -178,10 +178,10 @@ export default {
                     v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
                 </span>
                 <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
-                    v-bind:title="study.PatientMainDicomTags.PatientName">{{ formattedPatientName }}
+                    v-bind:title="formattedPatientName">{{ formattedPatientName }}
                 </span>
                 <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
-                    v-bind:title="study.PatientMainDicomTags.PatientBirthDate">{{ formattedPatientBirthDate }}
+                    v-bind:title="formattedPatientBirthDate">{{ formattedPatientBirthDate }}
                 </span>
                 <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
                     v-bind:title="study.MainDicomTags.StudyDescription">{{ study.MainDicomTags.StudyDescription }}
