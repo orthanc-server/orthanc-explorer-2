@@ -46,7 +46,14 @@ export default {
 
     getPrimaryViewerUrl(level, orthancId, dicomId) {
         if (store.state.configuration.uiOptions.ViewersOrdering.length > 0) {
-            return this.getViewerUrl(level, orthancId, dicomId, store.state.configuration.uiOptions.ViewersOrdering[0]);
+            for (let viewer of store.state.configuration.uiOptions.ViewersOrdering) {
+                if ((["osimis-web-viewer", "stone-webviewer", "volview", "wsi"].indexOf(viewer) != -1 && viewer in store.state.configuration.installedPlugins) ||
+                    (viewer.startsWith("ohif") && viewer in store.state.configuration.installedPlugins) ||
+                    (viewer == "meddream" && store.state.configuration.uiOptions.EnableOpenInMedDreamViewer))
+                {
+                    return this.getViewerUrl(level, orthancId, dicomId, viewer);
+                }
+            }
         }
         return null;
     },

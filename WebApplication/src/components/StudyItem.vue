@@ -138,7 +138,7 @@ export default {
             }
         },
         hasPrimaryViewerIcon() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.primaryViewerUrl;
         },
         primaryViewerUrl() {
             return resourceHelpers.getPrimaryViewerUrl("study", this.study.ID, this.study.MainDicomTags.StudyInstanceUID);
