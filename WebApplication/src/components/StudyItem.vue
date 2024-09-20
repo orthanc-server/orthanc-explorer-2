@@ -18,7 +18,8 @@ export default {
             loaded: false,
             expanded: false,
             collapseElement: null,
-            selected: false
+            selected: false,
+            pdfReportsUrl: []
         };
     },
     created() {
@@ -54,6 +55,15 @@ export default {
             if (k === 'expand') {
                 if (v == null || v === 'study' || v === 'series' || v === 'instance') {
                     this.collapseElement.show();
+                }
+            }
+        }
+
+        if (this.hasPdfReportIcon) {
+            let instances = await api.getStudyInstancesExpanded(this.study.ID, ["SOPClassUID"]);
+            for (let instance of instances) {
+                if (instance.RequestedTags.SOPClassUID == "1.2.840.10008.5.1.4.1.1.104.1") {
+                    this.pdfReportsUrl.push(api.getInstancePdfUrl(instance.ID));
                 }
             }
         }
@@ -137,6 +147,15 @@ export default {
                 return seriesCount;
             }
         },
+        hasPdfReportIconPlaceholder() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && !this.hasPdfReportIcon;
+        },
+        hasPdfReportIcon() {
+            return this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1;
+        },
+        hasPrimaryViewerIconPlaceholder() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && !this.hasPrimaryViewerIcon;
+        },
         hasPrimaryViewerIcon() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.primaryViewerUrl;
         },
@@ -165,6 +184,17 @@ export default {
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
             </td>
+            <td v-if="hasPrimaryViewerIconPlaceholder"></td>
+            <td v-if="hasPdfReportIcon" class="td-pdf-icon">
+                <TokenLinkButton v-for="pdfReportUrl in pdfReportsUrl" :key="pdfReportUrl"
+                    level="study" :linkUrl="pdfReportUrl"
+                    :resourcesOrthancId="study.ID" linkType="icon"
+                    iconClass="bi bi-file-earmark-text"
+                    :tokenType="'download-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
+            </td>
+            <td v-if="hasPdfReportIconPlaceholder"></td>
+
             <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text"
                 :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#study-details-' + this.studyId">
@@ -275,6 +305,10 @@ export default {
 }
 
 .td-viewer-icon {
+    padding: 0; /* to maximize click space for the icon */
+}
+
+.td-pdf-icon {
     padding: 0; /* to maximize click space for the icon */
 }
 </style>

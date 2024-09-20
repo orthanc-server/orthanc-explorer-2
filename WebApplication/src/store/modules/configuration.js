@@ -41,6 +41,7 @@ const mutations = {
         if (uiOptions.StudyListColumns.indexOf('seriesCount') != -1 || uiOptions.StudyListColumns.indexOf('seriesAndInstancesCount') != -1) {
             state.requestedTagsForStudyList.push('NumberOfStudyRelatedSeries')
         }
+        state.requestedTagsForStudyList.push('SOPClassesInStudy'); // to detect PDF files
     },
     setUserProfile(state, { profile }) {
         state.userProfile = profile;

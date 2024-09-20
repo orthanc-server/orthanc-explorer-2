@@ -301,6 +301,13 @@ export default {
     async getStudyInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/instances")).data;
     },
+    async getStudyInstancesExpanded(orthancId, requestedTags) {
+        let url = orthancApiUrl + "studies/" + orthancId + "/instances?expanded";
+        if (requestedTags && requestedTags.length > 0) {
+            url += "&requestedTags=" + requestedTags.join(";")
+        }
+        return (await axios.get(url)).data;
+    },
     async getSeriesParentStudy(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/study")).data;
     },

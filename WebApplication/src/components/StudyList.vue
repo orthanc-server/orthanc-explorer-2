@@ -156,6 +156,9 @@ export default {
         },
         hasPrimaryViewerIcon() {
             return this.sourceType == SourceType.LOCAL_ORTHANC;
+        },
+        hasPdfReportIcon() {
+            return this.sourceType == SourceType.LOCAL_ORTHANC;
         }
     },
     watch: {
@@ -729,7 +732,8 @@ export default {
         <table class="table table-responsive table-sm study-table table-borderless">
             <thead class="study-table-header">
                 <th width="2%" scope="col" ></th>
-                <th v-if="hasPrimaryViewerIcon" width="3%" scope="col" ></th>
+                <th v-if="hasPrimaryViewerIcon" width="4%" scope="col" ></th>
+                <th v-if="hasPdfReportIcon" width="4%" scope="col" ></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                     v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                     class="study-table-title">{{
@@ -744,6 +748,7 @@ export default {
                     </button>
                 </th>
                 <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
+                <th v-if="hasPdfReportIcon" scope="col" ></th>
                 <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                     <div v-if="columnTag == 'StudyDate'">
                         <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
