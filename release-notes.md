@@ -1,9 +1,9 @@
-Pending changes in the mainline
-===============================
+1.6.2 (2024-09-23)
+==================
 
 Changes:
   - Added a clickable icon to open the primary viewer without expanding the study.
-  - Added a clickable icon to open a PDF report if the study contains one without expanding the study.
+  - Added a clickable icon to open a PDF report without expanding the study.
   - new configuration "CustomFavIconPath" to customize the FavIcon
   - new configuration "CustomTitle" to customize the tab/window title
   - new configurations to modify the PatientName display:
