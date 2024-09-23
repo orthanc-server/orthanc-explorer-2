@@ -1,3 +1,9 @@
+Pending changes in the mainline
+===============================
+
+Changes:
+  - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedChanges"
+
 1.6.2 (2024-09-23)
 ==================
 

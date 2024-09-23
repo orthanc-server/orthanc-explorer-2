@@ -92,10 +92,11 @@ export default {
             studiesIds: state => state.studies.studiesIds,
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
             isSearching: state => state.studies.isSearching,
-            statistics: state => state.studies.statistics
+            statistics: state => state.studies.statistics,
         }),
         ...mapGetters([
-            'studies/isFilterEmpty', // -> this['studies/isFilterEmpty']
+            'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
+            'configuration/hasExtendedChanges',     // -> this['configuration/hasExtendedChanges']
         ]),
         notShowingAllResults() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
@@ -663,7 +664,7 @@ export default {
                     this.isLoadingLatestStudies = true;
                     this.isDisplayingLatestStudies = false;
 
-                    this.loadStudiesFromChange(Math.max(0, lastChangeId - 1000), 1000);
+                    this.loadStudiesFromChange(lastChangeId, 1000);
                 }
             } else {
                 this.shouldStopLoadingLatestStudies = true;
@@ -673,9 +674,18 @@ export default {
                 await this.$store.dispatch('studies/reloadFilteredStudies');
             }
         },
-        async loadStudiesFromChange(fromChangeId, limit) {
-            let changes = await api.getChanges(fromChangeId, limit);
-            for (let change of changes["Changes"].reverse()) {
+        async loadStudiesFromChange(toChangeId, limit) {
+            let changes;
+            let changesResponse;
+            if (this['configuration/hasExtendedChanges']) {
+                changesResponse = await api.getChangesExtended(toChangeId, limit, ["NewStudy", "StableStudy"]);
+                changes = changesResponse["Changes"];
+            } else {
+                changesResponse = await api.getChanges(toChangeId - limit, limit);
+                changes = changesResponse["Changes"].reverse();
+            }
+            
+            for (let change of changes) {
                 // Take the first event we find -> we see last uploaded data immediately (NewStudy but no StableStudy).  
                 // An updated study that has received a new series is visible as well (its NewStudy might be too old but the StableStudy brings it back on top of the list)
                 if ((change["ChangeType"] == "NewStudy" || change["ChangeType"] == "StableStudy") && !this.latestStudiesIds.has(change["ID"])) {
@@ -701,8 +711,16 @@ export default {
                 }
             }
             if (!this.shouldStopLoadingLatestStudies) {
-                if (fromChangeId > 0 && this.latestStudiesIds.size < this.statistics.CountStudies) {
-                    setTimeout(() => {this.loadStudiesFromChange(Math.max(0, Math.max(0, fromChangeId - 1000)), 1000)}, 1);
+                if (this.latestStudiesIds.size < this.statistics.CountStudies) {
+                    if (this['configuration/hasExtendedChanges']) {
+                        if (!changesResponse["Done"]) {
+                            setTimeout(() => {this.loadStudiesFromChange(changesResponse["First"], 1000)}, 1);
+                        }
+                    } else {
+                        if (toChangeId != changesResponse["First"]) {
+                            setTimeout(() => {this.loadStudiesFromChange(Math.max(0, toChangeId-1000), 1000)}, 1);
+                        }
+                    }
                 } else {
                     this.isLoadingLatestStudies = false;
                     this.isDisplayingLatestStudies = true;

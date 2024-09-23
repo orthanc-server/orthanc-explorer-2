@@ -103,6 +103,14 @@ export default {
         const response = (await axios.get(orthancApiUrl + "changes?since=" + since + "&limit=" + limit));
         return response.data;
     },
+    async getChangesExtended(to, limit, filter = []) {
+        let url = orthancApiUrl + "changes?to=" + to + "&limit=" + limit;
+        if (filter.length > 0) {
+            url += "&type=" + filter.join(";")
+        }
+        const response = (await axios.get(url));
+        return response.data;
+    },
     async getSamePatientStudies(patientTags, tags) {
         if (!tags || tags.length == 0) {
             console.error("Unable to getSamePatientStudies if 'tags' is not defined or empty");

@@ -24,6 +24,21 @@ const state = () => ({
 
 ///////////////////////////// GETTERS
 const getters = {
+    hasExtendedFind: (state) => {
+        if ("Capabilities" in state.system){
+            return state.system.Capabilities.HasExtendedFind;
+        } else {
+            return false;
+        }
+    },
+    hasExtendedChanges: (state) => {
+        if ("Capabilities" in state.system){
+            return state.system.Capabilities.HasExtendedChanges;
+        } else {
+            return false;
+        }
+
+    }
 }
 
 ///////////////////////////// MUTATIONS
