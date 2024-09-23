@@ -179,7 +179,7 @@ export default {
             <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
                 <TokenLinkButton v-if="primaryViewerUrl"
                     level="study" :linkUrl="primaryViewerUrl"
-                    :resourcesOrthancId="study.ID" linkType="icon"
+                    :resourcesOrthancId="[study.ID]" linkType="icon"
                     iconClass="bi bi-eye-fill"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
@@ -188,7 +188,7 @@ export default {
             <td v-if="hasPdfReportIcon" class="td-pdf-icon">
                 <TokenLinkButton v-for="pdfReportUrl in pdfReportsUrl" :key="pdfReportUrl"
                     level="study" :linkUrl="pdfReportUrl"
-                    :resourcesOrthancId="study.ID" linkType="icon"
+                    :resourcesOrthancId="[study.ID]" linkType="icon"
                     iconClass="bi bi-file-earmark-text"
                     :tokenType="'download-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
