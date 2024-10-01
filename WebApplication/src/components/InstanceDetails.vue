@@ -49,32 +49,34 @@ export default {
 
 <template>
     <table v-if="loaded" class="table table-responsive table-sm instance-details-table">
-        <tr>
-            <td width="80%" class="cut-text">
-                <TagsTree 
-                    :tags="headers">
-                </TagsTree>
-            </td>
-            <td width="20%" class="instance-button-group">
-                <ResourceButtonGroup
-                :resourceOrthancId="this.instanceId"
-                :resourceLevel="'instance'"
-                :studyMainDicomTags="this.studyMainDicomTags"
-                :seriesMainDicomTags="this.seriesMainDicomTags"
-                :patientMainDicomTags="this.patientMainDicomTags"
-                :instanceTags="this.tags"
-                :instanceHeaders="this.headers"
-                @deletedResource="onDeletedInstance"
-                ></ResourceButtonGroup>
-            </td>
-        </tr>
-        <tr>
-            <td width="80%" class="cut-text">
-                <TagsTree 
-                    :tags="tags">
-                </TagsTree>
-            </td>
-        </tr>
+        <tbody>
+            <tr>
+                <td width="80%" class="cut-text">
+                    <TagsTree 
+                        :tags="headers">
+                    </TagsTree>
+                </td>
+                <td width="20%" class="instance-button-group">
+                    <ResourceButtonGroup
+                    :resourceOrthancId="this.instanceId"
+                    :resourceLevel="'instance'"
+                    :studyMainDicomTags="this.studyMainDicomTags"
+                    :seriesMainDicomTags="this.seriesMainDicomTags"
+                    :patientMainDicomTags="this.patientMainDicomTags"
+                    :instanceTags="this.tags"
+                    :instanceHeaders="this.headers"
+                    @deletedResource="onDeletedInstance"
+                    ></ResourceButtonGroup>
+                </td>
+            </tr>
+            <tr>
+                <td width="80%" class="cut-text">
+                    <TagsTree 
+                        :tags="tags">
+                    </TagsTree>
+                </td>
+            </tr>
+        </tbody>
     </table>
 </template>
 
