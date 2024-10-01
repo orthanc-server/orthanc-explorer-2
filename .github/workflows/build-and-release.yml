@@ -105,7 +105,7 @@ jobs:
     - name: show gitref / tags
       run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
 
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4.1.7
       id: download
       with:
         name: web-app-dist
@@ -206,13 +206,13 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.config.artifact }}
         path: ./
 
     - name: Download URL
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: upload_url
         path: ./

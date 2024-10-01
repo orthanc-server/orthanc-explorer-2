@@ -80,39 +80,41 @@ export default {
 
 <template>
     <table class="table table-responsive table-sm series-details-table">
-        <tr>
-            <td width="70%" class="cut-text">
-                <ul>
-                    <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag" :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
-                </ul>
-            </td>
-            <td width="30%" class="series-button-group">
-                <ResourceButtonGroup
-                :resourceOrthancId="this.seriesId"
-                :resourceLevel="'series'"
-                :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
-                :studyMainDicomTags="this.studyMainDicomTags"
-                :seriesMainDicomTags="this.seriesMainDicomTags"
-                :patientMainDicomTags="this.patientMainDicomTags"
-                :seriesInstances="this.seriesInstances"
-                :customClass="'instance-button-group'"
-                @deletedResource="onDeletedSeries"
-                ></ResourceButtonGroup>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="100">
-                <InstanceList
-                    :seriesId="this.seriesId"
+        <tbody>
+            <tr>
+                <td width="70%" class="cut-text">
+                    <ul>
+                        <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag" :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
+                    </ul>
+                </td>
+                <td width="30%" class="series-button-group">
+                    <ResourceButtonGroup
+                    :resourceOrthancId="this.seriesId"
+                    :resourceLevel="'series'"
+                    :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
+                    :studyMainDicomTags="this.studyMainDicomTags"
                     :seriesMainDicomTags="this.seriesMainDicomTags"
                     :patientMainDicomTags="this.patientMainDicomTags"
-                    :studyMainDicomTags="this.studyMainDicomTags"
-                    :instancesIds="this.instancesIds"
                     :seriesInstances="this.seriesInstances"
-                    @deletedInstance="onDeletedInstance"
-                ></InstanceList>
-            </td>
-        </tr>
+                    :customClass="'instance-button-group'"
+                    @deletedResource="onDeletedSeries"
+                    ></ResourceButtonGroup>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="100">
+                    <InstanceList
+                        :seriesId="this.seriesId"
+                        :seriesMainDicomTags="this.seriesMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags"
+                        :studyMainDicomTags="this.studyMainDicomTags"
+                        :instancesIds="this.instancesIds"
+                        :seriesInstances="this.seriesInstances"
+                        @deletedInstance="onDeletedInstance"
+                    ></InstanceList>
+                </td>
+            </tr>
+        </tbody>
     </table>
 </template>
 

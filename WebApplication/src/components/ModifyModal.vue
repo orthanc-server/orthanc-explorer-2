@@ -78,6 +78,7 @@ export default {
             }
 
             this.tags = {};
+            this.dateTags = {};
             this.originalTags = {};
             this.removedTags = {};
             this.insertedTags = new Set();
@@ -313,7 +314,7 @@ export default {
                         } else {
                             console.log("create-new-study-from-series: warning accepted, copying existing Patient tags");
                             this.tags['PatientName'] = targetPatient['MainDicomTags']['PatientName'];
-                            this.tags['PatientBirthDate'] = this.tags['PatientBirthDate'] = targetPatient['MainDicomTags']['PatientBirthDate'];
+                            this.tags['PatientBirthDate'] =  targetPatient['MainDicomTags']['PatientBirthDate'];
                             this.dateTags['PatientBirthDate'] = dateHelpers.fromDicomDate(targetPatient['MainDicomTags']['PatientBirthDate']);
                             this.tags['PatientSex'] = targetPatient['MainDicomTags']['PatientSex'];
                         }
@@ -365,6 +366,7 @@ export default {
                     const uuid = uuidv4();
 
                     this.tags = {};
+                    this.dateTags = {};
                     this.tags['PatientID'] = uuid;
                     this.tags['PatientName'] = 'Anonymized ' + uuid.substr(0, 8);
                     this.tags['PatientBirthDate'] = '';
@@ -375,19 +377,24 @@ export default {
                     }
                 } else if (action == 'attach-study-to-existing-patient') {
                     this.tags = {};
+                    this.dateTags = {};
                     this.tags['PatientID'] = this.patientMainDicomTags['PatientID'];
                 } else if (action == 'modify-any-tags-in-one-study') {
                     this.tags = {};
+                    this.dateTags = {};
                     this.setTagsFromDicomTags(this.patientMainDicomTags);
                     this.setTagsFromDicomTags(this.studyMainDicomTags);
                 } else if (action == 'modify-patient-tags-in-all-studies') {
                     this.tags = {};
+                    this.dateTags = {};
                     this.setTagsFromDicomTags(this.patientMainDicomTags);
                 } else if (action == 'attach-series-to-existing-study') {
                     this.tags = {};
+                    this.dateTags = {};
                     this.tags['StudyInstanceUID'] = "";
                 } else if (action == 'create-new-study-from-series') {
                     this.tags = {};
+                    this.dateTags = {};
                     this.tags['PatientID'] = '';
                     this.tags['PatientName'] = '';
                     this.tags['PatientBirthDate'] = '';
@@ -396,11 +403,13 @@ export default {
                     this.tags['StudyDescription'] = '';
                 } else if (action == 'modify-series-tags') {
                     this.tags = {};
+                    this.dateTags = {};
                     this.setTagsFromDicomTags(this.seriesMainDicomTags);
                 } else if (action == 'anonymize-series') {
                     const uuid = uuidv4();
 
                     this.tags = {};
+                    this.dateTags = {};
                     this.tags['PatientID'] = uuid;
                     this.tags['PatientName'] = 'Anonymized ' + uuid.substr(0, 8);
                     this.tags['PatientBirthDate'] = '';

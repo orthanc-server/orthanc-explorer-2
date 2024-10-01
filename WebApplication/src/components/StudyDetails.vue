@@ -111,8 +111,6 @@ export default {
         async labelsUpdated() {
             this.$emit("studyLabelsUpdated", this.studyId);
         }
-    },
-    watch: {
     }
 
 }
@@ -121,65 +119,67 @@ export default {
 
 <template>
     <table class="table table-responsive table-sm study-details-table">
-        <tr v-if="showLabels && uiOptions.EnableEditLabels">
-            <td colspan="100%">
-                <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :studyId="studyId" @labelsUpdated="labelsUpdated"></LabelsEditor>
-            </td>
-        </tr>
-        <tr v-if="showLabels && !uiOptions.EnableEditLabels">
-            <td colspan="100%">
-                {{  $t('labels.study_details_title') }}
-                <span v-for="label in labelsModel" :key="label" class="label badge">{{ label }}</span>
-            </td>
-        </tr>
-        <tr>
-            <td width="40%" class="cut-text">
-                <ul>
-                    <ResourceDetailText v-for="tag in uiOptions.StudyMainTags" :key="tag" :tags="studyMainDicomTags"
-                        :tag="tag" :showIfEmpty="true"></ResourceDetailText>
-                </ul>
-            </td>
-            <td width="40%" class="cut-text">
-                <ul>
-                    <ResourceDetailText v-for="tag in uiOptions.PatientMainTags" :key="tag" :tags="patientMainDicomTags"
-                        :tag="tag" :showIfEmpty="true"></ResourceDetailText>
-                </ul>
-                <p v-if="isLocalOrthanc && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1" class="info-text">
-                    {{ $t('this_patient_has_other_studies', { count: samePatientStudiesCount }) }}.
-                    <router-link :to='samePatientStudiesLink' >
-                        {{ $t('this_patient_has_other_studies_show') }}
-                    </router-link>
-                </p>
-                <p v-if="isLocalOrthanc && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount == 1" class="info-text">
-                    {{ $t('this_patient_has_no_other_studies') }}
-                </p>
-                <p v-if="isRemoteSource && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1" class="info-text">
-                    {{ $t('this_remote_patient_has_local_studies', { count: samePatientStudiesCount }) }}
-                    <router-link :to='samePatientStudiesLink' >
-                        {{ $t('this_patient_has_other_studies_show') }}
-                    </router-link>
-                </p>
-                <p v-if="isRemoteSource && remoteStudyFoundLocally" class="info-text">
-                    {{ $t('this_study_is_already_stored_locally') }}
-                    <router-link :to='sameLocalStudyLink' >
-                        {{ $t('this_study_is_already_stored_locally_show') }}
-                    </router-link>
-                </p>
+        <tbody>
+            <tr v-if="showLabels && uiOptions.EnableEditLabels">
+                <td colspan="100%">
+                    <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :studyId="studyId" @labelsUpdated="labelsUpdated"></LabelsEditor>
+                </td>
+            </tr>
+            <tr v-if="showLabels && !uiOptions.EnableEditLabels">
+                <td colspan="100%">
+                    {{  $t('labels.study_details_title') }}
+                    <span v-for="label in labelsModel" :key="label" class="label badge">{{ label }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td width="40%" class="cut-text">
+                    <ul>
+                        <ResourceDetailText v-for="tag in uiOptions.StudyMainTags" :key="tag" :tags="studyMainDicomTags"
+                            :tag="tag" :showIfEmpty="true"></ResourceDetailText>
+                    </ul>
+                </td>
+                <td width="40%" class="cut-text">
+                    <ul>
+                        <ResourceDetailText v-for="tag in uiOptions.PatientMainTags" :key="tag" :tags="patientMainDicomTags"
+                            :tag="tag" :showIfEmpty="true"></ResourceDetailText>
+                    </ul>
+                    <p v-if="isLocalOrthanc && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1" class="info-text">
+                        {{ $t('this_patient_has_other_studies', { count: samePatientStudiesCount }) }}.
+                        <router-link :to='samePatientStudiesLink' >
+                            {{ $t('this_patient_has_other_studies_show') }}
+                        </router-link>
+                    </p>
+                    <p v-if="isLocalOrthanc && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount == 1" class="info-text">
+                        {{ $t('this_patient_has_no_other_studies') }}
+                    </p>
+                    <p v-if="isRemoteSource && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1" class="info-text">
+                        {{ $t('this_remote_patient_has_local_studies', { count: samePatientStudiesCount }) }}
+                        <router-link :to='samePatientStudiesLink' >
+                            {{ $t('this_patient_has_other_studies_show') }}
+                        </router-link>
+                    </p>
+                    <p v-if="isRemoteSource && remoteStudyFoundLocally" class="info-text">
+                        {{ $t('this_study_is_already_stored_locally') }}
+                        <router-link :to='sameLocalStudyLink' >
+                            {{ $t('this_study_is_already_stored_locally_show') }}
+                        </router-link>
+                    </p>
 
-            </td>
-            <td width="20%" class="study-button-group">
-                <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
-                    :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                    :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" :studySeries="this.studySeries" @deletedResource="onDeletedStudy">
-                </ResourceButtonGroup>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="100">
-                <SeriesList :studyId="this.studyId" :studyMainDicomTags="this.studyMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags" :studySeries="this.studySeries" @deletedStudy="onDeletedStudy"></SeriesList>
-            </td>
-        </tr>
+                </td>
+                <td width="20%" class="study-button-group">
+                    <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
+                        :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
+                        :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" :studySeries="this.studySeries" @deletedResource="onDeletedStudy">
+                    </ResourceButtonGroup>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="100">
+                    <SeriesList :studyId="this.studyId" :studyMainDicomTags="this.studyMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags" :studySeries="this.studySeries" @deletedStudy="onDeletedStudy"></SeriesList>
+                </td>
+            </tr>
+        </tbody>
     </table>
 </template>
 

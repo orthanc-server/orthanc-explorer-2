@@ -45,13 +45,15 @@ export default {
 <template>
     <table class="table table-responsive table-sm instance-table">
         <thead>
-            <th width="2%" scope="col" class="instance-table-header"></th>
-            <th width="7%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
-                :title="$t('dicom_tags.InstanceNumber')">{{ $t('dicom_tags.InstanceNumber') }}</th>
-            <th width="40%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
-                title="SOP Instance UID">SOP Instance UID</th>
-            <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
-                :title="$t('dicom_tags.NumberOfFrames')"># {{$t('frames')}}</th>
+            <tr>
+                <th width="2%" scope="col" class="instance-table-header"></th>
+                <th width="7%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
+                    :title="$t('dicom_tags.InstanceNumber')">{{ $t('dicom_tags.InstanceNumber') }}</th>
+                <th width="40%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
+                    title="SOP Instance UID">SOP Instance UID</th>
+                <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
+                    :title="$t('dicom_tags.NumberOfFrames')"># {{$t('frames')}}</th>
+            </tr>
         </thead>
         <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
             :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"

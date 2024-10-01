@@ -57,14 +57,15 @@ export default {
 <template>
     <table class="table table-responsive table-sm series-table">
         <thead>
-            <th width="2%" scope="col" class="series-table-header"></th>
-            <th
-                width="7%"
-                scope="col"
-                class="series-table-header cut-text"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('SeriesNumber')"
-                >{{columnTitle('SeriesNumber')}}</th>
+            <tr>
+                <th width="2%" scope="col" class="series-table-header"></th>
+                <th
+                    width="7%"
+                    scope="col"
+                    class="series-table-header cut-text"
+                    data-bs-toggle="tooltip"
+                    :title="columnTooltip('SeriesNumber')"
+                    >{{columnTitle('SeriesNumber')}}</th>
                 <th
                 width="40%"
                 scope="col"
@@ -86,6 +87,7 @@ export default {
                 data-bs-toggle="tooltip"
                 :title="columnTooltip('instances_number')"
                 >{{columnTitle('instances_number')}}</th>
+            </tr>
         </thead>
         <SeriesItem
             v-for="seriesId in sortedSeriesIds"
