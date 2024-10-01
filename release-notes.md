@@ -5,6 +5,10 @@ Changes:
   - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedChanges"
   - Disable UI components on ReadOnly systems.
 
+Fixes:
+  - When modifying studies, dates selected from the DatePicker were not always taken into account.
+  - Primary viewer icon was not visible when using an external OHIF viewer.
+  
 
 1.6.2 (2024-09-23)
 ==================
