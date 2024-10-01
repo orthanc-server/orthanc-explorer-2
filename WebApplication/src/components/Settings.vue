@@ -134,6 +134,10 @@ export default {
                         <th scope="row" class="header">{{ $t('settings.storage_compression') }}</th>
                         <td class="value">{{ system.StorageCompression }}</td>
                     </tr>
+                    <tr>
+                        <th scope="row" class="header">{{ $t('settings.read_only') }}</th>
+                        <td class="value">{{ system.ReadOnly }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

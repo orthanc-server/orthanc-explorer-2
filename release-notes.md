@@ -3,6 +3,8 @@ Pending changes in the mainline
 
 Changes:
   - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedChanges"
+  - Disable UI components on ReadOnly systems.
+
 
 1.6.2 (2024-09-23)
 ==================

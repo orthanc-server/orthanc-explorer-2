@@ -211,6 +211,7 @@
         "permissions_global_instructions_html": "Éditer les permissions ci-dessous et cliquez sur <strong>Enregistrer</strong> pour appliquer les modifications.  <br>Pour chaque rôle, sélectionnez les étiquettes qui seront accessibles et les actions autorisées sur ces examens.",
         "permissions_instructions": "La liste de permission ne peut être modifiée; elle est définie dans le plugin authorization.",
         "plugins_not_enabled": "Les plugins qui sont chargés mais non-activés ou configurés correctement sont ",
+        "read_only": "Système en lecture seule",
         "roles_title": "Rôles",
         "roles_description_html": "Les rôles sont créés et modifiés dans Keycloak",
         "select_all_label_permissions": "Sélectionner toutes les permissions basées sur les étiquettes",
