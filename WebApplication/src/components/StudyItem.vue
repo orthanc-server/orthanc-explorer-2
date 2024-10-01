@@ -69,8 +69,6 @@ export default {
         }
 
     },
-    watch: {
-    },
     methods: {
         onDeletedStudy(studyId) {
             this.$emit("deletedStudy", this.studyId);

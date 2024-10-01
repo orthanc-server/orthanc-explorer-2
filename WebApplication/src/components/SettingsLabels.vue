@@ -94,15 +94,6 @@ export default {
                 || (this.availableLabels.length != this.allOriginalLabels.length)
                 || !this.availableLabels.every((v, i) => v === this.allOriginalLabels[i]);
         },
-    },
-    watch: {
-        // limitAvailableLabels(newValue, oldValue) {
-        //     if (newValue) {
-        //         this.availableLabels = [...this.allOriginalLabels];
-        //     } else {
-        //         this.availableLabels = [];
-        //     }
-        // }
     }
 }
 </script>

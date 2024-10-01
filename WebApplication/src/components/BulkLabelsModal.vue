@@ -32,8 +32,6 @@ export default {
             this.$emit("bulkModalClosed");
         });
     },
-    watch: {
-    },
     methods: {
         async showModal() {
             var myModal = new bootstrap.Modal(this.$el, {});

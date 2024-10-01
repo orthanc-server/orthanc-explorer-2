@@ -111,8 +111,6 @@ export default {
         async labelsUpdated() {
             this.$emit("studyLabelsUpdated", this.studyId);
         }
-    },
-    watch: {
     }
 
 }
