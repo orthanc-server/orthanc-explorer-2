@@ -146,16 +146,16 @@ export default {
             }
         },
         hasPdfReportIconPlaceholder() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && !this.hasPdfReportIcon;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableQuickReportButton && !this.hasPdfReportIcon;
         },
         hasPdfReportIcon() {
-            return this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1;
+            return this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1 && this.uiOptions.EnableQuickReportButton;
         },
         hasPrimaryViewerIconPlaceholder() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && !this.hasPrimaryViewerIcon;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableQuickViewerButton && !this.hasPrimaryViewerIcon;
         },
         hasPrimaryViewerIcon() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.primaryViewerUrl;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.primaryViewerUrl && this.uiOptions.EnableQuickViewerButton;
         },
         primaryViewerUrl() {
             return resourceHelpers.getPrimaryViewerUrl("study", this.study.ID, this.study.MainDicomTags.StudyInstanceUID);

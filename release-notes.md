@@ -1,6 +1,15 @@
 Pending changes
 ===============
 
+Changes:
+  - new configuration "EnableQuickViewerButton" to enable/disable a button
+    to open a viewer directly from the study list (default value: true).
+  - new configuration "EnableQuickReportButton" to enable/disable a button
+    to open a PDF report directly from the study list if available in the study.
+    (default value: false).  Note that, with Orthanc version up to 1.12.4, this
+    option may slow down the display of the study list.
+    
+
 Fixes:
   - When modifying studies, dates selected from the DatePicker were not always taken into account.
   - Primary viewer icon was not visible when using an external OHIF viewer.
