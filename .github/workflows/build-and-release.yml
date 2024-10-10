@@ -65,6 +65,8 @@ jobs:
       with:
         name: web-app-dist
         path: WebApplication/dist/
+        if-no-files-found: error
+
 
   build:
     name: ${{ matrix.config.os }}-build
@@ -130,6 +132,7 @@ jobs:
       with:
         path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
+        if-no-files-found: error
 
     - name: Setup tmate session
       if: ${{ failure() }}
@@ -174,6 +177,7 @@ jobs:
       with:
         path: ./upload_url
         name: upload_url
+        if-no-files-found: error
 
 
   publish:
