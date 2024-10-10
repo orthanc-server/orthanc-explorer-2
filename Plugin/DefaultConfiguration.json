@@ -48,8 +48,8 @@
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
-            "EnableQuickViewerButton": true,            // Enables a button in the study list to directly open a viewer
-            "EnableQuickReportButton": true,            // Enables a button in the study list to directly open a PDF report if available in the study
+            "EnableViewerQuickButton": true,            // Enables a button in the study list to directly open a viewer
+            "EnableReportQuickButton": true,            // Enables a button in the study list to directly open a PDF report if available in the study
 
             "EnableEditLabels": true,                   // Enables labels management (create/delete/assign/unassign)
             "AvailableLabels": [],                      // If not empty, this list prevents the creation of new labels and only allows add/remove of the listed labels.
