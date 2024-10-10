@@ -61,7 +61,8 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - uses: actions/upload-artifact@v4.4.3
+    - name: upload web-app-dist to artifacts
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: web-app-dist
         path: WebApplication/dist/
@@ -128,7 +129,7 @@ jobs:
         MAKEFLAG: -j4
 
     - name: Upload
-    - uses: actions/upload-artifact@v4.4.3
+      uses: actions/upload-artifact@v4.4.3
       with:
         path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
@@ -173,7 +174,8 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
 
-    - uses: actions/upload-artifact@v4.4.3
+    - name: Upload release url artifact
+      uses: actions/upload-artifact@v4.4.3
       with:
         path: ./upload_url
         name: upload_url
