@@ -61,7 +61,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: web-app-dist
         path: WebApplication/dist/
@@ -105,7 +105,7 @@ jobs:
     - name: show gitref / tags
       run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
 
-    - uses: actions/download-artifact@v4.1.7
+    - uses: actions/download-artifact@v4
       id: download
       with:
         name: web-app-dist
@@ -126,7 +126,7 @@ jobs:
         MAKEFLAG: -j4
 
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
@@ -170,7 +170,7 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         path: ./upload_url
         name: upload_url
@@ -206,13 +206,13 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./
 
     - name: Download URL
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: upload_url
         path: ./
