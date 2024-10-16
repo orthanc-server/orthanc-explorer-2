@@ -648,7 +648,14 @@ export default {
                 await this.$store.dispatch('studies/clearStudies');
                 if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
                     return;
+                } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this['configuration/hasExtendedChanges']) {
+                    const studies = await api.getMostRecentStudies((this.filterLabels.length > 0 ? this.filterLabels[0] : null));
+                    for (const study of studies) {
+                        this.$store.dispatch('studies/addStudy', { studyId: study["ID"], study: study, reloadStats: false });
+                    }
                 } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
+                    // legacy code
+
                     if (this.isLoadingLatestStudies) {
                         // if currently loading, stop it
                         this.shouldStopLoadingLatestStudies = true;

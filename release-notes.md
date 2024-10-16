@@ -2,7 +2,7 @@ Pending changes in the mainline
 ===============================
 
 Changes:
-  - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedChanges"
+  - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedFind"
   - Disable UI components on ReadOnly systems.
   - new configuration "EnableLabelsCount" to enable/disable the display of the number of
     studies with each label.

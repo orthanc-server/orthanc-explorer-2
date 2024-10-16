@@ -95,6 +95,32 @@ export default {
                 signal: window.axiosFindStudiesAbortController.signal
             })).data;
     },
+    async getMostRecentStudies(label) {
+        await this.cancelFindStudies();
+        window.axiosFindStudiesAbortController = new AbortController();
+
+        let payload = {
+            "Level": "Study",
+            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+            "Query": {},
+            "RequestedTags": store.state.configuration.requestedTagsForStudyList,
+            "OrderBy" : [{
+                'Type': 'Metadata',
+                'Key': 'LastUpdate',
+                'Direction': 'DESC'
+            }],
+            "Expand": true
+        };
+        if (label) {
+            payload["Labels"] = [label];
+            payload["LabelsConstraint"] = "All";
+        }
+
+        return (await axios.post(orthancApiUrl + "tools/find", payload, 
+            {
+                signal: window.axiosFindStudiesAbortController.signal
+            })).data;
+    },
     async getLastChangeId() {
         const response = (await axios.get(orthancApiUrl + "changes?last"));
         return response.data["Last"];
