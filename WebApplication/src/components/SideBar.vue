@@ -16,7 +16,8 @@ export default {
         return {
             // selectedModality: null,
             selectedLabel: null,
-            modalitiesEchoStatus: {}
+            modalitiesEchoStatus: {},
+            labelsStudyCount: {},
         };
     },
     computed: {
@@ -95,9 +96,6 @@ export default {
         isSelectedLabel(label) {
             return this.labelsFilter.includes(label);
         },
-        onAllLabelsChanged() {
-            this.$store.dispatch('labels/refresh');
-        },
         logout(event) {
             event.preventDefault();
             let logoutOptions = {
@@ -116,10 +114,29 @@ export default {
             }).catch((error) => {
                 console.error("login for password change failed", error);
             })
+        },
+        async loadLabelsCount() {
+            if (Object.entries(this.labelsStudyCount).length == 0) {
+                for (const label of this.allLabels) {
+                    this.labelsStudyCount[label] = null;
+                }
+            }
+            if (this.uiOptions.EnableLabelsCount) {
+                for (const [k, v] of Object.entries(this.labelsStudyCount)) {
+                    if (v == null) {
+                        this.labelsStudyCount[k] = await api.getLabelStudyCount(k);
+                    }
+                }
+            }
         }
-
+    },
+    watch: {
+        allLabels(newValue, oldValue) {
+            this.loadLabelsCount();
+        }
     },
     mounted() {
+        this.loadLabelsCount();
         this.$refs['modalities-collapsible'].addEventListener('show.bs.collapse', (e) => {
             for (const modality of this.queryableDicomModalities) {
                 this.modalitiesEchoStatus[modality] = null;
@@ -168,6 +185,7 @@ export default {
                         v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
                             <i class="fa fa-tag label-icon"></i>
                             {{ label }}
+                            <span class="study-count ms-auto">{{ labelsStudyCount[label] }}</span>
                         </li>
                     </ul>
 

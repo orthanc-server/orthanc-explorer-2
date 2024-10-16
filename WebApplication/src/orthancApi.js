@@ -494,6 +494,15 @@ export default {
 
         return response.data;
     },
+    async getLabelStudyCount(label) {
+        const response = (await axios.post(orthancApiUrl + "tools/count-resources", {
+            "Level": "Study",
+            "Query": {},
+            "Labels": [label],
+            "LabelConstraint" : "All"
+        }));
+        return response.data["Count"];
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
