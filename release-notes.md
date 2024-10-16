@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Fixes:
+  - When modifying studies, dates selected from the DatePicker were not always taken into account.
+
+
 1.6.4 (2024-10-10)
 ==================
 

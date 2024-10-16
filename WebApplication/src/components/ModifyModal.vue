@@ -258,6 +258,7 @@ export default {
                     }
 
                     const originalPatient = await api.findPatient(this.originalTags['PatientID']);
+                    this.updateDateTags();
                     const jobId = await api.modifyResource({
                         resourceLevel: 'patient',
                         orthancId: originalPatient['ID'],
@@ -269,6 +270,7 @@ export default {
                     console.log("modify-patient-tags-in-all-studies: created job ", jobId);
                     this.startMonitoringJob(jobId);
                 } else if (this.action == 'anonymize-study') {
+                    this.updateDateTags();
                     const jobId = await api.anonymizeResource({
                         resourceLevel: 'study',
                         orthancId: this.orthancId,
@@ -322,6 +324,7 @@ export default {
 
                     // generate a new StudyInstanceUID (since we perform modification at series level, orthanc would keep even if not listed in keepTags)
                     this.tags['StudyInstanceUID'] = await api.generateUid('study');
+                    this.updateDateTags();
                     const jobId = await api.modifyResource({
                         resourceLevel: 'series',
                         orthancId: this.orthancId,
@@ -343,6 +346,7 @@ export default {
                     console.log("modify-series-tags: created job ", jobId);
                     this.startMonitoringJob(jobId);                            
                 } else if (this.action == 'anonymize-series') {
+                    this.updateDateTags();
                     const jobId = await api.anonymizeResource({
                         resourceLevel: 'series',
                         orthancId: this.orthancId,
@@ -540,8 +544,14 @@ export default {
                 return true;
             }
             return false;
-        }
-
+        },
+        updateDateTags() {
+            for (const [k,] of Object.entries(this.tags)) {
+                if (dateHelpers.isDateTag(k)) {
+                    this.tags[k] = dateHelpers.dicomDateFromDatePicker(this.dateTags[k]);
+                }
+            }
+        },
     },
     computed: {
         ...mapState({
@@ -588,12 +598,10 @@ export default {
             return (Object.keys(this.modifiedTags).length > 0 || areTagsRemoved)
         },
         modifiedTags() {
+            this.updateDateTags();
+
             let modifiedTags = {};
-            
             for (const [k,] of Object.entries(this.tags)) {
-                if (dateHelpers.isDateTag(k)) {
-                    this.tags[k] = dateHelpers.dicomDateFromDatePicker(this.dateTags[k]);
-                }
                 if (this.tags[k] != this.originalTags[k] && !this.removedTags[k]) {
                     modifiedTags[k] = this.tags[k];
                 }
