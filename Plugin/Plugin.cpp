@@ -669,6 +669,8 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         LOG(INFO) << "Overriding \"Enable...\" in UiOptions with the permissions from the auth-service for this user-profile";
 
         UpdateUiOptions(uiOptions["EnableStudyList"], permissions, "all|view");
+        UpdateUiOptions(uiOptions["EnableViewerQuickButton"], permissions, "all|view");
+        UpdateUiOptions(uiOptions["EnableReportQuickButton"], permissions, "all|view");
         UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
         UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
         UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");

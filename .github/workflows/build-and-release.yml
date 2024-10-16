@@ -39,9 +39,9 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: [pre-build]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: '19'
 
@@ -61,10 +61,13 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - uses: actions/upload-artifact@v3
+    - name: upload web-app-dist to artifacts
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: web-app-dist
         path: WebApplication/dist/
+        if-no-files-found: error
+
 
   build:
     name: ${{ matrix.config.os }}-build
@@ -100,12 +103,12 @@ jobs:
           }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: show gitref / tags
       run: echo ${{ github.ref }} ${{needs.pre-build.outputs.current_branch_tag}} ${{needs.pre-build.outputs.is_tag}}
 
-    - uses: actions/download-artifact@v4.1.7
+    - uses: actions/download-artifact@v4
       id: download
       with:
         name: web-app-dist
@@ -126,10 +129,11 @@ jobs:
         MAKEFLAG: -j4
 
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4.4.3
       with:
         path: ${{github.workspace}}/build/${{matrix.config.artifactPath}}
         name: ${{matrix.config.artifact}}
+        if-no-files-found: error
 
     - name: Setup tmate session
       if: ${{ failure() }}
@@ -144,7 +148,7 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: [pre-build]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - run: python3 ./scripts/check-translations.py
 
@@ -170,10 +174,12 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
 
-    - uses: actions/upload-artifact@v3
+    - name: Upload release url artifact
+      uses: actions/upload-artifact@v4.4.3
       with:
         path: ./upload_url
         name: upload_url
+        if-no-files-found: error
 
 
   publish:
@@ -206,13 +212,13 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./
 
     - name: Download URL
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4
       with:
         name: upload_url
         path: ./

@@ -156,10 +156,10 @@ export default {
             return this.uiOptions.DateFormat;
         },
         hasPrimaryViewerIcon() {
-            return this.sourceType == SourceType.LOCAL_ORTHANC;
+            return this.sourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableViewerQuickButton;
         },
         hasPdfReportIcon() {
-            return this.sourceType == SourceType.LOCAL_ORTHANC;
+            return this.sourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableReportQuickButton;
         }
     },
     watch: {
