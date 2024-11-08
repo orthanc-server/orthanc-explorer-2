@@ -420,26 +420,21 @@ export default {
                 return false;
             }
 
-            // // from isValidMode() in OHIF code
-            // // disable if it only contains modalities that are not supported by this mode: 
-            // let modalities = this.modalitiesList;
-            // modalities = modalities.filter(x => !['SM', 'US', 'MG', 'OT', 'DOC', 'CR'].includes(x));  // since Set.difference is not supported on Firefox as of March 2024
-            // if (modalities.length == 0) {
-            //     return false;
-            // }
+            if (this.uiOptions.EnableOpenInOhifViewer3 && this.hasOhifViewer) {
+                if (this.resourceLevel == "bulk" && this.ohifDataSource == 'dicom-web') {
+                    return true; // unable to check the list of modalities in this case -> allow it
+                } else if (this.resourceLevel == "study") {
+                    // // from isValidMode() in OHIF code
+                    // Don't show the mode if the selected studies have only one modality that is not supported by the mode
+                    if (this.modalitiesList.length == 1 && ['SM', 'ECG', 'OT', 'DOC'].includes(this.modalitiesList[0])) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }
 
-            // disable if it is not reconstructible
-            if (!(this.modalitiesList.includes("CT") && this.modalitiesList.includes("PT") && !this.modalitiesList.includes("SM"))
-                && this.resourceLevel != "bulk") // we can not check the modalities list for bulk mode)
-            {
-                return false;
-            }
- 
-            if (this.uiOptions.EnableOpenInOhifViewer3) {
-                return this.hasOhifViewer && (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.ohifDataSource == 'dicom-web'));
-            } else {
-                return false;
-            }
+            return false;
         },
         hasOhifViewerButtonMicroscopy() {
             if (!this.uiOptions.ViewersOrdering.includes("ohif-micro") || this.studiesSourceType != SourceType.LOCAL_ORTHANC) {
