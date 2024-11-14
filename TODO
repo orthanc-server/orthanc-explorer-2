@@ -1,8 +1,9 @@
+- implement pagination to fetch studies 100 -> 200 when we scroll to the end of the study-list
+- implement pagination to fetch instances 100 -> 200 when we scroll to the end of the instance-list (displaying 2000 instances in one go sometimes takes 10 seconds !)
+
+
 - add a "reset" button (on Windows, to reload the config after you have changed it without going to the Services -> Orthanc -> Restart)
 - show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)
-- handle the EnableLabels "permission"
-
-- use DatePicker in remote modality study list
 
 - predefined filters in config file to display below Studies:
   - "Today": {"StudyDate": "$today"}
@@ -12,15 +13,14 @@
 UI improvements:
 - Admin theme including responsive tables (including multiline): https://github.com/lekoala/admini
 - tags: https://github.com/lekoala/bootstrap5-tags
- 
+- when opening the series view I would prefer to see an image and it’s labels over a list of instance numbers and paired SOPInstanceUIDs:
+  https://discourse.orthanc-server.org/t/beginner-questions-from-horos-user/5322
 
 - modification:
   - configuration to hide DICOM UID options and select the right one directly for a given setup.
   - add a Series Description renamer (one dialog to edit SeriesNumber + SeriesDescription of a study)
 
 - show attachments
-
-- support dicom-web plugin (QIDO-RS UI)
 
 - support neuro plugin (download nifti)
 
@@ -53,12 +53,7 @@ UI improvements:
      }
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
 
-- make table sortable and faster search by maintaining a cache DB (SQLite in each Orthanc instance handled by the oe2 plugin)
-  - only for studies.  with a few indexed tags (the ones from the UI table)
-  - plugin monitors /changes route to see changes from all orthancs (instead of reacting to change events)
-  - to monitor deleted studies, react to change event + call other oe2 plugin API ?  (need to list all orthanc urls somewhere)
-  - from OHIF doc for their study list: When the Study List is opened, the application queries the PACS for 101 studies by default. If there are greater than 100 studies    
-       returned, the default sort for the study list is dictated by the image archive that hosts these studies for the viewer and study list sorting will be disabled. If there are less than or equal to 100 studies returned, they will be sorted by study date (most recent to oldest) and study list sorting will be enabled. Whenever a query returns greater than 100 studies, use filters to narrow results below 100 studies to enable Study List sorting.
+- make table sortable 
 
 - orthanc-share should generate QR code with publication links
 

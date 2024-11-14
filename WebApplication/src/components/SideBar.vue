@@ -3,7 +3,7 @@
 import UploadHandler from "./UploadHandler.vue"
 import JobsList from "./JobsList.vue";
 import LanguagePicker from "./LanguagePicker.vue";
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import { orthancApiUrl, oe2ApiUrl } from "../globalConfigurations";
 import api from "../orthancApi"
 import SourceType from "../helpers/source-type";
@@ -37,6 +37,9 @@ export default {
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
         }),
+        ...mapGetters([
+            'configuration/hasExtendedFind',        // -> this['configuration/hasExtendedFind']
+        ]),
         customLogoUrl() {
             if (this.hasCustomLogo && this.configuration.customLogoUrl) {
                 return this.customLogoUrl;
@@ -121,10 +124,12 @@ export default {
                     this.labelsStudyCount[label] = null;
                 }
             }
-            if (this.uiOptions.EnableLabelsCount) {
-                for (const [k, v] of Object.entries(this.labelsStudyCount)) {
-                    if (v == null) {
-                        this.labelsStudyCount[k] = await api.getLabelStudyCount(k);
+            if (this['configuration/hasExtendedFind']) {
+                if (this.uiOptions.EnableLabelsCount) {
+                    for (const [k, v] of Object.entries(this.labelsStudyCount)) {
+                        if (v == null) {
+                            this.labelsStudyCount[k] = await api.getLabelStudyCount(k);
+                        }
                     }
                 }
             }

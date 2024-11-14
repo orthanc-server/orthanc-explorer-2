@@ -96,6 +96,7 @@ export default {
         }),
         ...mapGetters([
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
+            'configuration/hasExtendedFind',        // -> this['configuration/hasExtendedFind']
             'configuration/hasExtendedChanges',     // -> this['configuration/hasExtendedChanges']
         ]),
         notShowingAllResults() {
@@ -648,7 +649,7 @@ export default {
                 await this.$store.dispatch('studies/clearStudies');
                 if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
                     return;
-                } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this['configuration/hasExtendedChanges']) {
+                } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this['configuration/hasExtendedFind']) {
                     const studies = await api.getMostRecentStudies((this.filterLabels.length > 0 ? this.filterLabels[0] : null));
                     for (const study of studies) {
                         this.$store.dispatch('studies/addStudy', { studyId: study["ID"], study: study, reloadStats: false });
