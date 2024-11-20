@@ -20,6 +20,10 @@ UI improvements:
   - configuration to hide DICOM UID options and select the right one directly for a given setup.
   - add a Series Description renamer (one dialog to edit SeriesNumber + SeriesDescription of a study)
 
+- settings:
+  - show the list of /tools/accepted-transfer-syntaxes
+  - show the list of /tools/accepted-sop-classes (in 1.12.6)
+
 - show attachments
 
 - support neuro plugin (download nifti)
