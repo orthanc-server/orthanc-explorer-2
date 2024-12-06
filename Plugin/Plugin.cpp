@@ -463,12 +463,12 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     else if (pluginName == "ohif")
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
-      std::string ohifDataSource = "dicom-json";
+      std::string ohifDataSource = "dicom-web";
       if (GetPluginConfiguration(pluginConfiguration, "OHIF"))
       {
-        if (pluginConfiguration.isMember("DataSource") && pluginConfiguration["DataSource"].asString() == "dicom-web")
+        if (pluginConfiguration.isMember("DataSource") && pluginConfiguration["DataSource"].asString() == "dicom-json")
         {
-          ohifDataSource = "dicom-web";
+          ohifDataSource = "dicom-json";
         }
       }
       pluginsConfiguration[pluginName]["DataSource"] = ohifDataSource;

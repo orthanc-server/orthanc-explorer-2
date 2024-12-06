@@ -4,6 +4,7 @@ Pending changes
 Fixes:
   - When modifying studies, dates selected from the DatePicker were not always taken into account.
   - Fixed the criteria to display the OHIF Segmentation viewer.
+  - Fixed compatibility with OHIF 1.4 if OHIF.DataSource is not defined.
 
 1.6.4 (2024-10-10)
 ==================
