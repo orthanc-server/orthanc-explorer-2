@@ -748,16 +748,16 @@ export default {
 
 
 <template>
-    <div>
+    <div class="content-study-list">
         <div v-if="isRemoteDicom || isRemoteDicomWeb" class="remote-browsing-warning">
             <div>
                 <p v-if="isRemoteDicom" v-html="$t('remote_dicom_browsing', { source: remoteSource})"></p>
                 <p v-if="isRemoteDicomWeb" v-html="$t('remote_dicom_web_browsing', { source: remoteSource})"></p>
             </div>
         </div>
-        <table class="table table-responsive table-sm study-table table-borderless">
-            <thead class="study-table-header">
-                <tr>
+        <table class="table table-sm study-table table-borderless">
+            <thead >
+                <tr class="study-column-titles">
                     <th width="2%" scope="col" ></th>
                     <th v-if="hasPrimaryViewerIcon" width="4%" scope="col" ></th>
                     <th v-if="hasPdfReportIcon" width="4%" scope="col" ></th>
@@ -767,63 +767,59 @@ export default {
                             columnTitle(columnTag)
                         }}</th>
                 </tr>
-            </thead>
-            <thead class="study-table-filters" v-on:keyup.enter="search">
-                <tr>
-                <th scope="col">
-                    <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
-                        data-bs-toggle="tooltip" title="Clear filter">
-                        <i class="fa-regular fa-circle-xmark"></i>
-                    </button>
-                </th>
-                <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
-                <th v-if="hasPdfReportIcon" scope="col" ></th>
-                <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                    <div v-if="columnTag == 'StudyDate'">
-                        <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                            :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
-                            :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
-                            <template #yearly="{ label, range, presetDate }">
-                                <span @click="presetDate(range)">{{ label }}</span>
-                            </template>
-                        </Datepicker>
-                    </div>
-                    <div v-else-if="columnTag == 'modalities'" class="dropdown">
-                        <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
-                            data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
-                                class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
-                            @click="modalityFilterClicked" id="modality-filter-dropdown">
-                            <li><label class="dropdown-item"><input type="checkbox" data-value="all"
-                                        @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
-                                            $t('all_modalities') }}</label></li>
-                            <li><label class="dropdown-item"><input type="checkbox" data-value="none"
-                                        @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
-                                            $t('no_modalities') }}</label></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
-                                <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
-                                        v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
-                            </li>
-                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close') }}</button></li>
-                        </ul>
-                    </div>
-                    <div v-else-if="columnTag == 'PatientBirthDate'">
-                        <Datepicker v-model="filterPatientBirthDateForDatePicker"
-                            :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
-                            arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
-                        </Datepicker>
-                    </div>
-                    <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
-                        v-model="this.filterGenericTags[columnTag]" v-bind:placeholder="getFilterPlaceholder(columnTag)"
-                        v-bind:class="getFilterClass(columnTag)" />
+                <tr class="study-table-filters" v-on:keyup.enter="search">
+                    <th scope="col">
+                        <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
+                            data-bs-toggle="tooltip" title="Clear filter">
+                            <i class="fa-regular fa-circle-xmark"></i>
+                        </button>
+                    </th>
+                    <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
+                    <th v-if="hasPdfReportIcon" scope="col" ></th>
+                    <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
+                        <div v-if="columnTag == 'StudyDate'">
+                            <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
+                                :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                                :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                <template #yearly="{ label, range, presetDate }">
+                                    <span @click="presetDate(range)">{{ label }}</span>
+                                </template>
+                            </Datepicker>
+                        </div>
+                        <div v-else-if="columnTag == 'modalities'" class="dropdown">
+                            <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
+                                data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
+                                    class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
+                                @click="modalityFilterClicked" id="modality-filter-dropdown">
+                                <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                            @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                                $t('all_modalities') }}</label></li>
+                                <li><label class="dropdown-item"><input type="checkbox" data-value="none"
+                                            @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
+                                                $t('no_modalities') }}</label></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                    <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
+                                            v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
+                                </li>
+                                <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close') }}</button></li>
+                            </ul>
+                        </div>
+                        <div v-else-if="columnTag == 'PatientBirthDate'">
+                            <Datepicker v-model="filterPatientBirthDateForDatePicker"
+                                :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
+                                arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                            </Datepicker>
+                        </div>
+                        <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
+                            v-model="this.filterGenericTags[columnTag]" v-bind:placeholder="getFilterPlaceholder(columnTag)"
+                            v-bind:class="getFilterClass(columnTag)" />
                     </th>
                 </tr>
-            </thead>
-            <thead class="study-table-actions">
-                <tr>
+                <tr class="study-table-actions">
                     <th width="2%" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
                             <input class="form-check-input" type="checkbox" v-model="allSelected"
@@ -929,9 +925,15 @@ button.form-control.study-list-filter {
   padding-bottom: var(--filter-padding);
 }
 
-.study-table-header {
+.content-study-list {
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+.study-column-titles {
   background-color: var(--study-table-header-bg-color) !important;
 }
+
 
 .study-table-title {
   text-align: left;
@@ -939,6 +941,7 @@ button.form-control.study-list-filter {
   padding-right: 4px;
   vertical-align: middle;
   line-height: 1.2rem;
+  position: sticky;
 }
 
 /* .study-table> :not(:first-child) {
@@ -981,15 +984,15 @@ button.form-control.study-list-filter {
   background-color: var(--study-table-filter-bg-color);
 }
 
-.study-table-filters > tr > th {
+.study-table-filters > th {
   background-color: var(--study-table-filter-bg-color);
 }
 
-.study-table-filters > tr > th >  button{
+.study-table-filters > th >  button{
   background-color: var(--bs-table-bg);
 }
 
-.study-table-filters > tr > th {
+.study-table-filters > th {
   text-align: left;
   padding-left: 10px !important;
   padding-top: 0px;
@@ -1024,12 +1027,12 @@ button.form-control.study-list-filter {
   margin-right: 0.7rem;
 }
 
-.study-table-actions > tr > th {
+.study-table-actions > th {
   background-color: var(--study-table-actions-bg-color) !important;
   vertical-align: middle;
 }
 
-.study-table-actions > tr > th > div {
+.study-table-actions > th > div {
   background-color: var(--study-table-actions-bg-color) !important;
   text-align: left;
 }
