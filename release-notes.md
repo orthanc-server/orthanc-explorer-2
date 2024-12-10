@@ -6,7 +6,8 @@ Changes:
   - Disable some UI components on ReadOnly systems.
   - New configuration "EnableLabelsCount" to enable/disable the display of the number of
     studies with each label.
-    
+  - The study list header is now sticking on top of the screen.
+
 Fixes:
   - When modifying studies, dates selected from the DatePicker were not always taken into account.
   - Fixed the criteria to display the OHIF Segmentation viewer.

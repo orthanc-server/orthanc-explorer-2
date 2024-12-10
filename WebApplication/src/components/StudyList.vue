@@ -161,6 +161,13 @@ export default {
         },
         hasPdfReportIcon() {
             return this.sourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableReportQuickButton;
+        },
+        selectedStudiesCount() {
+            if (this.selectedStudiesIds.length > 0) {
+                return this.selectedStudiesIds.length;
+            } else {
+                return "";
+            }
         }
     },
     watch: {
@@ -756,7 +763,7 @@ export default {
             </div>
         </div>
         <table class="table table-sm study-table table-borderless">
-            <thead >
+            <thead class="sticky-top">
                 <tr class="study-column-titles">
                     <th width="2%" scope="col" ></th>
                     <th v-if="hasPrimaryViewerIcon" width="4%" scope="col" ></th>
@@ -823,7 +830,7 @@ export default {
                     <th width="2%" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
                             <input class="form-check-input" type="checkbox" v-model="allSelected"
-                                :indeterminate="isPartialSelected" @click="clickSelectAll">
+                                :indeterminate="isPartialSelected" @click="clickSelectAll"><span style="font-weight: 400; font-size: small;">{{ selectedStudiesCount }}</span>
                         </div>
                     </th>
                     <th width="98%" colspan="10" scope="col">
