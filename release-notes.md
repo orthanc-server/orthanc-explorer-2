@@ -2,6 +2,7 @@ Pending changes in the mainline
 ===============================
 
 Changes:
+  - Allow sorting by columns when the Orthanc DB supports "ExtendedFind"
   - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedFind"
   - Disable some UI components on ReadOnly systems.
   - New configuration "EnableLabelsCount" to enable/disable the display of the number of

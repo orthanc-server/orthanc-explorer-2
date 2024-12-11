@@ -74,7 +74,7 @@ export default {
             window.axiosFindStudiesAbortController = null;
         }
     },
-    async findStudies(filterQuery, labels, LabelsConstraint) {
+    async findStudies(filterQuery, labels, LabelsConstraint, orderBy) {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
@@ -85,9 +85,14 @@ export default {
             "RequestedTags": store.state.configuration.requestedTagsForStudyList,
             "Expand": true
         };
+        
         if (labels && labels.length > 0) {
             payload["Labels"] = labels;
             payload["LabelsConstraint"] = LabelsConstraint;
+        }
+
+        if (orderBy && orderBy.length > 0) {
+            payload["OrderBy"] = orderBy;
         }
 
         return (await axios.post(orthancApiUrl + "tools/find", payload, 

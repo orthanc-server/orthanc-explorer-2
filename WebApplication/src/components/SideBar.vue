@@ -29,7 +29,7 @@ export default {
             queryableDicomWebServers: state => state.configuration.queryableDicomWebServers,
             studiesIds: state => state.studies.studiesIds,
             statistics: state => state.studies.statistics,
-            labelsFilter: state => state.studies.labelsFilter,
+            labelFilters: state => state.studies.labelFilters,
             jobs: state => state.jobs.jobsIds,
             allLabels: state => state.labels.allLabels,
             hasCustomLogo: state => state.configuration.hasCustomLogo,
@@ -97,7 +97,7 @@ export default {
             this.messageBus.emit('filter-label-changed', label);
         },
         isSelectedLabel(label) {
-            return this.labelsFilter.includes(label);
+            return this.labelFilters.includes(label);
         },
         logout(event) {
             event.preventDefault();

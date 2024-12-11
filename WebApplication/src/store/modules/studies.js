@@ -18,7 +18,8 @@ const state = () => ({
     studies: [],  // studies as returned by tools/find
     studiesIds: [],
     dicomTagsFilters: {..._clearedFilter},
-    labelsFilter: [],
+    labelFilters: [],
+    orderByFilters: [],
     statistics: {},
     isSearching: false,
     selectedStudiesIds: [],
@@ -58,7 +59,7 @@ const getters = {
         }
         return query;
     },
-    isFilterEmpty: (state, getters) => {
+    isFilterEmpty: (state) => {
         for (const [k, v] of Object.entries(state.dicomTagsFilters)) {
             if (k == 'ModalitiesInStudy') {
                 if (v && v != 'NONE') {
@@ -101,12 +102,19 @@ const mutations = {
     },
     clearFilter(state) {
         state.dicomTagsFilters = {..._clearedFilter};
-        state.labelsFilter = [];
+        state.labelFilters = [];
     },
-    setLabelsFilter(state, { labels }) {
-        state.labelsFilter = [];
+    setLabelFilters(state, { labels }) {
+        state.labelFilters = [];
         for (let f of labels) {
-            state.labelsFilter.push(f);
+            state.labelFilters.push(f);
+        }
+    },
+    setOrderByFilters(state, { orderBy }) {
+        console.log("setOrderByFilters");
+        state.orderByFilters = [];
+        for (let f of orderBy) {
+            state.orderByFilters.push(f);
         }
     },
     setSource(state, { sourceType, remoteSource }) {
@@ -181,10 +189,21 @@ const actions = {
         const value = payload['value'];
         commit('setFilter', { dicomTagName, value })
     },
-    async updateLabelsFilterNoReload({ commit }, payload) {
+    async updateLabelFilterNoReload({ commit }, payload) {
         const labels = payload['labels'];
-        commit('setLabelsFilter', { labels })
+        commit('setLabelFilters', { labels })
     },
+    async updateOrderByNoReload({ commit }, payload) {
+        const orderBy = payload['orderBy'];
+        commit('setOrderByFilters', { orderBy })
+    },
+    async updateOrderBy({ commit }, payload) {
+        const orderBy = payload['orderBy'];
+        commit('setOrderByFilters', { orderBy })
+
+        this.dispatch('studies/reloadFilteredStudies');
+    },
+
     async updateSource({ commit }, payload) {
         const sourceType = payload['source-type'];
         const remoteSource = payload['remote-source'];
@@ -206,55 +225,56 @@ const actions = {
         commit('setStudiesIds', { studiesIds: [] });
         commit('setStudies', { studies: [] });
 
-        if (!getters.isFilterEmpty) {
-            try {
-                commit('setIsSearching', { isSearching: true});
-                let studies = [];
+        try {
+            commit('setIsSearching', { isSearching: true});
+            let studies = [];
 
-                if (state.sourceType == SourceType.LOCAL_ORTHANC) {
-                    studies = (await api.findStudies(getters.filterQuery, state.labelsFilter, "All"));
-                    studies.sort((a, b) => (a.MainDicomTags.StudyDate ?? "") < (b.MainDicomTags.StudyDate ?? "") ? 1 : -1);
-                } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
-                    // make sure to fill all columns of the StudyList
-                    let filters = {
-                        "PatientBirthDate": "",
-                        "PatientID": "",
-                        "AccessionNumber": "",
-                        "PatientBirthDate": "",
-                        "StudyDescription": "",
-                        "StudyDate": ""
-                    };
+            if (state.sourceType == SourceType.LOCAL_ORTHANC) {
+                let orderBy = [...state.orderByFilters];
+                if (state.orderByFilters.length == 0) {
+                    orderBy.push({'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC'})
+                }
+                studies = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy));
+            } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
+                // make sure to fill all columns of the StudyList
+                let filters = {
+                    "PatientBirthDate": "",
+                    "PatientID": "",
+                    "AccessionNumber": "",
+                    "PatientBirthDate": "",
+                    "StudyDescription": "",
+                    "StudyDate": ""
+                };
 
-                    // request values for e.g ModalitiesInStudy, NumberOfStudyRelatedSeries
-                    for (let t of store.state.configuration.requestedTagsForStudyList) {
-                        filters[t] = "";
-                    }
-
-                    // overwrite with the filtered values
-                    for (const [k, v] of Object.entries(getters.filterQuery)) {
-                        filters[k] = v;
-                    }
-
-                    let remoteStudies;
-                    if (state.sourceType == SourceType.REMOTE_DICOM) {
-                        remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
-                    } else if (state.sourceType == SourceType.REMOTE_DICOM_WEB) {
-                        remoteStudies = (await api.qidoRs("Study", state.remoteSource, filters, true /* isUnique */));
-                    }
-                    
-                    // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
-                    studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
+                // request values for e.g ModalitiesInStudy, NumberOfStudyRelatedSeries
+                for (let t of store.state.configuration.requestedTagsForStudyList) {
+                    filters[t] = "";
                 }
 
-                studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
-                let studiesIds = studies.map(s => s['ID']);
-                commit('setStudiesIds', { studiesIds: studiesIds });
-                commit('setStudies', { studies: studies });
-            } catch (err) {
-                console.log("Find studies cancelled", err);
-            } finally {
-                commit('setIsSearching', { isSearching: false});
+                // overwrite with the filtered values
+                for (const [k, v] of Object.entries(getters.filterQuery)) {
+                    filters[k] = v;
+                }
+
+                let remoteStudies;
+                if (state.sourceType == SourceType.REMOTE_DICOM) {
+                    remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
+                } else if (state.sourceType == SourceType.REMOTE_DICOM_WEB) {
+                    remoteStudies = (await api.qidoRs("Study", state.remoteSource, filters, true /* isUnique */));
+                }
+                
+                // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
+                studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
             }
+
+            studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
+            let studiesIds = studies.map(s => s['ID']);
+            commit('setStudiesIds', { studiesIds: studiesIds });
+            commit('setStudies', { studies: studies });
+        } catch (err) {
+            console.log("Find studies cancelled", err);
+        } finally {
+            commit('setIsSearching', { isSearching: false});
         }
     },
     async cancelSearch() {
