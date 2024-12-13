@@ -74,7 +74,7 @@ export default {
             window.axiosFindStudiesAbortController = null;
         }
     },
-    async findStudies(filterQuery, labels, LabelsConstraint, orderBy) {
+    async findStudies(filterQuery, labels, LabelsConstraint, orderBy, since) {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
@@ -93,6 +93,10 @@ export default {
 
         if (orderBy && orderBy.length > 0) {
             payload["OrderBy"] = orderBy;
+        }
+
+        if (since) {
+            payload["Since"] = since;
         }
 
         return (await axios.post(orthancApiUrl + "tools/find", payload, 

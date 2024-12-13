@@ -87,7 +87,10 @@ export default {
             this.selected = false;
         },
         async clickedSelect() {
+            // console.log(this.studyId, this.selected);
             await this.$store.dispatch('studies/selectStudy', { studyId: this.studyId, isSelected: !this.selected }); // this.selected is the value before the click
+            this.selected = !this.selected;
+            // console.log(this.studyId, this.selected);
         }
     },
     computed: {

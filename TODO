@@ -57,8 +57,6 @@ UI improvements:
      }
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
 
-- make table sortable 
-
 - orthanc-share should generate QR code with publication links
 
 - Q&R on multiple modalities at a same time (select the modalities you want to Q&R and display the modality in the study list)

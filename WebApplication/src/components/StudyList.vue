@@ -11,6 +11,7 @@ import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, s
 import api from "../orthancApi";
 import { ref } from 'vue';
 import SourceType from "../helpers/source-type";
+import { ObserveVisibility as vObserveVisibility } from 'vue3-observe-visibility'
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy", "labels"]
 
@@ -737,6 +738,11 @@ export default {
 
             await this.$router.replace(newUrl);
         },
+        async extendStudyList() {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && this['configuration/hasExtendedFind']) {
+                await this.$store.dispatch('studies/extendFilteredStudies');
+            }
+        },
         async reloadStudyList() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC && this['configuration/hasExtendedFind']) {
                 await this.$store.dispatch('studies/clearStudies');
@@ -842,6 +848,16 @@ export default {
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });
         },
+        visibilityChanged(isVisible, entry) {
+            if (isVisible) {
+                let studyId = entry.target.id;
+                if (studyId == this.studiesIds[this.studiesIds.length - 1]) {
+                    // console.log("Last element shown -> should load more studies");
+                    this.extendStudyList();
+                }
+            }
+            
+        }
     },
     components: { StudyItem, ResourceButtonGroup }
 }
@@ -983,7 +999,7 @@ export default {
                     </th>
                 </tr>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId"
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId" v-observe-visibility="{callback: visibilityChanged, once: true}"
                 @deletedStudy="onDeletedStudy">
             </StudyItem>
 

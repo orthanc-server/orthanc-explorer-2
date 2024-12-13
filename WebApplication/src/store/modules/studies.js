@@ -37,6 +37,76 @@ function insert_wildcards(initialValue) {
     return finalValue.replaceAll('**', '');
 }
 
+async function get_studies_shared(context, append) {
+    const commit = context.commit;
+    const state = context.state;
+    const getters = context.getters;
+
+    if (!append) {
+        commit('setStudiesIds', { studiesIds: [] });
+        commit('setStudies', { studies: [] });
+    }
+
+    try {
+        commit('setIsSearching', { isSearching: true});
+        let studies = [];
+
+        if (state.sourceType == SourceType.LOCAL_ORTHANC) {
+            let orderBy = [...state.orderByFilters];
+            if (state.orderByFilters.length == 0) {
+                orderBy.push({'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC'})
+            }
+            let since = (append ? state.studiesIds.length : null);
+            studies = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy, since));
+        } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
+            // make sure to fill all columns of the StudyList
+            let filters = {
+                "PatientBirthDate": "",
+                "PatientID": "",
+                "AccessionNumber": "",
+                "PatientBirthDate": "",
+                "StudyDescription": "",
+                "StudyDate": ""
+            };
+
+            // request values for e.g ModalitiesInStudy, NumberOfStudyRelatedSeries
+            for (let t of store.state.configuration.requestedTagsForStudyList) {
+                filters[t] = "";
+            }
+
+            // overwrite with the filtered values
+            for (const [k, v] of Object.entries(getters.filterQuery)) {
+                filters[k] = v;
+            }
+
+            let remoteStudies;
+            if (state.sourceType == SourceType.REMOTE_DICOM) {
+                remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
+            } else if (state.sourceType == SourceType.REMOTE_DICOM_WEB) {
+                remoteStudies = (await api.qidoRs("Study", state.remoteSource, filters, true /* isUnique */));
+            }
+            
+            // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
+            studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
+        }
+
+        studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
+        let studiesIds = studies.map(s => s['ID']);
+
+        if (!append) {
+            commit('setStudiesIds', { studiesIds: studiesIds });
+            commit('setStudies', { studies: studies });
+        } else {
+            commit('extendStudiesIds', { studiesIds: studiesIds });
+            commit('extendStudies', { studies: studies });
+        }
+    } catch (err) {
+        console.log("Find studies cancelled", err);
+    } finally {
+        commit('setIsSearching', { isSearching: false});
+    }
+}
+
 ///////////////////////////// GETTERS
 const getters = {
     filterQuery: (state) => {
@@ -84,6 +154,12 @@ const mutations = {
     },
     setStudies(state, { studies }) {
         state.studies = studies;
+    },
+    extendStudiesIds(state, { studiesIds }) {
+        state.studiesIds.push(...studiesIds);
+    },
+    extendStudies(state, { studies }) {
+        state.studies.push(...studies);
     },
     addStudy(state, { studyId, study }) {
         if (!state.studiesIds.includes(studyId)) {
@@ -221,61 +297,11 @@ const actions = {
         commit('setStudiesIds', { studiesIds: [] });
         commit('setStudies', { studies: [] });
     },
+    async extendFilteredStudies({ commit, getters, state }) {
+        get_studies_shared({ commit, getters, state }, true);
+    },
     async reloadFilteredStudies({ commit, getters, state }) {
-        commit('setStudiesIds', { studiesIds: [] });
-        commit('setStudies', { studies: [] });
-
-        try {
-            commit('setIsSearching', { isSearching: true});
-            let studies = [];
-
-            if (state.sourceType == SourceType.LOCAL_ORTHANC) {
-                let orderBy = [...state.orderByFilters];
-                if (state.orderByFilters.length == 0) {
-                    orderBy.push({'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC'})
-                }
-                studies = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy));
-            } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
-                // make sure to fill all columns of the StudyList
-                let filters = {
-                    "PatientBirthDate": "",
-                    "PatientID": "",
-                    "AccessionNumber": "",
-                    "PatientBirthDate": "",
-                    "StudyDescription": "",
-                    "StudyDate": ""
-                };
-
-                // request values for e.g ModalitiesInStudy, NumberOfStudyRelatedSeries
-                for (let t of store.state.configuration.requestedTagsForStudyList) {
-                    filters[t] = "";
-                }
-
-                // overwrite with the filtered values
-                for (const [k, v] of Object.entries(getters.filterQuery)) {
-                    filters[k] = v;
-                }
-
-                let remoteStudies;
-                if (state.sourceType == SourceType.REMOTE_DICOM) {
-                    remoteStudies = (await api.remoteDicomFind("Study", state.remoteSource, filters, true /* isUnique */));
-                } else if (state.sourceType == SourceType.REMOTE_DICOM_WEB) {
-                    remoteStudies = (await api.qidoRs("Study", state.remoteSource, filters, true /* isUnique */));
-                }
-                
-                // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
-                studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
-            }
-
-            studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
-            let studiesIds = studies.map(s => s['ID']);
-            commit('setStudiesIds', { studiesIds: studiesIds });
-            commit('setStudies', { studies: studies });
-        } catch (err) {
-            console.log("Find studies cancelled", err);
-        } finally {
-            commit('setIsSearching', { isSearching: false});
-        }
+        get_studies_shared({ commit, getters, state }, false);
     },
     async cancelSearch() {
         await api.cancelFindStudies();

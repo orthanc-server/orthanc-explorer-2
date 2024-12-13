@@ -2,11 +2,13 @@ Pending changes in the mainline
 ===============================
 
 Changes:
-  - Allow sorting by columns when the Orthanc DB supports "ExtendedFind"
-  - Optimized loading of "most-recent" studies when the Orthanc DB supports "ExtendedFind"
+  - When Orthanc DB supports "ExtendedFind" (SQLite in 1.12.5+ and PosgreSQL 7.0+):
+    - new features in the local studies list:
+      - Allow sorting by columns
+      - Optimized loading of "most-recent" studies
+      - Load the following studies when scrolling to the bottom of the current list.
+    - New configuration "EnableLabelsCount" to enable/disable the display of the number of studies with each label.
   - Disable some UI components on ReadOnly systems.
-  - New configuration "EnableLabelsCount" to enable/disable the display of the number of
-    studies with each label.
   - The study list header is now sticking on top of the screen.
 
 Fixes:

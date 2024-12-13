@@ -15,6 +15,7 @@ import axios from 'axios'
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import mitt from "mitt"
+import VueObserveVisibility from 'vue3-observe-visibility'
 
 // Names of the params that can contain an authorization token
 // If one of these params contain a token, it will be passed as a header
@@ -30,6 +31,7 @@ axios.get('../api/pre-login-configuration').then((config) => {
     app.use(router)
     app.use(store)
     app.use(i18n)
+    app.use(VueObserveVisibility)
     app.component('Datepicker', Datepicker);
 
     app.config.globalProperties.messageBus = messageBus;
