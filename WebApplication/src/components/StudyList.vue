@@ -728,7 +728,7 @@ export default {
                     orders.push([order['Type'], order['Key'], order['Direction']].join(','))
                 }
 
-                orderBy = 'ordery-by=' + orders.join(';')
+                orderBy = 'order-by=' + orders.join(';')
             }
 
             let newUrl = "";
