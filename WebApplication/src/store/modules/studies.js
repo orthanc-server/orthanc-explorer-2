@@ -57,6 +57,10 @@ async function get_studies_shared(context, append) {
                 orderBy.push({'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC'})
             }
             let since = (append ? state.studiesIds.length : null);
+
+            if (!store.state.configuration.hasExtendedFind) {
+                orderBy = null;
+            }
             studies = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy, since));
         } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
             // make sure to fill all columns of the StudyList
