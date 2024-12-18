@@ -1,6 +1,7 @@
 <script>
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import InstanceList from "./InstanceList.vue";
+import InstanceListExtended from "./InstanceListExtended.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
 import { mapState, mapGetters } from "vuex"
 import api from "../orthancApi";
@@ -23,10 +24,20 @@ export default {
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
         }),
+        ...mapGetters([
+            'configuration/hasExtendedFind',        // -> this['configuration/hasExtendedFind']
+        ]),
+        useExtendedInstanceList() {
+            return this['configuration/hasExtendedFind'] && this.studiesSourceType == SourceType.LOCAL_ORTHANC;
+        }
     },
     async mounted() {
         if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
-            this.seriesInstances = await api.getSeriesInstances(this.seriesId);
+            if (this.useExtendedInstanceList) {
+                this.seriesInstances = await api.getSeriesInstancesExtended(this.seriesId, null);
+            } else {
+                this.seriesInstances = await api.getSeriesInstances(this.seriesId);
+            }
         } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
             let remoteInstances = (await api.remoteDicomFind("Instance", this.studiesRemoteSource, {
                     "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
@@ -58,7 +69,7 @@ export default {
             this.seriesInstances = this.seriesInstances.sort((a, b) => (parseInt(a.MainDicomTags.InstanceNumber) ?? a.MainDicomTags.SOPInstanceUID) < (parseInt(b.MainDicomTags.InstanceNumber) ?? b.MainDicomTags.SOPInstanceUID) ? 1 : -1);
         }
     },
-    components: { ResourceButtonGroup, InstanceList, ResourceDetailText },
+    components: { ResourceButtonGroup, InstanceList, InstanceListExtended, ResourceDetailText },
     methods: {
         onDeletedInstance(instanceId) {
             const pos = this.instancesIds.indexOf(instanceId);
@@ -103,7 +114,7 @@ export default {
             </tr>
             <tr>
                 <td colspan="100">
-                    <InstanceList
+                    <InstanceList v-if="!useExtendedInstanceList"
                         :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
                         :patientMainDicomTags="this.patientMainDicomTags"
@@ -112,6 +123,15 @@ export default {
                         :seriesInstances="this.seriesInstances"
                         @deletedInstance="onDeletedInstance"
                     ></InstanceList>
+                    <InstanceListExtended v-if="useExtendedInstanceList"
+                        :seriesId="this.seriesId"
+                        :seriesMainDicomTags="this.seriesMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags"
+                        :studyMainDicomTags="this.studyMainDicomTags"
+                        :instancesIds="this.instancesIds"
+                        :seriesInstances="this.seriesInstances"
+                        @deletedInstance="onDeletedInstance"
+                    ></InstanceListExtended>
                 </td>
             </tr>
         </tbody>

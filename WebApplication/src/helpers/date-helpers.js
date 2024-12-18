@@ -71,6 +71,9 @@ export default {
         return output;
     },
     formatDateForDisplay(dicomDate, dateFormat) {
+        if (!dicomDate) {
+            return "";
+        }
         if (dicomDate && dicomDate.length == 8) {
             let d = parse(dicomDate, "yyyyMMdd", new Date());
             if (!isNaN(d.getDate())) {

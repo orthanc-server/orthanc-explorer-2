@@ -160,7 +160,6 @@ export default {
         }
         const response = (await axios.post(orthancApiUrl + "tools/find", {
             "Level": "Study",
-            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
             "Query": query,
             "Expand": false
         }));
@@ -340,6 +339,29 @@ export default {
     },
     async getSeriesInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
+    },
+    async getSeriesInstancesExtended(orthancId, since) {
+        const limit = store.state.configuration.uiOptions.MaxStudiesDisplayed;
+        let payload = {
+            "Level": "Instance",
+            "Limit": limit,
+            "ParentSeries": orthancId,
+            "Query": {},
+            "OrderBy" : [
+                { "Type": "MetadataAsInt",
+                  "Key": "IndexInSeries",
+                  "Direction": "ASC"  
+                }
+            ],
+            "Expand": true
+        };
+
+        if (since) {
+            payload["Since"] = since;
+        }
+        
+        const response = (await axios.post(orthancApiUrl + "tools/find", payload));
+        return response.data;
     },
     async getStudyInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/instances")).data;
