@@ -2,6 +2,8 @@ Pending changes in the mainline (upcoming 1.7.0)
 ===============================
 
 Changes:
+  - Disable some UI components on ReadOnly systems.
+  - The study list header is now sticking on top of the screen.
   - When Orthanc DB supports "ExtendedFind" (SQLite in 1.12.5+ and PosgreSQL 7.0+):
     - new features in the local studies list:
       - Allow sorting by columns
@@ -12,9 +14,7 @@ Changes:
       the local study list since we have implemented "infinite-scroll".  However, the option
       is still used when performing remote DicomWEB queries.
     - New configuration "PageLoadSize" that defines the number of items that are loaded when scrolling the study or instance list.
-
-  - Disable some UI components on ReadOnly systems.
-  - The study list header is now sticking on top of the screen.
+    - The "StudyListContentIfNoSearch" configuration is now taken into account and always considered as "most-recents".
 
 Fixes:
   - When modifying studies, dates selected from the DatePicker were not always taken into account.
