@@ -23,12 +23,10 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
+            hasExtendedFind: state => state.configuration.hasExtendedFind
         }),
-        ...mapGetters([
-            'configuration/hasExtendedFind',        // -> this['configuration/hasExtendedFind']
-        ]),
         useExtendedInstanceList() {
-            return this['configuration/hasExtendedFind'] && this.studiesSourceType == SourceType.LOCAL_ORTHANC;
+            return this.hasExtendedFind && this.studiesSourceType == SourceType.LOCAL_ORTHANC;
         }
     },
     async mounted() {

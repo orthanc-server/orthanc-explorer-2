@@ -108,14 +108,14 @@ export default {
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics,
+            hasExtendedFind: state => state.configuration.hasExtendedFind,
+            hasExtendedChanges: state => state.configuration.hasExtendedChanges
         }),
         ...mapGetters([
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
-            'configuration/hasExtendedFind',        // -> this['configuration/hasExtendedFind']
-            'configuration/hasExtendedChanges',     // -> this['configuration/hasExtendedChanges']
         ]),
         notShowingAllResults() {
-            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
                 if (this.studiesIds.length >= this.statistics.CountStudies) {
                     return false;
                 }
@@ -326,7 +326,7 @@ export default {
             }
         },
         isOrderable(tagName) {
-            if (this.sourceType != SourceType.LOCAL_ORTHANC || !this['configuration/hasExtendedFind']) {
+            if (this.sourceType != SourceType.LOCAL_ORTHANC || !this.hasExtendedFind) {
                 return false;
             }
 
@@ -739,12 +739,12 @@ export default {
             await this.$router.replace(newUrl);
         },
         async extendStudyList() {
-            if (this.sourceType == SourceType.LOCAL_ORTHANC && this['configuration/hasExtendedFind']) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
                 await this.$store.dispatch('studies/extendFilteredStudies');
             }
         },
         async reloadStudyList() {
-            if (this.sourceType == SourceType.LOCAL_ORTHANC && this['configuration/hasExtendedFind']) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
                 await this.$store.dispatch('studies/clearStudies');
                 await this.$store.dispatch('studies/reloadFilteredStudies');
             } else {
@@ -755,8 +755,8 @@ export default {
                     await this.$store.dispatch('studies/clearStudies');
                     if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
                         return;
-                    } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this['configuration/hasExtendedFind']) {
-                        const studies = await api.getMostRecentStudies((this.filterLabels.length > 0 ? this.filterLabels[0] : null));
+                    } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.hasExtendedFind) {
+                        const studies = await api.getMostRecentStudiesExtended((this.filterLabels.length > 0 ? this.filterLabels[0] : null));
                         for (const study of studies) {
                             this.$store.dispatch('studies/addStudy', { studyId: study["ID"], study: study, reloadStats: false });
                         }
@@ -792,7 +792,7 @@ export default {
         async loadStudiesFromChange(toChangeId, limit) {
             let changes;
             let changesResponse;
-            if (this['configuration/hasExtendedChanges']) {
+            if (this.hasExtendedChanges) {
                 changesResponse = await api.getChangesExtended(toChangeId, limit, ["NewStudy", "StableStudy"]);
                 changes = changesResponse["Changes"];
             } else {
@@ -827,7 +827,7 @@ export default {
             }
             if (!this.shouldStopLoadingLatestStudies) {
                 if (this.latestStudiesIds.size < this.statistics.CountStudies) {
-                    if (this['configuration/hasExtendedChanges']) {
+                    if (this.hasExtendedChanges) {
                         if (!changesResponse["Done"]) {
                             setTimeout(() => {this.loadStudiesFromChange(changesResponse["First"], 1000)}, 1);
                         }

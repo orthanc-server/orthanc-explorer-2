@@ -1,4 +1,4 @@
-Pending changes in the mainline
+Pending changes in the mainline (upcoming 1.7.0)
 ===============================
 
 Changes:
@@ -8,6 +8,11 @@ Changes:
       - Optimized loading of "most-recent" studies
       - Load the following studies when scrolling to the bottom of the current list.
     - New configuration "EnableLabelsCount" to enable/disable the display of the number of studies with each label.
+    - The "MaxStudiesDisplayed" configuration is not taken into account anymore for
+      the local study list since we have implemented "infinite-scroll".  However, the option
+      is still used when performing remote DicomWEB queries.
+    - New configuration "PageLoadSize" that defines the number of items that are loaded when scrolling the study or instance list.
+
   - Disable some UI components on ReadOnly systems.
   - The study list header is now sticking on top of the screen.
 

@@ -36,10 +36,8 @@ export default {
             configuration: state => state.configuration,
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
+            hasExtendedFind: state => state.configuration.hasExtendedFind
         }),
-        ...mapGetters([
-            'configuration/hasExtendedFind',        // -> this['configuration/hasExtendedFind']
-        ]),
         customLogoUrl() {
             if (this.hasCustomLogo && this.configuration.customLogoUrl) {
                 return this.customLogoUrl;
@@ -124,7 +122,7 @@ export default {
                     this.labelsStudyCount[label] = null;
                 }
             }
-            if (this['configuration/hasExtendedFind']) {
+            if (this.hasExtendedFind) {
                 if (this.uiOptions.EnableLabelsCount) {
                     for (const [k, v] of Object.entries(this.labelsStudyCount)) {
                         if (v == null) {

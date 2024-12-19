@@ -78,9 +78,14 @@ export default {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
+        let limit = store.state.configuration.uiOptions.MaxStudiesDisplayed;
+        if (store.state.configuration.hasExtendedFind) {
+            limit = store.state.configuration.uiOptions.PageLoadSize;
+        }
+
         let payload = {
             "Level": "Study",
-            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+            "Limit": limit,
             "Query": filterQuery,
             "RequestedTags": store.state.configuration.requestedTagsForStudyList,
             "Expand": true
@@ -104,13 +109,13 @@ export default {
                 signal: window.axiosFindStudiesAbortController.signal
             })).data;
     },
-    async getMostRecentStudies(label) {
+    async getMostRecentStudiesExtended(label) {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
         let payload = {
             "Level": "Study",
-            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
+            "Limit": store.state.configuration.uiOptions.PageLoadSize,
             "Query": {},
             "RequestedTags": store.state.configuration.requestedTagsForStudyList,
             "OrderBy" : [{
@@ -341,7 +346,7 @@ export default {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
     },
     async getSeriesInstancesExtended(orthancId, since) {
-        const limit = store.state.configuration.uiOptions.MaxStudiesDisplayed;
+        const limit = store.state.configuration.uiOptions.PageLoadSize;
         let payload = {
             "Level": "Instance",
             "Limit": limit,

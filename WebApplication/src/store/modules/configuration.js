@@ -19,26 +19,13 @@ const state = () => ({
     ohifDataSource: "dicom-web",
     customLogoUrl: null,
     hasCustomLogo: false, 
-    requestedTagsForStudyList: []
+    requestedTagsForStudyList: [],
+    hasExtendedFind: false,
+    hasExtendedChanges: false,
 })
 
 ///////////////////////////// GETTERS
 const getters = {
-    hasExtendedFind: (state) => {
-        if ("Capabilities" in state.system){
-            return state.system.Capabilities.HasExtendedFind;
-        } else {
-            return false;
-        }
-    },
-    hasExtendedChanges: (state) => {
-        if ("Capabilities" in state.system){
-            return state.system.Capabilities.HasExtendedChanges;
-        } else {
-            return false;
-        }
-
-    }
 }
 
 ///////////////////////////// MUTATIONS
@@ -82,6 +69,8 @@ const mutations = {
     },
     setSystem(state, { system }) {
         state.system = system;
+        state.hasExtendedFind = "Capabilities" in state.system && state.system.Capabilities.HasExtendedFind;
+        state.hasExtendedChanges = "Capabilities" in state.system && state.system.Capabilities.HasExtendedChanges;
     },
     setLoaded(state) {
         state.loaded = true;
