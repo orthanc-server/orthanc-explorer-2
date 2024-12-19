@@ -65,7 +65,7 @@ export default {
                 if (instance.RequestedTags.SOPClassUID == "1.2.840.10008.5.1.4.1.1.104.1") {
                     let titles = [];
                     if (instance.RequestedTags.SeriesDate) {
-                        titles.push(dateHelpers.formatDateForDisplay(instance.RequestedTags.SeriesDate));
+                        titles.push(dateHelpers.formatDateForDisplay(instance.RequestedTags.SeriesDate, this.uiOptions.DateFormat));
                     }
                     if (instance.RequestedTags.SeriesDescription) {
                         titles.push(instance.RequestedTags.SeriesDescription);
