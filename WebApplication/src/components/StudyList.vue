@@ -115,7 +115,7 @@ export default {
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
         ]),
         notShowingAllResults() {
-            if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && !this.hasExtendedFind) {
                 if (this.studiesIds.length >= this.statistics.CountStudies) {
                     return false;
                 }
@@ -153,7 +153,7 @@ export default {
         },
         showEmptyStudyListIfNoSearch() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
-                return this.uiOptions.StudyListContentIfNoSearch == "empty";
+                return !this.hasExtendedFind && this.uiOptions.StudyListContentIfNoSearch == "empty";
             } else {
                 return true;
             }
