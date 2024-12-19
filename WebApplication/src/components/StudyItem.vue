@@ -19,7 +19,7 @@ export default {
             expanded: false,
             collapseElement: null,
             selected: false,
-            pdfReportsUrl: []
+            pdfReports: []
         };
     },
     created() {
@@ -60,10 +60,22 @@ export default {
         }
 
         if (this.hasPdfReportIcon) {
-            let instances = await api.getStudyInstancesExpanded(this.study.ID, ["SOPClassUID"]);
+            let instances = await api.getStudyInstancesExpanded(this.study.ID, ["SOPClassUID", "SeriesDate", "SeriesDescription"]);
             for (let instance of instances) {
                 if (instance.RequestedTags.SOPClassUID == "1.2.840.10008.5.1.4.1.1.104.1") {
-                    this.pdfReportsUrl.push(api.getInstancePdfUrl(instance.ID));
+                    let titles = [];
+                    if (instance.RequestedTags.SeriesDate) {
+                        titles.push(dateHelpers.formatDateForDisplay(instance.RequestedTags.SeriesDate));
+                    }
+                    if (instance.RequestedTags.SeriesDescription) {
+                        titles.push(instance.RequestedTags.SeriesDescription);
+                    }
+
+                    this.pdfReports.push({
+                        'url': api.getInstancePdfUrl(instance.ID),
+                        'title': titles.join(' - '),
+                        'id': instance.ID
+                    });
                 }
             }
         }
@@ -187,11 +199,12 @@ export default {
             </td>
             <td v-if="hasPrimaryViewerIconPlaceholder"></td>
             <td v-if="hasPdfReportIcon" class="td-pdf-icon">
-                <TokenLinkButton v-for="pdfReportUrl in pdfReportsUrl" :key="pdfReportUrl"
-                    level="study" :linkUrl="pdfReportUrl"
+                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id"
+                    level="study" :linkUrl="pdfReport.url"
                     :resourcesOrthancId="[study.ID]" linkType="icon"
                     iconClass="bi bi-file-earmark-text"
-                    :tokenType="'download-instant-link'" :opensInNewTab="true">
+                    :tokenType="'download-instant-link'" :opensInNewTab="true"
+                    :title="pdfReport.title">
                 </TokenLinkButton>
             </td>
             <td v-if="hasPdfReportIconPlaceholder"></td>

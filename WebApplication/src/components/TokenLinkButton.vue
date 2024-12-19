@@ -109,7 +109,7 @@ export default {
             :href="linkUrl">{{ title }}
         </a>
         <a v-if="isIcon" class="icon" :target="target" @click="clicked"
-            :href="linkUrl">
+            data-bs-toggle="tooltip" :title="title" :href="linkUrl">
             <i :class="iconClass" style="padding-top: 4px;"></i>
         </a>
     </div>
