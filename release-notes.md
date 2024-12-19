@@ -1,5 +1,5 @@
-Pending changes in the mainline (upcoming 1.7.0)
-===============================
+1.7.0 (2024-12-19)
+==================
 
 Changes:
   - When Orthanc DB supports "ExtendedFind" (SQLite in 1.12.5+ and PosgreSQL 7.0+):
@@ -13,6 +13,8 @@ Changes:
       is still used when performing remote DicomWEB queries.
     - New configuration "PageLoadSize" that defines the number of items that are loaded when scrolling the study or instance list.
     - The "StudyListContentIfNoSearch" configuration is now taken into account and always considered as "most-recents".
+    - New "order-by" argument in the url to open the UI directly on a search result, e.g:
+      http://localhost:8042/ui/app/#/filtered-studies?StudyDate=20231213-20241213&order-by=DicomTag,StudyDate,ASC;DicomTag,PatientName,ASC;Metadata,LastUpdate,DESC 
   - Disable some UI components on ReadOnly systems.
   - The study list header is now sticking on top of the screen.
   - Quick report icon: now display the SeriesDate - SeriesDescription in a tooltip.
