@@ -142,7 +142,7 @@ const mutations = {
     selectStudy(state, {studyId, isSelected}) {
         if (isSelected && !state.selectedStudiesIds.includes(studyId)) {
             state.selectedStudiesIds.push(studyId);
-            state.selectedStudies = state.selectedStudies.concat(state.studies.filter(s => state.selectedStudiesIds.includes(s["ID"])))
+            state.selectedStudies = state.studies.filter(s => state.selectedStudiesIds.includes(s["ID"]));
         } else if (!isSelected) {
             const pos = state.selectedStudiesIds.indexOf(studyId);
             if (pos >= 0) {
