@@ -47,7 +47,7 @@ export default {
             return this.queryableDicomWebServers.length > 0;
         },
         hasQueryableDicomModalities() {
-            return this.uiOptions.EnableDicomModalities && this.queryableDicomModalities.length > 0;
+            return this.uiOptions.EnableDicomModalities && Object.keys(this.queryableDicomModalities).length > 0;
         },
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;
@@ -121,10 +121,10 @@ export default {
     },
     mounted() {
         this.$refs['modalities-collapsible'].addEventListener('show.bs.collapse', (e) => {
-            for (const modality of this.queryableDicomModalities) {
+            for (const modality of Object.keys(this.queryableDicomModalities)) {
                 this.modalitiesEchoStatus[modality] = null;
             }
-            for (const modality of this.queryableDicomModalities) {
+            for (const [modality, config] of Object.entries(this.queryableDicomModalities)) {
                 api.remoteModalityEcho(modality).then((response) => {
                     this.modalitiesEchoStatus[modality] = true;
                 }).catch(() => {
@@ -186,7 +186,7 @@ export default {
                         <span class="arrow ms-auto"></span>
                     </li>
                     <ul class="sub-menu collapse" id="modalities-list" ref="modalities-collapsible">
-                        <li v-for="modality in queryableDicomModalities" :key="modality"
+                        <li v-for="modality of Object.keys(queryableDicomModalities)" :key="modality"
                             v-bind:class="{ 'active': this.isSelectedModality(modality) }">
                             <router-link class="router-link"
                                 :to="{ path: '/filtered-studies', query: { 'source-type': 'dicom', 'remote-source': modality } }">

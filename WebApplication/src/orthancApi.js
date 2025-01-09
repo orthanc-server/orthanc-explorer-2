@@ -17,7 +17,7 @@ export default {
         return (await axios.get(orthancApiUrl + "peers")).data;
     },
     async loadDicomModalities() {
-        return (await axios.get(orthancApiUrl + "modalities")).data;
+        return (await axios.get(orthancApiUrl + "modalities?expand")).data;
     },
     async loadSystem() {
         return (await axios.get(orthancApiUrl + "system")).data;
@@ -251,25 +251,24 @@ export default {
         return retrieveJob["ID"];
     },
     async remoteDicomRetrieveResource(level, remoteModality, filterQuery, targetAet) {
-        const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/move", {
-            "Level": level,
-            "Resources" : [
-                filterQuery
-            ],
-            "TargetAet": targetAet,
-            "Synchronous": false
-        }));
-        
-        return response.data['ID'];
+        return this.remoteDicomRetrieveResources(level, this.remoteModality, [filterQuery], targetAet);
     },
     async remoteDicomRetrieveResources(level, remoteModality, filterQueries, targetAet) {
-        const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/move", {
+        const retrieveMethod = this.getRetrieveMethod(remoteModality);
+
+        let uriSegment = "/get";
+        let query = {
             "Level": level,
             "Resources" : filterQueries,
-            "TargetAet": targetAet,
             "Synchronous": false
-        }));
-        
+        }
+
+        if (retrieveMethod == "C-MOVE") {
+            query["TargetAet"] = targetAet;
+            uriSegment = "/move";
+        }
+
+        const response = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + uriSegment, query));
         return response.data['ID'];
     },
     async remoteModalityEcho(remoteModality) {
@@ -577,6 +576,14 @@ export default {
     },
     getApiUrl(level, resourceOrthancId, subroute) {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + subroute;
+    },
+    getRetrieveMethod(modality) {
+        const defaultRetrieveMethod = store.state.configuration.system.DefaultRetrieveMethod;
+        if (store.state.configuration.queryableDicomModalities[modality].RetrieveMethod == "SystemDefault") {
+            return defaultRetrieveMethod;
+        } else {
+            return store.state.configuration.queryableDicomModalities[modality];
+        }
     },
 
     pluralizeResourceLevel(level) {
