@@ -71,12 +71,19 @@ export default {
         return output;
     },
     formatDateForDisplay(dicomDate, dateFormat) {
-        if (dicomDate && dicomDate.length == 8) {
-            let d = parse(dicomDate, "yyyyMMdd", new Date());
-            return format(d, dateFormat);
-        } else {
+        if (!dicomDate) {
             return "";
         }
+        if (dicomDate && dicomDate.length == 8) {
+            let d = parse(dicomDate, "yyyyMMdd", new Date());
+            if (!isNaN(d.getDate())) {
+                return format(d, dateFormat);
+            }
+        }
+        if (dicomDate.length > 0) {
+            return dicomDate;
+        }
+        return "";
     },
     isDateTag(tagName) {
         return ["StudyDate", "PatientBirthDate", "SeriesDate", "AcquisitionDate", "ContentDate"].indexOf(tagName) != -1;

@@ -74,20 +74,60 @@ export default {
             window.axiosFindStudiesAbortController = null;
         }
     },
-    async findStudies(filterQuery, labels, LabelsConstraint) {
+    async findStudies(filterQuery, labels, LabelsConstraint, orderBy, since) {
+        await this.cancelFindStudies();
+        window.axiosFindStudiesAbortController = new AbortController();
+
+        let limit = store.state.configuration.uiOptions.MaxStudiesDisplayed;
+        if (store.state.configuration.hasExtendedFind) {
+            limit = store.state.configuration.uiOptions.PageLoadSize;
+        }
+
+        let payload = {
+            "Level": "Study",
+            "Limit": limit,
+            "Query": filterQuery,
+            "RequestedTags": store.state.configuration.requestedTagsForStudyList,
+            "Expand": true
+        };
+        
+        if (labels && labels.length > 0) {
+            payload["Labels"] = labels;
+            payload["LabelsConstraint"] = LabelsConstraint;
+        }
+
+        if (orderBy && orderBy.length > 0) {
+            payload["OrderBy"] = orderBy;
+        }
+
+        if (since) {
+            payload["Since"] = since;
+        }
+
+        return (await axios.post(orthancApiUrl + "tools/find", payload, 
+            {
+                signal: window.axiosFindStudiesAbortController.signal
+            })).data;
+    },
+    async getMostRecentStudiesExtended(label) {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
         let payload = {
             "Level": "Study",
-            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
-            "Query": filterQuery,
+            "Limit": store.state.configuration.uiOptions.PageLoadSize,
+            "Query": {},
             "RequestedTags": store.state.configuration.requestedTagsForStudyList,
+            "OrderBy" : [{
+                'Type': 'Metadata',
+                'Key': 'LastUpdate',
+                'Direction': 'DESC'
+            }],
             "Expand": true
         };
-        if (labels && labels.length > 0) {
-            payload["Labels"] = labels;
-            payload["LabelsConstraint"] = LabelsConstraint;
+        if (label) {
+            payload["Labels"] = [label];
+            payload["LabelsConstraint"] = "All";
         }
 
         return (await axios.post(orthancApiUrl + "tools/find", payload, 
@@ -101,6 +141,14 @@ export default {
     },
     async getChanges(since, limit) {
         const response = (await axios.get(orthancApiUrl + "changes?since=" + since + "&limit=" + limit));
+        return response.data;
+    },
+    async getChangesExtended(to, limit, filter = []) {
+        let url = orthancApiUrl + "changes?to=" + to + "&limit=" + limit;
+        if (filter.length > 0) {
+            url += "&type=" + filter.join(";")
+        }
+        const response = (await axios.get(url));
         return response.data;
     },
     async getSamePatientStudies(patientTags, tags) {
@@ -117,7 +165,6 @@ export default {
         }
         const response = (await axios.post(orthancApiUrl + "tools/find", {
             "Level": "Study",
-            "Limit": store.state.configuration.uiOptions.MaxStudiesDisplayed,
             "Query": query,
             "Expand": false
         }));
@@ -296,6 +343,29 @@ export default {
     },
     async getSeriesInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "series/" + orthancId + "/instances")).data;
+    },
+    async getSeriesInstancesExtended(orthancId, since) {
+        const limit = store.state.configuration.uiOptions.PageLoadSize;
+        let payload = {
+            "Level": "Instance",
+            "Limit": limit,
+            "ParentSeries": orthancId,
+            "Query": {},
+            "OrderBy" : [
+                { "Type": "MetadataAsInt",
+                  "Key": "IndexInSeries",
+                  "Direction": "ASC"  
+                }
+            ],
+            "Expand": true
+        };
+
+        if (since) {
+            payload["Since"] = since;
+        }
+        
+        const response = (await axios.post(orthancApiUrl + "tools/find", payload));
+        return response.data;
     },
     async getStudyInstances(orthancId) {
         return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/instances")).data;
@@ -484,6 +554,15 @@ export default {
         }))
 
         return response.data;
+    },
+    async getLabelStudyCount(label) {
+        const response = (await axios.post(orthancApiUrl + "tools/count-resources", {
+            "Level": "Study",
+            "Query": {},
+            "Labels": [label],
+            "LabelConstraint" : "All"
+        }));
+        return response.data["Count"];
     },
 
     ////////////////////////////////////////// HELPERS

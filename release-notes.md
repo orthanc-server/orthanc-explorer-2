@@ -1,13 +1,39 @@
-Pending changes
-===============
+Pending changes (not released)
+==============================
 
 Fixes:
-  - When modifying studies, dates selected from the DatePicker were not always taken into account.
-  - Fixed the criteria to display the OHIF Segmentation viewer.
   - Added status text in job progress bar.
   - When retrieving a study from a remote DICOM modality, use the default retrieve method:
     C-GET or C-MOVE.
   - Fixed empty PatientName column when querying a remote DICOM modality.
+
+
+1.7.0 (2024-12-19)
+==================
+
+Changes:
+  - When Orthanc DB supports "ExtendedFind" (SQLite in 1.12.5+ and PosgreSQL 7.0+):
+    - new features in the local studies list:
+      - Allow sorting by columns
+      - Optimized loading of "most-recent" studies
+      - Load the following studies when scrolling to the bottom of the current list.
+    - New configuration "EnableLabelsCount" to enable/disable the display of the number of studies with each label.
+    - The "MaxStudiesDisplayed" configuration is not taken into account anymore for
+      the local study list since we have implemented "infinite-scroll".  However, the option
+      is still used when performing remote DicomWEB queries.
+    - New configuration "PageLoadSize" that defines the number of items that are loaded when scrolling the study or instance list.
+    - The "StudyListContentIfNoSearch" configuration is not taken into account and always considered as "most-recents".
+    - New "order-by" argument in the url to open the UI directly on a search result, e.g:
+      http://localhost:8042/ui/app/#/filtered-studies?StudyDate=20231213-20241213&order-by=DicomTag,StudyDate,ASC;DicomTag,PatientName,ASC;Metadata,LastUpdate,DESC 
+  - Disable some UI components on ReadOnly systems.
+  - The study list header is now sticking on top of the screen.
+  - Quick report icon: now display the SeriesDate - SeriesDescription in a tooltip.
+
+Fixes:
+  - When modifying studies, dates selected from the DatePicker were not always taken into account.
+  - Fixed the criteria to display the OHIF Segmentation viewer.
+  - Fixed display of invalid dates like 00000000.
+  - Fixed compatibility with OHIF 1.4 if OHIF.DataSource is not defined.
 
 
 1.6.4 (2024-10-10)

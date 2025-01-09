@@ -11,46 +11,58 @@ import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, s
 import api from "../orthancApi";
 import { ref } from 'vue';
 import SourceType from "../helpers/source-type";
+import { ObserveVisibility as vObserveVisibility } from 'vue3-observe-visibility'
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy", "labels"]
 
 document._studyColumns = {
     "StudyDate": {
-        "width": "7%"
+        "width": "7%",
+        "isOrderable": true
     },
     "AccessionNumber": {
         "width": "11%",
-        "placeholder": "1234"
+        "placeholder": "1234",
+        "isOrderable": true
     },
     "PatientID": {
         "width": "11%",
-        "placeholder": "1234"
+        "placeholder": "1234",
+        "isOrderable": true
     },
     "PatientName": {
         "width": "15%",
-        "placeholder": "John^Doe"
+        "placeholder": "John^Doe",
+        "isOrderable": true
     },
     "PatientBirthDate": {
-        "width": "7%"
+        "width": "7%",
+        "isOrderable": true
     },
     "StudyDescription": {
         "width": "25%",
-        "placeholder": "Chest"
+        "placeholder": "Chest",
+        "isOrderable": true
     },
     "modalities": {
-        "width": "6%"
+        "width": "6%",
+        "isOrderable": false
     },
     "seriesCount": {
-        "width": "4%"
+        "width": "4%",
+        "isOrderable": false
     },
     "instancesCount": {
-        "width": "4%"
+        "width": "4%",
+        "isOrderable": false
     },
     "seriesAndInstancesCount": {
-        "width": "7%"
+        "width": "7%",
+        "isOrderable": false
     },
     "undefined": {
-        "width": "10%"
+        "width": "10%",
+        "isOrderable": false
     }
 };
 
@@ -67,6 +79,9 @@ export default {
             filterGenericTags : {},
             oldFilterGenericTags : {},
             filterLabels: [],
+            currentOrderByTag: null,
+            currentOrderDirection: 'ASC',
+            filterOrderBy: [{'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC'}],
             allModalities: true,
             noneModalities: false,
             updatingFilterUi: false,
@@ -92,13 +107,15 @@ export default {
             studiesIds: state => state.studies.studiesIds,
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
             isSearching: state => state.studies.isSearching,
-            statistics: state => state.studies.statistics
+            statistics: state => state.studies.statistics,
+            hasExtendedFind: state => state.configuration.hasExtendedFind,
+            hasExtendedChanges: state => state.configuration.hasExtendedChanges
         }),
         ...mapGetters([
-            'studies/isFilterEmpty', // -> this['studies/isFilterEmpty']
+            'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
         ]),
         notShowingAllResults() {
-            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && !this.hasExtendedFind) {
                 if (this.studiesIds.length >= this.statistics.CountStudies) {
                     return false;
                 }
@@ -136,7 +153,7 @@ export default {
         },
         showEmptyStudyListIfNoSearch() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
-                return this.uiOptions.StudyListContentIfNoSearch == "empty";
+                return !this.hasExtendedFind && this.uiOptions.StudyListContentIfNoSearch == "empty";
             } else {
                 return true;
             }
@@ -159,6 +176,13 @@ export default {
         },
         hasPdfReportIcon() {
             return this.sourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableReportQuickButton;
+        },
+        selectedStudiesCount() {
+            if (this.selectedStudiesIds.length > 0) {
+                return this.selectedStudiesIds.length;
+            } else {
+                return "";
+            }
         }
     },
     watch: {
@@ -301,6 +325,40 @@ export default {
                 return this.columns["undefined"].width;
             }
         },
+        isOrderable(tagName) {
+            if (this.sourceType != SourceType.LOCAL_ORTHANC || !this.hasExtendedFind) {
+                return false;
+            }
+
+            if (tagName in document._studyColumns) { 
+                return document._studyColumns[tagName].isOrderable;
+            } else {
+                return false;
+            }
+        },
+        isOrderTagUp(tagName) {
+            return tagName == this.currentOrderByTag && this.currentOrderDirection == 'DESC';
+        },
+        isOrderTagDown(tagName) {
+            return tagName == this.currentOrderByTag && this.currentOrderDirection == 'ASC';
+        },
+        toggleOrder(ev, tagName) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            if (this.currentOrderByTag == tagName) { // this tag is already used for ordering -> change order direction
+                this.currentOrderDirection = (this.currentOrderDirection == 'ASC' ? 'DESC' : 'ASC');
+            } else { // this tag is not used for ordering
+                this.currentOrderByTag = tagName;
+                this.currentOrderDirection = 'ASC';
+            }
+            let o = {'Type': 'DicomTag', 'Key': this.currentOrderByTag, 'Direction': this.currentOrderDirection};
+
+            // remove all DICOM Tag orders and insert this one as the first one
+            this.filterOrderBy = [o].concat(this.filterOrderBy.filter(i => i['Type'] != 'DicomTag'));
+
+            this._updateOrderBy();
+        },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
             for (const modality of this.uiOptions.ModalitiesFilter) {
@@ -431,13 +489,18 @@ export default {
             }
         },
         _updateLabelsFilter(labels) {
-            this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
+            this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels });
             this.updateUrlNoReload();
             this.reloadStudyList();
         },
         _updateFilter(dicomTagName, value) {
             this.searchTimerHandler[dicomTagName] = null;
             this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
+            this.updateUrlNoReload();
+            this.reloadStudyList();
+        },
+        _updateOrderBy() {
+            this.$store.dispatch('studies/updateOrderByNoReload', { orderBy: this.filterOrderBy });
             this.updateUrlNoReload();
             this.reloadStudyList();
         },
@@ -466,14 +529,34 @@ export default {
                 if (filterKey == "labels") {
                     const labels = filterValue.split(",");
                     keyValueFilters[filterKey] = labels;
-                    await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: labels });
+                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels });
+                } else if (filterKey == 'order-by') {
+                    if (this.sourceType == SourceType.LOCAL_ORTHANC) { // ignore order-by for remote sources
+                        this.filterOrderBy = [];
+                        this.currentOrderByTag = null;
+                        this.currentOrderDirection = 'ASC';
+
+                        let orders = filterValue.split(';');
+                        for (let order of orders) {
+                            let o = order.split(',');
+                            
+                            this.filterOrderBy.push({'Type': o[0], 'Key': o[1], 'Direction': o[2]});
+                            
+                            if (o[0] == 'DicomTag' && this.currentOrderByTag == null) {
+                                this.currentOrderByTag = o[1];
+                                this.currentOrderDirection = o[2];
+                            }
+                        }
+                        this._updateOrderBy();
+                    }
                 } else if (filterKey[0] === filterKey[0].toUpperCase()) {  // DicomTags starts with a capital letter
                     keyValueFilters[filterKey] = filterValue;
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
-                }
+                } 
             }
 
             await this.updateFilterForm(keyValueFilters);
+
             await this.reloadStudyList();
 
             this.updatingFilterUi = false;
@@ -485,6 +568,12 @@ export default {
             for (const [key, value] of Object.entries(filters)) {
                 if (key == "labels") {
                     this.filterLabels = value;
+                } else if (key == "order-by") {
+                    let orders = value.split(";")
+                    for (let order of orders) {
+                        let s = order.split(",");
+
+                    }
                 } else if (key == "StudyDate") {
                     this.filterStudyDate = value;
                     this.filterStudyDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
@@ -534,7 +623,7 @@ export default {
                     }
                 }
             }
-            return this.filterStudyDate == '' && this.filterPatientBirthDate == '' && !hasGenericTagFilter && this.filterLabels.length > 0;
+            return this.filterStudyDate == '' && this.filterPatientBirthDate == '' && !hasGenericTagFilter && this.filterLabels.length > 0 && this.filterOrderBy.length == 0;
         },
         async search() {
             if (this.isSearching) {
@@ -549,7 +638,7 @@ export default {
                         }
                     }
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.getModalityFilter() });    
-                    await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: this.filterLabels });
+                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels });
                 }
                 await this.updateUrlNoReload();
                 await this.reloadStudyList();
@@ -632,50 +721,86 @@ export default {
                 activeFilters.push('labels=' + this.filterLabels.join(","))
             }
 
+            let orderBy = "";
+            if (this.filterOrderBy.length > 0) {
+                let orders = []
+                for (let order of this.filterOrderBy) {
+                    orders.push([order['Type'], order['Key'], order['Direction']].join(','))
+                }
+
+                orderBy = 'order-by=' + orders.join(';')
+            }
+
             let newUrl = "";
-            if (activeFilters.length > 0) {
-                newUrl = "/filtered-studies?" + activeFilters.join('&');
+            if (activeFilters.length > 0 || orderBy.length > 0) {
+                newUrl = "/filtered-studies?" + [activeFilters.join('&'), orderBy].join('&');
             }
 
             await this.$router.replace(newUrl);
         },
-        async reloadStudyList() {
-            // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
-            const shouldShowMostRecentsWithLabel = this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.isFilteringOnlyOnLabels();
-
-            if (this.sourceType == SourceType.LOCAL_ORTHANC && (this['studies/isFilterEmpty'] || shouldShowMostRecentsWithLabel)) {
-                await this.$store.dispatch('studies/clearStudies');
-                if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
-                    return;
-                } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
-                    if (this.isLoadingLatestStudies) {
-                        // if currently loading, stop it
-                        this.shouldStopLoadingLatestStudies = true;
-                        this.isLoadingLatestStudies = false;
-                        this.isDisplayingLatestStudies = true;
-                    }
-                    // restart loading 
-                    const lastChangeId = await api.getLastChangeId();
-                
-                    await this.$store.dispatch('studies/clearStudies');
-                    this.latestStudiesIds = new Set();
-                    this.shouldStopLoadingLatestStudies = false;
-                    this.isLoadingLatestStudies = true;
-                    this.isDisplayingLatestStudies = false;
-
-                    this.loadStudiesFromChange(Math.max(0, lastChangeId - 1000), 1000);
-                }
-            } else {
-                this.shouldStopLoadingLatestStudies = true;
-                this.isLoadingLatestStudies = false;
-                this.isDisplayingLatestStudies = false;
-                // await this.$store.dispatch('studies/updateLabelsFilterNoReload', { labels: this.filterLabels });
-                await this.$store.dispatch('studies/reloadFilteredStudies');
+        async extendStudyList() {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
+                await this.$store.dispatch('studies/extendFilteredStudies');
             }
         },
-        async loadStudiesFromChange(fromChangeId, limit) {
-            let changes = await api.getChanges(fromChangeId, limit);
-            for (let change of changes["Changes"].reverse()) {
+        async reloadStudyList() {
+            if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
+                await this.$store.dispatch('studies/clearStudies');
+                await this.$store.dispatch('studies/reloadFilteredStudies');
+            } else {
+                // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
+                const shouldShowMostRecentsWithLabel = this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.isFilteringOnlyOnLabels();
+
+                if (this.sourceType == SourceType.LOCAL_ORTHANC && (this['studies/isFilterEmpty'] || shouldShowMostRecentsWithLabel)) {
+                    await this.$store.dispatch('studies/clearStudies');
+                    if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
+                        return;
+                    } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.hasExtendedFind) {
+                        const studies = await api.getMostRecentStudiesExtended((this.filterLabels.length > 0 ? this.filterLabels[0] : null));
+                        for (const study of studies) {
+                            this.$store.dispatch('studies/addStudy', { studyId: study["ID"], study: study, reloadStats: false });
+                        }
+                    } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
+                        // legacy code
+
+                        if (this.isLoadingLatestStudies) {
+                            // if currently loading, stop it
+                            this.shouldStopLoadingLatestStudies = true;
+                            this.isLoadingLatestStudies = false;
+                            this.isDisplayingLatestStudies = true;
+                        }
+                        // restart loading 
+                        const lastChangeId = await api.getLastChangeId();
+                    
+                        await this.$store.dispatch('studies/clearStudies');
+                        this.latestStudiesIds = new Set();
+                        this.shouldStopLoadingLatestStudies = false;
+                        this.isLoadingLatestStudies = true;
+                        this.isDisplayingLatestStudies = false;
+
+                        this.loadStudiesFromChange(lastChangeId, 1000);
+                    }
+                } else {
+                    this.shouldStopLoadingLatestStudies = true;
+                    this.isLoadingLatestStudies = false;
+                    this.isDisplayingLatestStudies = false;
+                    // await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels });
+                    await this.$store.dispatch('studies/reloadFilteredStudies');
+                }
+            }
+        },
+        async loadStudiesFromChange(toChangeId, limit) {
+            let changes;
+            let changesResponse;
+            if (this.hasExtendedChanges) {
+                changesResponse = await api.getChangesExtended(toChangeId, limit, ["NewStudy", "StableStudy"]);
+                changes = changesResponse["Changes"];
+            } else {
+                changesResponse = await api.getChanges(toChangeId - limit, limit);
+                changes = changesResponse["Changes"].reverse();
+            }
+            
+            for (let change of changes) {
                 // Take the first event we find -> we see last uploaded data immediately (NewStudy but no StableStudy).  
                 // An updated study that has received a new series is visible as well (its NewStudy might be too old but the StableStudy brings it back on top of the list)
                 if ((change["ChangeType"] == "NewStudy" || change["ChangeType"] == "StableStudy") && !this.latestStudiesIds.has(change["ID"])) {
@@ -701,8 +826,16 @@ export default {
                 }
             }
             if (!this.shouldStopLoadingLatestStudies) {
-                if (fromChangeId > 0 && this.latestStudiesIds.size < this.statistics.CountStudies) {
-                    setTimeout(() => {this.loadStudiesFromChange(Math.max(0, Math.max(0, fromChangeId - 1000)), 1000)}, 1);
+                if (this.latestStudiesIds.size < this.statistics.CountStudies) {
+                    if (this.hasExtendedChanges) {
+                        if (!changesResponse["Done"]) {
+                            setTimeout(() => {this.loadStudiesFromChange(changesResponse["First"], 1000)}, 1);
+                        }
+                    } else {
+                        if (toChangeId != changesResponse["First"]) {
+                            setTimeout(() => {this.loadStudiesFromChange(Math.max(0, toChangeId-1000), 1000)}, 1);
+                        }
+                    }
                 } else {
                     this.isLoadingLatestStudies = false;
                     this.isDisplayingLatestStudies = true;
@@ -715,6 +848,16 @@ export default {
         onDeletedStudy(studyId) {
             this.$store.dispatch('studies/deleteStudy', { studyId: studyId });
         },
+        visibilityChanged(isVisible, entry) {
+            if (isVisible) {
+                let studyId = entry.target.id;
+                if (studyId == this.studiesIds[this.studiesIds.length - 1]) {
+                    // console.log("Last element shown -> should load more studies");
+                    this.extendStudyList();
+                }
+            }
+            
+        }
     },
     components: { StudyItem, ResourceButtonGroup }
 }
@@ -729,79 +872,80 @@ export default {
                 <p v-if="isRemoteDicomWeb" v-html="$t('remote_dicom_web_browsing', { source: remoteSource})"></p>
             </div>
         </div>
-        <table class="table table-responsive table-sm study-table table-borderless">
-            <thead class="study-table-header">
-                <tr>
+        <table class="table table-sm study-table table-borderless">
+            <thead class="sticky-top">
+                <tr class="study-column-titles">
                     <th width="2%" scope="col" ></th>
                     <th v-if="hasPrimaryViewerIcon" width="4%" scope="col" ></th>
                     <th v-if="hasPdfReportIcon" width="4%" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
-                        class="study-table-title">{{
-                            columnTitle(columnTag)
-                        }}</th>
-                </tr>
-            </thead>
-            <thead class="study-table-filters" v-on:keyup.enter="search">
-                <tr>
-                <th scope="col">
-                    <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
-                        data-bs-toggle="tooltip" title="Clear filter">
-                        <i class="fa-regular fa-circle-xmark"></i>
-                    </button>
-                </th>
-                <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
-                <th v-if="hasPdfReportIcon" scope="col" ></th>
-                <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                    <div v-if="columnTag == 'StudyDate'">
-                        <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                            :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
-                            :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
-                            <template #yearly="{ label, range, presetDate }">
-                                <span @click="presetDate(range)">{{ label }}</span>
-                            </template>
-                        </Datepicker>
-                    </div>
-                    <div v-else-if="columnTag == 'modalities'" class="dropdown">
-                        <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
-                            data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
-                                class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
-                            @click="modalityFilterClicked" id="modality-filter-dropdown">
-                            <li><label class="dropdown-item"><input type="checkbox" data-value="all"
-                                        @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
-                                            $t('all_modalities') }}</label></li>
-                            <li><label class="dropdown-item"><input type="checkbox" data-value="none"
-                                        @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
-                                            $t('no_modalities') }}</label></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
-                                <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
-                                        v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
-                            </li>
-                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close') }}</button></li>
-                        </ul>
-                    </div>
-                    <div v-else-if="columnTag == 'PatientBirthDate'">
-                        <Datepicker v-model="filterPatientBirthDateForDatePicker"
-                            :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
-                            arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
-                        </Datepicker>
-                    </div>
-                    <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
-                        v-model="this.filterGenericTags[columnTag]" v-bind:placeholder="getFilterPlaceholder(columnTag)"
-                        v-bind:class="getFilterClass(columnTag)" />
+                        class="study-table-title">
+                        <div class="title-container">
+                            <div v-if="isOrderable(columnTag)" class="title-text is-orderable" @click="toggleOrder($event, columnTag)">{{ columnTitle(columnTag) }}</div>
+                            <div v-if="!isOrderable(columnTag)" class="title-text">{{ columnTitle(columnTag) }}</div>
+                            <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i></div>
+                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i class="bi bi-arrow-down"></i></div>
+                        </div>
                     </th>
                 </tr>
-            </thead>
-            <thead class="study-table-actions">
-                <tr>
+                <tr class="study-table-filters" v-on:keyup.enter="search">
+                    <th scope="col">
+                        <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
+                            data-bs-toggle="tooltip" title="Clear filter">
+                            <i class="fa-regular fa-circle-xmark"></i>
+                        </button>
+                    </th>
+                    <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
+                    <th v-if="hasPdfReportIcon" scope="col" ></th>
+                    <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
+                        <div v-if="columnTag == 'StudyDate'">
+                            <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
+                                :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                                :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                <template #yearly="{ label, range, presetDate }">
+                                    <span @click="presetDate(range)">{{ label }}</span>
+                                </template>
+                            </Datepicker>
+                        </div>
+                        <div v-else-if="columnTag == 'modalities'" class="dropdown">
+                            <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
+                                data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
+                                    class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
+                                @click="modalityFilterClicked" id="modality-filter-dropdown">
+                                <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                            @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                                $t('all_modalities') }}</label></li>
+                                <li><label class="dropdown-item"><input type="checkbox" data-value="none"
+                                            @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
+                                                $t('no_modalities') }}</label></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                    <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
+                                            v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
+                                </li>
+                                <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close') }}</button></li>
+                            </ul>
+                        </div>
+                        <div v-else-if="columnTag == 'PatientBirthDate'">
+                            <Datepicker v-model="filterPatientBirthDateForDatePicker"
+                                :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
+                                arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                            </Datepicker>
+                        </div>
+                        <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
+                            v-model="this.filterGenericTags[columnTag]" v-bind:placeholder="getFilterPlaceholder(columnTag)"
+                            v-bind:class="getFilterClass(columnTag)" />
+                    </th>
+                </tr>
+                <tr class="study-table-actions">
                     <th width="2%" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
                             <input class="form-check-input" type="checkbox" v-model="allSelected"
-                                :indeterminate="isPartialSelected" @click="clickSelectAll">
+                                :indeterminate="isPartialSelected" @click="clickSelectAll"><span style="font-weight: 400; font-size: small;">{{ selectedStudiesCount }}</span>
                         </div>
                     </th>
                     <th width="98%" colspan="10" scope="col">
@@ -855,7 +999,7 @@ export default {
                     </th>
                 </tr>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :studyId="studyId"
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId" v-observe-visibility="{callback: visibilityChanged, once: true}"
                 @deletedStudy="onDeletedStudy">
             </StudyItem>
 
@@ -903,9 +1047,12 @@ button.form-control.study-list-filter {
   padding-bottom: var(--filter-padding);
 }
 
-.study-table-header {
+
+.study-column-titles {
   background-color: var(--study-table-header-bg-color) !important;
+  font-size: smaller;
 }
+
 
 .study-table-title {
   text-align: left;
@@ -913,6 +1060,7 @@ button.form-control.study-list-filter {
   padding-right: 4px;
   vertical-align: middle;
   line-height: 1.2rem;
+  position: sticky;
 }
 
 /* .study-table> :not(:first-child) {
@@ -955,15 +1103,15 @@ button.form-control.study-list-filter {
   background-color: var(--study-table-filter-bg-color);
 }
 
-.study-table-filters > tr > th {
+.study-table-filters > th {
   background-color: var(--study-table-filter-bg-color);
 }
 
-.study-table-filters > tr > th >  button{
+.study-table-filters > th >  button{
   background-color: var(--bs-table-bg);
 }
 
-.study-table-filters > tr > th {
+.study-table-filters > th {
   text-align: left;
   padding-left: 10px !important;
   padding-top: 0px;
@@ -998,12 +1146,12 @@ button.form-control.study-list-filter {
   margin-right: 0.7rem;
 }
 
-.study-table-actions > tr > th {
+.study-table-actions > th {
   background-color: var(--study-table-actions-bg-color) !important;
   vertical-align: middle;
 }
 
-.study-table-actions > tr > th > div {
+.study-table-actions > th > div {
   background-color: var(--study-table-actions-bg-color) !important;
   text-align: left;
 }
@@ -1033,5 +1181,40 @@ button.form-control.study-list-filter {
     font-weight: 500;
     height: 2rem;
     line-height: 2rem;
+}
+
+.title-container {
+    /* position: relative; */
+    width: 100%;
+    height: 2rem;
+}
+
+.title-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    width: 100%;
+    height: 100%;
+    border-left: 1px;
+    border-right: 0px;
+    border-top: 0px;
+    border-bottom: 0px;
+    border-style: solid;
+    border-color: var(--study-table-actions-bg-color);
+}
+
+.is-orderable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.title-arrow {
+    position: absolute;
+    font-size: medium;
+    bottom: 0;
+    right: 0;
+    padding-right: 5px;
 }
 </style>

@@ -212,6 +212,7 @@
         "permissions_clear_selection": "Clear selection",
         "permissions_global_instructions_html": "Edit the permissions below and click <strong>Save</strong> to apply your modifications.<br>For each role, select the labels whose access is allowed and the allowed permissions.",
         "permissions_instructions": "The permissions are statically defined in the authorization-plugin configuration.",
+        "read_only": "Read only system",
         "select_all_label_permissions": "Select all label permissions",
         "select_all_global_permissions": "Select all global permissions",
         "plugins_not_enabled": "Plugins that are loaded but not enabled or not configured correctly are ",

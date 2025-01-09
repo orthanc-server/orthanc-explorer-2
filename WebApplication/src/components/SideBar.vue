@@ -3,7 +3,7 @@
 import UploadHandler from "./UploadHandler.vue"
 import JobsList from "./JobsList.vue";
 import LanguagePicker from "./LanguagePicker.vue";
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import { orthancApiUrl, oe2ApiUrl } from "../globalConfigurations";
 import api from "../orthancApi"
 import SourceType from "../helpers/source-type";
@@ -16,7 +16,8 @@ export default {
         return {
             // selectedModality: null,
             selectedLabel: null,
-            modalitiesEchoStatus: {}
+            modalitiesEchoStatus: {},
+            labelsStudyCount: {},
         };
     },
     computed: {
@@ -28,13 +29,14 @@ export default {
             queryableDicomWebServers: state => state.configuration.queryableDicomWebServers,
             studiesIds: state => state.studies.studiesIds,
             statistics: state => state.studies.statistics,
-            labelsFilter: state => state.studies.labelsFilter,
+            labelFilters: state => state.studies.labelFilters,
             jobs: state => state.jobs.jobsIds,
             allLabels: state => state.labels.allLabels,
             hasCustomLogo: state => state.configuration.hasCustomLogo,
             configuration: state => state.configuration,
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
+            hasExtendedFind: state => state.configuration.hasExtendedFind
         }),
         customLogoUrl() {
             if (this.hasCustomLogo && this.configuration.customLogoUrl) {
@@ -93,10 +95,7 @@ export default {
             this.messageBus.emit('filter-label-changed', label);
         },
         isSelectedLabel(label) {
-            return this.labelsFilter.includes(label);
-        },
-        onAllLabelsChanged() {
-            this.$store.dispatch('labels/refresh');
+            return this.labelFilters.includes(label);
         },
         logout(event) {
             event.preventDefault();
@@ -116,10 +115,31 @@ export default {
             }).catch((error) => {
                 console.error("login for password change failed", error);
             })
+        },
+        async loadLabelsCount() {
+            if (Object.entries(this.labelsStudyCount).length == 0) {
+                for (const label of this.allLabels) {
+                    this.labelsStudyCount[label] = null;
+                }
+            }
+            if (this.hasExtendedFind) {
+                if (this.uiOptions.EnableLabelsCount) {
+                    for (const [k, v] of Object.entries(this.labelsStudyCount)) {
+                        if (v == null) {
+                            this.labelsStudyCount[k] = await api.getLabelStudyCount(k);
+                        }
+                    }
+                }
+            }
         }
-
+    },
+    watch: {
+        allLabels(newValue, oldValue) {
+            this.loadLabelsCount();
+        }
     },
     mounted() {
+        this.loadLabelsCount();
         this.$refs['modalities-collapsible'].addEventListener('show.bs.collapse', (e) => {
             for (const modality of Object.keys(this.queryableDicomModalities)) {
                 this.modalitiesEchoStatus[modality] = null;
@@ -168,6 +188,7 @@ export default {
                         v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
                             <i class="fa fa-tag label-icon"></i>
                             {{ label }}
+                            <span class="study-count ms-auto">{{ labelsStudyCount[label] }}</span>
                         </li>
                     </ul>
 

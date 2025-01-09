@@ -45,6 +45,7 @@ Json::Value pluginsConfiguration_;
 bool hasUserProfile_ = false;
 bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
+bool isReadOnly_ = false;
 std::string customCssPath_;
 std::string theme_ = "light";
 std::string customLogoPath_;
@@ -343,6 +344,8 @@ void ReadConfiguration()
   }
 
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
+  
+  isReadOnly_ = orthancFullConfiguration_->GetBooleanValue("ReadOnly", false);
 }
 
 bool GetPluginConfiguration(Json::Value& jsonPluginConfiguration, const std::string& sectionName)
@@ -463,12 +466,12 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     else if (pluginName == "ohif")
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;
-      std::string ohifDataSource = "dicom-json";
+      std::string ohifDataSource = "dicom-web";
       if (GetPluginConfiguration(pluginConfiguration, "OHIF"))
       {
-        if (pluginConfiguration.isMember("DataSource") && pluginConfiguration["DataSource"].asString() == "dicom-web")
+        if (pluginConfiguration.isMember("DataSource") && pluginConfiguration["DataSource"].asString() == "dicom-json")
         {
-          ohifDataSource = "dicom-web";
+          ohifDataSource = "dicom-json";
         }
       }
       pluginsConfiguration[pluginName]["DataSource"] = ohifDataSource;
@@ -690,6 +693,18 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         oe2Configuration["Profile"] = userProfile;
       }
 
+    }
+
+    // disable operations on read only systems
+    if (isReadOnly_)
+    {
+      uiOptions["EnableUpload"] = false;
+      uiOptions["EnableAddSeries"] = false;
+      uiOptions["EnableDeleteResources"] = false;
+      uiOptions["EnableModification"] = false;
+      uiOptions["EnableAnonymization"] = false;
+      uiOptions["EnableEditLabels"] = false;
+      uiOptions["EnablePermissionsEdition"] = false;
     }
 
 

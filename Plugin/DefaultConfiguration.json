@@ -49,11 +49,12 @@
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
             "EnableViewerQuickButton": true,            // Enables a button in the study list to directly open a viewer
-            "EnableReportQuickButton": false,            // Enables a button in the study list to directly open a PDF report if available in the study
+            "EnableReportQuickButton": false,           // Enables a button in the study list to directly open a PDF report if available in the study
 
             "EnableEditLabels": true,                   // Enables labels management (create/delete/assign/unassign)
             "AvailableLabels": [],                      // If not empty, this list prevents the creation of new labels and only allows add/remove of the listed labels.
                                                         // This configuration may be overriden when you use Keycloak and an auth-service that implements roles/permissions API.
+            "EnableLabelsCount": true,                  // Enables display of study count next to the each label (this might slow down the UI)
 
             "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
@@ -117,14 +118,22 @@
                 "wsi"
             ],
 
-            "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list
-            "MaxMyJobsHistorySize": 5,                  // The maximum number of jobs appearing under 'my jobs' in side bar (0 = unlimited)
+            "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list.
+                                                        // From v 1.7.0, this option is not used anymore in the local study list when using 
+                                                        // a DB backend that supports ExtendedFind (SQLite and PostgreSQL)
+                                                        // but is still used in the DicomWeb queries.
+            "PageLoadSize": 50,                         // The number of items that are loaded when scrolling the study or instance list.
+                                                        // Only applicable with a DB backend that supports ExtendedFind.
+            
+                                                        "MaxMyJobsHistorySize": 5,                  // The maximum number of jobs appearing under 'my jobs' in side bar (0 = unlimited)
 
             "StudyListSearchMode": "search-as-you-type",// mode to trigger a search in the StudyList.  Accepted values: 'search-as-you-type' or 'search-button'
             "StudyListSearchAsYouTypeMinChars": 3,      // minimum number of characters to enter in a text search field before it starts searching the DB
             "StudyListSearchAsYouTypeDelay": 400,       // Delay [ms] between the last key stroke and the trigger of the search
             "StudyListContentIfNoSearch": "most-recents", // Defines what to show if no search criteria has been entered
                                                           // Allowed values: "empty", "most-recents"
+                                                          // From v 1.7.0, this option is always considered as "most-recents" when using 
+                                                          // a DB backend that supports ExtendedFind (SQLite and PostgreSQL)
 
             // Default settings are ok for "small" Orthanc Databases.  For large databases, it is recommended to use these settings:
             // "StudyListSearchMode": "search-button"
