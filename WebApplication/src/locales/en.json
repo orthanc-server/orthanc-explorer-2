@@ -80,6 +80,8 @@
     "instances": "Instances",
     "instances_count_header": "# instances",
     "instances_number": "Number of instances",
+    "job_success": "Success",
+    "job_failure": "Failed",
     "labels": {
         "add_button": "Add",
         "add_labels_message_html": "<strong>Add</strong> these labels to all selected resources",

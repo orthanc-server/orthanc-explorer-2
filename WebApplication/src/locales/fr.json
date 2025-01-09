@@ -80,6 +80,8 @@
     "instances": "Instances",
     "instances_count_header": "# instances",    
     "instances_number": "Nombre d'instances",
+    "job_success": "Réussi",
+    "job_failure": "Échoué",
     "labels": {
         "add_button": "Ajouter",
         "add_labels_message_html": "<strong>Ajouter</strong> ces étiquettes aux examens sélectionnés",

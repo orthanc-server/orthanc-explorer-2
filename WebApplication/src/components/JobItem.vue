@@ -24,6 +24,14 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
         }),
+        statusText() {
+            if (this.isSuccess) {
+                return this.$t('job_success');
+            } else if (this.isComplete) {
+                return this.$t('job_failure');
+            }
+            return "";
+        }
     },
     methods: {
         close(jobId) {
@@ -69,13 +77,13 @@ export default {
         <div class="card-header jobs-header">
             {{ job.name }}
             <button type="button" class="btn-close job-card-close" aria-label="Close" @click="close(job.id)"></button>
-            <div class="progress" style="width:90%">
+            <div class="progress mt-1 mb-1" style="width:90%">
                 <div class="progress-bar bg-success" role="progressbar"
-                    v-bind:style="'width: ' + this.pctComplete + '%'"></div>
+                    v-bind:style="'width: ' + this.pctComplete + '%'">{{ statusText }}</div>
                 <div class="progress-bar bg-secondary" role="progressbar"
                     v-bind:style="'width: ' + this.pctRemaining + '%'"></div>
                 <div class="progress-bar bg-danger" role="progressbar"
-                    v-bind:style="'width: ' + this.pctFailed + '%'"></div>
+                    v-bind:style="'width: ' + this.pctFailed + '%'">{{ statusText }}</div>
             </div>
 
         </div>
