@@ -219,6 +219,7 @@ const actions = {
                     let filters = {
                         "PatientBirthDate": "",
                         "PatientID": "",
+                        "PatientName": "",
                         "AccessionNumber": "",
                         "PatientBirthDate": "",
                         "StudyDescription": "",

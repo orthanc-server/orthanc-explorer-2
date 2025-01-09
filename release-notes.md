@@ -5,6 +5,10 @@ Fixes:
   - When modifying studies, dates selected from the DatePicker were not always taken into account.
   - Fixed the criteria to display the OHIF Segmentation viewer.
   - Added status text in job progress bar.
+  - When retrieving a study from a remote DICOM modality, use the default retrieve method:
+    C-GET or C-MOVE.
+  - Fixed empty PatientName column when querying a remote DICOM modality.
+
 
 1.6.4 (2024-10-10)
 ==================
