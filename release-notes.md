@@ -4,6 +4,7 @@ Pending changes
 Fixes:
   - When modifying studies, dates selected from the DatePicker were not always taken into account.
   - Fixed the criteria to display the OHIF Segmentation viewer.
+  - Added status text in job progress bar.
 
 1.6.4 (2024-10-10)
 ==================
