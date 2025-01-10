@@ -298,7 +298,7 @@ export default {
         return retrieveJob["ID"];
     },
     async remoteDicomRetrieveResource(level, remoteModality, filterQuery, targetAet) {
-        return this.remoteDicomRetrieveResources(level, this.remoteModality, [filterQuery], targetAet);
+        return this.remoteDicomRetrieveResources(level, remoteModality, [filterQuery], targetAet);
     },
     async remoteDicomRetrieveResources(level, remoteModality, filterQueries, targetAet) {
         const retrieveMethod = this.getRetrieveMethod(remoteModality);
