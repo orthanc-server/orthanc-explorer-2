@@ -6,6 +6,7 @@ Fixes:
   - When retrieving a study from a remote DICOM modality, use the default retrieve method:
     C-GET or C-MOVE.
   - Fixed empty PatientName column when querying a remote DICOM modality.
+  - Fixed a few small issues when navigating between local and remote studies.
 
 
 1.7.0 (2024-12-19)

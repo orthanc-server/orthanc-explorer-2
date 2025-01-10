@@ -289,6 +289,7 @@ const actions = {
         const sourceType = payload['source-type'];
         const remoteSource = payload['remote-source'];
         commit('setSource', { sourceType, remoteSource });
+        commit('selectAllStudies', { isSelected: false});  // clear selection when changing source
     },
     async clearFilter({ commit, state }) {
         commit('clearFilter');

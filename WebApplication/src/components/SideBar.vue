@@ -90,8 +90,9 @@ export default {
         isEchoSuccess(modality) {
             return this.modalitiesEchoStatus[modality] == true;
         },
-        selectLabel(label) {
+        async selectLabel(label) {
             this.selectedLabel = label;
+            await this.$store.dispatch('studies/updateSource', { 'source-type': SourceType.LOCAL_ORTHANC, 'remote-source': null });
             this.messageBus.emit('filter-label-changed', label);
         },
         isSelectedLabel(label) {

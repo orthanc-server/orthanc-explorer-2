@@ -6,7 +6,6 @@ import StudyList from './components/StudyList.vue'
 import SideBar from './components/SideBar.vue'
 import NotFound from './components/NotFound.vue'
 import { baseOe2Url } from "./globalConfigurations"
-import { nextTick } from 'vue'
 
 console.log('Base URL for router: ', baseOe2Url);
 

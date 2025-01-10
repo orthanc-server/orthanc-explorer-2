@@ -12,6 +12,7 @@ import api from "../orthancApi";
 import { ref } from 'vue';
 import SourceType from "../helpers/source-type";
 import { ObserveVisibility as vObserveVisibility } from 'vue3-observe-visibility'
+import { nextTick } from 'vue'
 
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy", "labels"]
 
@@ -206,7 +207,7 @@ export default {
             handler(newValue, oldValue) {
                 if (!this.updatingFilterUi && !this.initializingModalityFilter) {
                     //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
-                    this.updateFilter('labels', this.filterLabels, null);
+                    this.updateFilter('labels', this.filterLabels, []);
                 }
             },
             deep: true
@@ -413,7 +414,7 @@ export default {
                 return;
             }
 
-            if (dicomTagName == "labels" && newValue != oldValue) { // labels -> always update directly
+            if (dicomTagName == "labels" && (newValue.length > 0 || oldValue.length > 0) && newValue != oldValue) { // labels -> always update directly
                 this._updateLabelsFilter(newValue);
                 return;
             }
@@ -557,7 +558,9 @@ export default {
 
             await this.updateFilterForm(keyValueFilters);
 
-            await this.reloadStudyList();
+            if (this.sourceType == SourceType.LOCAL_ORTHANC || !this['studies/isFilterEmpty']) { // do not reload when we are switching to a remote study list to avoid searching for * on a remote server
+                await this.reloadStudyList();
+            }
 
             this.updatingFilterUi = false;
         },
@@ -649,7 +652,9 @@ export default {
             await this.clearFiltersUi();
             await this.$store.dispatch('studies/clearFilterNoReload');
 
-            this.reloadStudyList();
+            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
+                this.reloadStudyList();
+            }
         },
         async clearFiltersUi() {
             // console.log("StudyList: clearFiltersUi IN");
@@ -657,6 +662,7 @@ export default {
 
             this.emptyFilterForm();
             this.updateUrl();
+            await nextTick();
 
             this.updatingFilterUi = false;
             // console.log("StudyList: clearFiltersUi OUT");
@@ -722,7 +728,7 @@ export default {
             }
 
             let orderBy = "";
-            if (this.filterOrderBy.length > 0) {
+            if (this.filterOrderBy.length > 0 && this.sourceType == SourceType.LOCAL_ORTHANC) {
                 let orders = []
                 for (let order of this.filterOrderBy) {
                     orders.push([order['Type'], order['Key'], order['Direction']].join(','))
@@ -732,8 +738,14 @@ export default {
             }
 
             let newUrl = "";
-            if (activeFilters.length > 0 || orderBy.length > 0) {
-                newUrl = "/filtered-studies?" + [activeFilters.join('&'), orderBy].join('&');
+            if (activeFilters.length > 0) {
+                newUrl = "/filtered-studies?" + activeFilters.join('&');
+                if (orderBy.length > 0) {
+                    newUrl += "&" + orderBy;
+                }
+            }
+            else {
+                newUrl = "/filtered-studies?" + orderBy;
             }
 
             await this.$router.replace(newUrl);
