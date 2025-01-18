@@ -314,7 +314,7 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.targetDicomWebServers.length > 0;
         },
         hasSendToDicomModalities() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.targetDicomModalities.length > 0;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && Object.keys(this.targetDicomModalities).length > 0;
         },
         hasOsimisViewer() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "osimis-web-viewer" in this.installedPlugins;
@@ -946,7 +946,7 @@ export default {
                             <i class="bi bi-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li v-for="modality in targetDicomModalities" :key="modality">
+                            <li v-for="modality in Object.keys(targetDicomModalities)" :key="modality">
                                 <a class="dropdown-item" @click="sendToDicomModality(modality)">{{ modality }}</a>
                             </li>
                         </ul>
