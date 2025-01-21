@@ -560,7 +560,7 @@ export default {
             "Level": "Study",
             "Query": {},
             "Labels": [label],
-            "LabelConstraint" : "All"
+            "LabelsConstraint" : "All"
         }));
         return response.data["Count"];
     },
