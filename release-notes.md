@@ -1,5 +1,5 @@
-Pending changes (not released)
-==============================
+1.7.1 (2025-01-22)
+==================
 
 Fixes:
   - Added status text in job progress bar.
