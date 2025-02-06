@@ -1,3 +1,12 @@
+Pending changes
+===============
+
+Changes:
+  - Experimental new configuration "Tokens.RequiredForLinks" can be set to false
+    when using HTTP Basic authentication together with the authorization plugin
+    (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454).
+    
+
 1.7.1 (2025-01-22)
 ==================
 

@@ -611,7 +611,10 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
     }
 
     Json::Value tokens = pluginJsonConfiguration_["Tokens"];
-    tokens["RequiredForLinks"] = hasUserProfile_;
+    if (!tokens.isMember("RequiredForLinks"))
+    {
+      tokens["RequiredForLinks"] = hasUserProfile_;
+    }
 
     oe2Configuration["Tokens"] = tokens;
 
