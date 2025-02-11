@@ -127,8 +127,13 @@ const getters = {
                     // exact match
                     query[k] = v;
                 } else {
-                    // wildcard match for all other fields
-                    query[k] = insert_wildcards(v);
+                    if (store.state.configuration.uiOptions.AutoAddWildcardsToSearchFields) {
+                        // wildcard match for all other fields
+                        query[k] = insert_wildcards(v);
+                    } else {
+                        // exact match
+                        query[k] = v;
+                    }
                 }
             }
         }

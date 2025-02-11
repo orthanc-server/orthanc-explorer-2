@@ -5,6 +5,9 @@ Fixes:
   - Fixed the token-type for medDream in the Quick Viewer button.
 
 Changes:
+  - New configuration "UiOptions.AutoAddWildcardsToSearchFields" (default = true)
+    to enable/disable automatic adding of wildcards before and after the value entered in the UI search fields
+    for textual values.
   - New configuration "Tokens.RequiredForLinks" can be set to false
     when using HTTP Basic authentication together with the authorization plugin
     (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454).

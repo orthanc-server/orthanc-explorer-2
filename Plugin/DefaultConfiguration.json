@@ -135,6 +135,15 @@
                                                           // From v 1.7.0, this option is always considered as "most-recents" when using 
                                                           // a DB backend that supports ExtendedFind (SQLite and PostgreSQL)
 
+            "AutoAddWildcardsToSearchFields": true,     // Automatically adds wildcards to textual search fields in the local and remote study tables.
+                                                        // When this is set to true (default), searching for 123 in the UI actually searches
+                                                        // for *123* in DICOM and Rest API.  Searching for "123" in the UI actually removes the
+                                                        // wildcard and performs an exact-match.
+                                                        // When this is set to false, the value used in the DICOM and Rest API filters exactly matches
+                                                        // the input in the UI.  Adding double-quotes is meaningless in this configuration and will
+                                                        // very likely lead to no results.
+                                                        // New in v 1.7.2
+
             // Default settings are ok for "small" Orthanc Databases.  For large databases, it is recommended to use these settings:
             // "StudyListSearchMode": "search-button"
             // "StudyListContentIfNoSearch": "empty"
