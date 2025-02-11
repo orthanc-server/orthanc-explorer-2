@@ -1,8 +1,11 @@
 Pending changes
 ===============
 
+Fixes:
+  - Fixed the token-type for medDream in the Quick Viewer button.
+
 Changes:
-  - Experimental new configuration "Tokens.RequiredForLinks" can be set to false
+  - New configuration "Tokens.RequiredForLinks" can be set to false
     when using HTTP Basic authentication together with the authorization plugin
     (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454).
     
