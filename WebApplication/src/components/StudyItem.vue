@@ -174,6 +174,9 @@ export default {
         },
         primaryViewerUrl() {
             return resourceHelpers.getPrimaryViewerUrl("study", this.study.ID, this.study.MainDicomTags.StudyInstanceUID);
+        },
+        primaryViewerTokenType() {
+            return resourceHelpers.getPrimaryViewerTokenType();
         }
     },
     components: { SeriesList, StudyDetails, TokenLinkButton }
@@ -194,7 +197,7 @@ export default {
                     level="study" :linkUrl="primaryViewerUrl"
                     :resourcesOrthancId="[study.ID]" linkType="icon"
                     iconClass="bi bi-eye-fill"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="primaryViewerTokenType" :opensInNewTab="true">
                 </TokenLinkButton>
             </td>
             <td v-if="hasPrimaryViewerIconPlaceholder"></td>

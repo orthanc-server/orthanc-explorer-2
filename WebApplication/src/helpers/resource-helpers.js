@@ -59,6 +59,19 @@ export default {
         return null;
     },
 
+    getPrimaryViewerTokenType() {
+        if (store.state.configuration.uiOptions.ViewersOrdering.length > 0) {
+            for (let viewer of store.state.configuration.uiOptions.ViewersOrdering) {
+                if (viewer == "meddream") {
+                    return "meddream-instant-link";
+                } else {
+                    return "viewer-instant-link";
+                }
+            }
+        }
+        return null;
+    },
+
     getViewerUrl(level, orthancId, dicomId, viewer) {
         if (viewer == 'osimis-web-viewer') {
             return api.getOsimisViewerUrl(level, orthancId);
