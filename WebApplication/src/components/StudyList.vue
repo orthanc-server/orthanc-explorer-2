@@ -203,15 +203,6 @@ export default {
         }
             this.updateFilterFromRoute(this.$route.query);
         },
-        filterLabels: {
-            handler(newValue, oldValue) {
-                if (!this.updatingFilterUi && !this.initializingModalityFilter) {
-                    //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
-                    this.updateFilter('labels', this.filterLabels, []);
-                }
-            },
-            deep: true
-        },
         filterModalities: {
             handler(newValue, oldValue) {
                 if (!this.updatingFilterUi && !this.initializingModalityFilter) {
@@ -271,7 +262,7 @@ export default {
     },
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);
-        this.messageBus.on('filter-label-changed', this.updateLabelsFilter);
+        this.messageBus.on('filter-label-changed', this.updateLabelsFilter); // labels are changed in the sidebar, not in the study list itself
     },
     async mounted() {
         this.updateSelectAll();
@@ -368,6 +359,7 @@ export default {
         },
         updateLabelsFilter(label) {
             this.filterLabels = [label];
+            this.search();
         },
         initModalityFilter() {
             // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
@@ -411,11 +403,6 @@ export default {
         updateFilter(dicomTagName, newValue, oldValue) {
 
             if (this.updatingFilterUi) {
-                return;
-            }
-
-            if (dicomTagName == "labels" && (newValue.length > 0 || oldValue.length > 0) && newValue != oldValue) { // labels -> always update directly
-                this._updateLabelsFilter(newValue);
                 return;
             }
 
@@ -489,11 +476,6 @@ export default {
                 return this.filterGenericTags[dicomTagName];
             }
         },
-        _updateLabelsFilter(labels) {
-            this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels });
-            this.updateUrlNoReload();
-            this.reloadStudyList();
-        },
         _updateFilter(dicomTagName, value) {
             this.searchTimerHandler[dicomTagName] = null;
             this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: dicomTagName, value: value });
@@ -562,6 +544,7 @@ export default {
                 await this.reloadStudyList();
             }
 
+            await nextTick();
             this.updatingFilterUi = false;
         },
         updateFilterForm(filters) {
