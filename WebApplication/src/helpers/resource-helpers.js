@@ -34,6 +34,28 @@ export default {
         return title.join(" | ");
     },
 
+    replaceResourceTagsInString(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId) {
+        let output = template;
+        let transformedInstanceTags = {};
+        if (instanceTags != null) {
+            for (const [k, v] of Object.entries(instanceTags)) {
+                transformedInstanceTags[v['Name']] = v['Value'];
+            }
+        }
+        
+        for (let levelTags of [patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, transformedInstanceTags]) {
+            if (levelTags != null) {
+                for (const [k, v] of Object.entries(levelTags)) {
+                    output = output.replace("{" + k + "}", v);
+                }
+            }
+        }
+
+        output = output.replace("{UUID}", resourceId);
+        output = output.replace(/{[^}]+}/g, 'undefined');
+        return output;
+    },
+
     patientNameCapture : "([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?",
     patientNameFormatting : null,
     formatPatientName(originalPatientName) {

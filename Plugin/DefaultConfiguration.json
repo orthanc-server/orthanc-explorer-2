@@ -273,7 +273,13 @@
             // ex: "ShowSamePatientStudiesFilter" : ["PatientID", "PatientBirthDate", "PatientSex"]
             "ShowSamePatientStudiesFilter" : [
                 "PatientID"
-            ]
+            ],
+
+            // Defines the names of archives downloaded at study and series level.
+            // DicomTag values are replaced in the template string. "{UUID}.zip" is equivalent to the archive name.
+            "DownloadStudyFileNameTemplate": "{PatientID}-{PatientName}-{StudyDate}-{StudyDescription}.zip",
+            "DownloadSeriesFileNameTemplate": "{PatientID}-{PatientName}-{SeriesDate}-{SeriesDescription}.zip",
+            "DownloadInstanceFileNameTemplate": "{PatientID}-{PatientName}-{StudyDate}-{SeriesDescription}-{InstanceNumber}.dcm"
         },
 
         "Shares" : {

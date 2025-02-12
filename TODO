@@ -1,5 +1,7 @@
 - make default sorting configurable: e.g: /ui/app/#/filtered-studies?order-by=DicomTag,StudyDate,DESC;DicomTag,StudyTime,DESC
   https://github.com/orthanc-server/orthanc-explorer-2/issues/75
+  Another good point also was about custom fields sorting (which is referenced on a different issue). This would be useful, since I have to order by date and then by time instead of only by date for convenience.
+
 
 - add a "reset" button (on Windows, to reload the config after you have changed it without going to the Services -> Orthanc -> Restart)
 - show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)

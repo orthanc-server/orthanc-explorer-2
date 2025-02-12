@@ -43,7 +43,7 @@ export default {
             }
             if (infos.length == 0) { // if nothing to display, display the study id
                 infos.push(studyId.slice(0, 20) + "...");
-            }
+            }   
             return infos.slice(0, this.uiOptions.UploadReportMaxTags).join(" - ");
         }
     },

@@ -537,7 +537,12 @@ export default {
                 this.uiOptions.EnableDownloadDicomFile && this.resourceLevel == 'instance';
         },
         instanceDownloadUrl() {
-            return api.getInstanceDownloadUrl(this.resourceOrthancId);
+            let filename = null;
+            if (this.resourceLevel == 'instance') {
+                console.log(this.instanceTags);
+                filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadInstanceFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+            }
+            return api.getInstanceDownloadUrl(this.resourceOrthancId, filename);
         },
         downloadBulkZipUrl() {
             return api.getBulkDownloadZipUrl(this.resourcesOrthancId);
@@ -546,10 +551,27 @@ export default {
             return api.getBulkDownloadDicomDirUrl(this.resourcesOrthancId);
         },
         downloadZipUrl() {
-            return api.getDownloadZipUrl(this.resourceLevel, this.resourceOrthancId);
+            let filename = null;
+            if (this.resourceLevel == 'study' || this.resourceLevel == 'series') {
+                if (this.resourceLevel == 'study') {
+                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadStudyFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                } else if (this.resourceLevel == 'series') {
+                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadSeriesFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                }
+            }
+            
+            return api.getDownloadZipUrl(this.resourceLevel, this.resourceOrthancId, filename);
         },
         downloadDicomDirUrl() {
-            return api.getDownloadDicomDirUrl(this.resourceLevel, this.resourceOrthancId);
+            let filename = null;
+            if (this.resourceLevel == 'study' || this.resourceLevel == 'series') {
+                if (this.resourceLevel == 'study') {
+                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadStudyFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                } else if (this.resourceLevel == 'series') {
+                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadSeriesFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                }
+            }
+            return api.getDownloadDicomDirUrl(this.resourceLevel, this.resourceOrthancId, filename);
         },
         resourceTitle() {
             return resourceHelpers.getResourceTitle(this.resourceLevel, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags);

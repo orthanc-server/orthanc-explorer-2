@@ -630,11 +630,19 @@ export default {
     getInstancePdfUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/pdf";
     },
-    getInstanceDownloadUrl(orthancId) {
-        return orthancApiUrl + "instances/" + orthancId + "/file";
+    getInstanceDownloadUrl(orthancId, filename) {
+        let filenameArgument = "";
+        if (filename) {
+            filenameArgument = "?filename=" + encodeURIComponent(filename);
+        }
+        return orthancApiUrl + "instances/" + orthancId + "/file" + filenameArgument;
     },
-    getDownloadZipUrl(level, resourceOrthancId) {
-        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive';
+    getDownloadZipUrl(level, resourceOrthancId, filename) {
+        let filenameArgument = "";
+        if (filename) {
+            filenameArgument = "?filename=" + encodeURIComponent(filename);
+        }
+        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive' + filenameArgument;
     },
     getBulkDownloadZipUrl(resourcesOrthancId) {
         if (resourcesOrthancId.length > 0)
@@ -650,8 +658,12 @@ export default {
         }
         return undefined;
     },
-    getDownloadDicomDirUrl(level, resourceOrthancId) {
-        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/media';
+    getDownloadDicomDirUrl(level, resourceOrthancId, filename) {
+        let filenameArgument = "";
+        if (filename) {
+            filenameArgument = "?filename=" + encodeURIComponent(filename);
+        }
+        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/media' + filenameArgument;
     },
     getApiUrl(level, resourceOrthancId, subroute) {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + subroute;
