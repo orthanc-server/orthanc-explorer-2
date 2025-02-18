@@ -5,9 +5,10 @@
   max-width: 0;
 }
 
-  /* override CSS from datepicker to avoid the close button to overflow over the text */
-.dp__input_icon_pad {
-  padding-right: 30px !important;
+/* override CSS from datepicker to avoid the close button to overflow over the text */
+.dp__input {
+  padding-left: 4px !important;
+  padding-right: 25px !important;
 }
 
 .dp__preset_ranges {

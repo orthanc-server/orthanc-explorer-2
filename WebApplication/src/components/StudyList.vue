@@ -897,7 +897,7 @@ export default {
                         <div v-if="columnTag == 'StudyDate'">
                             <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
                                 :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
-                                :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                :preview-format="datePickerFormat" text-input arrow-navigation hide-input-icon :highlight-week-days="[0, 6]" :dark="isDarkMode">
                                 <template #yearly="{ label, range, presetDate }">
                                     <span @click="presetDate(range)">{{ label }}</span>
                                 </template>
@@ -927,7 +927,7 @@ export default {
                         </div>
                         <div v-else-if="columnTag == 'PatientBirthDate'">
                             <Datepicker v-model="filterPatientBirthDateForDatePicker"
-                                :enable-time-picker="false" range :format="datePickerFormat" :preview-format="datePickerFormat" text-input
+                                :enable-time-picker="false" range :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
                                 arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                             </Datepicker>
                         </div>
@@ -1013,6 +1013,8 @@ input.form-control.study-list-filter {
   margin-bottom: var(--filter-margin);
   padding-top: var(--filter-padding);
   padding-bottom: var(--filter-padding);
+  padding-left: 4px;
+  padding-right: 4px;
   border-bottom-width: thin;
 }
 
@@ -1108,7 +1110,7 @@ button.form-control.study-list-filter {
 
 .study-table-filters > th {
   text-align: left;
-  padding-left: 10px !important;
+  padding-left: 6px !important;
   padding-top: 0px;
   padding-bottom: 0px;
   margin-bottom: 5px;

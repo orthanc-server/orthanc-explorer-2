@@ -215,7 +215,7 @@ export default {
 
                             <div v-if="isDateTag(key)" class="col-md-6">
                                 <Datepicker v-model="seriesDateTags[key]" :range="false" :enable-time-picker="false"
-                                    :format="datePickerFormat" :preview-format="datePickerFormat" text-input
+                                    :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
                                     arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                                 </Datepicker>
                             </div>

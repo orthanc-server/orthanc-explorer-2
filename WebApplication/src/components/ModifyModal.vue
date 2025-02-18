@@ -787,7 +787,7 @@ export default {
                             <div v-if="isEditableTag(key) && isDateTag(key)" class="col-md-6">
                                 <Datepicker v-model="dateTags[key]" :range="false"
                                     :enable-time-picker="false" :format="datePickerFormat"
-                                    :preview-format="datePickerFormat" text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                    :preview-format="datePickerFormat" hide-input-icon text-input arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
                                 </Datepicker>
                             </div>
 
