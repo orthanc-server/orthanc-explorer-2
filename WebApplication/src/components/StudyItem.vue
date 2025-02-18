@@ -25,8 +25,10 @@ export default {
     created() {
         this.messageBus.on('selected-all', this.onSelectedStudy);
         this.messageBus.on('unselected-all', this.onUnselectedStudy);
-        this.messageBus.on('added-series-to-study-' + this.studyId, () => {this.onStudyUpdated(this.studyId)});
-        this.messageBus.on('deleted-series-from-study-' + this.studyId, () => {this.onStudyUpdated(this.studyId)});
+        this.messageBus.on('added-series-to-study-' + this.studyId, () => {this.reloadStudy(this.studyId)});
+        this.messageBus.on('deleted-series-from-study-' + this.studyId, () => {this.reloadStudy(this.studyId)});
+        this.messageBus.on('study-updated-' + this.studyId, () => {this.reloadStudy(this.studyId)});
+        this.messageBus.on('study-labels-updated-in-labels-editor-' + this.studyId, () => {this.reloadStudy(this.studyId)});
     },
     async mounted() {
         this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
@@ -85,12 +87,15 @@ export default {
         onDeletedStudy(studyId) {
             this.$emit("deletedStudy", this.studyId);
         },
-        async onStudyUpdated(studyId) {
+        async reloadStudy(studyId) {
+            // console.log("StudyItem: reloadStudy", studyId);
             await this.$store.dispatch('studies/reloadStudy', {
                 'studyId': studyId,
                 'study': await api.getStudy(studyId)
             })
             this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
+            this.messageBus.emit("study-labels-updated-" + this.studyId, this.study.Labels);
+            // console.log("StudyItem: study reloaded ", this.study.Labels);
         },
         onSelectedStudy() {
             this.selected = true;
@@ -262,7 +267,7 @@ export default {
             v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
             <td v-if="loaded && expanded" colspan="100">
                 <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.study.MainDicomTags"
-                    :patientMainDicomTags="this.study.PatientMainDicomTags" :labels="this.study.Labels" @deletedStudy="onDeletedStudy" @studyLabelsUpdated="onStudyUpdated"></StudyDetails>
+                    :patientMainDicomTags="this.study.PatientMainDicomTags" :labels="this.study.Labels" @deletedStudy="onDeletedStudy"></StudyDetails>
             </td>
         </tr>
     </tbody>

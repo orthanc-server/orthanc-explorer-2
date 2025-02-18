@@ -10,12 +10,13 @@ import SourceType from '../helpers/source-type';
 
 export default {
     props: ['studyId', 'studyMainDicomTags', 'patientMainDicomTags', 'labels'],
-    emits: ["deletedStudy", "studyLabelsUpdated"],
+    emits: ["deletedStudy"],
     setup() {
     },
     data() {
         return {
             samePatientStudiesCount: 0,
+            refreshLabelKey: 0,
             studySeries: [],
             hasLoadedSamePatientsStudiesCount: false,
             allLabelsLocalCopy: new Set(),
@@ -25,6 +26,7 @@ export default {
     async created() {
         this.allLabelsLocalCopy = await api.loadAllLabels();
         this.messageBus.on('added-series-to-study-' + this.studyId, this.reloadSeriesList);
+        this.messageBus.on('study-labels-updated-' + this.studyId, this.refreshLabelsEditor);
     },
     async mounted() {
         this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, this.uiOptions.ShowSamePatientStudiesFilter)).length;
@@ -76,6 +78,11 @@ export default {
         onDeletedStudy() {
             this.$emit("deletedStudy", this.studyId);
         },
+        async refreshLabelsEditor(study) {
+            // this is a way to force the LabelsEditor to refresh
+            // console.log("StudyDetails: refreshLabelsEditor", study);
+            this.refreshLabelKey = this.refreshLabelKey + 1;
+        },
         async reloadSeriesList() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
                 this.studySeries = (await api.getStudySeries(this.studyId));
@@ -108,9 +115,6 @@ export default {
                 }})
             }
         },
-        async labelsUpdated() {
-            this.$emit("studyLabelsUpdated", this.studyId);
-        }
     }
 
 }
@@ -122,7 +126,7 @@ export default {
         <tbody>
             <tr v-if="showLabels && uiOptions.EnableEditLabels">
                 <td colspan="100%">
-                    <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :studyId="studyId" @labelsUpdated="labelsUpdated"></LabelsEditor>
+                    <LabelsEditor :labels="labels" :refreshLabelKey="refreshLabelKey" :title="'labels.study_details_title'" :studyId="studyId" ></LabelsEditor>
                 </td>
             </tr>
             <tr v-if="showLabels && !uiOptions.EnableEditLabels">

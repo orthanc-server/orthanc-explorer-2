@@ -11,6 +11,7 @@ import clipboardHelpers from "../helpers/clipboard-helpers"
 import TokenLinkButton from "./TokenLinkButton.vue"
 import BulkLabelsModal from "./BulkLabelsModal.vue"
 import SourceType from '../helpers/source-type';
+import axios from "axios"
 
 
 export default {
@@ -217,6 +218,37 @@ export default {
                 }
             }
         },
+        async customButtonClicked(customButton) {
+            let url = resourceHelpers.replaceResourceTagsInString(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+            let response;
+
+            if (customButton.HttpMethod == 'PUT' || customButton.HttpMethod == 'POST') {
+                let payload = resourceHelpers.replaceResourceTagsInJson(customButton.Payload, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+
+                if (customButton.HttpMethod == 'PUT') {
+                    response = axios.put(url, payload);
+                } else if (customButton.HttpMethod == 'POST') {
+                    response = axios.post(url, payload);
+                }
+            } else if (customButton.HttpMethod == 'DELETE') {
+                response = axios.delete(url);
+            }
+
+            await response;
+            if (customButton.Refresh) {
+                await this.$store.dispatch('labels/refresh');
+                if (this.resourceLevel == 'study') {
+                    const study = await api.getStudy(this.resourceOrthancId); 
+                    await this.$store.dispatch('studies/reloadStudy', {
+                        'studyId': this.resourceOrthancId,
+                        'study': study
+                    });
+                    this.messageBus.emit("study-updated-" + this.resourceOrthancId, study);
+                } else {
+                    console.warn("Refresh " + this.resourceLevel + " currently not supported");
+                }
+            }
+        }
     },
     computed: {
         ...mapState({
@@ -699,6 +731,20 @@ export default {
             } else {
                 return this.resourceLevel;
             }
+        },
+        hasCustomButtons() {
+            return this.uiOptions.CustomButtons && this.uiOptions.CustomButtons[this.resourceLevel]
+                && this.uiOptions.CustomButtons[this.resourceLevel].length > 0;
+        },
+        CustomButtons() {
+            let customButtons = [];
+            for (const customButton of this.uiOptions.CustomButtons[this.resourceLevel]) {
+                let cloneCustomButton = Object.assign({}, customButton);
+                cloneCustomButton._computedLinkUrl = resourceHelpers.replaceResourceTagsInString(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                customButtons.push(cloneCustomButton);
+            }
+
+            return customButtons;
         }
     },
     components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal, AddSeriesModal }
@@ -981,6 +1027,20 @@ export default {
                 :disabled="!isRetrieveButtonEnabled" @click="retrieve">
                 <i class="bi bi-box-arrow-in-down" data-bs-toggle="tooltip" :title="$t('retrieve')" ></i>
             </button>
+        </div>
+        <div v-if="hasCustomButtons" class="btn-group">
+            <div v-for="customButton in CustomButtons" :key="customButton.Id" class>
+                <a v-if="customButton.HttpMethod=='GET'"
+                    class="btn btn-sm m-1 btn-secondary" type="button"
+                    data-bs-toggle="tooltip" :title="customButton.Tooltip" :target="customButton.Target" :href="customButton._computedLinkUrl">
+                    <i :class="customButton.Icon"></i>
+                </a>
+                <a v-if="customButton.HttpMethod=='PUT' || customButton.HttpMethod=='POST'"
+                    class="btn btn-sm m-1 btn-secondary" type="button"
+                    data-bs-toggle="tooltip" :title="customButton.Tooltip" @click="customButtonClicked(customButton)">
+                    <i :class="customButton.Icon"></i>
+                </a>
+            </div>
         </div>
     </div>
 </template>

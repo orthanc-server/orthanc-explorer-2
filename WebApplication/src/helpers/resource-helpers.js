@@ -56,6 +56,39 @@ export default {
         return output;
     },
 
+    replaceResourceTagsInJson(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId) {
+        if (template == null) {
+            return null;
+        }
+        let output = {};
+        
+        for (const [k, v] of Object.entries(template)) {
+            if (typeof v === 'string') {
+                if (v.indexOf('{') != -1) {
+                    output[k] = this.replaceResourceTagsInString(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId);
+                } else {
+                    output[k] = v;
+                }
+            } else if (Array.isArray(v)) {
+                output[k] = [];
+                for (const vv of v) {
+                    if (typeof vv === 'string') {
+                        if (vv.indexOf('{') != -1) {
+                            output[k].push(this.replaceResourceTagsInString(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId));
+                        } else {
+                            output[k].push(v);
+                        }
+                    }
+                }
+            } else if (typeof v === 'object') {
+                output[k] = this.replaceResourceTagsInJson(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId);
+            } else {
+                output[k] = v;
+            }
+        }
+        return output;
+    },
+
     patientNameCapture : "([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?",
     patientNameFormatting : null,
     formatPatientName(originalPatientName) {

@@ -279,7 +279,49 @@
             // DicomTag values are replaced in the template string. "{UUID}.zip" is equivalent to the archive name.
             "DownloadStudyFileNameTemplate": "{PatientID}-{PatientName}-{StudyDate}-{StudyDescription}.zip",
             "DownloadSeriesFileNameTemplate": "{PatientID}-{PatientName}-{SeriesDate}-{SeriesDescription}.zip",
-            "DownloadInstanceFileNameTemplate": "{PatientID}-{PatientName}-{StudyDate}-{SeriesDescription}-{InstanceNumber}.dcm"
+            "DownloadInstanceFileNameTemplate": "{PatientID}-{PatientName}-{StudyDate}-{SeriesDescription}-{InstanceNumber}.dcm",
+
+            // Defines a set of custom buttons for each level of resources in the local study list
+            "CustomButtons": {
+                "study": [],
+                "instance": [],
+                "series": [
+                    // For each button, you must provide the following items.
+                    // Example for a GET button:
+                    // {
+                    //   "HttpMethod": "GET",                                   // The HTTP method that will be triggered
+                    //   "Id": "custom-series-get",                             // A unique HTML identifier for the button 
+                    //   "Tooltip": "Apply custom action to series",            // The tooltip displayed when hovering the button
+                    //   "Target": "_blank",                                    // The HTML target for the link
+                    //   "Icon": "bi bi-alarm",                                 // The CSS class that defines the button icon (only from bootstrap icons)
+                    //   "Url": "http://localhost:3001/my-url?series={UUID}&patient={PatientID}"    // The template url.   DicomTag values are replaced in the template string. 
+                    //                                                                              // {UUID} is the orthanc ID of the resource.
+                    // },
+                    // Example for a POST button:
+                    // {
+                    //     "HttpMethod": "POST",
+                    //     "Id": "my-custom-post",
+                    //     "Tooltip": "Perform a custom 'post' operation",
+                    //     "Icon": "bi-broadcast",
+                    //     "Url": "../../my-python-plugin/{UUID}/process",
+                    //     "Payload": {                                         // The payload template to include in the POST request
+                    //         "id": "{UUID}",
+                    //         "patient-name": "{PatientName}"
+                    //     },
+                    //     "Refresh": true                                      // Refresh the resource in the UI after having received the answer from the POST request
+                    // },
+                    // Example for a PUT button:
+                    // {
+                    //     "HttpMethod": "PUT",
+                    //     "Id": "add-label-1",
+                    //     "Tooltip": "Add the 'label-1' label",
+                    //     "Icon": "bi bi-1-circle",
+                    //     "Url": "../../studies/{UUID}/labels/label-1",
+                    //     "Payload": null,                                     
+                    //     "Refresh": false
+                    // },
+                ]
+            }
         },
 
         "Shares" : {

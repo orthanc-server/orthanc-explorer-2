@@ -28,6 +28,22 @@ axios.get('../api/pre-login-configuration').then((config) => {
     const app = createApp(App)
     const messageBus = mitt();
 
+    // uncomment this code to log messages
+    // const originalEmit = messageBus.emit;
+    // messageBus.emit = (event, payload) => {
+    //     console.log(`[EVENT BUS - EMIT] ${event} `, payload);
+    //     originalEmit.call(messageBus, event, payload);
+    // }
+
+    // const originalOn = messageBus.on;
+    // messageBus.on = (event, handler) => {
+    //     const wrappedHandler = (payload) => {
+    //         console.log(`[EVENT BUS - HANDLER] ${event} `, payload);
+    //         handler(payload);
+    //       };
+    //     originalOn.call(messageBus, event, wrappedHandler);
+    // }
+
     app.use(router)
     app.use(store)
     app.use(i18n)

@@ -338,6 +338,10 @@ export default {
         // returns the same result as a findStudies (including RequestedTags !)
         return (await axios.get(orthancApiUrl + "studies/" + orthancId + "?requestedTags=" + store.state.configuration.requestedTagsForStudyList.join(';'))).data;
     },
+    async getStudyLabels(orthancId) {
+        // returns the same result as a findStudies (including RequestedTags !)
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/labels")).data;
+    },
     async getStudySeries(orthancId) {
         return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/series")).data;
     },
