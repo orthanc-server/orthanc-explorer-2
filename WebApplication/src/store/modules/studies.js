@@ -17,6 +17,7 @@ const _clearedFilter = {
 const state = () => ({
     studies: [],  // studies as returned by tools/find
     studiesIds: [],
+    isStudiesComplete: false, // true if we have received all studies
     dicomTagsFilters: {..._clearedFilter},
     labelFilters: [],
     orderByFilters: [],
@@ -43,13 +44,13 @@ async function get_studies_shared(context, append) {
     const getters = context.getters;
 
     if (!append) {
-        commit('setStudiesIds', { studiesIds: [] });
-        commit('setStudies', { studies: [] });
+        commit('setStudies', { studiesIds: [], studies: [], isComplete: false });
     }
 
     try {
         commit('setIsSearching', { isSearching: true});
         let studies = [];
+        let isComplete = false;
 
         if (state.sourceType == SourceType.LOCAL_ORTHANC) {
             let orderBy = [...state.orderByFilters];
@@ -61,7 +62,9 @@ async function get_studies_shared(context, append) {
             if (!store.state.configuration.hasExtendedFind) {
                 orderBy = null;
             }
-            studies = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy, since));
+            let response = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy, since));
+            studies = response['studies'];
+            isComplete = response['is-complete'];
         } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
             // make sure to fill all columns of the StudyList
             let filters = {
@@ -93,17 +96,16 @@ async function get_studies_shared(context, append) {
             
             // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
             studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
+            isComplete = true; // no pagination on remote modalities/servers
         }
 
         studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
         let studiesIds = studies.map(s => s['ID']);
 
         if (!append) {
-            commit('setStudiesIds', { studiesIds: studiesIds });
-            commit('setStudies', { studies: studies });
+            commit('setStudies', { studiesIds: studiesIds, studies: studies, isComplete: isComplete });
         } else {
-            commit('extendStudiesIds', { studiesIds: studiesIds });
-            commit('extendStudies', { studies: studies });
+            commit('extendStudies', { studiesIds: studiesIds, studies: studies, isComplete: isComplete });
         }
     } catch (err) {
         console.log("Find studies cancelled", err);
@@ -159,17 +161,15 @@ const getters = {
 ///////////////////////////// MUTATIONS
 
 const mutations = {
-    setStudiesIds(state, { studiesIds }) {
+    setStudies(state, { studiesIds, studies, isComplete }) {
         state.studiesIds = studiesIds;
-    },
-    setStudies(state, { studies }) {
         state.studies = studies;
+        state.isStudiesComplete = isComplete;
     },
-    extendStudiesIds(state, { studiesIds }) {
+    extendStudies(state, { studiesIds, studies, isComplete }) {
         state.studiesIds.push(...studiesIds);
-    },
-    extendStudies(state, { studies }) {
         state.studies.push(...studies);
+        state.isStudiesComplete = isComplete;
     },
     addStudy(state, { studyId, study }) {
         if (!state.studiesIds.includes(studyId)) {
@@ -305,11 +305,12 @@ const actions = {
         commit('clearFilter');
     },
     async clearStudies({ commit }) {
-        commit('setStudiesIds', { studiesIds: [] });
-        commit('setStudies', { studies: [] });
+        commit('setStudies', { studiesIds: [], studies: [], isComplete: false });
     },
     async extendFilteredStudies({ commit, getters, state }) {
-        get_studies_shared({ commit, getters, state }, true);
+        if (!state.isStudiesComplete) { // extend only if we have not yet loaded all possible studies
+            get_studies_shared({ commit, getters, state }, true);
+        }
     },
     async reloadFilteredStudies({ commit, getters, state }) {
         get_studies_shared({ commit, getters, state }, false);

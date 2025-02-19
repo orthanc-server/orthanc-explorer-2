@@ -104,10 +104,14 @@ export default {
             payload["Since"] = since;
         }
 
-        return (await axios.post(orthancApiUrl + "tools/find", payload, 
-            {
-                signal: window.axiosFindStudiesAbortController.signal
-            })).data;
+        let response = {
+            "studies": (await axios.post(orthancApiUrl + "tools/find", payload, 
+                {
+                    signal: window.axiosFindStudiesAbortController.signal
+                })).data
+        };
+        response["is-complete"] = response["studies"].length < limit; // we have received all available studies
+        return response;
     },
     async getMostRecentStudiesExtended(label) {
         await this.cancelFindStudies();
@@ -130,10 +134,14 @@ export default {
             payload["LabelsConstraint"] = "All";
         }
 
-        return (await axios.post(orthancApiUrl + "tools/find", payload, 
-            {
-                signal: window.axiosFindStudiesAbortController.signal
-            })).data;
+        let response = {
+            "studies": (await axios.post(orthancApiUrl + "tools/find", payload, 
+                {
+                    signal: window.axiosFindStudiesAbortController.signal
+                })).data
+        };
+        response["is-complete"] = response["studies"].length < limit; // we have received all available studies
+        return response;
     },
     async getLastChangeId() {
         const response = (await axios.get(orthancApiUrl + "changes?last"));
