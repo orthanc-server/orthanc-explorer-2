@@ -324,14 +324,6 @@
             }
         },
 
-        "Shares" : {
-            "TokenService" : {
-                "Url": "http://change-me:8000/shares",
-                "Username": "change-me",
-                "Password": "change-me"
-            },
-            "Type": "osimis-viewer-publication" // allowed values: "osimis-viewer-publication", "meddream-viewer-publication", "stone-viewer-publication"
-        },
 
         // When using Keycloak for user management
         "Keycloak" : {
@@ -345,7 +337,7 @@
         // this section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented
         "Tokens" : {
             "InstantLinksValidity": 200,                // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
-            "ShareType": "stone-viewer-publication"     // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication"
+            "ShareType": "stone-viewer-publication"     // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication", "volview-viewer-publication"
             //"RequiredForLinks": false                 // Set it to false when using basic-auth together with the auth-plugin (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454)
         }
     }
