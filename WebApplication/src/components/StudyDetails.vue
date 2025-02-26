@@ -132,7 +132,7 @@ export default {
             <tr v-if="showLabels && !uiOptions.EnableEditLabels">
                 <td colspan="100%">
                     {{  $t('labels.study_details_title') }}
-                    <span v-for="label in labelsModel" :key="label" class="label badge">{{ label }}</span>
+                    <span v-for="label in labels" :key="label" class="label badge">{{ label }}</span>
                 </td>
             </tr>
             <tr>
