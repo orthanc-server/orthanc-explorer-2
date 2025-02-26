@@ -94,7 +94,6 @@ export default {
                 'study': await api.getStudy(studyId)
             })
             this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
-            this.messageBus.emit("study-labels-updated-" + this.studyId, this.study.Labels);
             // console.log("StudyItem: study reloaded ", this.study.Labels);
         },
         onSelectedStudy() {

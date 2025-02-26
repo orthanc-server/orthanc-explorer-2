@@ -11,7 +11,7 @@ window.filterLabel = (str) => {
 }
 
 export default {
-    props: ['labels', 'studyId', 'id', 'title', 'refreshLabelKey'],
+    props: ['labels', 'studyId', 'id', 'title'],
     setup() {
     },
     data() {
@@ -65,23 +65,6 @@ export default {
         },
     },
     watch: {
-        async refreshLabelKey(newValue, oldValue) {
-            // modifying this value forces refresh but we need to refresh the labelsModel first
-            this.disableWatcher = true;
-            if (this.canCreateNewLabels) {
-                // if we can create new labels, we already provide all the existing ones in the list
-                this.allLabelsLocalCopy = [...this.allLabels];
-            }
-            let labels = await api.getStudyLabels(this.studyId);
-            // console.log("LabelsEditor: refreshLabelKey INSIDE 1", labels, this.allLabelsLocalCopy);
-
-            // Don't change the order of these operations !  Or, test with a custom button that adds a label to
-            // validate that the LabelsEditor is still updated correctly
-            this.labelsModel = [...labels];
-            await nextTick();
-            this.disableWatcher = false;
-            Tags.init();
-        },
         labelsModel: {
             async handler(newValue, oldValue) {
                 // console.log("LabelsEditor: labelsModel watcher", oldValue, newValue, this.disableWatcher);
@@ -111,7 +94,7 @@ export default {
 
 
 <template>
-    <div :id="id" :key="refreshLabelKey">
+    <div :id="id">
         <label :for="'select-' + id" class="form-label"><span v-html="getTitle"></span><span
                 class="invalid-label-tips invalid-label-tips-hidden">{{ $t('labels.valid_alphabet_warning')
                 }}</span>
