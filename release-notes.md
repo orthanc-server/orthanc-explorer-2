@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.8.0 (2025-02-27)
+==================
 
 Changes:
   - New configuration "UiOptions.CustomButtons" to enable custom buttons on resources.
@@ -16,7 +16,7 @@ Changes:
 
 Fixes:
   - Fixed the token-type for medDream in the Quick Viewer button.
-  - Remove the DatePicker icon to provide more room for the text.
+  - Removed the DatePicker icon to provide more room for the text.
 
 
 1.7.1 (2025-01-22)
