@@ -11,23 +11,23 @@
     "@fortawesome/fontawesome-free": "^6.5.1",
     "@popperjs/core": "^2.11.8",
     "@vuepic/vue-datepicker": "^8.3.1",
-    "axios": "^1.7.4",
+    "axios": "^1.8.2",
     "bootstrap": "5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "bootstrap5-tags": "^1.7.2",
+    "bootstrap5-tags": "^1.7.7",
     "jquery": "^3.7.1",
     "keycloak-js": "^24.0.5",
     "mitt": "^3.0.1",
     "uppie": "^4.0.0",
     "uuid": "^9.0.1",
-    "vue": "^3.4.21",
-    "vue-i18n": "^9.10.2",
-    "vue-router": "^4.3.0",
+    "vue": "^3.5.13",
+    "vue-i18n": "^9.14.3",
+    "vue-router": "^4.5.0",
     "vuex": "^4.1.0",
     "vue3-observe-visibility": "^1.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.4.8"
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.2.1"
   }
 }
