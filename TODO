@@ -56,6 +56,7 @@ UI improvements:
        ]
      }
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
+   - Radiant: sample: https://github.com/boskar/orthanc-radiant/blob/main/radiant.py
 
 - orthanc-share should generate QR code with publication links
 
