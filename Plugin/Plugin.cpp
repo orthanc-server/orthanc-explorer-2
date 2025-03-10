@@ -618,6 +618,8 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
 
     oe2Configuration["Tokens"] = tokens;
 
+    oe2Configuration["AdvancedOptions"] = pluginJsonConfiguration_["AdvancedOptions"];
+
     oe2Configuration["HasCustomLogo"] = !customLogoPath_.empty() || !customLogoUrl_.empty();
     if (!customLogoUrl_.empty())
     {

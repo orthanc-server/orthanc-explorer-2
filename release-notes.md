@@ -1,3 +1,11 @@
+Pending changes (not released yet)
+==================================
+
+Changes:
+  - New configuration "AdvancedOptions.DownloadInstantLinksUseRestApiWithAuthHeaders".
+    See the documentation of the configuration for all details.
+  
+
 1.8.0 (2025-02-27)
 ==================
 

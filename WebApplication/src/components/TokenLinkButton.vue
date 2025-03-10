@@ -22,8 +22,14 @@ export default {
     },
     methods: {
         async clicked(event) {
+            if (this.tokenType == "download-instant-link" && this.advancedOptions.DownloadInstantLinksUseRestApiWithAuthHeaders) {
+                api.downloadFileWithAuthHeaders(this.linkUrl);
+                event.preventDefault();
+                return;
+            }
+
             if (!this.tokens.RequiredForLinks) {
-                return;  // just execute the default click handler
+                return;  // just execute the default click handler: no token in url, no HTTP headers
             }
             event.preventDefault();
             let validityDuration = this.validityDuration;
@@ -63,6 +69,7 @@ export default {
     computed: {
         ...mapState({
             tokens: state => state.configuration.tokens,
+            advancedOptions: state => state.configuration.advancedOptions,
         }),
         target() {
             if (this.opensInNewTab === undefined || this.opensInNewTab == false) {

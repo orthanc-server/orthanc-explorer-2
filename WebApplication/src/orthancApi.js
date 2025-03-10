@@ -1,5 +1,8 @@
 import axios from "axios"
 import store from "./store"
+import mime from "mime-types";
+import { showSaveFilePicker } from "native-file-system-adapter";
+
 
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
 
@@ -575,6 +578,39 @@ export default {
             "LabelsConstraint" : "All"
         }));
         return response.data["Count"];
+    },
+    async downloadFileWithAuthHeaders(url) {
+        fetch(url, {  // we must use fetch because axios does not provide a stream response
+            method: "GET",
+            headers: axios.defaults.headers.common
+        })
+        .then(async (response) => {
+            let responseStream = response.body;
+            // console.info(response);
+
+            let suggestedFileName = null;
+            if (response.headers.has('content-disposition')) {
+                suggestedFileName = response.headers.get('content-disposition').split('"')[1]
+            }
+                
+            const extension = mime.extension(response.headers.get('content-type'));
+            let acceptedTypes = [];
+            acceptedTypes.push({ accept: { [response.headers.get('content-type').split(",")[0]]: ["." + extension] } });
+
+            const fileHandle = await showSaveFilePicker({
+                _preferPolyfill: false,
+                suggestedName: suggestedFileName,
+                types: acceptedTypes,
+                excludeAcceptAllOption: false,
+            }).catch((error) => console.error(error));;
+
+            let writableStream = await (fileHandle).createWritable();
+            await responseStream.pipeTo(writableStream);
+            console.log(suggestedFileName + " downloaded");
+        })
+        .catch((error) => {
+
+        })
     },
 
     ////////////////////////////////////////// HELPERS

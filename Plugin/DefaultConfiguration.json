@@ -334,11 +334,22 @@
         },
 
         
-        // this section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented
+        // This section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented.
         "Tokens" : {
             "InstantLinksValidity": 200,                // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
             "ShareType": "stone-viewer-publication"     // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication", "volview-viewer-publication"
             //"RequiredForLinks": false                 // Set it to false when using basic-auth together with the auth-plugin (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454)
+        },
+
+        // Very specific advanced options
+        "AdvancedOptions" : {
+            // if Keycloak is enabled, 'download-instant-link's are supposed to use tokens in the url in <a> links.
+            // When "Tokens.RequiredForLinks" is set to false, they are replaced with standard <a> links without tokens and without HTTP headers (since this is not possible to
+            // include auth headers in an <a> link).
+            // So, if you need the 'download-instant-link's to use auth headers, you can set this option to true.
+            // OE2 will then display a "Save As" dialog (for security reasons, the browser can not initiate writing to local disk without a user interaction)
+            // and the HTTP response will stream to disk.  Note that this might not work on all browsers.
+            "DownloadInstantLinksUseRestApiWithAuthHeaders": false    
         }
     }
 }
