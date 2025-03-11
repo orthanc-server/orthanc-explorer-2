@@ -598,7 +598,7 @@ export default {
             acceptedTypes.push({ accept: { [response.headers.get('content-type').split(",")[0]]: ["." + extension] } });
 
             const fileHandle = await showSaveFilePicker({
-                _preferPolyfill: false,
+                _preferPolyfill: true,
                 suggestedName: suggestedFileName,
                 types: acceptedTypes,
                 excludeAcceptAllOption: false,
