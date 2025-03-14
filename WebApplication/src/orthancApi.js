@@ -308,11 +308,12 @@ export default {
             )).data;
         return retrieveJob["ID"];
     },
-    async remoteDicomRetrieveResource(level, remoteModality, filterQuery, targetAet) {
-        return this.remoteDicomRetrieveResources(level, remoteModality, [filterQuery], targetAet);
+    async remoteDicomRetrieveResource(level, remoteModality, filterQuery) {
+        return this.remoteDicomRetrieveResources(level, remoteModality, [filterQuery]);
     },
-    async remoteDicomRetrieveResources(level, remoteModality, filterQueries, targetAet) {
+    async remoteDicomRetrieveResources(level, remoteModality, filterQueries) {
         const retrieveMethod = this.getRetrieveMethod(remoteModality);
+        const targetAet = this.getRetrieveAet(remoteModality);
 
         let uriSegment = "/get";
         let query = {
@@ -721,7 +722,15 @@ export default {
         if (store.state.configuration.queryableDicomModalities[modality].RetrieveMethod == "SystemDefault") {
             return defaultRetrieveMethod;
         } else {
-            return store.state.configuration.queryableDicomModalities[modality];
+            return store.state.configuration.queryableDicomModalities[modality].RetrieveMethod;
+        }
+    },
+    getRetrieveAet(modality) {
+        const defaultRetrieveAet = store.state.configuration.system.DicomAet;
+        if (store.state.configuration.queryableDicomModalities[modality].LocalAet == "") {
+            return defaultRetrieveAet;
+        } else {
+            return store.state.configuration.queryableDicomModalities[modality].LocalAet;
         }
     },
 

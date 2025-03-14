@@ -114,7 +114,7 @@ export default {
                 if (this.resourceLevel == "bulk") {
                     let moveQueries = this.selectedStudies.map(s => { return {"StudyInstanceUID": s['ID'], "PatientID": s['PatientMainDicomTags']['PatientID']}});
 
-                    const jobId = await api.remoteDicomRetrieveResources("Study", this.studiesRemoteSource, moveQueries, this.system.DicomAet);
+                    const jobId = await api.remoteDicomRetrieveResources("Study", this.studiesRemoteSource, moveQueries);
                     this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.selectedStudies.length  + ' studies from (' + this.studiesRemoteSource + ')'});
                 } else {
                     let moveQuery = {
@@ -129,7 +129,7 @@ export default {
                         moveQuery["SOPInstanceUID"] = this.instanceTags["0008,0018"].Value;
                     }
 
-                    const jobId = await api.remoteDicomRetrieveResource(this.capitalizeFirstLetter(this.resourceLevel), this.studiesRemoteSource, moveQuery, this.system.DicomAet);
+                    const jobId = await api.remoteDicomRetrieveResource(this.capitalizeFirstLetter(this.resourceLevel), this.studiesRemoteSource, moveQuery);
                     this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.capitalizeFirstLetter(this.resourceLevel) + ' from (' + this.studiesRemoteSource + ')'});
                 }
             } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {

@@ -34,7 +34,7 @@ export default {
                         "StudyInstanceUID": this.studyInstanceUid
                     };
 
-                    const jobId = await api.remoteDicomRetrieveResource("Study", modality, moveQuery, this.system.DicomAet);
+                    const jobId = await api.remoteDicomRetrieveResource("Study", modality, moveQuery);
                     this.state = "retrieving";
                     this.startMonitoringJob(jobId);
                 }                

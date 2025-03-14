@@ -2,6 +2,7 @@ Pending changes (not released yet)
 ==================================
 
 Changes:
+  - Retrieve from remote DICOM modalities: Use the "LocalAet" defined at modality level as the TargetAet.
   - New configuration "AdvancedOptions.DownloadInstantLinksUseRestApiWithAuthHeaders".
     See the documentation of the configuration for all details.
   
