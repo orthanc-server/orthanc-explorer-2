@@ -897,7 +897,7 @@ export default {
                         <div v-if="columnTag == 'StudyDate'">
                             <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
                                 :enable-time-picker="false" range :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
-                                :preview-format="datePickerFormat" text-input arrow-navigation hide-input-icon :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                :preview-format="datePickerFormat" text-input arrow-navigation hide-input-icon :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
                                 <template #yearly="{ label, range, presetDate }">
                                     <span @click="presetDate(range)">{{ label }}</span>
                                 </template>
@@ -928,7 +928,7 @@ export default {
                         <div v-else-if="columnTag == 'PatientBirthDate'">
                             <Datepicker v-model="filterPatientBirthDateForDatePicker"
                                 :enable-time-picker="false" range :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
-                                arrow-navigation :highlight-week-days="[0, 6]" :dark="isDarkMode">
+                                arrow-navigation :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
                             </Datepicker>
                         </div>
                         <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
