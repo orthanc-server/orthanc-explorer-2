@@ -5,6 +5,10 @@ Changes:
   - Retrieve from remote DICOM modalities: Use the "LocalAet" defined at modality level as the TargetAet.
   - New configuration "AdvancedOptions.DownloadInstantLinksUseRestApiWithAuthHeaders".
     See the documentation of the configuration for all details.
+
+Fixes:
+  - Fix [#77](https://github.com/orthanc-server/orthanc-explorer-2/issues/77)
+
   
 
 1.8.0 (2025-02-27)
