@@ -7,7 +7,7 @@ Changes:
     See the documentation of the configuration for all details.
 
 Fixes:
-  - Fix [#77](https://github.com/orthanc-server/orthanc-explorer-2/issues/77)
+  - Fix [#77](https://github.com/orthanc-server/orthanc-explorer-2/issues/77): Invalid default configuration file.
 
   
 
