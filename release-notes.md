@@ -8,6 +8,7 @@ Changes:
 
 Fixes:
   - Fix [#77](https://github.com/orthanc-server/orthanc-explorer-2/issues/77): Invalid default configuration file.
+  - Retrieve from remote DICOM modalities: Use the "RetrieveMethod" defined at modality level.
 
   
 
