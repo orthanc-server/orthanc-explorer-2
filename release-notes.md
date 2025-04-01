@@ -1,5 +1,5 @@
-Pending changes (not released yet)
-==================================
+1.8.1 (2025-04-01)
+==================
 
 Changes:
   - Retrieve from remote DICOM modalities: Use the "LocalAet" defined at modality level as the TargetAet.
