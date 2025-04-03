@@ -1,3 +1,10 @@
+Pending changes (not released yet)
+==================================
+
+Changes:
+  - Added Romanian translations.
+
+
 1.8.1 (2025-04-01)
 ==================
 
