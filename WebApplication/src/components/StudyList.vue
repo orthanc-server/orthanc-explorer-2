@@ -952,7 +952,7 @@ export default {
                     <th width="98%" colspan="10" scope="col">
                         <div class="container">
                             <div class="row g-1">
-                                <div class="col-4 study-list-bulk-buttons">
+                                <div class="col-6 study-list-bulk-buttons">
                                     <ResourceButtonGroup :resourceLevel="'bulk'">
                                     </ResourceButtonGroup>
                                 </div>
