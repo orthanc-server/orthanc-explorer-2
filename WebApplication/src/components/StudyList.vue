@@ -956,7 +956,7 @@ export default {
                                     <ResourceButtonGroup :resourceLevel="'bulk'">
                                     </ResourceButtonGroup>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
                                     <div v-if="!isSearching && isLoadingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
                                         <span v-if="isLoadingLatestStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
                                             aria-hidden="true"></span>{{
