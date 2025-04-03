@@ -130,10 +130,18 @@
             "StudyListSearchMode": "search-as-you-type",// mode to trigger a search in the StudyList.  Accepted values: 'search-as-you-type' or 'search-button'
             "StudyListSearchAsYouTypeMinChars": 3,      // minimum number of characters to enter in a text search field before it starts searching the DB
             "StudyListSearchAsYouTypeDelay": 400,       // Delay [ms] between the last key stroke and the trigger of the search
-            "StudyListContentIfNoSearch": "most-recents", // Defines what to show if no search criteria has been entered
-                                                          // Allowed values: "empty", "most-recents"
-                                                          // From v 1.7.0, this option is always considered as "most-recents" when using 
-                                                          // a DB backend that supports ExtendedFind (SQLite and PostgreSQL)
+            "StudyListContentIfNoSearch": "default-ordering",   // Defines what to show if no search criteria has been entered.
+                                                                // Allowed values: 
+                                                                // - "default-ordering" (new in 1.8.2) applies the "DefaultOrdering"
+                                                                // - "most-recents" (was the default value up to 1.8.1), equivalent to "DefaultOrdering"="Metadata,LastUpdate,DESC".
+                                                                //                  It is kept for compatibility reasons.  Note that the "DefaultOrdering" config is ignored if you use "most-recents".
+                                                                // - "empty" (From v 1.7.0 and when using a DB backend that supports ExtendedFind (SQLite and PostgreSQL), 
+                                                                //            the "empty" option is not used anymore and is replaced by "default-ordering")
+
+            "DefaultOrdering": "Metadata,LastUpdate,DESC", // Defines the default ordering in the local study list.  Each order is made of 3 values separated by commas.
+                                                           // Orders are separated by semicolons.  E.g:
+                                                           // - DicomTag,StudyDate,DESC;Metadata,LastUpdate,DESC
+                                                           // - DicomTag,StudyDate,DESC;DicomTag,PatientName,ASC
 
             "AutoAddWildcardsToSearchFields": true,     // Automatically adds wildcards to textual search fields in the local and remote study tables.
                                                         // When this is set to true (default), searching for 123 in the UI actually searches

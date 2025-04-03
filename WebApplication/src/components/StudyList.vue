@@ -159,13 +159,6 @@ export default {
                 return true;
             }
         },
-        showLastReceivedIfNoSearch() {
-            if (this.sourceType == SourceType.LOCAL_ORTHANC) {
-                return this.uiOptions.StudyListContentIfNoSearch == "most-recents";
-            } else {
-                return false;
-            }
-        },
         isStudyListEmpty() {
             return this.studiesIds.length == 0;
         },
@@ -197,10 +190,10 @@ export default {
             // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
             this.initModalityFilter();
             for (const tag of this.uiOptions.StudyListColumns) {
-            if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
-                this.filterGenericTags[tag] = '';
+                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
+                    this.filterGenericTags[tag] = '';
+                }
             }
-        }
             this.updateFilterFromRoute(this.$route.query);
         },
         filterModalities: {
@@ -349,7 +342,7 @@ export default {
             // remove all DICOM Tag orders and insert this one as the first one
             this.filterOrderBy = [o].concat(this.filterOrderBy.filter(i => i['Type'] != 'DicomTag'));
 
-            this._updateOrderBy();
+            this._updateOrderBy(true);
         },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
@@ -482,10 +475,31 @@ export default {
             this.updateUrlNoReload();
             this.reloadStudyList();
         },
-        _updateOrderBy() {
+        _updateOrderBy(reloadNow) {
             this.$store.dispatch('studies/updateOrderByNoReload', { orderBy: this.filterOrderBy });
             this.updateUrlNoReload();
-            this.reloadStudyList();
+            if (reloadNow) {
+                this.reloadStudyList();
+            }
+        },
+        updateOrderBy(orderString, reloadNow) {
+            console.log("updateOrderBy", orderString);
+            this.filterOrderBy = [];
+            this.currentOrderByTag = null;
+            this.currentOrderDirection = 'ASC';
+
+            let orders = orderString.split(';');
+            for (let order of orders) {
+                let o = order.split(',');
+                
+                this.filterOrderBy.push({'Type': o[0], 'Key': o[1], 'Direction': o[2]});
+                
+                if (o[0] == 'DicomTag' && this.currentOrderByTag == null) {
+                    this.currentOrderByTag = o[1];
+                    this.currentOrderDirection = o[2];
+                }
+            }
+            this._updateOrderBy(reloadNow);
         },
         async updateFilterFromRoute(filters) {
             //console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
@@ -508,6 +522,7 @@ export default {
             }
             await this.$store.dispatch('studies/updateSource', { 'source-type': this.sourceType, 'remote-source': this.remoteSource });
 
+            let routeHasOrderBy = false;
             for (const [filterKey, filterValue] of Object.entries(filters)) {
                 if (filterKey == "labels") {
                     const labels = filterValue.split(",");
@@ -515,27 +530,18 @@ export default {
                     await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels });
                 } else if (filterKey == 'order-by') {
                     if (this.sourceType == SourceType.LOCAL_ORTHANC) { // ignore order-by for remote sources
-                        this.filterOrderBy = [];
-                        this.currentOrderByTag = null;
-                        this.currentOrderDirection = 'ASC';
-
-                        let orders = filterValue.split(';');
-                        for (let order of orders) {
-                            let o = order.split(',');
-                            
-                            this.filterOrderBy.push({'Type': o[0], 'Key': o[1], 'Direction': o[2]});
-                            
-                            if (o[0] == 'DicomTag' && this.currentOrderByTag == null) {
-                                this.currentOrderByTag = o[1];
-                                this.currentOrderDirection = o[2];
-                            }
-                        }
-                        this._updateOrderBy();
+                        this.updateOrderBy(filterValue, false);
+                        routeHasOrderBy = true;
                     }
                 } else if (filterKey[0] === filterKey[0].toUpperCase()) {  // DicomTags starts with a capital letter
                     keyValueFilters[filterKey] = filterValue;
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
                 } 
+            }
+            if (!routeHasOrderBy) {
+                const defaultOrdering = this.uiOptions.DefaultOrdering;
+                console.log("Applying default ordering: ", defaultOrdering);
+                this.updateOrderBy(defaultOrdering, false);
             }
 
             await this.updateFilterForm(keyValueFilters);
