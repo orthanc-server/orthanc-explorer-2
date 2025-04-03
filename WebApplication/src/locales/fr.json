@@ -158,6 +158,10 @@
     "plugins": {
         "delayed_deletion": {
             "pending_files_count": "Delayed Deletion plugin: Fichiers à effacer"
+        },
+        "housekeeper": {
+            "progress_status": "Housekeeper plugin: état d'avancement",
+            "completed": "Terminé"
         }
     },
     "preview": "Aperçu",

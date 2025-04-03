@@ -4,6 +4,7 @@ Pending changes (not released yet)
 Changes:
   - New configuration "UiOptions.DefaultOrdering" and new default value for 
     "StudyListContentIfNoSearch": "default-ordering".
+  - Now showing the status of the Housekeeper plugin in the "System Info"
   - Added Romanian translations.
 
 

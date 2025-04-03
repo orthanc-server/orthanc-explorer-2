@@ -10,25 +10,41 @@ export default {
     data() {
         return {
             verboseLevel: "default",
-            delayedDeletionPendingFilesCount: 0
+            delayedDeletionPendingFilesCount: 0,
+            hkLastProcessedChange: -1,
+            hkLastChangeToProcess: -1,
         };
     },
     async mounted() {
         this.verboseLevel = await api.getVerboseLevel();
-        if (this.hasDelayedDeletionPlugin) {
-            const status = await api.getDelayedDeletionStatus();
-            this.delayedDeletionPendingFilesCount = status["FilesPendingDeletion"];
-        }
+        await this.loadPluginsStatus();
     },
     methods: {
         async setVerboseLevel(level) {
             this.verboseLevel = level;
             await api.setVerboseLevel(level);
         },
+        async loadPluginsStatus() {
+            if (this.hasDelayedDeletionPlugin) {
+                const ddStatus = await api.getDelayedDeletionStatus();
+                this.delayedDeletionPendingFilesCount = ddStatus["FilesPendingDeletion"];
+            }
+            if (this.hasHousekeeperPlugin) {
+                const hkStatus = await api.getHousekeeperStatus();
+                this.hkLastChangeToProcess = hkStatus["LastChangeToProcess"];
+                this.hkLastProcessedChange = hkStatus["LastProcessedChange"];
+            }
+        }
+    },
+    watch: {
+        async isConfigurationLoaded(newValue, oldValue) {
+            this.loadPluginsStatus();
+        }
     },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            isConfigurationLoaded: state => state.configuration.loaded,
             tokens: state => state.configuration.tokens,
             statistics: state => state.studies.statistics,
             system: state => state.configuration.system,
@@ -61,6 +77,26 @@ export default {
         hasDelayedDeletionPlugin() {
             return 'delayed-deletion' in this.installedPlugins && this.installedPlugins['delayed-deletion'].Enabled;
         },
+        hasHousekeeperPlugin() {
+            return 'housekeeper' in this.installedPlugins && this.installedPlugins['housekeeper'].Enabled;
+        },
+        hkPctDone() {
+            if (this.hkLastProcessedChange >= 1) {
+                return 100 * (this.hkLastProcessedChange / this.hkLastChangeToProcess);
+            } else {
+                return 100;
+            }
+        },
+        hkPctRemaining() {
+            return 100 - this.hkPctDone;
+        },
+        hkStatusText() {
+            if (this.hkLastProcessedChange >= 1) {
+                return this.hkLastProcessedChange +" / " + this.hkLastChangeToProcess;
+            } else {
+                return this.$t('plugins.housekeeper.completed')
+            }
+        }
     },
 }
 </script>
@@ -98,6 +134,18 @@ export default {
                         <th scope="row" class="w-50 header"># {{ $t('plugins.delayed_deletion.pending_files_count') }}
                         </th>
                         <td class="value">{{ delayedDeletionPendingFilesCount }}</td>
+                    </tr>
+                    <tr v-if="hasHousekeeperPlugin">
+                        <th scope="row" class="w-50 header">{{ $t('plugins.housekeeper.progress_status') }}
+                        </th>
+                        <td class="value">
+                            <div class="progress mt-1 mb-1" style="width:100%">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                    v-bind:style="'width: ' + this.hkPctDone + '%'"><span v-if="hkPctDone > 50">{{ hkStatusText }}</span></div>
+                                <div class="progress-bar bg-secondary" role="progressbar"
+                                    v-bind:style="'width: ' + this.hkPctRemaining + '%'"><span v-if="hkPctDone <= 50">{{ hkStatusText }}</span></div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

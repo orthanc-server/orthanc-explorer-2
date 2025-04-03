@@ -434,6 +434,9 @@ export default {
     async getDelayedDeletionStatus() {
         return (await axios.get(orthancApiUrl + "plugins/delayed-deletion/status")).data;
     },
+    async getHousekeeperStatus() {
+        return (await axios.get(orthancApiUrl + "plugins/housekeeper/status")).data;
+    },
     async generateUid(level) {
         return (await axios.get(orthancApiUrl + "tools/generate-uid?level=" + level)).data;
     },
