@@ -549,6 +549,12 @@ export default {
             for (const [k,] of Object.entries(this.tags)) {
                 if (dateHelpers.isDateTag(k)) {
                     this.tags[k] = dateHelpers.dicomDateFromDatePicker(this.dateTags[k]);
+                    
+                    if (this.tags[k] == null && this.originalTags[k] == '') { 
+                        // for https://github.com/orthanc-server/orthanc-explorer-2/issues/72
+                        // this way, we do not detect a false change from '' to null
+                        this.tags[k] = '';
+                    }
                 }
             }
         },
