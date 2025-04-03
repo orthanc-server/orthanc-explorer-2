@@ -1,8 +1,3 @@
-- make default sorting configurable: e.g: /ui/app/#/filtered-studies?order-by=DicomTag,StudyDate,DESC;DicomTag,StudyTime,DESC
-  https://github.com/orthanc-server/orthanc-explorer-2/issues/75
-  Another good point also was about custom fields sorting (which is referenced on a different issue). This would be useful, since I have to order by date and then by time instead of only by date for convenience.
-
-
 - add a "reset" button (on Windows, to reload the config after you have changed it without going to the Services -> Orthanc -> Restart)
 - show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)
 
@@ -36,25 +31,6 @@ UI improvements:
 - list last studies received (through DICOM or upload)
 
 - UI customization:
- - add custom actions per study/series/instances:
-   - configuration suggestion:
-     {
-       "CustomButtons": [
-         {
-           "Name": "Process study",   // the text will appear in the button tooltip
-           "Icon": "bi bi-glass",     
-           "Level": "Study",
-           "ActionUrl": "../../my-python-plugin/my-route",  // this route can be templated with e.g: ../../my-python-plugin/my-route?StudyInstanceUID=$resource-dicom-id$&orthanc-id=$resource-orthanc-id$&level=$resource-level$"
-           "ActionMethod": "POST",
-           "ActionPostPayloadTemplate": {
-             "dicom-id": "$resource-dicom-id$",
-             "orthanc-id": "$resource-orthanc-id$"
-           }
-           "EnabledUrl": "../../my-python-plugin/my-route-enabled", // optional: a GET route that returns true/false if the custom button must be enabled/disabled for this resource.  It shall be templated as well
-           
-         }
-       ]
-     }
  - configure other viewers url (ex: radiant://?n=pstv&v=0020000D&v=%22StudyInstanceUID%22 or osirix or horos ...)
    - Radiant: sample: https://github.com/boskar/orthanc-radiant/blob/main/radiant.py
 
