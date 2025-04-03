@@ -2,8 +2,8 @@
 # Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
 # Department, University Hospital of Liege, Belgium
 # Copyright (C) 2017-2023 Osimis S.A., Belgium
-# Copyright (C) 2024-2024 Orthanc Team SRL, Belgium
-# Copyright (C) 2021-2024 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+# Copyright (C) 2024-2025 Orthanc Team SRL, Belgium
+# Copyright (C) 2021-2025 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -239,7 +239,9 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   add_definitions(
     -D_XOPEN_SOURCE=1
     )
-  link_libraries(iconv)
+  
+  # Linking with iconv breaks the Universal builds on modern compilers
+  # link_libraries(iconv)
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   message("Building using Emscripten (for WebAssembly or asm.js targets)")

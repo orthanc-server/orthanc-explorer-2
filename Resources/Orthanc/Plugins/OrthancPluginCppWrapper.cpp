@@ -3,8 +3,8 @@
  * Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
  * Department, University Hospital of Liege, Belgium
  * Copyright (C) 2017-2023 Osimis S.A., Belgium
- * Copyright (C) 2024-2024 Orthanc Team SRL, Belgium
- * Copyright (C) 2021-2024 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+ * Copyright (C) 2024-2025 Orthanc Team SRL, Belgium
+ * Copyright (C) 2021-2025 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/move/unique_ptr.hpp>
 #include <boost/thread.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 
 #include <json/reader.h>
@@ -334,9 +335,9 @@ namespace OrthancPlugins
     std::vector<const char*> headersValues_;
 
   public:
-    explicit PluginHttpHeaders(const std::map<std::string, std::string>& httpHeaders)
+    explicit PluginHttpHeaders(const HttpHeaders& httpHeaders)
     {
-      for (std::map<std::string, std::string>::const_iterator
+      for (HttpHeaders::const_iterator
              it = httpHeaders.begin(); it != httpHeaders.end(); ++it)
       {
         headersKeys_.push_back(it->first.c_str());
@@ -361,7 +362,7 @@ namespace OrthancPlugins
   };
 
   bool MemoryBuffer::RestApiGet(const std::string& uri,
-                                const std::map<std::string, std::string>& httpHeaders,
+                                const HttpHeaders& httpHeaders,
                                 bool applyPlugins)
   {
     Clear();
@@ -400,7 +401,7 @@ namespace OrthancPlugins
   bool MemoryBuffer::RestApiPost(const std::string& uri,
                                  const void* body,
                                  size_t bodySize,
-                                 const std::map<std::string, std::string>& httpHeaders,
+                                 const HttpHeaders& httpHeaders,
                                  bool applyPlugins)
   {
     MemoryBuffer answerHeaders;
@@ -422,7 +423,7 @@ namespace OrthancPlugins
 
   bool MemoryBuffer::RestApiPost(const std::string& uri,
                                  const Json::Value& body,
-                                 const std::map<std::string, std::string>& httpHeaders,
+                                 const HttpHeaders& httpHeaders,
                                  bool applyPlugins)
   {
     std::string s;
@@ -1490,7 +1491,7 @@ namespace OrthancPlugins
 
   bool RestApiGetString(std::string& result,
                         const std::string& uri,
-                        const std::map<std::string, std::string>& httpHeaders,
+                        const HttpHeaders& httpHeaders,
                         bool applyPlugins)
   {
     MemoryBuffer answer;
@@ -1508,7 +1509,7 @@ namespace OrthancPlugins
 
   bool RestApiGet(Json::Value& result,
                   const std::string& uri,
-                  const std::map<std::string, std::string>& httpHeaders,
+                  const HttpHeaders& httpHeaders,
                   bool applyPlugins)
   {
     MemoryBuffer answer;
@@ -1598,7 +1599,7 @@ namespace OrthancPlugins
   bool RestApiPost(Json::Value& result,
                    const std::string& uri,
                    const Json::Value& body,
-                   const std::map<std::string, std::string>& httpHeaders,
+                   const HttpHeaders& httpHeaders,
                    bool applyPlugins)
   {
     MemoryBuffer answer;
@@ -1963,7 +1964,7 @@ namespace OrthancPlugins
   bool OrthancPeers::DoGet(MemoryBuffer& target,
                            size_t index,
                            const std::string& uri,
-                           const std::map<std::string, std::string>& headers) const
+                           const HttpHeaders& headers) const
   {
     if (index >= index_.size())
     {
@@ -1994,7 +1995,7 @@ namespace OrthancPlugins
   bool OrthancPeers::DoGet(MemoryBuffer& target,
                            const std::string& name,
                            const std::string& uri,
-                           const std::map<std::string, std::string>& headers) const
+                           const HttpHeaders& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
@@ -2005,7 +2006,7 @@ namespace OrthancPlugins
   bool OrthancPeers::DoGet(Json::Value& target,
                            size_t index,
                            const std::string& uri,
-                           const std::map<std::string, std::string>& headers) const
+                           const HttpHeaders& headers) const
   {
     MemoryBuffer buffer;
 
@@ -2024,7 +2025,7 @@ namespace OrthancPlugins
   bool OrthancPeers::DoGet(Json::Value& target,
                            const std::string& name,
                            const std::string& uri,
-                           const std::map<std::string, std::string>& headers) const
+                           const HttpHeaders& headers) const
   {
     MemoryBuffer buffer;
 
@@ -2044,7 +2045,7 @@ namespace OrthancPlugins
                             const std::string& name,
                             const std::string& uri,
                             const std::string& body,
-                            const std::map<std::string, std::string>& headers) const
+                            const HttpHeaders& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
@@ -2056,7 +2057,7 @@ namespace OrthancPlugins
                             size_t index,
                             const std::string& uri,
                             const std::string& body,
-                            const std::map<std::string, std::string>& headers) const
+                            const HttpHeaders& headers) const
   {
     MemoryBuffer buffer;
 
@@ -2076,7 +2077,7 @@ namespace OrthancPlugins
                             const std::string& name,
                             const std::string& uri,
                             const std::string& body,
-                            const std::map<std::string, std::string>& headers) const
+                            const HttpHeaders& headers) const
   {
     MemoryBuffer buffer;
 
@@ -2096,7 +2097,7 @@ namespace OrthancPlugins
                             size_t index,
                             const std::string& uri,
                             const std::string& body,
-                            const std::map<std::string, std::string>& headers) const
+                            const HttpHeaders& headers) const
   {
     if (index >= index_.size())
     {
@@ -2133,7 +2134,7 @@ namespace OrthancPlugins
   bool OrthancPeers::DoPut(size_t index,
                            const std::string& uri,
                            const std::string& body,
-                           const std::map<std::string, std::string>& headers) const
+                           const HttpHeaders& headers) const
   {
     if (index >= index_.size())
     {
@@ -2169,7 +2170,7 @@ namespace OrthancPlugins
   bool OrthancPeers::DoPut(const std::string& name,
                            const std::string& uri,
                            const std::string& body,
-                           const std::map<std::string, std::string>& headers) const
+                           const HttpHeaders& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
@@ -2179,7 +2180,7 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoDelete(size_t index,
                               const std::string& uri,
-                              const std::map<std::string, std::string>& headers) const
+                              const HttpHeaders& headers) const
   {
     if (index >= index_.size())
     {
@@ -2208,7 +2209,7 @@ namespace OrthancPlugins
 
   bool OrthancPeers::DoDelete(const std::string& name,
                               const std::string& uri,
-                              const std::map<std::string, std::string>& headers) const
+                              const HttpHeaders& headers) const
   {
     size_t index;
     return (LookupName(index, name) &&
@@ -2923,12 +2924,12 @@ namespace OrthancPlugins
       std::vector<const char*>  headersValues_;
 
     public:
-      HeadersWrapper(const HttpClient::HttpHeaders& headers)
+      HeadersWrapper(const HttpHeaders& headers)
       {
         headersKeys_.reserve(headers.size());
         headersValues_.reserve(headers.size());
 
-        for (HttpClient::HttpHeaders::const_iterator it = headers.begin(); it != headers.end(); ++it)
+        for (HttpHeaders::const_iterator it = headers.begin(); it != headers.end(); ++it)
         {
           headersKeys_.push_back(it->first.c_str());
           headersValues_.push_back(it->second.c_str());
@@ -3076,11 +3077,11 @@ namespace OrthancPlugins
     class MemoryAnswer : public HttpClient::IAnswer
     {
     private:
-      HttpClient::HttpHeaders  headers_;
-      ChunkedBuffer            body_;
+      HttpHeaders    headers_;
+      ChunkedBuffer  body_;
 
     public:
-      const HttpClient::HttpHeaders& GetHeaders() const
+      const HttpHeaders& GetHeaders() const
       {
         return headers_;
       }
@@ -3168,6 +3169,35 @@ namespace OrthancPlugins
 #endif    
 
 
+  static void DecodeHttpHeaders(HttpHeaders& target,
+                                const MemoryBuffer& source)
+  {
+    Json::Value v;
+    source.ToJson(v);
+
+    if (v.type() != Json::objectValue)
+    {
+      ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
+    }
+
+    Json::Value::Members members = v.getMemberNames();
+    target.clear();
+
+    for (size_t i = 0; i < members.size(); i++)
+    {
+      const Json::Value& h = v[members[i]];
+      if (h.type() != Json::stringValue)
+      {
+        ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
+      }
+      else
+      {
+        target[members[i]] = h.asString();
+      }
+    }
+  }
+
+
   void HttpClient::ExecuteWithoutStream(uint16_t& httpStatus,
                                         HttpHeaders& answerHeaders,
                                         std::string& answerBody,
@@ -3208,30 +3238,7 @@ namespace OrthancPlugins
       ORTHANC_PLUGINS_THROW_PLUGIN_ERROR_CODE(error);
     }
 
-    Json::Value v;
-    answerHeadersBuffer.ToJson(v);
-
-    if (v.type() != Json::objectValue)
-    {
-      ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
-    }
-
-    Json::Value::Members members = v.getMemberNames();
-    answerHeaders.clear();
-
-    for (size_t i = 0; i < members.size(); i++)
-    {
-      const Json::Value& h = v[members[i]];
-      if (h.type() != Json::stringValue)
-      {
-        ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
-      }
-      else
-      {
-        answerHeaders[members[i]] = h.asString();
-      }
-    }
-
+    DecodeHttpHeaders(answerHeaders, answerHeadersBuffer);
     answerBodyBuffer.ToString(answerBody);
   }
 
@@ -4061,7 +4068,7 @@ namespace OrthancPlugins
   }
 #endif
 
-  void GetHttpHeaders(std::map<std::string, std::string>& result, const OrthancPluginHttpRequest* request)
+  void GetHttpHeaders(HttpHeaders& result, const OrthancPluginHttpRequest* request)
   {
     result.clear();
 
@@ -4070,6 +4077,26 @@ namespace OrthancPlugins
       result[request->headersKeys[i]] = request->headersValues[i];
     }    
   }
+
+  void SerializeGetArguments(std::string& output, const OrthancPluginHttpRequest* request)
+  {
+    output.clear();
+    std::vector<std::string> arguments;
+    for (uint32_t i = 0; i < request->getCount; ++i)
+    {
+      if (request->getValues[i] && strlen(request->getValues[i]) > 0)
+      {
+        arguments.push_back(std::string(request->getKeys[i]) + "=" + std::string(request->getValues[i]));
+      }
+      else
+      {
+        arguments.push_back(std::string(request->getKeys[i]));
+      }
+    }
+
+    output = boost::algorithm::join(arguments, "&");
+  }
+
 
 #if !ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 12, 4)
   static void SetPluginProperty(const std::string& pluginIdentifier,
@@ -4114,4 +4141,179 @@ namespace OrthancPlugins
     SetPluginProperty(pluginIdentifier, _OrthancPluginProperty_OrthancExplorer, javascript);
 #endif
   }
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  RestApiClient::RestApiClient() :
+    method_(OrthancPluginHttpMethod_Get),
+    path_("/"),
+    afterPlugins_(false),
+    httpStatus_(0)
+  {
+  }
+
+  RestApiClient::RestApiClient(const char* url,
+                               const OrthancPluginHttpRequest* request) :
+    method_(request->method),
+    path_(url),
+    afterPlugins_(false),
+    httpStatus_(0)
+  {
+    OrthancPlugins::GetHttpHeaders(requestHeaders_, request);
+
+    std::string getArguments;
+    OrthancPlugins::SerializeGetArguments(getArguments, request);
+
+    if (!getArguments.empty())
+    {
+      path_ += "?" + getArguments;
+    }
+  }
+#endif
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  void RestApiClient::AddRequestHeader(const std::string& key,
+                                       const std::string& value)
+  {
+    if (requestHeaders_.find(key) == requestHeaders_.end())
+    {
+      requestHeaders_[key] = value;
+    }
+    else
+    {
+      ORTHANC_PLUGINS_THROW_EXCEPTION(BadSequenceOfCalls);
+    }
+  }
+#endif
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  bool RestApiClient::Execute()
+  {
+    if (requestBody_.size() > 0xffffffffu)
+    {
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot handle body size > 4GB");
+      ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
+    }
+
+    PluginHttpHeaders converted(requestHeaders_);
+
+    MemoryBuffer body;
+    MemoryBuffer headers;
+
+    OrthancPluginErrorCode code = OrthancPluginCallRestApi(GetGlobalContext(), *body, *headers, &httpStatus_, method_, path_.c_str(),
+                                                           requestHeaders_.size(), converted.GetKeys(), converted.GetValues(),
+                                                           requestBody_.c_str(), requestBody_.size(), afterPlugins_ ? 1 : 0);
+
+    answerHeaders_.clear();
+    answerBody_.clear();
+
+    if (code == OrthancPluginErrorCode_Success)
+    {
+      if (httpStatus_ == 0)
+      {
+        ORTHANC_PLUGINS_THROW_EXCEPTION(InternalError);
+      }
+
+      DecodeHttpHeaders(answerHeaders_, headers);
+      body.ToString(answerBody_);
+      return true;
+    }
+    else
+    {
+      if (code == OrthancPluginErrorCode_UnknownResource ||
+          code == OrthancPluginErrorCode_InexistentItem)
+      {
+        httpStatus_ = 404;
+        return false;
+      }
+      else
+      {
+        ORTHANC_PLUGINS_THROW_PLUGIN_ERROR_CODE(code);
+      }
+    }
+  }
+
+  void RestApiClient::Forward(OrthancPluginContext* context, OrthancPluginRestOutput* output)
+  {
+    if (Execute() && httpStatus_ == 200)
+    {
+      const char* mimeType = NULL;
+      for (HttpHeaders::const_iterator h = answerHeaders_.begin(); h != answerHeaders_.end(); ++h)
+      {
+        if (h->first == "content-type")
+        {
+          mimeType = h->second.c_str();
+        }
+      }
+      
+      AnswerString(answerBody_, mimeType, output);
+    }
+    else
+    {
+      AnswerHttpError(httpStatus_, output);
+    }
+  }
+
+  bool RestApiClient::GetAnswerJson(Json::Value& output) const
+  {
+    return ReadJson(output, answerBody_);
+  }
+#endif
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  uint16_t RestApiClient::GetHttpStatus() const
+  {
+    if (httpStatus_ == 0)
+    {
+      ORTHANC_PLUGINS_THROW_EXCEPTION(BadSequenceOfCalls);
+    }
+    else
+    {
+      return httpStatus_;
+    }
+  }
+#endif
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  bool RestApiClient::LookupAnswerHeader(std::string& value,
+                                         const std::string& key) const
+  {
+    if (httpStatus_ == 0)
+    {
+      ORTHANC_PLUGINS_THROW_EXCEPTION(BadSequenceOfCalls);
+    }
+    else
+    {
+      HttpHeaders::const_iterator found = answerHeaders_.find(key);
+      if (found == answerHeaders_.end())
+      {
+        return false;
+      }
+      else
+      {
+        value = found->second;
+        return true;
+      }
+    }
+  }
+#endif
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  const std::string& RestApiClient::GetAnswerBody() const
+  {
+    if (httpStatus_ == 0)
+    {
+      ORTHANC_PLUGINS_THROW_EXCEPTION(BadSequenceOfCalls);
+    }
+    else
+    {
+      return answerBody_;
+    }
+  }
+#endif
 }

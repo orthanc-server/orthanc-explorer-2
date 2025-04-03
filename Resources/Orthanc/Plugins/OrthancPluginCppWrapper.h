@@ -3,8 +3,8 @@
  * Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
  * Department, University Hospital of Liege, Belgium
  * Copyright (C) 2017-2023 Osimis S.A., Belgium
- * Copyright (C) 2024-2024 Orthanc Team SRL, Belgium
- * Copyright (C) 2021-2024 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+ * Copyright (C) 2024-2025 Orthanc Team SRL, Belgium
+ * Copyright (C) 2021-2025 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -170,6 +170,8 @@
 
 namespace OrthancPlugins
 {
+  typedef std::map<std::string, std::string>  HttpHeaders;
+
   typedef void (*RestCallback) (OrthancPluginRestOutput* output,
                                 const char* url,
                                 const OrthancPluginHttpRequest* request);
@@ -257,7 +259,7 @@ namespace OrthancPlugins
                     bool applyPlugins);
 
     bool RestApiGet(const std::string& uri,
-                    const std::map<std::string, std::string>& httpHeaders,
+                    const HttpHeaders& httpHeaders,
                     bool applyPlugins);
 
     bool RestApiPost(const std::string& uri,
@@ -277,13 +279,13 @@ namespace OrthancPlugins
 #if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
     bool RestApiPost(const std::string& uri,
                      const Json::Value& body,
-                     const std::map<std::string, std::string>& httpHeaders,
+                     const HttpHeaders& httpHeaders,
                      bool applyPlugins);
 
     bool RestApiPost(const std::string& uri,
                      const void* body,
                      size_t bodySize,
-                     const std::map<std::string, std::string>& httpHeaders,
+                     const HttpHeaders& httpHeaders,
                      bool applyPlugins);
 #endif
 
@@ -581,7 +583,7 @@ namespace OrthancPlugins
 
   bool RestApiGet(Json::Value& result,
                   const std::string& uri,
-                  const std::map<std::string, std::string>& httpHeaders,
+                  const HttpHeaders& httpHeaders,
                   bool applyPlugins);
 
   bool RestApiGetString(std::string& result,
@@ -590,7 +592,7 @@ namespace OrthancPlugins
 
   bool RestApiGetString(std::string& result,
                         const std::string& uri,
-                        const std::map<std::string, std::string>& httpHeaders,
+                        const HttpHeaders& httpHeaders,
                         bool applyPlugins);
 
   bool RestApiPost(std::string& result,
@@ -609,7 +611,7 @@ namespace OrthancPlugins
   bool RestApiPost(Json::Value& result,
                    const std::string& uri,
                    const Json::Value& body,
-                   const std::map<std::string, std::string>& httpHeaders,
+                   const HttpHeaders& httpHeaders,
                    bool applyPlugins);
 #endif
 
@@ -829,64 +831,64 @@ namespace OrthancPlugins
     bool DoGet(MemoryBuffer& target,
                size_t index,
                const std::string& uri,
-               const std::map<std::string, std::string>& headers) const;
+               const HttpHeaders& headers) const;
 
     bool DoGet(MemoryBuffer& target,
                const std::string& name,
                const std::string& uri,
-               const std::map<std::string, std::string>& headers) const;
+               const HttpHeaders& headers) const;
 
     bool DoGet(Json::Value& target,
                size_t index,
                const std::string& uri,
-               const std::map<std::string, std::string>& headers) const;
+               const HttpHeaders& headers) const;
 
     bool DoGet(Json::Value& target,
                const std::string& name,
                const std::string& uri,
-               const std::map<std::string, std::string>& headers) const;
+               const HttpHeaders& headers) const;
 
     bool DoPost(MemoryBuffer& target,
                 size_t index,
                 const std::string& uri,
                 const std::string& body,
-                const std::map<std::string, std::string>& headers) const;
+                const HttpHeaders& headers) const;
 
     bool DoPost(MemoryBuffer& target,
                 const std::string& name,
                 const std::string& uri,
                 const std::string& body,
-                const std::map<std::string, std::string>& headers) const;
+                const HttpHeaders& headers) const;
 
     bool DoPost(Json::Value& target,
                 size_t index,
                 const std::string& uri,
                 const std::string& body,
-                const std::map<std::string, std::string>& headers) const;
+                const HttpHeaders& headers) const;
 
     bool DoPost(Json::Value& target,
                 const std::string& name,
                 const std::string& uri,
                 const std::string& body,
-                const std::map<std::string, std::string>& headers) const;
+                const HttpHeaders& headers) const;
 
     bool DoPut(size_t index,
                const std::string& uri,
                const std::string& body,
-               const std::map<std::string, std::string>& headers) const;
+               const HttpHeaders& headers) const;
 
     bool DoPut(const std::string& name,
                const std::string& uri,
                const std::string& body,
-               const std::map<std::string, std::string>& headers) const;
+               const HttpHeaders& headers) const;
 
     bool DoDelete(size_t index,
                   const std::string& uri,
-                  const std::map<std::string, std::string>& headers) const;
+                  const HttpHeaders& headers) const;
 
     bool DoDelete(const std::string& name,
                   const std::string& uri,
-                  const std::map<std::string, std::string>& headers) const;
+                  const HttpHeaders& headers) const;
   };
 #endif
 
@@ -996,8 +998,6 @@ namespace OrthancPlugins
   class HttpClient : public boost::noncopyable
   {
   public:
-    typedef std::map<std::string, std::string>  HttpHeaders;
-
     class IRequestBody : public boost::noncopyable
     {
     public:
@@ -1397,7 +1397,10 @@ namespace OrthancPlugins
   };
 
 // helper method to convert Http headers from the plugin SDK to a std::map
-void GetHttpHeaders(std::map<std::string, std::string>& result, const OrthancPluginHttpRequest* request);
+void GetHttpHeaders(HttpHeaders& result, const OrthancPluginHttpRequest* request);
+
+// helper method to re-serialize the get arguments from the SDK into a string
+void SerializeGetArguments(std::string& output, const OrthancPluginHttpRequest* request);
 
 #if HAS_ORTHANC_PLUGIN_WEBDAV == 1
   class IWebDavCollection : public boost::noncopyable
@@ -1508,4 +1511,97 @@ void GetHttpHeaders(std::map<std::string, std::string>& result, const OrthancPlu
 
   void ExtendOrthancExplorer(const std::string& pluginIdentifier,
                              const std::string& javascript);
+
+
+#if HAS_ORTHANC_PLUGIN_GENERIC_CALL_REST_API == 1
+  class RestApiClient : public boost::noncopyable
+  {
+  private:
+    // Request
+    OrthancPluginHttpMethod  method_;
+    std::string              path_;
+    HttpHeaders              requestHeaders_;
+    std::string              requestBody_;
+    bool                     afterPlugins_;
+
+    // Answer
+    uint16_t                 httpStatus_;
+    HttpHeaders              answerHeaders_;
+    std::string              answerBody_;
+
+  public:
+    RestApiClient();
+    
+    // used to forward a call from the plugin to the core
+    RestApiClient(const char* url,
+                  const OrthancPluginHttpRequest* request);
+
+    void SetMethod(OrthancPluginHttpMethod method)
+    {
+      method_ = method;
+    }
+
+    OrthancPluginHttpMethod GetMethod() const
+    {
+      return method_;
+    }
+
+    void SetPath(const std::string& path)
+    {
+      path_ = path;
+    }
+
+    const std::string& GetPath() const
+    {
+      return path_;
+    }
+
+    void AddRequestHeader(const std::string& key,
+                          const std::string& value);
+
+    const HttpHeaders& GetRequestHeaders() const
+    {
+      return requestHeaders_;
+    }
+
+    void SetRequestBody(const std::string& body)
+    {
+      requestBody_ = body;
+    }
+
+    void SwapRequestBody(std::string& body)
+    {
+      requestBody_.swap(body);
+    }
+
+    void SetAfterPlugins(bool afterPlugins)
+    {
+      afterPlugins_ = afterPlugins;
+    }
+
+    bool IsAfterPlugins() const
+    {
+      return afterPlugins_;
+    }
+
+    const std::string& GetRequestBody() const
+    {
+      return requestBody_;
+    }
+
+    bool Execute();
+
+    // Execute and forward the response as is
+    void Forward(OrthancPluginContext* context, OrthancPluginRestOutput* output);
+
+    uint16_t GetHttpStatus() const;
+
+    bool LookupAnswerHeader(std::string& value,
+                            const std::string& key) const;
+
+    const std::string& GetAnswerBody() const;
+
+    bool GetAnswerJson(Json::Value& output) const;
+  };
+#endif
 }
