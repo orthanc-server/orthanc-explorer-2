@@ -1,5 +1,5 @@
-Pending changes (not released yet)
-==================================
+1.8.2 (2025-04-07)
+==================
 
 Changes:
   - New configuration "UiOptions.DefaultOrdering" and new default value for 
@@ -9,7 +9,7 @@ Changes:
 
 Fixes:
   - Fix [#72](https://github.com/orthanc-server/orthanc-explorer-2/issues/72): 
-    Can't modify StudyDescription if PatientName and PatientBirthDate are empty and if Patient has multiple studies
+    Can't modify StudyDescription if PatientName and PatientBirthDate are empty and if the patient has multiple studies
 
 
 1.8.1 (2025-04-01)
