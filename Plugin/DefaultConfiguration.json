@@ -304,6 +304,8 @@
                 //   "Icon": "bi bi-alarm",                                 // The CSS class that defines the button icon (only from bootstrap icons)
                 //   "Url": "http://localhost:3001/my-url?series={UUID}&patient={PatientID}"    // The template url.   DicomTag values are replaced in the template string. 
                 //                                                                              // {UUID} is the orthanc ID of the resource.
+                //                                                                              // {study-resource-token/download-instant-link} is replaced by a token that is valid to download the study (if tokens authentication is enabled)
+                //                                                                              // {study-resource-token/viewer-instant-link}, {study-resource-token/meddream-instant-link}
                 // },
                 // Example for a POST button:
                 // {

@@ -219,11 +219,23 @@ export default {
             }
         },
         async customButtonClicked(customButton) {
-            let url = resourceHelpers.replaceResourceTagsInString(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+            let url = await resourceHelpers.replaceResourceTagsInStringWithTokens(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
             let response;
 
-            if (customButton.HttpMethod == 'PUT' || customButton.HttpMethod == 'POST') {
-                let payload = resourceHelpers.replaceResourceTagsInJson(customButton.Payload, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+            if (customButton.HttpMethod == 'GET') {
+                let link = document.querySelector("#hidden-link-for-custom-buttons");
+                if (link == null) {
+                    link = document.createElement('a');
+                    document.body.appendChild(link);
+                    link.setAttribute("id", "hidden-link-for-custom-buttons");
+                    link.setAttribute("type", "hidden");
+                }
+                link.target = this.target;
+                link.href = url;
+                link.click();
+
+            } else if (customButton.HttpMethod == 'PUT' || customButton.HttpMethod == 'POST') {
+                let payload = await resourceHelpers.replaceResourceTagsInJson(customButton.Payload, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
 
                 if (customButton.HttpMethod == 'PUT') {
                     response = axios.put(url, payload);
@@ -572,7 +584,7 @@ export default {
             let filename = null;
             if (this.resourceLevel == 'instance') {
                 console.log(this.instanceTags);
-                filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadInstanceFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                filename = resourceHelpers.replaceResourceTagsInStringPlainText(this.uiOptions.DownloadInstanceFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
             }
             return api.getInstanceDownloadUrl(this.resourceOrthancId, filename);
         },
@@ -586,9 +598,9 @@ export default {
             let filename = null;
             if (this.resourceLevel == 'study' || this.resourceLevel == 'series') {
                 if (this.resourceLevel == 'study') {
-                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadStudyFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                    filename = resourceHelpers.replaceResourceTagsInStringPlainText(this.uiOptions.DownloadStudyFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
                 } else if (this.resourceLevel == 'series') {
-                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadSeriesFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                    filename = resourceHelpers.replaceResourceTagsInStringPlainText(this.uiOptions.DownloadSeriesFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
                 }
             }
             
@@ -598,9 +610,9 @@ export default {
             let filename = null;
             if (this.resourceLevel == 'study' || this.resourceLevel == 'series') {
                 if (this.resourceLevel == 'study') {
-                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadStudyFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                    filename = resourceHelpers.replaceResourceTagsInStringPlainText(this.uiOptions.DownloadStudyFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
                 } else if (this.resourceLevel == 'series') {
-                    filename = resourceHelpers.replaceResourceTagsInString(this.uiOptions.DownloadSeriesFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
+                    filename = resourceHelpers.replaceResourceTagsInStringPlainText(this.uiOptions.DownloadSeriesFileNameTemplate, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
                 }
             }
             return api.getDownloadDicomDirUrl(this.resourceLevel, this.resourceOrthancId, filename);
@@ -740,7 +752,6 @@ export default {
             let customButtons = [];
             for (const customButton of this.uiOptions.CustomButtons[this.resourceLevel]) {
                 let cloneCustomButton = Object.assign({}, customButton);
-                cloneCustomButton._computedLinkUrl = resourceHelpers.replaceResourceTagsInString(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId);
                 customButtons.push(cloneCustomButton);
             }
 
@@ -1030,14 +1041,9 @@ export default {
         </div>
         <div v-if="hasCustomButtons" class="btn-group">
             <div v-for="customButton in CustomButtons" :key="customButton.Id" class>
-                <a v-if="customButton.HttpMethod=='GET'"
+                <a
                     class="btn btn-sm m-1 btn-secondary" type="button"
-                    data-bs-toggle="tooltip" :title="customButton.Tooltip" :target="customButton.Target" :href="customButton._computedLinkUrl">
-                    <i :class="customButton.Icon"></i>
-                </a>
-                <a v-if="customButton.HttpMethod=='PUT' || customButton.HttpMethod=='POST'"
-                    class="btn btn-sm m-1 btn-secondary" type="button"
-                    data-bs-toggle="tooltip" :title="customButton.Tooltip" @click="customButtonClicked(customButton)">
+                    data-bs-toggle="tooltip" :title="customButton.Tooltip" :target="customButton.Target" @click="customButtonClicked(customButton)">
                     <i :class="customButton.Icon"></i>
                 </a>
             </div>

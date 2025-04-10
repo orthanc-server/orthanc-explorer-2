@@ -1,3 +1,11 @@
+Pending changes (not released yet)
+==================================
+
+Changes:
+  - Custom buttons: new `"{study-resource-token/download-instant-link}"` keyword
+    e.g: `"Url": "../../series/{UUID}/archive?token={study-resource-token/download-instant-link}"`
+
+
 1.8.2 (2025-04-07)
 ==================
 
