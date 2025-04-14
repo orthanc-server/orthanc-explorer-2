@@ -101,7 +101,8 @@ export default {
             sourceType: SourceType.LOCAL_ORTHANC,
             remoteSource: null,
             showMultiLabelsFilter: false,
-            multiLabelsFilterLabelsConstraint: "All"
+            multiLabelsFilterLabelsConstraint: "All",
+            multiLabelsComponentKey: 0, // to force refresh the multi-labels filter component
         };
     },
     computed: {
@@ -283,7 +284,7 @@ export default {
     },
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);
-        this.messageBus.on('filter-label-changed', this.updateLabelsFilter); // labels are changed in the sidebar, not in the study list itself
+        this.messageBus.on('filter-label-changed', this.filterLabelChanged); // labels are changed in the sidebar, not in the study list itself
     },
     async mounted() {
         this.updateSelectAll();
@@ -378,10 +379,10 @@ export default {
                 this.filterModalities[modality] = true;
             }
         },
-        updateLabelsFilter(label) {
+        filterLabelChanged(label) {
             this.filterLabels = [label];
             this.multiLabelsFilterLabelsConstraint = "All";
-            // TODO update MultiLabels filter
+            this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
             this.search();
         },
         initModalityFilter() {
@@ -532,7 +533,7 @@ export default {
             this._updateOrderBy(reloadNow);
         },
         async updateFilterFromRoute(filters) {
-            // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
+            //console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
 
             this.updatingFilterUi = true;
             await this.$store.dispatch('studies/clearStudies');
@@ -721,59 +722,48 @@ export default {
             this.updatingRouteWithoutReload = false;
         },
         async updateUrl() {
-            let activeFilters = [];
+            let query = {};
 
             if (this.sourceType != SourceType.LOCAL_ORTHANC) {
                 if (this.sourceType == SourceType.REMOTE_DICOM) {
-                    activeFilters.push('source-type=dicom');
+                    query['source-type'] = 'dicom';
                 } else if (this.sourceType == SourceType.REMOTE_DICOM_WEB) {
-                    activeFilters.push('source-type=dicom-web');
+                    query['source-type'] = 'dicom-web';
                 }
-                activeFilters.push('remote-source=' + this.remoteSource);
+                query['remote-source'] = this.remoteSource;
             }
 
             if (this.clipFilter("StudyDate", this.filterStudyDate)) {
-                activeFilters.push('StudyDate=' + this.filterStudyDate);
+                query['StudyDate'] = this.filterStudyDate;
             }
             if (this.clipFilter("PatientBirthDate", this.filterPatientBirthDate)) {
-                activeFilters.push('PatientBirthDate=' + this.filterPatientBirthDate);
+                query['PatientBirthDate'] = this.filterPatientBirthDate;
             }
             if (this.getModalityFilter()) {
-                activeFilters.push('ModalitiesInStudy=' + this.getModalityFilter());
+                query['ModalitiesInStudy'] = this.getModalityFilter();
             }
             for (const [k, v] of Object.entries(this.filterGenericTags)) {
                 if (this.clipFilter(k, v)) {
-                    activeFilters.push(k + '=' + v);
+                    query[k] = v;
                 }
             }
             if (this.filterLabels.length > 0) {
-                activeFilters.push('labels=' + this.filterLabels.join(","));
+                query['labels'] = this.filterLabels.join(',');
+                
                 if (this.multiLabelsFilterLabelsConstraint != 'All') {
-                    activeFilters.push('labels-constraint=' + this.multiLabelsFilterLabelsConstraint);
+                    query['labels-constraint'] = this.multiLabelsFilterLabelsConstraint;
                 }
             }
 
-            let orderBy = "";
             if (this.filterOrderBy.length > 0 && this.sourceType == SourceType.LOCAL_ORTHANC) {
                 let orders = []
                 for (let order of this.filterOrderBy) {
                     orders.push([order['Type'], order['Key'], order['Direction']].join(','))
                 }
-
-                orderBy = 'order-by=' + orders.join(';')
+                query['order-by'] = orders.join(';');
             }
 
-            let newUrl = "";
-            if (activeFilters.length > 0) {
-                newUrl = "/filtered-studies?" + activeFilters.join('&');
-                if (orderBy.length > 0) {
-                    newUrl += "&" + orderBy;
-                }
-            }
-            else {
-                newUrl = "/filtered-studies?" + orderBy;
-            }
-
+            let newUrl = "/filtered-studies?" + (new URLSearchParams(query)).toString();
             await this.$router.replace(newUrl);
         },
         async extendStudyList() {
@@ -989,7 +979,7 @@ export default {
                         </div>
                     </th>
                     <th :colspan="colSpanMultiLabelsFilter" scope="col">
-                        <LabelsEditor id="multiLabelsFilter" :labels="filterLabels" :studyId="null" @labelsUpdated="onMultiLabelsFilterChanged"
+                        <LabelsEditor id="multiLabelsFilter" :labels="filterLabels" :key="multiLabelsComponentKey" :studyId="null" @labelsUpdated="onMultiLabelsFilterChanged"
                          :showTitle="false" :isFilter="true"></LabelsEditor>
                     </th>
                     <th :colspan="colSpanAfterMultiLabelsFilter" scope="col">
