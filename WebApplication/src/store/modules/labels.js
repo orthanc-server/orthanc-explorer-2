@@ -2,7 +2,8 @@ import api from "../../orthancApi"
 
 ///////////////////////////// STATE
 const state = () => ({
-    allLabels: []    // all labels in Orthanc
+    allLabels: [],    // all labels in Orthanc
+    loaded: false
 })
 
 ///////////////////////////// GETTERS
@@ -14,6 +15,9 @@ const getters = {
 const mutations = {
     setLabels(state, { allLabels }) {
         state.allLabels = allLabels;
+    },
+    setLoaded(state) {
+        state.loaded = true;
     }
 }
 
@@ -23,6 +27,7 @@ const actions = {
     async refresh({ commit }) {
         const allLabels = await api.loadAllLabels();
         commit('setLabels', { allLabels: allLabels });
+        commit('setLoaded');
     }
 }
 

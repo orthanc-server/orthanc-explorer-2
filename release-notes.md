@@ -2,6 +2,8 @@ Pending changes (not released yet)
 ==================================
 
 Changes:
+  - New "multi label" search field.  Since it consumes space in the study list header,
+    it is disabled by default and can be enabled with the new configuration "UiOptions.EnableMultiLabelsSearch"
   - New configuration "UiOptions.DefaultOrdering" and new default value for 
     "StudyListContentIfNoSearch": "default-ordering".
   - Now showing the status of the Housekeeper plugin in the "System Info"
