@@ -92,8 +92,12 @@ export default {
         },
         async selectLabel(label) {
             this.selectedLabel = label;
-            await this.$store.dispatch('studies/updateSource', { 'source-type': SourceType.LOCAL_ORTHANC, 'remote-source': null });
-            this.messageBus.emit('filter-label-changed', label);
+            if (this.$router.name == 'local-studies-list') {
+                await this.$store.dispatch('studies/updateSource', { 'source-type': SourceType.LOCAL_ORTHANC, 'remote-source': null });
+                this.messageBus.emit('filter-label-changed', label);
+            } else {
+                this.$router.push({name: 'local-studies-list', query: {'labels': label}});
+            }
         },
         isSelectedLabel(label) {
             return this.labelFilters.includes(label);

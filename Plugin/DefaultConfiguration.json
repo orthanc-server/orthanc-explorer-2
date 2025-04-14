@@ -55,6 +55,7 @@
             "AvailableLabels": [],                      // If not empty, this list prevents the creation of new labels and only allows add/remove of the listed labels.
                                                         // This configuration may be overriden when you use Keycloak and an auth-service that implements roles/permissions API.
             "EnableLabelsCount": true,                  // Enables display of study count next to the each label (this might slow down the UI)
+            "EnableMultiLabelsSearch": false,           // Enables an additional Labels filter in the study list
 
             "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
             "DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 

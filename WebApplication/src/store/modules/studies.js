@@ -20,6 +20,7 @@ const state = () => ({
     isStudiesComplete: false, // true if we have received all studies
     dicomTagsFilters: {..._clearedFilter},
     labelFilters: [],
+    labelsContraint: "All",
     orderByFilters: [],
     statistics: {},
     isSearching: false,
@@ -62,7 +63,7 @@ async function get_studies_shared(context, append) {
             if (!store.state.configuration.hasExtendedFind) {
                 orderBy = null;
             }
-            let response = (await api.findStudies(getters.filterQuery, state.labelFilters, "All", orderBy, since));
+            let response = (await api.findStudies(getters.filterQuery, state.labelFilters, state.labelsContraint, orderBy, since));
             studies = response['studies'];
             isComplete = response['is-complete'];
         } else if (state.sourceType == SourceType.REMOTE_DICOM || state.sourceType == SourceType.REMOTE_DICOM_WEB) {
@@ -189,15 +190,16 @@ const mutations = {
     clearFilter(state) {
         state.dicomTagsFilters = {..._clearedFilter};
         state.labelFilters = [];
+        state.labelsContraint = "All";
     },
-    setLabelFilters(state, { labels }) {
+    setLabelFilters(state, { labels, constraint }) {
         state.labelFilters = [];
+        state.labelsContraint = constraint;
         for (let f of labels) {
             state.labelFilters.push(f);
         }
     },
     setOrderByFilters(state, { orderBy }) {
-        console.log("setOrderByFilters");
         state.orderByFilters = [];
         for (let f of orderBy) {
             state.orderByFilters.push(f);
@@ -277,7 +279,8 @@ const actions = {
     },
     async updateLabelFilterNoReload({ commit }, payload) {
         const labels = payload['labels'];
-        commit('setLabelFilters', { labels })
+        const constraint = payload['constraint']
+        commit('setLabelFilters', { labels, constraint })
     },
     async updateOrderByNoReload({ commit }, payload) {
         const orderBy = payload['orderBy'];

@@ -1,6 +1,7 @@
 <script>
 import StudyItem from "./StudyItem.vue"
 import ResourceButtonGroup from "./ResourceButtonGroup.vue"
+import LabelsEditor from "./LabelsEditor.vue";
 
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
@@ -99,6 +100,9 @@ export default {
             isDisplayingLatestStudies: false,
             sourceType: SourceType.LOCAL_ORTHANC,
             remoteSource: null,
+            showMultiLabelsFilter: false,
+            multiLabelsFilterLabelsConstraint: "All",
+            multiLabelsComponentKey: 0, // to force refresh the multi-labels filter component
         };
     },
     computed: {
@@ -137,6 +141,9 @@ export default {
         },
         isRemoteDicomWeb() {
             return this.sourceType == SourceType.REMOTE_DICOM_WEB;
+        },
+        isMultiLabelsFilterVisible() {
+            return this.sourceType == SourceType.LOCAL_ORTHANC && this.showMultiLabelsFilter && this.uiOptions.EnableMultiLabelsSearch;  
         },
         isSearchAsYouTypeEnabled() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
@@ -177,7 +184,28 @@ export default {
             } else {
                 return "";
             }
-        }
+        },
+        colSpanBeforeMultiLabelsFilter() {
+            if (this.hasPrimaryViewerIcon && this.hasPdfReportIcon) {
+                return 3;
+            } else {
+                return 2;
+            }
+        },
+        colSpanMultiLabelsFilter() {
+            let totalColumnsCount = this.uiOptions.StudyListColumns.length + 1; // +1 for selection box
+            if (this.hasPrimaryViewerIcon) {
+                totalColumnsCount++;
+            }
+            if (this.hasPdfReportIcon) {
+                totalColumnsCount++;
+            }
+            return totalColumnsCount - this.colSpanBeforeMultiLabelsFilter - this.colSpanAfterMultiLabelsFilter;
+        },
+        colSpanAfterMultiLabelsFilter() {
+            return 3;
+        },
+
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -195,6 +223,7 @@ export default {
                 }
             }
             this.updateFilterFromRoute(this.$route.query);
+            setTimeout(() => {this.showMultiLabelsFilter = true}, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         },
         filterModalities: {
             handler(newValue, oldValue) {
@@ -255,10 +284,11 @@ export default {
     },
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);
-        this.messageBus.on('filter-label-changed', this.updateLabelsFilter); // labels are changed in the sidebar, not in the study list itself
+        this.messageBus.on('filter-label-changed', this.filterLabelChanged); // labels are changed in the sidebar, not in the study list itself
     },
     async mounted() {
         this.updateSelectAll();
+        this.updateFilterFromRoute(this.$route.query);
     },
     methods: {
         updateSelectAll() {
@@ -350,8 +380,10 @@ export default {
                 this.filterModalities[modality] = true;
             }
         },
-        updateLabelsFilter(label) {
+        filterLabelChanged(label) {
             this.filterLabels = [label];
+            this.multiLabelsFilterLabelsConstraint = "All";
+            this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
             this.search();
         },
         initModalityFilter() {
@@ -477,8 +509,8 @@ export default {
         },
         _updateOrderBy(reloadNow) {
             this.$store.dispatch('studies/updateOrderByNoReload', { orderBy: this.filterOrderBy });
-            this.updateUrlNoReload();
             if (reloadNow) {
+                this.updateUrlNoReload();
                 this.reloadStudyList();
             }
         },
@@ -502,7 +534,7 @@ export default {
             this._updateOrderBy(reloadNow);
         },
         async updateFilterFromRoute(filters) {
-            //console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
+            // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
 
             this.updatingFilterUi = true;
             await this.$store.dispatch('studies/clearStudies');
@@ -523,11 +555,12 @@ export default {
             await this.$store.dispatch('studies/updateSource', { 'source-type': this.sourceType, 'remote-source': this.remoteSource });
 
             let routeHasOrderBy = false;
+            let labelsConstraint = filters["labels-constraint"] || 'All';
             for (const [filterKey, filterValue] of Object.entries(filters)) {
                 if (filterKey == "labels") {
                     const labels = filterValue.split(",");
                     keyValueFilters[filterKey] = labels;
-                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels });
+                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels, constraint: labelsConstraint });
                 } else if (filterKey == 'order-by') {
                     if (this.sourceType == SourceType.LOCAL_ORTHANC) { // ignore order-by for remote sources
                         this.updateOrderBy(filterValue, false);
@@ -544,7 +577,7 @@ export default {
                 this.updateOrderBy(defaultOrdering, false);
             }
 
-            await this.updateFilterForm(keyValueFilters);
+            await this.updateFilterForm(keyValueFilters, labelsConstraint);
 
             if (this.sourceType == SourceType.LOCAL_ORTHANC || !this['studies/isFilterEmpty']) { // do not reload when we are switching to a remote study list to avoid searching for * on a remote server
                 await this.reloadStudyList();
@@ -553,10 +586,11 @@ export default {
             await nextTick();
             this.updatingFilterUi = false;
         },
-        updateFilterForm(filters) {
+        updateFilterForm(filters, labelsConstraint) {
             // console.log("StudyList: updateFilterForm", this.updatingFilterUi);
             this.emptyFilterForm();
 
+            this.multiLabelsFilterLabelsConstraint = labelsConstraint;
             for (const [key, value] of Object.entries(filters)) {
                 if (key == "labels") {
                     this.filterLabels = value;
@@ -596,6 +630,8 @@ export default {
             this.filterStudyDate = '';
             this.filterStudyDateForDatePicker = null;
             this.filterPatientBirthDate = '';
+            this.multiLabelsFilterLabelsConstraint = 'All';
+
             this.filterPatientBirthDateForDatePicker = null;
             this.filterGenericTags = {};
             for (const tag of this.uiOptions.StudyListColumns) {
@@ -630,7 +666,7 @@ export default {
                         }
                     }
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.getModalityFilter() });    
-                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels });
+                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels, constraint: this.multiLabelsFilterLabelsConstraint });
                 }
                 await this.updateUrlNoReload();
                 await this.reloadStudyList();
@@ -687,56 +723,48 @@ export default {
             this.updatingRouteWithoutReload = false;
         },
         async updateUrl() {
-            let activeFilters = [];
+            let query = {};
 
             if (this.sourceType != SourceType.LOCAL_ORTHANC) {
                 if (this.sourceType == SourceType.REMOTE_DICOM) {
-                    activeFilters.push('source-type=dicom');
+                    query['source-type'] = 'dicom';
                 } else if (this.sourceType == SourceType.REMOTE_DICOM_WEB) {
-                    activeFilters.push('source-type=dicom-web');
+                    query['source-type'] = 'dicom-web';
                 }
-                activeFilters.push('remote-source=' + this.remoteSource);
+                query['remote-source'] = this.remoteSource;
             }
 
             if (this.clipFilter("StudyDate", this.filterStudyDate)) {
-                activeFilters.push('StudyDate=' + this.filterStudyDate);
+                query['StudyDate'] = this.filterStudyDate;
             }
             if (this.clipFilter("PatientBirthDate", this.filterPatientBirthDate)) {
-                activeFilters.push('PatientBirthDate=' + this.filterPatientBirthDate);
+                query['PatientBirthDate'] = this.filterPatientBirthDate;
             }
             if (this.getModalityFilter()) {
-                activeFilters.push('ModalitiesInStudy=' + this.getModalityFilter());
+                query['ModalitiesInStudy'] = this.getModalityFilter();
             }
             for (const [k, v] of Object.entries(this.filterGenericTags)) {
                 if (this.clipFilter(k, v)) {
-                    activeFilters.push(k + '=' + v);
+                    query[k] = v;
                 }
             }
             if (this.filterLabels.length > 0) {
-                activeFilters.push('labels=' + this.filterLabels.join(","))
+                query['labels'] = this.filterLabels.join(',');
+                
+                if (this.multiLabelsFilterLabelsConstraint != 'All') {
+                    query['labels-constraint'] = this.multiLabelsFilterLabelsConstraint;
+                }
             }
 
-            let orderBy = "";
             if (this.filterOrderBy.length > 0 && this.sourceType == SourceType.LOCAL_ORTHANC) {
                 let orders = []
                 for (let order of this.filterOrderBy) {
                     orders.push([order['Type'], order['Key'], order['Direction']].join(','))
                 }
-
-                orderBy = 'order-by=' + orders.join(';')
+                query['order-by'] = orders.join(';');
             }
 
-            let newUrl = "";
-            if (activeFilters.length > 0) {
-                newUrl = "/filtered-studies?" + activeFilters.join('&');
-                if (orderBy.length > 0) {
-                    newUrl += "&" + orderBy;
-                }
-            }
-            else {
-                newUrl = "/filtered-studies?" + orderBy;
-            }
-
+            let newUrl = "/filtered-studies?" + (new URLSearchParams(query)).toString();
             await this.$router.replace(newUrl);
         },
         async extendStudyList() {
@@ -785,7 +813,6 @@ export default {
                     this.shouldStopLoadingLatestStudies = true;
                     this.isLoadingLatestStudies = false;
                     this.isDisplayingLatestStudies = false;
-                    // await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels });
                     await this.$store.dispatch('studies/reloadFilteredStudies');
                 }
             }
@@ -857,10 +884,12 @@ export default {
                     this.extendStudyList();
                 }
             }
-            
+        },
+        onMultiLabelsFilterChanged(newValues) {
+            this.filterLabels = newValues;
         }
     },
-    components: { StudyItem, ResourceButtonGroup }
+    components: { StudyItem, ResourceButtonGroup, LabelsEditor }
 }
 </script>
 
@@ -942,6 +971,35 @@ export default {
                             v-bind:class="getFilterClass(columnTag)" />
                     </th>
                 </tr>
+
+                <tr v-if="isMultiLabelsFilterVisible" class="study-table-actions">
+                    <th :colspan="colSpanBeforeMultiLabelsFilter" scope="col">
+                        <div class="w-100 d-flex justify-content-end">
+                            <label class="form-check-label text-end" for="multiLabelsFilter">{{ $t('labels.study_details_title') }}
+                            </label>
+                        </div>
+                    </th>
+                    <th :colspan="colSpanMultiLabelsFilter" scope="col">
+                        <LabelsEditor id="multiLabelsFilter" :labels="filterLabels" :key="multiLabelsComponentKey" :studyId="null" @labelsUpdated="onMultiLabelsFilterChanged"
+                         :showTitle="false" :isFilter="true"></LabelsEditor>
+                    </th>
+                    <th :colspan="colSpanAfterMultiLabelsFilter" scope="col">
+                        <div class="w-100 d-flex">
+                            <input class="form-check-input ms-2 me-1" type="radio" name="multiLabelsFilterAll" id="multiLabelsFilterAll"
+                                value="All" v-model="multiLabelsFilterLabelsConstraint">
+                            <label class="form-check-label" for="multiLabelsFilterAll">{{ $t('labels.filter_labels_constraint_all') }}
+                            </label>
+                            <input class="form-check-input ms-2 me-1" type="radio" name="multiLabelsFilterAny" id="multiLabelsFilterAny"
+                                value="Any" v-model="multiLabelsFilterLabelsConstraint">
+                            <label class="form-check-label" for="multiLabelsFilterAny">{{ $t('labels.filter_labels_constraint_any') }}
+                            </label>
+                            <input class="form-check-input ms-2 me-1" type="radio" name="multiLabelsFilterNone" id="multiLabelsFilterNone"
+                                value="None" v-model="multiLabelsFilterLabelsConstraint">
+                            <label class="form-check-label" for="multiLabelsFilterNone">{{ $t('labels.filter_labels_constraint_none') }}
+                            </label>
+                        </div>
+                    </th>
+                </tr>
                 <tr class="study-table-actions">
                     <th width="2%" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
@@ -952,11 +1010,11 @@ export default {
                     <th width="98%" colspan="10" scope="col">
                         <div class="container">
                             <div class="row g-1">
-                                <div class="col-4 study-list-bulk-buttons">
+                                <div class="col-6 study-list-bulk-buttons">
                                     <ResourceButtonGroup :resourceLevel="'bulk'">
                                     </ResourceButtonGroup>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
                                     <div v-if="!isSearching && isLoadingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
                                         <span v-if="isLoadingLatestStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
                                             aria-hidden="true"></span>{{

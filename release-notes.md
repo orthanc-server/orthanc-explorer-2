@@ -2,14 +2,20 @@ Pending changes (not released yet)
 ==================================
 
 Changes:
+  - New "multi label" search field.  Since it consumes space in the study list header,
+    it is disabled by default and can be enabled with the new configuration "UiOptions.EnableMultiLabelsSearch"
   - Custom buttons: new `"{study-resource-token/download-instant-link}"` keyword
     e.g: `"Url": "../../series/{UUID}/archive?token={study-resource-token/download-instant-link}"`
+
+Fixes:
+  - Fix navigation issues between settings and local/remote studies list.
 
 
 1.8.2 (2025-04-07)
 ==================
 
 Changes:
+=======
   - New configuration "UiOptions.DefaultOrdering" and new default value for 
     "StudyListContentIfNoSearch": "default-ordering".
   - Now showing the status of the Housekeeper plugin in the "System Info"
@@ -18,7 +24,6 @@ Changes:
 Fixes:
   - Fix [#72](https://github.com/orthanc-server/orthanc-explorer-2/issues/72): 
     Can't modify StudyDescription if PatientName and PatientBirthDate are empty and if the patient has multiple studies
-
 
 1.8.1 (2025-04-01)
 ==================
