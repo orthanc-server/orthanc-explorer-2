@@ -288,6 +288,7 @@ export default {
     },
     async mounted() {
         this.updateSelectAll();
+        this.updateFilterFromRoute(this.$route.query);
     },
     methods: {
         updateSelectAll() {
@@ -533,7 +534,7 @@ export default {
             this._updateOrderBy(reloadNow);
         },
         async updateFilterFromRoute(filters) {
-            //console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
+            // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
 
             this.updatingFilterUi = true;
             await this.$store.dispatch('studies/clearStudies');

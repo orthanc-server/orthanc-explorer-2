@@ -29,6 +29,7 @@ export const router = createRouter({
         SideBarView: SideBar,
         ContentView: StudyList,
       },
+      name: 'home'
     },
     {
       path: '/filtered-studies',
@@ -36,6 +37,7 @@ export const router = createRouter({
         SideBarView: SideBar,
         ContentView: StudyList,
       },
+      name: 'local-studies-list'
     },
     {
       path: '/settings',
@@ -43,6 +45,7 @@ export const router = createRouter({
         SideBarView: SideBar,
         ContentView: Settings,
       },
+      name: 'settings'
     },
     {
       path: '/settings-labels',
@@ -50,6 +53,7 @@ export const router = createRouter({
         SideBarView: SideBar,
         ContentView: SettingsLabels,
       },
+      name: 'settings-labels'
     },
     {
       path: '/settings-permissions',
@@ -57,6 +61,7 @@ export const router = createRouter({
         SideBarView: SideBar,
         ContentView: SettingsPermissions,
       },
+      name: 'settings-permissions'
     },
     {
       path: '/:pathMatch(.*)',
@@ -65,6 +70,7 @@ export const router = createRouter({
         SideBarView: SideBar,
         ContentView: NotFound,
       },
+      name: 'keycloak-path-match'
     }
 
   ],

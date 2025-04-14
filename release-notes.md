@@ -12,7 +12,7 @@ Changes:
 Fixes:
   - Fix [#72](https://github.com/orthanc-server/orthanc-explorer-2/issues/72): 
     Can't modify StudyDescription if PatientName and PatientBirthDate are empty and if Patient has multiple studies
-
+  - Fix navigation issues between settings and local/remote studies list.
 
 1.8.1 (2025-04-01)
 ==================
