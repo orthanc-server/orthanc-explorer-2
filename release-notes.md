@@ -9,6 +9,7 @@ Changes:
 
 Fixes:
   - Fix navigation issues between settings and local/remote studies list.
+  - Fix permission edition wrt "All current and future labels"
 
 
 1.8.2 (2025-04-07)

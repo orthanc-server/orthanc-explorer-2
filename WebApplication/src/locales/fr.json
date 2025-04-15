@@ -97,7 +97,6 @@
         "filter_labels_placeholder": "Filtrer sur les étiquettes",
         "filter_labels_constraint_all": "Toutes",
         "filter_labels_constraint_any": "Au moins une",
-        "filter_labels_constraint_none": "Aucune",
         "modal_title": "Modifier les étiquettes dans les examens sélectionnés",
         "remove_button": "Supprimer",
         "remove_labels_message_html": "<strong>Supprimer</strong> ces étiquettes des examens sélectionnés",

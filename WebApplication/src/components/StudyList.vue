@@ -993,10 +993,6 @@ export default {
                                 value="Any" v-model="multiLabelsFilterLabelsConstraint">
                             <label class="form-check-label" for="multiLabelsFilterAny">{{ $t('labels.filter_labels_constraint_any') }}
                             </label>
-                            <input class="form-check-input ms-2 me-1" type="radio" name="multiLabelsFilterNone" id="multiLabelsFilterNone"
-                                value="None" v-model="multiLabelsFilterLabelsConstraint">
-                            <label class="form-check-label" for="multiLabelsFilterNone">{{ $t('labels.filter_labels_constraint_none') }}
-                            </label>
                         </div>
                     </th>
                 </tr>
