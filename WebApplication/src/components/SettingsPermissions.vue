@@ -32,9 +32,10 @@ export default {
     },
     watch: {
         hasAllLabelsAllowed(newValue, oldValue) {
-            if (newValue) {
-                this.selectedLabels = [];
-            }
+            // clear the selection anyway 
+            // -> if newValue is now false -> start from an empty list
+            // -> if newValue is now true -> updateHasChanged will set the selectedLabels to ['*']
+            this.selectedLabels = [];
             this.updateHasChanged();
         },
         selectedRole(newValue, oldValue) {
