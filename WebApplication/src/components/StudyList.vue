@@ -376,8 +376,10 @@ export default {
         },
         clearModalityFilter() {
             // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
-            for (const modality of this.uiOptions.ModalitiesFilter) {
-                this.filterModalities[modality] = true;
+            if (this.uiOptions.StudyListColumns) {
+                for (const modality of this.uiOptions.ModalitiesFilter) {
+                    this.filterModalities[modality] = true;
+                }
             }
         },
         filterLabelChanged(label) {
@@ -571,7 +573,7 @@ export default {
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
                 } 
             }
-            if (!routeHasOrderBy) {
+            if (!routeHasOrderBy && this.uiOptions.DefaultOrdering) {
                 const defaultOrdering = this.uiOptions.DefaultOrdering;
                 console.log("Applying default ordering: ", defaultOrdering);
                 this.updateOrderBy(defaultOrdering, false);
@@ -634,9 +636,11 @@ export default {
 
             this.filterPatientBirthDateForDatePicker = null;
             this.filterGenericTags = {};
-            for (const tag of this.uiOptions.StudyListColumns) {
-                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
-                    this.filterGenericTags[tag] = '';
+            if (this.uiOptions.StudyListColumns) {
+                for (const tag of this.uiOptions.StudyListColumns) {
+                    if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
+                        this.filterGenericTags[tag] = '';
+                    }
                 }
             }
             this.filterLabels = [];
