@@ -6,6 +6,7 @@ Changes:
     it is disabled by default and can be enabled with the new configuration "UiOptions.EnableMultiLabelsSearch"
   - Custom buttons: new `"{study-resource-token/download-instant-link}"` keyword
     e.g: `"Url": "../../series/{UUID}/archive?token={study-resource-token/download-instant-link}"`
+  - added Vietnamese translations thanks to Khanhhcmut.
 
 Fixes:
   - Fix navigation issues between settings and local/remote studies list.

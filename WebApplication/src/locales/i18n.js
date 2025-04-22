@@ -9,6 +9,7 @@ import ro from "./ro.json";
 import ru from "./ru.json";
 import si from "./si.json";
 import uk from "./uk.json";
+import vi from "./vi.json";
 import zh from "./zh.json";
 
 const i18n = createI18n({
@@ -26,6 +27,7 @@ const i18n = createI18n({
     ru,
     si,
     uk,
+    vi,
     zh
   },
 });
