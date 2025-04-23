@@ -40,7 +40,7 @@
         "BodyPartExamined": "Bộ phận được chụp",
         "InstanceNumber": "Số của ảnh",
         "InstitutionName": "Tên cơ sở chụp",
-        "ModalitiesInStudy": "Các phương thức trong phiên chụp",
+        "ModalitiesInStudy": "Phương thức",
         "Modality": "Phương thức",
         "NumberOfFrames": "Số khung hình",
         "NumberOfStudyRelatedSeries": "Số chuỗi ảnh của phiên chụp",
