@@ -3,6 +3,7 @@
 import { mapState } from "vuex"
 import api from "../orthancApi"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import { nextTick } from "vue";
 
 
 export default {
@@ -20,7 +21,8 @@ export default {
             currentConfig: {},
             originalConfig: {},
             selectedRole: null,
-            hasChanged: false
+            hasChanged: false,     // used to enable/disable the Save button
+            disableWatcher: false,
         };
     },
     async mounted() {
@@ -32,6 +34,10 @@ export default {
     },
     watch: {
         hasAllLabelsAllowed(newValue, oldValue) {
+            if (this.disableWatcher) {
+                return;
+            }
+
             // clear the selection anyway 
             // -> if newValue is now false -> start from an empty list
             // -> if newValue is now true -> updateHasChanged will set the selectedLabels to ['*']
@@ -39,12 +45,24 @@ export default {
             this.updateHasChanged();
         },
         selectedRole(newValue, oldValue) {
+            if (this.disableWatcher) {
+                return;
+            }
+
             this.updateHasChanged();
         },
         selectedLabels(newValue, oldValue) {
+            if (this.disableWatcher) {
+                return;
+            }
+
             this.updateHasChanged();
         },
         selectedLabelPermissions(newValue, oldValue) {
+            if (this.disableWatcher) {
+                return;
+            }
+
             this.updateHasChanged();
         }
     },
@@ -105,7 +123,9 @@ export default {
             }
 
         },
-        selectRole(role) {
+        async selectRole(role) {
+            this.disableWatcher = true;
+
             if (this.selectedRole != null) {
                 // write the definition of the role we are leaving into the "json" structure
                 this.currentConfig = this.getCurrentUiRoles();
@@ -116,6 +136,9 @@ export default {
             this.selectedGlobalPermissions = this.filterGlobalPermissions(this.currentConfig["roles"][this.selectedRole]["permissions"], true);
             this.selectedLabels = this.currentConfig["roles"][this.selectedRole]["authorized-labels"];
             this.hasAllLabelsAllowed = this.currentConfig["roles"][this.selectedRole]["authorized-labels"].indexOf("*") != -1;
+
+            await nextTick();
+            this.disableWatcher = false;
         },
         isRoleSelected(role) {
             return this.selectedRole == role;
@@ -180,9 +203,9 @@ export default {
         updateHasChanged() {
             let original = JSON.stringify(this.originalConfig);
             let current = JSON.stringify(this.getCurrentUiRoles());
-            console.log("hasChanged", this.originalConfig, this.getCurrentUiRoles());
-            console.log("hasChanged original ", original);
-            console.log("hasChanged current ", current);
+            // console.log("hasChanged original ", original);
+            // console.log("hasChanged current ", current);
+            // console.log("updateHasChanged", (original != current));
             return this.hasChanged = (original != current);
         },
         async save() {
