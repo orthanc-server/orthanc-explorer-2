@@ -285,6 +285,9 @@ export default {
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);
         this.messageBus.on('filter-label-changed', this.filterLabelChanged); // labels are changed in the sidebar, not in the study list itself
+        if (this.isConfigurationLoaded) {
+            setTimeout(() => {this.showMultiLabelsFilter = true}, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
+        }
     },
     async mounted() {
         this.updateSelectAll();
@@ -563,6 +566,8 @@ export default {
                     const labels = filterValue.split(",");
                     keyValueFilters[filterKey] = labels;
                     await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels, constraint: labelsConstraint });
+                } else if (filterKey == 'labels-constraint') {
+                    this.multiLabelsFilterLabelsConstraint = filterValue;
                 } else if (filterKey == 'order-by') {
                     if (this.sourceType == SourceType.LOCAL_ORTHANC) { // ignore order-by for remote sources
                         this.updateOrderBy(filterValue, false);
@@ -584,6 +589,8 @@ export default {
             if (this.sourceType == SourceType.LOCAL_ORTHANC || !this['studies/isFilterEmpty']) { // do not reload when we are switching to a remote study list to avoid searching for * on a remote server
                 await this.reloadStudyList();
             }
+
+            this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
 
             await nextTick();
             this.updatingFilterUi = false;
