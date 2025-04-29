@@ -7,6 +7,7 @@ Changes:
   - Custom buttons: new `"{study-resource-token/download-instant-link}"` keyword
     e.g: `"Url": "../../series/{UUID}/archive?token={study-resource-token/download-instant-link}"`
   - added Vietnamese translations thanks to Khanhhcmut.
+  - added Arabic translations thanks to Ibrahim Mohamed.
 
 Fixes:
   - Fix navigation issues between settings and local/remote studies list.
