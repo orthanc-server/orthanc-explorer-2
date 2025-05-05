@@ -106,7 +106,7 @@ export default {
                         this.messageBus.emit("study-labels-updated-in-labels-editor-" + this.studyId);
                         setTimeout(() => { this.$store.dispatch('labels/refresh') }, 100);
                     }
-                } else {
+                } else { // bulk-selection or multi-label filter
                     this.$emit("labelsUpdated", newValue);
                 }
             },

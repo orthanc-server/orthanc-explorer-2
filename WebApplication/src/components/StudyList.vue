@@ -276,6 +276,13 @@ export default {
             // console.log("watch filterPatientBirthDateForDatePicker", newValue, dicomNewValue);
             this.filterPatientBirthDate = dicomNewValue;
         },
+        async multiLabelsFilterLabelsConstraint(newValue, oldValue) {
+            if (this.isSearchAsYouTypeEnabled) {
+                await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels, constraint: this.multiLabelsFilterLabelsConstraint });
+                this.updateUrlNoReload();
+                this.reloadStudyList();
+            }
+        },
         selectedStudiesIds: {
             handler(oldValue, newValue) {
                 this.updateSelectAll();
@@ -902,6 +909,10 @@ export default {
         },
         onMultiLabelsFilterChanged(newValues) {
             this.filterLabels = newValues;
+            if (this.isSearchAsYouTypeEnabled) {
+                this.updateUrlNoReload();
+                this.reloadStudyList();
+            }
         }
     },
     components: { StudyItem, ResourceButtonGroup, LabelsEditor }
