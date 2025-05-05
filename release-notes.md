@@ -1,10 +1,10 @@
-Pending changes (not released yet)
-==================================
+1.8.3 (2025-04-07)
+==================
 
 Changes:
   - New "multi label" search field.  Since it consumes space in the study list header,
     it is disabled by default and can be enabled with the new configuration "UiOptions.EnableMultiLabelsSearch"
-  - Custom buttons: new `"{study-resource-token/download-instant-link}"` keyword
+  - Custom buttons: new keyword: `"{study-resource-token/download-instant-link}"`
     e.g: `"Url": "../../series/{UUID}/archive?token={study-resource-token/download-instant-link}"`
   - added Vietnamese translations thanks to Khanhhcmut.
   - added Arabic translations thanks to Ibrahim Mohamed.
