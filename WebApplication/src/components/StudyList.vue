@@ -108,6 +108,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            allLabels: state => state.labels.allLabels,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
             selectedStudiesIds: state => state.studies.selectedStudiesIds,
@@ -281,6 +282,9 @@ export default {
             },
             deep: true
         },
+        allLabels(newValue, oldValue) {
+            this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
+        }
     },
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);

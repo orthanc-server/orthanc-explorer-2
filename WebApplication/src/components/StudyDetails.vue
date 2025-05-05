@@ -19,7 +19,8 @@ export default {
             studySeries: [],
             hasLoadedSamePatientsStudiesCount: false,
             allLabelsLocalCopy: new Set(),
-            remoteStudyFoundLocally: false
+            remoteStudyFoundLocally: false,
+            labelsComponentKey: 0  // to force refresh of the labels editor when allLabels is modified
         };
     },
     async created() {
@@ -38,6 +39,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            allLabels: state => state.labels.allLabels,
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
         }),
@@ -69,6 +71,11 @@ export default {
         },
         sameLocalStudyLink() {
             return "/filtered-studies?StudyInstanceUID=" + this.studyMainDicomTags.StudyInstanceUID;
+        }
+    },
+    watch: {
+        allLabels(newValue, oldValue) {
+            this.labelsComponentKey++; // force refresh
         }
     },
     components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText, LabelsEditor },
@@ -119,7 +126,7 @@ export default {
         <tbody>
             <tr v-if="showLabels && uiOptions.EnableEditLabels">
                 <td colspan="100%">
-                    <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :studyId="studyId" ></LabelsEditor>
+                    <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :key="labelsComponentKey" :studyId="studyId" ></LabelsEditor>
                 </td>
             </tr>
             <tr v-if="showLabels && !uiOptions.EnableEditLabels">
