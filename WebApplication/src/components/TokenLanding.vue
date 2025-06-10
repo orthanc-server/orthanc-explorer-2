@@ -163,13 +163,13 @@ export default {
             </div>
             <div class="row w-100 m-3"></div> 
             <p v-for="option in options" :key="option" class="text-center">
-                <button v-if="option.Type == 'open-viewer-button'" type="button" class="btn btn-primary"
+                <button v-if="option.Type == 'download-study'" type="button" class="btn btn-primary"
                     @click="downloadStudy()">
                     <span v-if="showStudyDetails"><i class="bi bi-download px-1"/> {{ $t('token.download_study') }}</span>
                     <span v-if="!showStudyDetails"><i class="bi bi-download px-1"/> {{ $t('token.download_studies', {count: this.resourcesOrthancIds.length}) }}</span>
                 </button>
-                <button v-if="option.Type == 'download-study'" type="button" class="btn btn-primary"
-                    @click="downloadStudy()">
+                <button v-if="option.Type == 'open-viewer-button'" type="button" class="btn btn-primary"
+                    @click="viewStudy()">
                     <span v-if="showStudyDetails"><i class="bi bi-eye px-1"/> {{ $t('token.open_study_in_viewer') }}</span>
                     <span v-if="!showStudyDetails"><i class="bi bi-eye px-1"/> {{ $t('token.open_studies_in_viewer', {count: this.resourcesOrthancIds.length}) }}</span>
                 </button>
