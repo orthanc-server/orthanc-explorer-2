@@ -5,8 +5,7 @@ import TokenLanding from "./components/TokenLanding.vue";
 export default {
     async created() {
         console.log("Creating Landing App...");
-        // await this.$store.dispatch('configuration/load');
-        // await this.$store.dispatch('studies/initialLoad');
+        await this.$store.dispatch('configuration/load');
         console.log("Landing App created");
     },
     components: { TokenLanding }

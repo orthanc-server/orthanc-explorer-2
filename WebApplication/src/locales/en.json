@@ -254,9 +254,15 @@
     "this_study_is_already_stored_locally": "This study is already stored locally.",
     "this_study_is_already_stored_locally_show": "Show it!",
     "token": {
+        "download_study": "Download the DICOM study",
+        "download_studies": "Download the {count} DICOM studies",
         "error_token_expired_html": "Your token has expired.",
         "error_token_invalid_html": "Your token is invalid.<br/>Check if you have pasted it completely, or contact the person who has provided it to you.",
         "error_token_unknown_html": "Your token is invalid.<br/>Check if you have pasted it completely, or contact the person who has provided it to you.",
+        "landing_options_single_study_intro_text": "You've reached the publication page of this study:",
+        "landing_options_multiple_studies_intro_text": "You've reached the publication of {count} studies",
+        "open_study_in_viewer": "View the DICOM study",
+        "open_studies_in_viewer": "View the {count} DICOM studies",
         "token_being_checked_html": "Your token is being checked."
     },
     "trace": "Trace",

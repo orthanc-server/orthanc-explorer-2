@@ -347,8 +347,27 @@
         // This section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented.
         "Tokens" : {
             "InstantLinksValidity": 200,                // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
-            "ShareType": "stone-viewer-publication"     // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication", "volview-viewer-publication"
+            "ShareType": "stone-viewer-publication",    // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication", "volview-viewer-publication"
             //"RequiredForLinks": false                 // Set it to false when using basic-auth together with the auth-plugin (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454)
+
+            // When opening a share link, the user actually lands on the token "landing" page.  By default, it will be redirected to the viewer directly.
+            // However, if you set "LandingOptions", you may display a landing page with e.g: a download button and a link to open the viewer.
+            // Optionally, you can also add a custom button to open custom link.
+            // "LandingOptions" : [
+            //     {
+            //         "Type" : "open-viewer-button"                            // Valid values are "open-viewer-button", "download-study" and "custom"
+            //     },
+            //     {
+            //         "Type" : "download-study"
+            //     },
+            //     {
+            //         "Type": "custom",
+            //         "Id": "custom-download-as-jpeg",                         // A unique HTML identifier for the button 
+            //         "Icon": "bi bi-filetype-jpg",                            // The CSS class that defines the button icon (only from bootstrap icons)
+            //         "Title": "Download study as jpeg",                       // The Title to display on the button
+            //         "Url": "../../studies/{UUID}/download-as-jpeg?token={token}" // The Url to open when the button is clicked.  Note: the url is relative to /ui/app/token-landing.html
+            //     }
+            // ]
         },
 
         // Very specific advanced options

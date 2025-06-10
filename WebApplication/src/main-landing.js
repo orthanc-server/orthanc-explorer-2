@@ -20,6 +20,8 @@ const VALID_TOKEN_PARAMS = ["token", "auth-token", "authorization"];
 axios.get('../api/pre-login-configuration').then((config) => {
 
   const app = createApp(AppLanding)
+  
+  app.config.globalProperties.$appConfig = {'TokensLandingOptions': config.data['TokensLandingOptions']};
 
   app.use(store)
   app.use(i18n)

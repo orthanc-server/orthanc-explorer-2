@@ -399,6 +399,16 @@ Json::Value GetKeycloakConfiguration()
   return Json::nullValue;
 }
 
+Json::Value GetTokenLandingConfiguration()
+{
+  if (pluginJsonConfiguration_.isMember("Tokens") && pluginJsonConfiguration_["Tokens"].isMember("LandingOptions"))
+  {
+    return pluginJsonConfiguration_["Tokens"]["LandingOptions"];
+  }
+
+  return Json::nullValue;
+}
+
 Json::Value GetPluginsConfiguration(bool& hasUserProfile)
 {
   Json::Value pluginsConfiguration;
@@ -733,6 +743,7 @@ void GetOE2PreLoginConfiguration(OrthancPluginRestOutput* output,
   {
     Json::Value oe2Configuration;
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
+    oe2Configuration["TokensLandingOptions"] = GetTokenLandingConfiguration();
 
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
