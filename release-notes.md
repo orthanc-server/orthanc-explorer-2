@@ -5,7 +5,8 @@ Changes:
   - New configuration "Tokens.LandingOptions": when opening a share link, this option enables
     the display of a landing page with, e.g., a download button, a button to open the study in
     the viewer and, optionally, a custom button.
-     
+  - added Portuguese translations thanks to Rafael Souza.
+
 
 1.8.3 (2025-04-07)
 ==================
