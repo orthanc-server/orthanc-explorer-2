@@ -1,5 +1,5 @@
-Pending changes (not released yet)
-==================================
+1.8.4 (2025-06-11)
+==================
 
 Changes:
   - New configuration "Tokens.LandingOptions": when opening a share link, this option enables
