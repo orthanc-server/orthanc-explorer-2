@@ -365,7 +365,8 @@
             //         "Id": "custom-download-as-jpeg",                         // A unique HTML identifier for the button 
             //         "Icon": "bi bi-filetype-jpg",                            // The CSS class that defines the button icon (only from bootstrap icons)
             //         "Title": "Download study as jpeg",                       // The Title to display on the button
-            //         "Url": "../../studies/{UUID}/download-as-jpeg?token={token}" // The Url to open when the button is clicked.  Note: the url is relative to /ui/app/token-landing.html
+            //         "Url": "../../studies/{UUID}/download-as-jpeg?token={token}", // The Url to open when the button is clicked.  Note: the url is relative to /ui/app/token-landing.html
+            //         "EnableForMultipleResources": false                      // Should this button be enabled when the token relates to multiple studies ? (default: false)
             //     }
             // ]
         },

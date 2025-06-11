@@ -5,10 +5,37 @@ import { translateDicomTag } from "../locales/i18n"
 import dateHelpers from "../helpers/date-helpers"
 import resourceHelpers from "../helpers/resource-helpers"
 
+function applyBootStrapTheme() {
+    // hack to switch the theme: get the value from our custom css
+    let bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');
+    console.log("-------------- Applying Bootstrap theme ...", bootstrapTheme);
+    if (bootstrapTheme) {
+        // and set it to the 'html' element
+        document.documentElement.setAttribute('data-bs-theme', bootstrapTheme);
+    } else {
+        console.warn("-------------- Applying Bootstrap theme not defined yet, retrying ...");
+        setTimeout(applyBootStrapTheme, 100);
+    }
+}
+
 
 export default {
     props: [],
     async created() {
+        {// Load the CSS dynamically since it can be a custom css
+            console.log("Loading the defaults + custom CSS ...");
+
+            let link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'customizable/custom.css';
+    
+            document.getElementsByTagName('HEAD')[0].appendChild(link);
+
+            setTimeout(applyBootStrapTheme, 0);
+        }
+
+
         const params = new URLSearchParams(window.location.search);
         this.token = params.get('token');
         const decodedToken = await api.parseToken('token', params.get('token'));
@@ -103,13 +130,26 @@ export default {
             url = url.replace("{token}", this.token);
 
             this._clickHiddenLink(url);
+        },
+        isCustomButtonEnabled(option) {
+            return this.resourcesOrthancIds.length == 1 || ('EnableForMultipleResources' in option && option['EnableForMultipleResources']);
         }
     },
     computed: {
         ...mapState({
             tokens: state => state.configuration.tokens,
             uiOptions: state => state.configuration.uiOptions,
+            system: state => state.configuration.system,
+            hasCustomLogo: state => state.configuration.hasCustomLogo,
+            configuration: state => state.configuration,
         }),
+        customLogoUrl() {
+            if (this.hasCustomLogo && this.configuration.customLogoUrl) {
+                return this.configuration.customLogoUrl;
+            } else {
+                return "./customizable/custom-logo";
+            }
+        },
         showOptions() {
             return this.options.length > 0;
         },
@@ -137,6 +177,23 @@ export default {
 
 <template>
     <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
+        <div class="row w-100 px-3 h4 text-center">
+            <div v-if="!hasCustomLogo">
+                <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
+            </div>
+            <div v-if="hasCustomLogo">
+                <img class="custom-logo" :src="customLogoUrl" />
+            </div>
+            <div v-if="hasCustomLogo">
+                <p class="powered-by-orthanc">
+                powered by
+                <img src="../assets/images/orthanc.png" />
+                </p>
+            </div>
+            <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
+                <p>{{ system.Name }}</p>
+            </div>
+        </div>
         <div class="row w-100 px-3 h4 text-center">
             <p v-if="tokenChecked && showOptions && showStudyDetails" v-html="$t('token.landing_options_single_study_intro_text')"></p>
             <p v-if="tokenChecked && showOptions && !showStudyDetails" v-html="$t('token.landing_options_multiple_studies_intro_text', {count: this.resourcesOrthancIds.length})"></p>
@@ -173,7 +230,7 @@ export default {
                     <span v-if="showStudyDetails"><i class="bi bi-eye px-1"/> {{ $t('token.open_study_in_viewer') }}</span>
                     <span v-if="!showStudyDetails"><i class="bi bi-eye px-1"/> {{ $t('token.open_studies_in_viewer', {count: this.resourcesOrthancIds.length}) }}</span>
                 </button>
-                <button v-if="option.Type == 'custom'" type="button" class="btn btn-primary"
+                <button v-if="option.Type == 'custom' && isCustomButtonEnabled(option)" type="button" class="btn btn-primary"
                     @click="customButtonClicked(option)">
                     <span><i :class="customButtonIcon(option) + ' px-1'"/> {{ option.Title }}</span>
                 </button>
@@ -183,6 +240,46 @@ export default {
 </template>
 
 <style>
+
+body {
+    background-color: var(--nav-side-bg-color) !important;
+    color: var(--nav-side-submenu-color) !important;
+}
+
+.orthanc-name {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    font-size: 1rem;
+    margin-bottom: 3em;
+}
+
+.orthanc-name p {
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    font-size: x-large;
+}
+
+.orthanc-logo {
+    filter: brightness(50);
+    height: 100px;
+}
+
+.powered-by-orthanc {
+    font-size: small;
+}
+
+.powered-by-orthanc > img {
+    filter: brightness(50);
+    max-width: 50%;
+    max-height: 30px;
+}
+
+.custom-logo {
+    padding: 4px;
+    max-width: 90%;
+    max-height: 150px;
+}
+
 .tag-label {
     font-weight: 700;
     max-width: 50vw;

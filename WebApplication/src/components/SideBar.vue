@@ -40,7 +40,7 @@ export default {
         }),
         customLogoUrl() {
             if (this.hasCustomLogo && this.configuration.customLogoUrl) {
-                return this.customLogoUrl;
+                return this.configuration.customLogoUrl;
             } else {
                 return "./customizable/custom-logo";
             }

@@ -7,6 +7,9 @@ Changes:
     the viewer and, optionally, a custom button.
   - added Portuguese translations thanks to Rafael Souza.
 
+Fixes:
+  - Fix custom logo in the SideBar that was not displayed anymore.
+
 
 1.8.3 (2025-04-07)
 ==================
