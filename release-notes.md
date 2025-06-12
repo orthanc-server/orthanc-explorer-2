@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Changes:
+- Now showing the number of files processed in the upload progress bar.
+
+
 1.8.4 (2025-06-11)
 ==================
 

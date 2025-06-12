@@ -25,6 +25,42 @@ export default {
         pctFailed() {
             return 100.0 * this.report.failedFilesCount / this.report.filesCount;
         },
+        pctRemaining() {
+            return 100.0 * (this.report.filesCount - (this.report.successFilesCount + this.report.skippedFilesCount + this.report.failedFilesCount) ) / this.report.filesCount;
+        },
+        progressSuccessText() {
+            if (this.pctSuccess >= Math.max(this.pctRemaining, this.pctSkipped, this.pctFailed)) {
+                return this.progressText;
+            } else {
+                return "";
+            }
+        },
+        progressSkippedText() {
+            if (this.pctSkipped > Math.max(this.pctRemaining, this.pctSuccess, this.pctFailed)) {
+                return this.progressText;
+            } else {
+                return "";
+            }
+        },
+        progressFailedText() {
+            if (this.pctFailed > Math.max(this.pctRemaining, this.pctSkipped, this.pctSuccess)) {
+                return this.progressText;
+            } else {
+                return "";
+            }
+        },
+        progressRemainingText() {
+            if (this.pctRemaining > Math.max(this.pctSuccess, this.pctSkipped, this.pctFailed)) {
+                return this.progressText;
+            } else {
+                return "";
+            }
+        },
+        progressText() {
+            if (this.report.filesCount > 0) {
+                return (this.report.successFilesCount + this.report.skippedFilesCount + this.report.failedFilesCount) + " / " + this.report.filesCount;
+            }
+        }
     },
     methods: {
         close(reportId) {
@@ -59,11 +95,13 @@ export default {
                 @click="close(report.id)"></button>
             <div class="progress mt-1 mb-1" style="width:90%">
                 <div class="progress-bar bg-success" role="progressbar"
-                    v-bind:style="'width: ' + this.pctSuccess + '%'"></div>
+                    v-bind:style="'width: ' + this.pctSuccess + '%'">{{ progressSuccessText }}</div>
                 <div class="progress-bar bg-secondary" role="progressbar"
-                    v-bind:style="'width: ' + this.pctSkipped + '%'"></div>
+                    v-bind:style="'width: ' + this.pctSkipped + '%'">{{ progressSkippedText }}</div>
                 <div class="progress-bar bg-danger" role="progressbar" v-bind:style="'width: ' + this.pctFailed + '%'">
+                    {{ progressFailedText }}
                 </div>
+                {{ progressRemainingText }}
             </div>
             <div v-show="Object.keys(report.errorMessages).length > 0">
                 <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
