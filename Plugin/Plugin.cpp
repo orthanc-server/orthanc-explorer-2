@@ -409,6 +409,19 @@ Json::Value GetTokenLandingConfiguration()
   return Json::nullValue;
 }
 
+Json::Value GetInboxConfiguration()
+{
+  if (pluginJsonConfiguration_.isMember("Inbox"))
+  {
+    if (pluginJsonConfiguration_["Inbox"].isMember("Enable") && pluginJsonConfiguration_["Inbox"]["Enable"].asBool())
+    {
+      return pluginJsonConfiguration_["Inbox"];
+    }
+  }
+
+  return Json::nullValue;
+}
+
 Json::Value GetPluginsConfiguration(bool& hasUserProfile)
 {
   Json::Value pluginsConfiguration;
@@ -744,6 +757,7 @@ void GetOE2PreLoginConfiguration(OrthancPluginRestOutput* output,
     Json::Value oe2Configuration;
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
     oe2Configuration["TokensLandingOptions"] = GetTokenLandingConfiguration();
+    oe2Configuration["Inbox"] = GetInboxConfiguration();
 
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
@@ -862,6 +876,9 @@ extern "C"
         OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX_RETRIEVE_AND_VIEW, Orthanc::MimeType_Html> >
           (oe2BaseUrl_ + "app/retrieve-and-view.html", true);
+        OrthancPlugins::RegisterRestCallback
+          <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INBOX, Orthanc::MimeType_Html> >
+          (oe2BaseUrl_ + "app/inbox.html", true);
         
         if (customFavIconPath_.empty())
         {

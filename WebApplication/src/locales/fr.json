@@ -76,6 +76,9 @@
     "file": "Fichier",
     "files": "fichiers",
     "frames": "Frames",
+    "inbox" : {
+        "generic_intro_text": "Bienvenu sur la page de dépôt d'examens."
+    },
     "instance": "Élément",
     "instances": "Instances",
     "instances_count_header": "# instances",    

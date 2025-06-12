@@ -76,6 +76,9 @@
     "file": "File",
     "files": "files",
     "frames": "frames",
+    "inbox" : {
+        "generic_intro_text": "Welcome to the Orthanc inbox."
+    },
     "instance": "Instance",
     "instances": "Instances",
     "instances_count_header": "# instances",
