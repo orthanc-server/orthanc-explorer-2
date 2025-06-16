@@ -51,6 +51,11 @@ export default {
     mounted() {
     },
     methods: {
+        async onUploadCompleted(uploadedStudiesIds) {
+            console.log("upload complete: ", uploadedStudiesIds);
+            const response = await api.commitInbox('../../plugins/inbox-commit', uploadedStudiesIds, {"toto": "tutu"});
+            console.log(response);
+        }
     },
     computed: {
         ...mapState({
@@ -94,7 +99,7 @@ export default {
             <p v-html="$t('inbox.generic_intro_text')"></p>
         </div>
         <div class="row w-75 px-3 text-center">
-        <UploadHandler />
+        <UploadHandler @uploadCompleted="onUploadCompleted"/>
         </div>
     </div>
 </template>

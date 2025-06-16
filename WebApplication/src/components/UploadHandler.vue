@@ -81,6 +81,7 @@ function readFileAsync(file) {
 
 export default {
     props: [],
+    emits: ["uploadCompleted"],
     data() {
         return {
             uploadCounter: 0,
@@ -167,6 +168,8 @@ export default {
                     this.lastUploadReports[uploadId].errorMessages[filename] = errorMessage;
                 }
             }
+
+            this.$emit("uploadCompleted", this.lastUploadReports[uploadId].uploadedStudiesIds);
         },
         async uppieUploadHandler(event, formData, files) {
             await this.uploadFiles(event.target.files);

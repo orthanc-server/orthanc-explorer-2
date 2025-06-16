@@ -616,6 +616,14 @@ export default {
 
         })
     },
+    async commitInbox(commitUrl, orthancStudiesIds, formFields) {
+        const response = (await axios.post(orthancApiUrl + commitUrl, {
+            "OrthancStudiesIds": orthancStudiesIds,
+            "FormFields": formFields
+        }))
+
+        return response.data;
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
