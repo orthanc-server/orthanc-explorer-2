@@ -11,6 +11,9 @@ export default {
         return {
             verboseLevel: "default",
             delayedDeletionPendingFilesCount: 0,
+            advancedStoragePendingDeletionFilesCount: 0,
+            advancedStorageIndexerModeEnabled: false,
+            advancedStorageDelayedDeletionModeEnabled: false,
             hkLastProcessedChange: -1,
             hkLastChangeToProcess: -1,
         };
@@ -33,6 +36,12 @@ export default {
                 const hkStatus = await api.getHousekeeperStatus();
                 this.hkLastChangeToProcess = hkStatus["LastChangeToProcess"];
                 this.hkLastProcessedChange = hkStatus["LastProcessedChange"];
+            }
+            if (this.hasAdvancedStorage) {
+                const advstStatus = await api.getAdvancedStorageStatus();
+                this.advancedStorageDelayedDeletionModeEnabled = advstStatus["DelayedDeletionIsActive"];
+                this.advancedStorageIndexerModeEnabled = advstStatus["IndexerIsActive"];
+                this.advancedStoragePendingDeletionFilesCount = advstStatus["FilesPendingDeletion"];
             }
         }
     },
@@ -76,6 +85,9 @@ export default {
         },
         hasDelayedDeletionPlugin() {
             return 'delayed-deletion' in this.installedPlugins && this.installedPlugins['delayed-deletion'].Enabled;
+        },
+        async hasAdvancedStorageDelayedDeletion() {
+            return 'advanced-storage' in this.installedPlugins && this.installedPlugins['advanced-storage'].Enabled && this.advancedStorageDelayedDeletionModeEnabled;
         },
         hasHousekeeperPlugin() {
             return 'housekeeper' in this.installedPlugins && this.installedPlugins['housekeeper'].Enabled;
@@ -134,6 +146,11 @@ export default {
                         <th scope="row" class="w-50 header"># {{ $t('plugins.delayed_deletion.pending_files_count') }}
                         </th>
                         <td class="value">{{ delayedDeletionPendingFilesCount }}</td>
+                    </tr>
+                    <tr v-if="hasAdvancedStorageDelayedDeletion">
+                        <th scope="row" class="w-50 header"># {{ $t('plugins.advanced_storage.pending_deletion_files_count') }}
+                        </th>
+                        <td class="value">{{ advancedStoragePendingDeletionFilesCount }}</td>
                     </tr>
                     <tr v-if="hasHousekeeperPlugin">
                         <th scope="row" class="w-50 header">{{ $t('plugins.housekeeper.progress_status') }}

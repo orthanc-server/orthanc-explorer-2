@@ -1,8 +1,9 @@
-Pending changes
-===============
+1.8.5 (2025-06-17)
+==================
 
 Changes:
 - Now showing the number of files processed in the upload progress bar.
+- Now showing the Advanced Storage plugin in the plugins list.
 
 
 1.8.4 (2025-06-11)
