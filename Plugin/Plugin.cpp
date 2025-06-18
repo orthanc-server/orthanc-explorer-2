@@ -474,6 +474,10 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
         LOG(WARNING) << "When using OE2 and the authorization plugin together, you must set 'Authorization.CheckedLevel' to 'studies'.  Unless you are using this orthanc only to generate tokens.";
       }
     }
+    else if (pluginName == "advanced-storage")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("AdvancedStorage", "Enable", false);
+    }
     else if (pluginName == "AWS S3 Storage")
     {
       pluginsConfiguration[pluginName]["Enabled"] = GetPluginConfiguration(pluginConfiguration, "AwsS3Storage");

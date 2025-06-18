@@ -165,6 +165,9 @@
         "delayed_deletion": {
             "pending_files_count": "Delayed Deletion plugin: Fichiers à effacer"
         },
+        "advanced_storage": {
+            "pending_deletion_files_count": "Advanced Storage - Delayed Deletion: Fichiers à effacer"
+        },
         "housekeeper": {
             "progress_status": "Housekeeper plugin: état d'avancement",
             "completed": "Terminé"
