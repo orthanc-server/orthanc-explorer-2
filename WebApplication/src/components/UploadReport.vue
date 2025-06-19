@@ -3,7 +3,7 @@ import Modal from "./Modal.vue"
 import { mapState } from "vuex"
 
 export default {
-    props: ["report"],
+    props: ["report", "showStudyDetails"],
     emits: ["deletedUploadReport"],
     data() {
         return {
@@ -60,6 +60,9 @@ export default {
             if (this.report.filesCount > 0) {
                 return (this.report.successFilesCount + this.report.skippedFilesCount + this.report.failedFilesCount) + " / " + this.report.filesCount;
             }
+        },
+        uploadedStudiesCount() {
+            return this.report.uploadedStudiesIds.size;
         }
     },
     methods: {
@@ -81,7 +84,7 @@ export default {
                 infos.push(studyId.slice(0, 20) + "...");
             }   
             return infos.slice(0, this.uiOptions.UploadReportMaxTags).join(" - ");
-        }
+        }        
     },
     components: { Modal }
 }
@@ -128,7 +131,7 @@ export default {
             </div>
         </div>
         <div class="card-body text-secondary jobs-body">
-            <p class="card-text">
+            <p v-if="showStudyDetails" class="card-text">
                 <span class="upload-details">{{ $t('uploaded_studies') }}:</span>
                 <br />
                 <span v-for="(study, studyId) in report.uploadedStudies" :key="studyId">
@@ -139,6 +142,9 @@ export default {
                         }}</router-link>
                     <br />
                 </span>
+            </p>
+            <p v-if="!showStudyDetails" class="card-text">
+                <span class="upload-details">{{ $t('uploaded_count_studies', {'count': uploadedStudiesCount }) }}</span>
             </p>
         </div>
     </div>

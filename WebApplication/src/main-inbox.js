@@ -27,6 +27,8 @@ axios.get('../api/pre-login-configuration').then((config) => {
     const configData = config.data;
     const app = createApp(AppInbox)
 
+    app.config.globalProperties.$appConfig = {'Inbox': config.data['Inbox']};
+
     app.use(store)
     app.use(i18n)
 

@@ -45,16 +45,64 @@ export default {
 
     data() {
         return {
-            options: [],
+            inboxConfig_: null,
+            formValues: {},
+            formFieldsValidities: {},
+            formFieldsErrorMessages: {},
+            formIsValid: false,
+            isFormValuesInitialized: false,
+            formValidityCheckerHandler: null
         };
     },
     mounted() {
     },
+    watch: {
+        formValues: {
+            handler(newValue, oldValue) {
+                if (!this.isFormValuesInitialized) {
+                    return;
+                }
+                
+                // only trigger form validation when we stop typing for 300ms
+                if (this.formValidityCheckerHandler) {
+                    clearTimeout(this.formValidityCheckerHandler);
+                }
+                this.formValidityCheckerHandler = setTimeout(() => { this.updateFormValidity() }, 300);
+            },
+            deep: true
+        },
+    },
     methods: {
         async onUploadCompleted(uploadedStudiesIds) {
-            console.log("upload complete: ", uploadedStudiesIds);
-            const response = await api.commitInbox('../../plugins/inbox-commit', uploadedStudiesIds, {"toto": "tutu"});
+            console.log("upload complete: ", uploadedStudiesIds, this.formValues);
+            const response = await api.commitInbox('../../plugins/inbox-commit', [...uploadedStudiesIds], this.formValues);
             console.log(response);
+        },
+        updateFormValidity() {
+            let allValid = true;
+
+            for (let formField of this.formFields) {
+                if ('Mandatory' in formField && formField['Mandatory']) {
+                    if (formField.Type == "text") {
+                        this.formFieldsValidities[formField.Id] = (this.formValues[formField.Id] && (this.formValues[formField.Id] != ""));
+                        allValid = allValid & this.formFieldsValidities[formField.Id];
+                        if (!this.formFieldsValidities[formField.Id]) {
+                            this.formFieldsErrorMessages[formField.Id] = "non";
+                        } else {
+                            this.formFieldsErrorMessages[formField.Id] = null;
+                        }
+                        console.log("formIsValid", allValid);
+                    } 
+                } 
+            }
+            this.formIsValid = allValid;
+            console.log("canUpload", this.canUpload);
+        },
+        isFieldValid(formField) {
+            return this.formFieldsValidities[formField.Id];
+        },
+        fieldErrorMessage(formField) {
+            return this.formFieldsErrorMessages[formField.Id];
         }
     },
     computed: {
@@ -71,6 +119,26 @@ export default {
                 return "./customizable/custom-logo";
             }
         },
+        inboxConfig() {
+            if (!this.inboxConfig_ && this.$appConfig && 'Inbox' in this.$appConfig && this.$appConfig['Inbox']) {
+                this.inboxConfig_ = this.$appConfig['Inbox'];
+                for (let formField of this.inboxConfig_['FormFields']) {
+                    this.formValues[formField.Id] = null;
+                }
+                this.isFormValuesInitialized = true;
+            }
+            
+            return this.inboxConfig_;
+        },
+        hasForm() {
+            return this.inboxConfig['FormFields'].length > 0;
+        },
+        formFields() {
+            return this.inboxConfig['FormFields'];
+        },
+        canUpload() {
+            return !this.hasForm || this.formIsValid;
+        }
     },
     components: {UploadHandler}
 }
@@ -98,8 +166,21 @@ export default {
         <div class="row w-100 px-3 h4 text-center">
             <p v-html="$t('inbox.generic_intro_text')"></p>
         </div>
-        <div class="row w-75 px-3 text-center">
-        <UploadHandler @uploadCompleted="onUploadCompleted"/>
+        <div v-if="hasForm" class="row w-75 px-3">
+            <div class="row w-100 py-1" v-for="formField in formFields" :key="formField.Id">
+                <div class="col-6 tag-label text-end" >
+                    <span>{{ formField.Title }}</span>
+                </div>
+                <div class="col-6 tag-value">
+                    <input v-if="formField.Type=='text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
+                    <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
+                    <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
+                </div>
+            </div>
+
+        </div>
+        <div class="row w-75 mt-2 px-3 text-center">
+            <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false" :uploadDisabled="!canUpload" :uploadDisabledMessage="$t('inbox.fill_form_first')"/>
         </div>
     </div>
 </template>

@@ -203,7 +203,7 @@ export default {
                         <span class="ms-auto"></span>
                     </li>
                     <div v-if="uiOptions.EnableUpload" class="collapse" id="upload-handler">
-                        <UploadHandler />
+                        <UploadHandler :showStudyDetails="true"/>
                     </div>
 
                     <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"

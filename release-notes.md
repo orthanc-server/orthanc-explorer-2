@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Changes:
+- Implemented a new /ui/app/inbox.html route to upload and possible process files
+  during upload.  Check the "Inbox" configuration (TODO: doc)
+
 1.8.5 (2025-06-17)
 ==================
 

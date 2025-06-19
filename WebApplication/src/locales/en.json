@@ -77,7 +77,8 @@
     "files": "files",
     "frames": "frames",
     "inbox" : {
-        "generic_intro_text": "Welcome to the Orthanc inbox."
+        "generic_intro_text": "Welcome to the Orthanc inbox.",
+        "fill_form_first": "Fill the form before uploading files"
     },
     "instance": "Instance",
     "instances": "Instances",
@@ -273,6 +274,7 @@
     },
     "trace": "Trace",
     "upload": "Upload",
+    "uploaded_count_studies": "Uploaded {count} studies",
     "uploaded_studies": "Uploaded studies",
     "verbose": "Verbose",
     "view_in_meddream": "View in MedDream",

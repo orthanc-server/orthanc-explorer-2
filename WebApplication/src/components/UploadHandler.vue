@@ -80,7 +80,7 @@ function readFileAsync(file) {
 }
 
 export default {
-    props: [],
+    props: ["showStudyDetails", "uploadDisabled", "uploadDisabledMessage"],
     emits: ["uploadCompleted"],
     data() {
         return {
@@ -111,10 +111,12 @@ export default {
             let studyId = uploadedFileResponse["ParentStudy"];
             if (!this.lastUploadReports[uploadId].uploadedStudiesIds.has(studyId)) {
                 this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
-                const studyResponse = await api.getStudy(studyId);
-                this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
-
-                this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId, reloadStats: true });
+                
+                if (this.showStudyDetails) {
+                    const studyResponse = await api.getStudy(studyId);
+                    this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
+                    this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId, reloadStats: true });
+                }
             }
         },
         async uploadFiles(files) {
@@ -185,22 +187,23 @@ export default {
 
 <template>
     <div>
-        <div class="upload-handler-drop-zone" @drop="this.onDrop" @dragover="this.onDragOver">
-            <div class="mb-3">{{ $t('drop_files') }}</div>
+        <div class="upload-handler-drop-zone" :class="{'upload-handler-drop-zone-disabled': uploadDisabled}"  @drop="this.onDrop" @dragover="this.onDragOver" :disabled="uploadDisabled">
+            <div v-if="uploadDisabled" class="mb-3">{{ uploadDisabledMessage }}</div>
+            <div v-if="!uploadDisabled" class="mb-3">{{ $t('drop_files') }}</div>
             <div class="mb-3">
-                <label class="btn btn-primary btn-file">
-                    {{ $t('select_folder') }} <input type="file" style="display: none;" id="foldersUpload" required
+                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}" >
+                    {{ $t('select_folder') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="foldersUpload" required
                         multiple directory webkitdirectory allowdirs>
                 </label>
             </div>
             <div class="mb-3">
-                <label class="btn btn-primary btn-file">
-                    {{ $t('select_files') }} <input type="file" style="display: none;" id="filesUpload" required multiple>
+                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}">
+                    {{ $t('select_files') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="filesUpload" required multiple>
                 </label>
             </div>
         </div>
         <div class="upload-report-list">
-            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key"
+            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key" :showStudyDetails="showStudyDetails"
                 @deletedUploadReport="onDeletedUploadReport"></UploadReport>
         </div>
     </div>
@@ -216,4 +219,11 @@ export default {
     border-style: dashed;
     border-width: 4px;
 }
+
+.upload-handler-drop-zone-disabled {
+    opacity: 90;
+    border-color: #ff0000d2;
+    cursor: not-allowed;
+}
+
 </style>
