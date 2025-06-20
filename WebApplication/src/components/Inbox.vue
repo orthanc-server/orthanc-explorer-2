@@ -75,7 +75,7 @@ export default {
     methods: {
         async onUploadCompleted(uploadedStudiesIds) {
             console.log("upload complete: ", uploadedStudiesIds, this.formValues);
-            const response = await api.commitInbox('../../plugins/inbox-commit', [...uploadedStudiesIds], this.formValues);
+            const response = await api.commitInbox(this.inboxConfig['CommitUrl'], [...uploadedStudiesIds], this.formValues);
             console.log(response);
         },
         updateFormValidity() {
