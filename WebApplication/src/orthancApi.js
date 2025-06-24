@@ -627,6 +627,50 @@ export default {
 
         return response.data;
     },
+    async monitorInboxProcessing(monitorUrl, commitResponse) {
+        const response = (await axios.post(orthancApiUrl + monitorUrl, commitResponse))
+        return response.data;
+    },
+    // async commitInboxChunked(commitUrl, orthancStudiesIds, formFields) {
+    //     axios.post(orthancApiUrl + commitUrl, {
+    //         "OrthancStudiesIds": orthancStudiesIds,
+    //         "FormFields": formFields
+    //     }, {onDownloadProgress: (progressEvent) => {
+    //         console.log('Received chunk: ', progressEvent.event.target.responseText);
+    //     }},)
+    //     // .then(response => {
+    //     //     response.data.on('data', chunk => {
+    //     //         console.log("chunk-data", chunk);
+    //     //     });
+    //     //     response.data.on('end', () => {
+    //     //         console.log("chunk-end");
+    //     //     });
+    //     // } )
+
+    //     return "";
+    //     // axios.post(orthancApiUrl + commitUrl, {
+    //     //     "OrthancStudiesIds": orthancStudiesIds,
+    //     //     "FormFields": formFields
+    //     // }, {responseType: 'stream'})
+    //     // .then(response => {
+    //     //     response.data.on('data', chunk => {
+    //     //         console.log("chunk-data", chunk);
+    //     //     });
+    //     //     response.data.on('end', () => {
+    //     //         console.log("chunk-end");
+    //     //     });
+    //     // } )
+
+    //     // return "";
+    // },
+    async validateInboxForm(validationUrl, formFields) {
+        const response = (await axios.post(orthancApiUrl + validationUrl, {
+            "FormFields": formFields
+        }))
+
+        return response.data;
+    },
+
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {

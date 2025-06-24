@@ -80,12 +80,13 @@ function readFileAsync(file) {
 }
 
 export default {
-    props: ["showStudyDetails", "uploadDisabled", "uploadDisabledMessage"],
+    props: ["showStudyDetails", "uploadDisabled", "uploadDisabledMessage", "singleUse", "disableCloseReport"],
     emits: ["uploadCompleted"],
     data() {
         return {
             uploadCounter: 0,
-            lastUploadReports: {}
+            lastUploadReports: {},
+            disabledAfterUpload: false
         };
     },
     mounted() {
@@ -121,6 +122,9 @@ export default {
         },
         async uploadFiles(files) {
             let uploadId = this.uploadCounter++;
+            if (this.singleUse) {
+                this.disabledAfterUpload = true;
+            }
 
             this.lastUploadReports[uploadId] = {
                 id: uploadId,
@@ -177,8 +181,10 @@ export default {
             await this.uploadFiles(event.target.files);
 
             // reset input for next upload
-            document.getElementById('filesUpload').value = null;
-            document.getElementById('foldersUpload').value = null;
+            if (!this.singleUse) {
+                document.getElementById('filesUpload').value = null;
+                document.getElementById('foldersUpload').value = null;
+            }
         }
     },
     components: { UploadReport }
@@ -187,7 +193,7 @@ export default {
 
 <template>
     <div>
-        <div class="upload-handler-drop-zone" :class="{'upload-handler-drop-zone-disabled': uploadDisabled}"  @drop="this.onDrop" @dragover="this.onDragOver" :disabled="uploadDisabled">
+        <div v-if="!disabledAfterUpload" class="upload-handler-drop-zone" :class="{'upload-handler-drop-zone-disabled': uploadDisabled}"  @drop="this.onDrop" @dragover="this.onDragOver" :disabled="uploadDisabled">
             <div v-if="uploadDisabled" class="mb-3">{{ uploadDisabledMessage }}</div>
             <div v-if="!uploadDisabled" class="mb-3">{{ $t('drop_files') }}</div>
             <div class="mb-3">
@@ -203,7 +209,7 @@ export default {
             </div>
         </div>
         <div class="upload-report-list">
-            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key" :showStudyDetails="showStudyDetails"
+            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key" :showStudyDetails="showStudyDetails" :disableCloseReport="disableCloseReport"
                 @deletedUploadReport="onDeletedUploadReport"></UploadReport>
         </div>
     </div>

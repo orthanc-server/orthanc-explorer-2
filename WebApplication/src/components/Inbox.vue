@@ -51,7 +51,13 @@ export default {
             formFieldsErrorMessages: {},
             formIsValid: false,
             isFormValuesInitialized: false,
-            formValidityCheckerHandler: null
+            formValidityCheckerHandler: null,
+            commitResponse: null,
+            processingPctProcessed: 0,
+            processingRefreshTimeout: 200,
+            processingMessage: null,
+            processingIsComplete: false,
+            processingHasFailed: false,
         };
     },
     mounted() {
@@ -74,26 +80,39 @@ export default {
     },
     methods: {
         async onUploadCompleted(uploadedStudiesIds) {
-            console.log("upload complete: ", uploadedStudiesIds, this.formValues);
-            const response = await api.commitInbox(this.inboxConfig['CommitUrl'], [...uploadedStudiesIds], this.formValues);
-            console.log(response);
+            // console.log("upload complete: ", uploadedStudiesIds, this.formValues);
+            this.commitResponse = await api.commitInbox(this.inboxConfig['CommitUrl'], [...uploadedStudiesIds], this.formValues);
+            this.startMonitoringProcessing();
         },
-        updateFormValidity() {
+        async updateFormValidity() {
             let allValid = true;
 
-            for (let formField of this.formFields) {
-                if ('Mandatory' in formField && formField['Mandatory']) {
-                    if (formField.Type == "text") {
-                        this.formFieldsValidities[formField.Id] = (this.formValues[formField.Id] && (this.formValues[formField.Id] != ""));
-                        allValid = allValid & this.formFieldsValidities[formField.Id];
-                        if (!this.formFieldsValidities[formField.Id]) {
-                            this.formFieldsErrorMessages[formField.Id] = "non";
-                        } else {
-                            this.formFieldsErrorMessages[formField.Id] = null;
-                        }
-                        console.log("formIsValid", allValid);
-                    } 
-                } 
+            const response = await api.validateInboxForm(this.inboxConfig['FormValidationUrl'], this.formValues);
+
+            for (const formField of this.formFields) {
+                if (formField.Id in response) {
+                    this.formFieldsValidities[formField.Id] = response[formField.Id]['IsValid']
+                    if ('Message' in response[formField.Id]) {
+                        this.formFieldsErrorMessages[formField.Id] = response[formField.Id]['Message'];
+                    }
+                    allValid &= this.formFieldsValidities[formField.Id]
+                } else {
+                    allValid = false;
+                    console.error("No validation result for field '" + formField.Id + "'");
+                }
+
+                // if ('Mandatory' in formField && formField['Mandatory']) {
+                //     if (formField.Type == "Text") {
+                //         this.formFieldsValidities[formField.Id] = (this.formValues[formField.Id] && (this.formValues[formField.Id] != ""));
+                //         allValid = allValid & this.formFieldsValidities[formField.Id];
+                //         if (!this.formFieldsValidities[formField.Id]) {
+                //             this.formFieldsErrorMessages[formField.Id] = "non";
+                //         } else {
+                //             this.formFieldsErrorMessages[formField.Id] = null;
+                //         }
+                //         console.log("formIsValid", allValid);
+                //     } 
+                // } 
             }
             this.formIsValid = allValid;
             console.log("canUpload", this.canUpload);
@@ -103,7 +122,30 @@ export default {
         },
         fieldErrorMessage(formField) {
             return this.formFieldsErrorMessages[formField.Id];
+        },
+        startMonitoringProcessing() {
+            this.processingRefreshTimeout = 200;  // refresh quickly at the beginnning !
+            setTimeout(this.monitorProcessing, this.processingRefreshTimeout);
+        },
+        async monitorProcessing() {
+            const processingStatus = await api.monitorInboxProcessing(this.inboxConfig['ProcessingMonitoringUrl'], this.commitResponse);
+
+            this.processingIsComplete = processingStatus['IsComplete'];
+            this.processingHasFailed = processingStatus['HasFailed'];
+            this.processingPctProcessed = processingStatus['PctProcessed'];
+            this.processingMessage = processingStatus['Message'];
+
+            if (!this.processingIsComplete) {
+                this.processingRefreshTimeout = Math.min(this.processingRefreshTimeout + 200, 2000);  // refresh quickly at the beginnning !
+                setTimeout(this.monitorProcessing, this.processingRefreshTimeout);
+            } else {
+
+            }
+        },
+        reload() {
+            window.location.reload()
         }
+
     },
     computed: {
         ...mapState({
@@ -138,7 +180,29 @@ export default {
         },
         canUpload() {
             return !this.hasForm || this.formIsValid;
+        },
+        hasCustomTitle() {
+            return 'Title' in this.inboxConfig;
+        },
+        customTitle() {
+            return this.inboxConfig['Title'];
+        },
+        hasCustomIntroText() {
+            return "IntroTextHtml" in this.inboxConfig;
+        },
+        customIntroText() {
+            return this.inboxConfig['IntroTextHtml'];
+        },
+        isProcessing() {
+            return this.commitResponse;
+        },
+        processingMessageComputed() {
+            return this.processingMessage || this.commitResponse.Message;
+        },
+        processingProgress() {
+            return this.processingPctComplete;
         }
+
     },
     components: {UploadHandler}
 }
@@ -159,28 +223,49 @@ export default {
                 <img src="../assets/images/orthanc.png" />
                 </p>
             </div>
-            <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
-                <p>{{ system.Name }}</p>
+            <div v-if="hasCustomTitle || uiOptions.ShowOrthancName" class="orthanc-name">
+                <p><span v-if="hasCustomTitle">{{ customTitle }}</span>
+                <span v-else-if="uiOptions.ShowOrthancName">{{ system.Name }}</span></p>
             </div>
         </div>
-        <div class="row w-100 px-3 h4 text-center">
-            <p v-html="$t('inbox.generic_intro_text')"></p>
+        <div class="row w-75 px-3">
+            <p v-if="hasCustomIntroText" v-html="customIntroText"></p>
+            <p v-else v-html="$t('inbox.generic_intro_text')"></p>
         </div>
-        <div v-if="hasForm" class="row w-75 px-3">
+        <div v-if="hasForm" class="row w-100 px-3">
             <div class="row w-100 py-1" v-for="formField in formFields" :key="formField.Id">
                 <div class="col-6 tag-label text-end" >
                     <span>{{ formField.Title }}</span>
                 </div>
                 <div class="col-6 tag-value">
-                    <input v-if="formField.Type=='text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
+                    <input v-if="formField.Type=='Text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
+                    <select v-if="formField.Type=='Choice'" v-model="formValues[formField.Id]" class="form-select-sm">
+                        <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
+                        <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}</option>
+                    </select>
                     <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
                     <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
                 </div>
             </div>
-
         </div>
         <div class="row w-75 mt-2 px-3 text-center">
-            <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false" :uploadDisabled="!canUpload" :uploadDisabledMessage="$t('inbox.fill_form_first')"/>
+            <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false" :uploadDisabled="!canUpload" :singleUse="true" :disableCloseReport="true" :uploadDisabledMessage="$t('inbox.fill_form_first')"/>
+        </div>
+        <div v-if="isProcessing" class="row w-75 mt-2 px-3 text-center my-2">
+            <div>
+            <div class="card border-secondary job-card">
+                <div class="card-header jobs-header">
+                    <p v-if="isProcessing">{{ processingMessageComputed }}</p>
+                    <div class="progress mt-1 mb-1" style="width:90%">
+                        <div class="progress-bar" :class="{'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed &&!processingIsComplete}" role="progressbar"
+                            v-bind:style="'width: ' + this.processingPctProcessed + '%'"></div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
+            <button type="button" class="btn btn-secondary" @click="reload"><i class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
         </div>
     </div>
 </template>
@@ -225,5 +310,4 @@ body {
     max-width: 90%;
     max-height: 150px;
 }
-
 </style>

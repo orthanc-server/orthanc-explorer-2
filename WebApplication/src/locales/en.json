@@ -78,7 +78,8 @@
     "frames": "frames",
     "inbox" : {
         "generic_intro_text": "Welcome to the Orthanc inbox.",
-        "fill_form_first": "Fill the form before uploading files"
+        "fill_form_first": "Fill the form before uploading files",
+        "reload_inbox": "Upload a new study"
     },
     "instance": "Instance",
     "instances": "Instances",

@@ -3,7 +3,7 @@ import Modal from "./Modal.vue"
 import { mapState } from "vuex"
 
 export default {
-    props: ["report", "showStudyDetails"],
+    props: ["report", "showStudyDetails", "disableCloseReport"],
     emits: ["deletedUploadReport"],
     data() {
         return {
@@ -94,7 +94,7 @@ export default {
     <div class="card border-secondary job-card">
         <div class="card-header jobs-header">
             {{ $t('upload') }} {{ report.filesCount }} {{ $t('files') }}
-            <button type="button" class="btn-close job-card-close" aria-label="Close"
+            <button v-if="!disableCloseReport" type="button" class="btn-close job-card-close" aria-label="Close"
                 @click="close(report.id)"></button>
             <div class="progress mt-1 mb-1" style="width:90%">
                 <div class="progress-bar bg-success" role="progressbar"

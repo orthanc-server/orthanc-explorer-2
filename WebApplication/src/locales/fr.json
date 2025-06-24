@@ -77,8 +77,9 @@
     "files": "fichiers",
     "frames": "Frames",
     "inbox" : {
-        "generic_intro_text": "Bienvenu sur la page de dépôt d'examens.",
-        "fill_form_first": "Remplissez le formulaire avant de déposer les examens"
+        "generic_intro_text": "Bienvenue sur la page de dépôt d'examens.",
+        "fill_form_first": "Remplissez le formulaire avant de déposer les examens",
+        "reload_inbox": "Déposer un autre examen"
     },
     "instance": "Élément",
     "instances": "Instances",
