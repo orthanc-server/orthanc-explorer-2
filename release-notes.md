@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Fixes:
+- Quick viewer button did not work if medDream was the only configured viewer and
+  if ViewersOrdering had the default value.
+
 1.8.5 (2025-06-17)
 ==================
 

@@ -117,7 +117,7 @@ export default {
         }
     },
 
-    getPrimaryViewerUrl(level, orthancId, dicomId) {
+    getPrimaryViewer() {
         if (store.state.configuration.uiOptions.ViewersOrdering.length > 0) {
             for (let viewer of store.state.configuration.uiOptions.ViewersOrdering) {
                 if ((["osimis-web-viewer", "stone-webviewer", "volview", "wsi"].indexOf(viewer) != -1 && viewer in store.state.configuration.installedPlugins) ||
@@ -125,27 +125,32 @@ export default {
                     (viewer.startsWith("ohif") && store.state.configuration.uiOptions.EnableOpenInOhifViewer3) ||
                     (viewer == "meddream" && store.state.configuration.uiOptions.EnableOpenInMedDreamViewer))
                 {
-                    return this.getViewerUrl(level, orthancId, dicomId, viewer);
+                    return viewer;
                 }
             }
         }
         return null;
+    },
+
+    getPrimaryViewerUrl(level, orthancId, dicomId) {
+        const viewer = this.getPrimaryViewer();
+        return this.getViewerUrl(level, orthancId, dicomId, viewer);
     },
 
     getPrimaryViewerTokenType() {
-        if (store.state.configuration.uiOptions.ViewersOrdering.length > 0) {
-            for (let viewer of store.state.configuration.uiOptions.ViewersOrdering) {
-                if (viewer == "meddream") {
-                    return "meddream-instant-link";
-                } else {
-                    return "viewer-instant-link";
-                }
-            }
+        const viewer = this.getPrimaryViewer();
+        if (viewer == "meddream") {
+            return "meddream-instant-link";
+        } else {
+            return "viewer-instant-link";
         }
-        return null;
     },
 
     getViewerUrl(level, orthancId, dicomId, viewer) {
+        if (!viewer) {
+            return null;
+        }
+        
         if (viewer == 'osimis-web-viewer') {
             return api.getOsimisViewerUrl(level, orthancId);
         } else if (viewer == 'stone-webviewer') {
