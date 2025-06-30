@@ -77,6 +77,18 @@ export default {
             },
             deep: true
         },
+        userProfile(newValue, oldValue) {
+            // the user profile arrives after the inbox initialization
+
+            for (let formField of this.inboxConfig_['FormFields']) {
+                this.formValues[formField.Id] = null;
+
+                // set the initial value to the only value
+                if (formField.Type == 'UserGroupsChoice' && !this.hasMultipleUserGroupsChoices(formField)) {
+                    this.formValues[formField.Id] = this.getUserGroupsChoices(formField)[0];
+                }
+            }
+        }
     },
     methods: {
         async onUploadCompleted(uploadedStudiesIds) {
@@ -100,19 +112,6 @@ export default {
                     allValid = false;
                     console.error("No validation result for field '" + formField.Id + "'");
                 }
-
-                // if ('Mandatory' in formField && formField['Mandatory']) {
-                //     if (formField.Type == "Text") {
-                //         this.formFieldsValidities[formField.Id] = (this.formValues[formField.Id] && (this.formValues[formField.Id] != ""));
-                //         allValid = allValid & this.formFieldsValidities[formField.Id];
-                //         if (!this.formFieldsValidities[formField.Id]) {
-                //             this.formFieldsErrorMessages[formField.Id] = "non";
-                //         } else {
-                //             this.formFieldsErrorMessages[formField.Id] = null;
-                //         }
-                //         console.log("formIsValid", allValid);
-                //     } 
-                // } 
             }
             this.formIsValid = allValid;
             console.log("canUpload", this.canUpload);
@@ -122,6 +121,37 @@ export default {
         },
         fieldErrorMessage(formField) {
             return this.formFieldsErrorMessages[formField.Id];
+        },
+        hasMultipleUserGroupsChoices(formField) {
+            if (!this.userProfile) {
+                return false;
+            }
+            const userGroupsChoices = this.getUserGroupsChoices(formField);
+            return userGroupsChoices.length > 1;
+        },
+        getUserGroupsChoices(formField) {
+            if (!this.userProfile) {
+                return [];
+            }
+
+            const userGroups = this.userProfile.groups;
+            if (!userGroups || userGroups.length == 0) {
+                return [];
+            }
+
+            if ('GroupsRegex' in formField && formField['GroupsRegex']) {
+                const groupsRegex = formField['GroupsRegex'];
+                let matchingGroups = [];
+                for (const userGroup of userGroups) {
+                    const match = userGroup.match(groupsRegex);
+                    if (match) {
+                        matchingGroups.push(match[1]);
+                    }
+                }
+                return matchingGroups;
+            } else {
+                return userGroups;
+            }
         },
         startMonitoringProcessing() {
             this.processingRefreshTimeout = 200;  // refresh quickly at the beginnning !
@@ -150,6 +180,7 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
+            userProfile: state => state.configuration.userProfile,
             system: state => state.configuration.system,
             hasCustomLogo: state => state.configuration.hasCustomLogo,
             configuration: state => state.configuration,
@@ -242,6 +273,13 @@ export default {
                     <select v-if="formField.Type=='Choice'" v-model="formValues[formField.Id]" class="form-select-sm">
                         <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
                         <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}</option>
+                    </select>
+                    <select v-if="formField.Type=='UserGroupsChoice' && hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm">
+                        <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
+                        <option v-for="group of getUserGroupsChoices(formField)" :key="group" :value="group">{{ group }}</option>
+                    </select>
+                    <select v-if="formField.Type=='UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm" disabled>
+                        <option selected :value="getUserGroupsChoices(formField)[0]">{{ getUserGroupsChoices(formField)[0] }}</option>
                     </select>
                     <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
                     <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
