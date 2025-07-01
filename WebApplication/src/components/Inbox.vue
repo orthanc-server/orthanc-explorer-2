@@ -174,7 +174,26 @@ export default {
         },
         reload() {
             window.location.reload()
-        }
+        },
+        logout(event) {
+            event.preventDefault();
+            let logoutOptions = {
+                "redirectUri": window.location.href
+            }
+            window.keycloak.logout(logoutOptions).then((success) => {
+                console.log("logout success", success);
+            }).catch((error) => {
+                console.error("logout failed", error);
+            })
+        },
+        changePassword(event) {
+            event.preventDefault();
+            window.keycloak.login({ action: "UPDATE_PASSWORD" }).then((success) => {
+                console.log("login for password change success", success);
+            }).catch((error) => {
+                console.error("login for password change failed", error);
+            })
+        },
 
     },
     computed: {
@@ -232,78 +251,104 @@ export default {
         },
         processingProgress() {
             return this.processingPctComplete;
-        }
-
+        },
+        hasLogout() {
+            return window.keycloak !== undefined;
+        },
+        hasUserProfile() {
+            return this.userProfile != null && this.userProfile.name;
+        },
     },
     components: {UploadHandler}
 }
 </script>
 
 <template>
-    <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
-        <div class="row w-100 px-3 h4 text-center">
-            <div v-if="!hasCustomLogo">
-                <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
-            </div>
-            <div v-if="hasCustomLogo">
-                <img class="custom-logo" :src="customLogoUrl" />
-            </div>
-            <div v-if="hasCustomLogo">
-                <p class="powered-by-orthanc">
-                powered by
-                <img src="../assets/images/orthanc.png" />
-                </p>
-            </div>
-            <div v-if="hasCustomTitle || uiOptions.ShowOrthancName" class="orthanc-name">
-                <p><span v-if="hasCustomTitle">{{ customTitle }}</span>
-                <span v-else-if="uiOptions.ShowOrthancName">{{ system.Name }}</span></p>
+    <div class="d-flex flex-column min-vh-100">
+        <div class="row w-100" v-if="hasLogout">
+            <div class="col-10"></div>
+            <div class="col-2">
+                <li class="d-flex align-items-center">
+                    <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
+                    <span class="arrow ms-auto"></span>
+                </li>
+                <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center profile-menu">
+                    <a v-bind:href="'#'" @click="changePassword($event)">
+                        <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
+                    </a><span class="ms-auto"></span>
+                </li>
+                <li class="d-flex align-items-center profile-menu">
+                    <a v-bind:href="'#'" @click="logout($event)">
+                        <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
+                    </a><span class="ms-auto"></span>
+                </li>
             </div>
         </div>
-        <div class="row w-75 px-3">
-            <p v-if="hasCustomIntroText" v-html="customIntroText"></p>
-            <p v-else v-html="$t('inbox.generic_intro_text')"></p>
-        </div>
-        <div v-if="hasForm" class="row w-100 px-3">
-            <div class="row w-100 py-1" v-for="formField in formFields" :key="formField.Id">
-                <div class="col-6 tag-label text-end" >
-                    <span>{{ formField.Title }}</span>
+        <div class="d-flex flex-column justify-content-center align-items-center">
+            <div class="row w-100 px-3 h4 text-center">
+                <div v-if="!hasCustomLogo">
+                    <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
                 </div>
-                <div class="col-6 tag-value">
-                    <input v-if="formField.Type=='Text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
-                    <select v-if="formField.Type=='Choice'" v-model="formValues[formField.Id]" class="form-select-sm">
-                        <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
-                        <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}</option>
-                    </select>
-                    <select v-if="formField.Type=='UserGroupsChoice' && hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm">
-                        <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
-                        <option v-for="group of getUserGroupsChoices(formField)" :key="group" :value="group">{{ group }}</option>
-                    </select>
-                    <select v-if="formField.Type=='UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm" disabled>
-                        <option selected :value="getUserGroupsChoices(formField)[0]">{{ getUserGroupsChoices(formField)[0] }}</option>
-                    </select>
-                    <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
-                    <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
+                <div v-if="hasCustomLogo">
+                    <img class="custom-logo" :src="customLogoUrl" />
+                </div>
+                <div v-if="hasCustomLogo">
+                    <p class="powered-by-orthanc">
+                    powered by
+                    <img src="../assets/images/orthanc.png" />
+                    </p>
+                </div>
+                <div v-if="hasCustomTitle || uiOptions.ShowOrthancName" class="orthanc-name">
+                    <p><span v-if="hasCustomTitle">{{ customTitle }}</span>
+                    <span v-else-if="uiOptions.ShowOrthancName">{{ system.Name }}</span></p>
                 </div>
             </div>
-        </div>
-        <div class="row w-75 mt-2 px-3 text-center">
-            <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false" :uploadDisabled="!canUpload" :singleUse="true" :disableCloseReport="true" :uploadDisabledMessage="$t('inbox.fill_form_first')"/>
-        </div>
-        <div v-if="isProcessing" class="row w-75 mt-2 px-3 text-center my-2">
-            <div>
-            <div class="card border-secondary job-card">
-                <div class="card-header jobs-header">
-                    <p v-if="isProcessing">{{ processingMessageComputed }}</p>
-                    <div class="progress mt-1 mb-1" style="width:90%">
-                        <div class="progress-bar" :class="{'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed &&!processingIsComplete}" role="progressbar"
-                            v-bind:style="'width: ' + this.processingPctProcessed + '%'"></div>
+            <div class="row w-75 px-3">
+                <p v-if="hasCustomIntroText" v-html="customIntroText"></p>
+                <p v-else v-html="$t('inbox.generic_intro_text')"></p>
+            </div>
+            <div v-if="hasForm" class="row w-100 px-3">
+                <div class="row w-100 py-1" v-for="formField in formFields" :key="formField.Id">
+                    <div class="col-6 tag-label text-end" >
+                        <span>{{ formField.Title }}</span>
+                    </div>
+                    <div class="col-6 tag-value">
+                        <input v-if="formField.Type=='Text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
+                        <select v-if="formField.Type=='Choice'" v-model="formValues[formField.Id]" class="form-select-sm">
+                            <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
+                            <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}</option>
+                        </select>
+                        <select v-if="formField.Type=='UserGroupsChoice' && hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm">
+                            <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
+                            <option v-for="group of getUserGroupsChoices(formField)" :key="group" :value="group">{{ group }}</option>
+                        </select>
+                        <select v-if="formField.Type=='UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm" disabled>
+                            <option selected :value="getUserGroupsChoices(formField)[0]">{{ getUserGroupsChoices(formField)[0] }}</option>
+                        </select>
+                        <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
+                        <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
                     </div>
                 </div>
+            </div>
+            <div class="row w-75 mt-2 px-3 text-center">
+                <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false" :uploadDisabled="!canUpload" :singleUse="true" :disableCloseReport="true" :uploadDisabledMessage="$t('inbox.fill_form_first')"/>
+            </div>
+            <div v-if="isProcessing" class="row w-75 mt-2 px-3 text-center my-2">
+                <div>
+                <div class="card border-secondary job-card">
+                    <div class="card-header jobs-header">
+                        <p v-if="isProcessing">{{ processingMessageComputed }}</p>
+                        <div class="progress mt-1 mb-1" style="width:90%">
+                            <div class="progress-bar" :class="{'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed &&!processingIsComplete}" role="progressbar"
+                                v-bind:style="'width: ' + this.processingPctProcessed + '%'"></div>
+                        </div>
+                    </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
-            <button type="button" class="btn btn-secondary" @click="reload"><i class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
+            <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
+                <button type="button" class="btn btn-secondary" @click="reload"><i class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
+            </div>
         </div>
     </div>
 </template>
@@ -348,4 +393,14 @@ body {
     max-width: 90%;
     max-height: 150px;
 }
+
+.profile-menu > a {
+    color: var(--nav-side-submenu-color);
+}
+
+.menu-icon {
+    width: 20px;
+    margin-right: 10px;
+}
+
 </style>
