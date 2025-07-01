@@ -194,6 +194,16 @@ export default {
                 console.error("login for password change failed", error);
             })
         },
+        submitPdf(formField, event) {
+            console.log("SubmitPdf: ", formField, event);
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            const that = this;
+            reader.onload = function(e) {
+                that.formValues[formField.Id] = e.target.result;
+            }
+            reader.readAsDataURL(file)
+        }
 
     },
     computed: {
@@ -325,6 +335,7 @@ export default {
                         <select v-if="formField.Type=='UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm" disabled>
                             <option selected :value="getUserGroupsChoices(formField)[0]">{{ getUserGroupsChoices(formField)[0] }}</option>
                         </select>
+                        <input v-if="formField.Type=='PdfFile'" v-on:change="submitPdf(formField, $event)" type="file" />
                         <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
                         <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
                     </div>
