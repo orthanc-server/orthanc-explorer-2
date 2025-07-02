@@ -254,7 +254,7 @@ export default {
             return this.inboxConfig['IntroTextHtml'];
         },
         isProcessing() {
-            return this.commitResponse;
+            return this.commitResponse && (!this.processingIsComplete && !this.processingHasFailed);
         },
         processingMessageComputed() {
             return this.processingMessage || this.commitResponse.Message;
@@ -346,15 +346,23 @@ export default {
             </div>
             <div v-if="isProcessing" class="row w-75 mt-2 px-3 text-center my-2">
                 <div>
-                <div class="card border-secondary job-card">
-                    <div class="card-header jobs-header">
-                        <p v-if="isProcessing">{{ processingMessageComputed }}</p>
-                        <div class="progress mt-1 mb-1" style="width:90%">
-                            <div class="progress-bar" :class="{'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed &&!processingIsComplete}" role="progressbar"
-                                v-bind:style="'width: ' + this.processingPctProcessed + '%'"></div>
+                    <div class="card border-secondary job-card">
+                        <div class="card-header jobs-header">
+                            <p v-if="isProcessing">{{ processingMessageComputed }}</p>
+                            <div class="progress mt-1 mb-1" style="width:90%">
+                                <div class="progress-bar" :class="{'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed &&!processingIsComplete}" role="progressbar"
+                                    v-bind:style="'width: ' + this.processingPctProcessed + '%'"></div>
+                            </div>
                         </div>
                     </div>
-                    </div>
+                </div>
+            </div>
+            <div v-if="processingIsComplete" class="row w-75 mt-2 px-3 text-center my-2">
+                <div v-if="!processingHasFailed" class="alert alert-success" role="alert">
+                    {{ processingMessageComputed }}
+                </div>
+                <div v-if="processingHasFailed" class="alert alert-danger" role="alert">
+                    {{ processingMessageComputed }}
                 </div>
             </div>
             <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
