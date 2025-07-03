@@ -324,6 +324,7 @@ export default {
                     </div>
                     <div class="col-6 tag-value">
                         <input v-if="formField.Type=='Text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
+                        <textarea v-if="formField.Type=='MultilineText'" v-model="formValues[formField.Id]" cols="60" rows="3" :placeholder="formField.Placeholder"/>
                         <select v-if="formField.Type=='Choice'" v-model="formValues[formField.Id]" class="form-select-sm">
                             <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
                             <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}</option>
