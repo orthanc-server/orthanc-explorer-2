@@ -4,6 +4,7 @@ import SeriesList from "./SeriesList.vue";
 import { mapState, mapGetters } from "vuex"
 import ResourceButtonGroup from "./ResourceButtonGroup.vue";
 import ResourceDetailText from "./ResourceDetailText.vue";
+import AuditLogs from "./AuditLogs.vue";
 import api from "../orthancApi";
 import LabelsEditor from "./LabelsEditor.vue";
 import SourceType from '../helpers/source-type';
@@ -78,7 +79,7 @@ export default {
             this.labelsComponentKey++; // force refresh
         }
     },
-    components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText, LabelsEditor },
+    components: { SeriesItem, SeriesList, ResourceButtonGroup, ResourceDetailText, LabelsEditor, AuditLogs },
     methods: {
         onDeletedStudy() {
             this.$emit("deletedStudy", this.studyId);
@@ -175,6 +176,11 @@ export default {
                         :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                         :resourceDicomUid="this.studyMainDicomTags.StudyInstanceUID" :studySeries="this.studySeries" @deletedResource="onDeletedStudy">
                     </ResourceButtonGroup>
+                </td>
+            </tr>
+            <tr v-if="uiOptions.EnableAuditLogs">
+                <td colspan="100">
+                    <router-link class="router-link" :to="'/audit-logs?resource-id=' + this.studyId">{{ $t('audit_logs.expand_logs') }}</router-link>
                 </td>
             </tr>
             <tr>

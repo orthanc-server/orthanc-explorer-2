@@ -46,6 +46,7 @@
             "EnableSendTo": true,                       // Enables the 'SendTo' button for Studies/Series/Instances
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
+            "EnableAuditLogs": true,                    // Enables the audit logs menu/interface (provided that the authorization plugin has audit logs enabled)
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
             "EnableViewerQuickButton": true,            // Enables a button in the study list to directly open a viewer

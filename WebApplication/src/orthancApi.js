@@ -631,38 +631,6 @@ export default {
         const response = (await axios.post(orthancApiUrl + monitorUrl, commitResponse))
         return response.data;
     },
-    // async commitInboxChunked(commitUrl, orthancStudiesIds, formFields) {
-    //     axios.post(orthancApiUrl + commitUrl, {
-    //         "OrthancStudiesIds": orthancStudiesIds,
-    //         "FormFields": formFields
-    //     }, {onDownloadProgress: (progressEvent) => {
-    //         console.log('Received chunk: ', progressEvent.event.target.responseText);
-    //     }},)
-    //     // .then(response => {
-    //     //     response.data.on('data', chunk => {
-    //     //         console.log("chunk-data", chunk);
-    //     //     });
-    //     //     response.data.on('end', () => {
-    //     //         console.log("chunk-end");
-    //     //     });
-    //     // } )
-
-    //     return "";
-    //     // axios.post(orthancApiUrl + commitUrl, {
-    //     //     "OrthancStudiesIds": orthancStudiesIds,
-    //     //     "FormFields": formFields
-    //     // }, {responseType: 'stream'})
-    //     // .then(response => {
-    //     //     response.data.on('data', chunk => {
-    //     //         console.log("chunk-data", chunk);
-    //     //     });
-    //     //     response.data.on('end', () => {
-    //     //         console.log("chunk-end");
-    //     //     });
-    //     // } )
-
-    //     // return "";
-    // },
     async validateInboxForm(validationUrl, formFields) {
         const response = (await axios.post(orthancApiUrl + validationUrl, {
             "FormFields": formFields
@@ -670,7 +638,16 @@ export default {
 
         return response.data;
     },
+    async getAuditLogsForResource(filters) {
+        const getArguments = new URLSearchParams();
+        if (filters) {
+            for (const [key, value] of Object.entries(filters)) {
+                getArguments.append(key, value);
+            }
+        }
 
+        return (await axios.get(orthancApiUrl + "plugins/postgresql/audit-logs?" + getArguments.toString())).data;
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {

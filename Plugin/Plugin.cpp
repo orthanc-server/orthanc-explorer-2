@@ -46,6 +46,7 @@ bool hasUserProfile_ = false;
 bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
 bool isReadOnly_ = false;
+bool hasAuditLogs_ = false;
 std::string customCssPath_;
 std::string theme_ = "light";
 std::string customLogoPath_;
@@ -346,6 +347,14 @@ void ReadConfiguration()
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
   
   isReadOnly_ = orthancFullConfiguration_->GetBooleanValue("ReadOnly", false);
+
+  if (orthancFullConfiguration_->IsSection("Authorization"))
+  {
+    OrthancPlugins::OrthancConfiguration authPluginConfiguration(false);
+    orthancFullConfiguration_->GetSection(authPluginConfiguration, "Authorization");
+
+    hasAuditLogs_ = authPluginConfiguration.GetBooleanValue("EnableAuditLogs", false);
+  }
 }
 
 bool GetPluginConfiguration(Json::Value& jsonPluginConfiguration, const std::string& sectionName)
@@ -704,6 +713,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableViewerQuickButton"], permissions, "all|view");
         UpdateUiOptions(uiOptions["EnableReportQuickButton"], permissions, "all|view");
         UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
+        UpdateUiOptions(uiOptions["EnableAuditLogs"], permissions, "admin-permissions|audit-logs");
         UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
         UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
         UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
@@ -739,8 +749,10 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       uiOptions["EnablePermissionsEdition"] = false;
     }
 
-
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
+
+    uiOptions["EnableAuditLogs"] = uiOptions["EnableAuditLogs"].asBool() && hasAuditLogs_;
+
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
   }

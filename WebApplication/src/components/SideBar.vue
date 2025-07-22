@@ -259,6 +259,12 @@ export default {
                         </li>
                     </ul>
 
+                    <li v-if="uiOptions.EnableAuditLogs" class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/audit-logs">
+                            <i class="fa fa-solid fa-table-list menu-icon"></i>{{ $t('audit_logs.side_bar_title') }}
+                        </router-link>
+                    </li>
+
                     <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center fix-router-link">
                         <a v-bind:href="this.orthancApiUrl + 'app/explorer.html'">
                             <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t('legacy_ui') }}

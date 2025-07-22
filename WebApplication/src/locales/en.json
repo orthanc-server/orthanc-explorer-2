@@ -10,6 +10,16 @@
     },
     "all_modalities": "All",
     "anonymize": "Anonymize",
+    "audit_logs": {
+        "column_title_time_stamp": "Date",
+        "column_title_user_id": "User",
+        "column_title_resource_id": "Resource",
+        "column_title_action": "Action",
+        "column_title_log_data": "Data",
+        "expand_logs": "Show audit logs",
+        "hide_logs": "Hide audit logs",
+        "side_bar_title": "Audit Logs"
+    },
     "cancel": "Cancel",
     "change_password": "Change password",
     "close": "Close",
