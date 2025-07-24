@@ -108,7 +108,8 @@ export default {
                 <td class="cut-text">{{ log.Timestamp }}</td>
                 <td v-if="showUser" class="cut-text">
                     <router-link class="router-link" :to="'/audit-logs?user-id=' + log.UserId">
-                            {{ log.UserId }}
+                            <span v-if="log.UserName">{{ log.UserName }}</span>
+                            <span v-else>{{ log.UserId }}</span>
                     </router-link>
                 </td>
                 <td v-if="showResource" class="cut-text">

@@ -646,7 +646,7 @@ export default {
             }
         }
 
-        return (await axios.get(orthancApiUrl + "plugins/postgresql/audit-logs?" + getArguments.toString())).data;
+        return (await axios.get(orthancApiUrl + "auth/audit-logs?" + getArguments.toString())).data;
     },
 
     ////////////////////////////////////////// HELPERS
