@@ -8,6 +8,7 @@ export default {
         return {
             logs: {},
             updatingRouteWithoutReload: false,
+            currentFilters: {}
         };
     },
     computed: {
@@ -32,15 +33,7 @@ export default {
         },
         isConfigurationLoaded(newValue, oldValue) {
             // this is called when opening the page (with a filter or not)
-            // // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
-            // this.initModalityFilter();
-            // for (const tag of this.uiOptions.StudyListColumns) {
-            //     if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
-            //         this.filterGenericTags[tag] = '';
-            //     }
-            // }
             this.updateFromRoute(this.$route.query);
-            // setTimeout(() => {this.showMultiLabelsFilter = true}, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         },
     },
     async mounted() {
@@ -48,11 +41,11 @@ export default {
     },
     methods: {
         async updateFromRoute(filters) {
-            // console.log("StudyList: updateFilterFromRoute", this.updatingFilterUi, filters);
             this.logs = [];
             // console.log(filters);
 
-            const _logs = await api.getAuditLogsForResource(filters);
+            const _logs = await api.getAuditLogs(filters);
+            this.currentFilters = filters;
             let uploadedInstanceGroup = [];
 
             for (const log of _logs) {
@@ -74,10 +67,9 @@ export default {
                 }
             }
         },
-        // formatTimestamp(ts) {
-        //     const date = new Date(ts * 1000);
-        //     return 
-        // }
+        async downloadAsCsv() {
+            api.getAuditLogs(this.currentFilters, true);
+        }
     }
 }
 </script>
@@ -86,6 +78,9 @@ export default {
     <div>
         <!-- <a v-if="!expanded" @click="toggleLogs($event)" href="#">{{ $t('audit_logs.expand_logs') }}</a>
         <a v-if="expanded" @click="toggleLogs($event)" href="#">{{ $t('audit_logs.hide_logs') }}</a> -->
+        <div class="text-end">
+            <button type="button" class="btn btn-primary btn-sm m-1" @click="downloadAsCsv()">{{ $t('audit_logs.download_as_csv') }}</button>
+        </div>
         <table class="table table-responsive table-sm audit-logs-table">
             <thead>
                 <tr>

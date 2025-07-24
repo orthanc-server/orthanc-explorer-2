@@ -638,15 +638,20 @@ export default {
 
         return response.data;
     },
-    async getAuditLogsForResource(filters) {
+    async getAuditLogs(filters, downloadAsCsv) {
         const getArguments = new URLSearchParams();
         if (filters) {
             for (const [key, value] of Object.entries(filters)) {
                 getArguments.append(key, value);
             }
         }
-
-        return (await axios.get(orthancApiUrl + "auth/audit-logs?" + getArguments.toString())).data;
+        
+        if (downloadAsCsv) {
+            getArguments.append("format", "csv");
+            this.downloadFileWithAuthHeaders(orthancApiUrl + "auth/audit-logs?" + getArguments.toString());
+        } else {
+            return (await axios.get(orthancApiUrl + "auth/audit-logs?" + getArguments.toString())).data;
+        }
     },
 
     ////////////////////////////////////////// HELPERS

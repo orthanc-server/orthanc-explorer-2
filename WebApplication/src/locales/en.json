@@ -16,6 +16,7 @@
         "column_title_resource_id": "Resource",
         "column_title_action": "Action",
         "column_title_log_data": "Data",
+        "download_as_csv": "Download as CSV",
         "expand_logs": "Show audit logs",
         "hide_logs": "Hide audit logs",
         "side_bar_title": "Audit Logs"
