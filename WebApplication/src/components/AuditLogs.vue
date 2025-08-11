@@ -118,7 +118,7 @@ export default {
                             {{ log.LogData['SourceResourceId'] }}
                     </router-link>{{  }}
                 </td>
-                <td v-else-if="log.Action == 'success-anonymization'" class="log-data">
+                <td v-else-if="log.Action == 'success-anonymization-job' || log.Action == 'success-modification-job'" class="log-data">
                     <span class="log-data-title">output</span>:  <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.LogData['ModifiedResourceId']">
                             {{ log.LogData['ModifiedResourceId'] }}
                     </router-link>{{  }}
