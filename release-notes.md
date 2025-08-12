@@ -4,9 +4,10 @@ Pending changes
 Changes:
 - Implemented a new /ui/app/inbox.html route to upload and possibly process files
   during upload thanks to a custom python plugin.  
-  Check the "Inbox" configuration (TODO: doc)
+  Check the "Inbox" configuration.
 - Added support to display audit-logs (provided that they are enabled in the
-  authorization plugin and that you are using postgreSQL DB).
+  authorization plugin and that you are using a PostgreSQL DB).
+
 Fixes:
 - Quick viewer button did not work if medDream was the only configured viewer and
   if ViewersOrdering had the default value.
