@@ -76,6 +76,11 @@
     "file": "Fichier",
     "files": "fichiers",
     "frames": "Frames",
+    "inbox" : {
+        "generic_intro_text": "Bienvenue sur la page de dépôt d'examens.",
+        "fill_form_first": "Remplissez le formulaire avant de déposer les examens",
+        "reload_inbox": "Déposer un autre examen"
+    },
     "instance": "Élément",
     "instances": "Instances",
     "instances_count_header": "# instances",    
@@ -270,6 +275,7 @@
     },
     "trace": "Trace",
     "upload": "Importer",
+    "uploaded_count_studies": "{count} examens importés",
     "uploaded_studies": "Examens importés",
     "verbose": "Verbose",
     "view_in_meddream": "Visualiser avec MedDream",

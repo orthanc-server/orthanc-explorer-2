@@ -80,11 +80,13 @@ function readFileAsync(file) {
 }
 
 export default {
-    props: [],
+    props: ["showStudyDetails", "uploadDisabled", "uploadDisabledMessage", "singleUse", "disableCloseReport"],
+    emits: ["uploadCompleted"],
     data() {
         return {
             uploadCounter: 0,
-            lastUploadReports: {}
+            lastUploadReports: {},
+            disabledAfterUpload: false
         };
     },
     mounted() {
@@ -110,14 +112,19 @@ export default {
             let studyId = uploadedFileResponse["ParentStudy"];
             if (!this.lastUploadReports[uploadId].uploadedStudiesIds.has(studyId)) {
                 this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
-                const studyResponse = await api.getStudy(studyId);
-                this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
-
-                this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId, reloadStats: true });
+                
+                if (this.showStudyDetails) {
+                    const studyResponse = await api.getStudy(studyId);
+                    this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
+                    this.$store.dispatch('studies/addStudy', { study: studyResponse, studyId: studyId, reloadStats: true });
+                }
             }
         },
         async uploadFiles(files) {
             let uploadId = this.uploadCounter++;
+            if (this.singleUse) {
+                this.disabledAfterUpload = true;
+            }
 
             this.lastUploadReports[uploadId] = {
                 id: uploadId,
@@ -167,13 +174,17 @@ export default {
                     this.lastUploadReports[uploadId].errorMessages[filename] = errorMessage;
                 }
             }
+
+            this.$emit("uploadCompleted", this.lastUploadReports[uploadId].uploadedStudiesIds);
         },
         async uppieUploadHandler(event, formData, files) {
             await this.uploadFiles(event.target.files);
 
             // reset input for next upload
-            document.getElementById('filesUpload').value = null;
-            document.getElementById('foldersUpload').value = null;
+            if (!this.singleUse) {
+                document.getElementById('filesUpload').value = null;
+                document.getElementById('foldersUpload').value = null;
+            }
         }
     },
     components: { UploadReport }
@@ -182,22 +193,23 @@ export default {
 
 <template>
     <div>
-        <div class="upload-handler-drop-zone" @drop="this.onDrop" @dragover="this.onDragOver">
-            <div class="mb-3">{{ $t('drop_files') }}</div>
+        <div v-if="!disabledAfterUpload" class="upload-handler-drop-zone" :class="{'upload-handler-drop-zone-disabled': uploadDisabled}"  @drop="this.onDrop" @dragover="this.onDragOver" :disabled="uploadDisabled">
+            <div v-if="uploadDisabled" class="mb-3">{{ uploadDisabledMessage }}</div>
+            <div v-if="!uploadDisabled" class="mb-3">{{ $t('drop_files') }}</div>
             <div class="mb-3">
-                <label class="btn btn-primary btn-file">
-                    {{ $t('select_folder') }} <input type="file" style="display: none;" id="foldersUpload" required
+                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}" >
+                    {{ $t('select_folder') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="foldersUpload" required
                         multiple directory webkitdirectory allowdirs>
                 </label>
             </div>
             <div class="mb-3">
-                <label class="btn btn-primary btn-file">
-                    {{ $t('select_files') }} <input type="file" style="display: none;" id="filesUpload" required multiple>
+                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}">
+                    {{ $t('select_files') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="filesUpload" required multiple>
                 </label>
             </div>
         </div>
         <div class="upload-report-list">
-            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key"
+            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key" :showStudyDetails="showStudyDetails" :disableCloseReport="disableCloseReport"
                 @deletedUploadReport="onDeletedUploadReport"></UploadReport>
         </div>
     </div>
@@ -213,4 +225,11 @@ export default {
     border-style: dashed;
     border-width: 4px;
 }
+
+.upload-handler-drop-zone-disabled {
+    opacity: 90;
+    border-color: #ff0000d2;
+    cursor: not-allowed;
+}
+
 </style>
