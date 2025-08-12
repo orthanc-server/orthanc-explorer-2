@@ -650,6 +650,7 @@ export default {
             getArguments.append("format", "csv");
             this.downloadFileWithAuthHeaders(orthancApiUrl + "auth/audit-logs?" + getArguments.toString());
         } else {
+            getArguments.append("log-data-format", "json");
             return (await axios.get(orthancApiUrl + "auth/audit-logs?" + getArguments.toString())).data;
         }
     },

@@ -56,7 +56,7 @@ export default {
                     } else {
                         uploadedInstanceGroup.push(log);
                         this.logs[this.logs.length - 1]["Action"] = "uploaded-instances";
-                        this.logs[this.logs.length - 1]["LogData"] = {
+                        this.logs[this.logs.length - 1]["JsonLogData"] = {
                             "Count": uploadedInstanceGroup.length,
                             "Last": log['Timestamp']
                         }
@@ -114,33 +114,33 @@ export default {
                 </td>
                 <td class="cut-text">{{ log.Action }}</td>
                 <td v-if="log.Action == 'new-study-from-anonymization-job'" class="log-data">
-                    <span class="log-data-title">source</span>: <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.LogData['SourceResourceId']">
-                            {{ log.LogData['SourceResourceId'] }}
+                    <span class="log-data-title">source</span>: <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.JsonLogData['SourceResourceId']">
+                            {{ log.JsonLogData['SourceResourceId'] }}
                     </router-link>{{  }}
                 </td>
                 <td v-else-if="log.Action == 'success-anonymization-job' || log.Action == 'success-modification-job'" class="log-data">
-                    <span class="log-data-title">output</span>:  <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.LogData['ModifiedResourceId']">
-                            {{ log.LogData['ModifiedResourceId'] }}
+                    <span class="log-data-title">output</span>:  <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.JsonLogData['ModifiedResourceId']">
+                            {{ log.JsonLogData['ModifiedResourceId'] }}
                     </router-link>{{  }}
                 </td>
                 <td v-else-if="log.Action == 'uploaded-instance'" class="log-data">
-                    instance-id: {{ log.LogData }}
+                    instance-id: {{ log.JsonLogData }}
                 </td>
                 <td v-else-if="log.Action == 'uploaded-instances'" class="log-data">
-                    <span class="log-data-title"># instances</span>: {{ log.LogData['Count'] }}<br/>
-                    <span class="log-data-title">last upload</span>: {{ log.LogData['Last'] }}
+                    <span class="log-data-title"># instances</span>: {{ log.JsonLogData['Count'] }}<br/>
+                    <span class="log-data-title">last upload</span>: {{ log.JsonLogData['Last'] }}
                 </td>
                 <td v-else-if="log.Action == 'start-anonymization-job'" class="log-data">
                     <span class="log-data-title">replaced</span>:<br/>
-                    <span v-for="(v, k) in log.LogData['Payload']['Replace']" :key="k">{{ k + ": " + v }}<br/></span>
+                    <span v-for="(v, k) in log.JsonLogData['Payload']['Replace']" :key="k">{{ k + ": " + v }}<br/></span>
                 </td>
                 <td v-else-if="log.Action == 'start-modification-job'" class="log-data">
                     <span class="log-data-title">replaced</span>:<br/>
-                    <span v-for="(v, k) in log.LogData['Payload']['Replace']" :key="k">{{ k + ": " + v }}<br/></span>
+                    <span v-for="(v, k) in log.JsonLogData['Payload']['Replace']" :key="k">{{ k + ": " + v }}<br/></span>
                     <span class="log-data-title">original-values</span>:<br/>
-                    <span v-for="(v, k) in log.LogData['TagsBeforeModification']" :key="k">{{ k + ": " + v }}<br/></span>
+                    <span v-for="(v, k) in log.JsonLogData['TagsBeforeModification']" :key="k">{{ k + ": " + v }}<br/></span>
                 </td>
-                <td v-else class="log-data">{{ log.LogData }}</td>
+                <td v-else class="log-data">{{ log.JsonLogData }}</td>
             </tr>
         </table>
     </div>
