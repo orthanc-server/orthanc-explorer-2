@@ -1,10 +1,10 @@
-Pending changes
-===============
+1.9.0 (2025-08-13)
+==================
 
 Changes:
 - Implemented a new /ui/app/inbox.html route to upload and possibly process files
   during upload thanks to a custom python plugin.  
-  Check the "Inbox" configuration.
+  Check the "Inbox" configuration for documentation.
 - Added support to display audit-logs (provided that they are enabled in the
   authorization plugin and that you are using a PostgreSQL DB).
 
