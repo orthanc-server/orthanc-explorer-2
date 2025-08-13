@@ -1,12 +1,14 @@
 <script>
 import api from "../orthancApi"
 import { mapState } from "vuex"
+import dateHelpers from "../helpers/date-helpers"
 
 export default {
     props: ['resourceId'],
     data() {
         return {
             logs: {},
+            auditLogsTimeRange: null,
             updatingRouteWithoutReload: false,
             currentFilters: {}
         };
@@ -23,7 +25,14 @@ export default {
         showUser() {
             return true;
             // return this.resourceId !== undefined;
-        }
+        },
+        isDarkMode() {
+            // hack to switch the theme: get the value from our custom css
+            let bootstrapTheme = document.documentElement.getAttribute("data-bs-theme"); // for production
+            bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');  // for dev
+            console.log("DatePicker color mode is ", bootstrapTheme);
+            return bootstrapTheme == "dark";
+        },
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -35,6 +44,20 @@ export default {
             // this is called when opening the page (with a filter or not)
             this.updateFromRoute(this.$route.query);
         },
+        async auditLogsTimeRange(newValue, oldValue) {
+            //  make a copy otherwise, the router does not see that the object has changed 
+            let query = {...this.$route.query};
+
+            if (this.auditLogsTimeRange && this.auditLogsTimeRange.length >= 2) {
+                query["from-timestamp"] = this.auditLogsTimeRange[0].toISOString();
+                query["to-timestamp"] = this.auditLogsTimeRange[1].toISOString();
+            } else {
+                delete query["from-timestamp"];
+                delete query["to-timestamp"];
+            }
+
+            this.$router.push({name: 'audit-logs', query: query});
+        }
     },
     async mounted() {
         this.updateFromRoute(this.$route.query);
@@ -47,23 +70,24 @@ export default {
             const _logs = await api.getAuditLogs(filters);
             this.currentFilters = filters;
             let uploadedInstanceGroup = [];
-
-            for (const log of _logs) {
-                if (log['Action'] == "uploaded-instance") {
-                    if (uploadedInstanceGroup.length == 0) {
-                        this.logs.push(log);
-                        uploadedInstanceGroup.push(log);
-                    } else {
-                        uploadedInstanceGroup.push(log);
-                        this.logs[this.logs.length - 1]["Action"] = "uploaded-instances";
-                        this.logs[this.logs.length - 1]["JsonLogData"] = {
-                            "Count": uploadedInstanceGroup.length,
-                            "Last": log['Timestamp']
+            if (_logs) {
+                for (const log of _logs) {
+                    if (log['Action'] == "uploaded-instance") {
+                        if (uploadedInstanceGroup.length == 0) {
+                            this.logs.push(log);
+                            uploadedInstanceGroup.push(log);
+                        } else {
+                            uploadedInstanceGroup.push(log);
+                            this.logs[this.logs.length - 1]["Action"] = "uploaded-instances";
+                            this.logs[this.logs.length - 1]["JsonLogData"] = {
+                                "Count": uploadedInstanceGroup.length,
+                                "Last": log['Timestamp']
+                            }
                         }
+                    } else {
+                        this.logs.push(log);
+                        uploadedInstanceGroup = [];
                     }
-                } else {
-                    this.logs.push(log);
-                    uploadedInstanceGroup = [];
                 }
             }
         },
@@ -78,8 +102,23 @@ export default {
     <div>
         <!-- <a v-if="!expanded" @click="toggleLogs($event)" href="#">{{ $t('audit_logs.expand_logs') }}</a>
         <a v-if="expanded" @click="toggleLogs($event)" href="#">{{ $t('audit_logs.hide_logs') }}</a> -->
+        <div class="row">
+            <div class="col-3">
+                Select date range:
+            </div>
+            <div class="col-6">
+                <Datepicker v-model="auditLogsTimeRange" :range="true"
+                                    :enable-time-picker="true" format="yyyy-MM-dd HH:mm:ss"
+                                    preview-format="yyyy-MM-dd HH:mm:ss" arrow-navigation :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
+                                </Datepicker>
+
+            </div>
+            <div class="col-3">
+                <button type="button" class="btn btn-primary btn-sm m-1" @click="downloadAsCsv()">{{ $t('audit_logs.download_as_csv') }}</button>
+            </div>
+        </div>
         <div class="text-end">
-            <button type="button" class="btn btn-primary btn-sm m-1" @click="downloadAsCsv()">{{ $t('audit_logs.download_as_csv') }}</button>
+            
         </div>
         <table class="table table-responsive table-sm audit-logs-table">
             <thead>
