@@ -433,7 +433,7 @@
             //     "Id": "Comments",
             //     "Placeholder": "Any comments ?"
             // }, {
-            //     "Type" : "PdfFile",  // An upload button to select a PDF file
+            //     "Type" : "File",  // An upload button to select a file
             //     "Title": "PDF form",
             //     "Id": "PdfForm"
             // }

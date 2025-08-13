@@ -99,7 +99,23 @@ export default {
         async updateFormValidity() {
             let allValid = true;
 
-            const response = await api.validateInboxForm(this.inboxConfig['FormValidationUrl'], this.formValues);
+            // update all fiels for formValidation except the files entries that have already been populated
+            let formValuesForValidation = {};
+            for (const formField of this.formFields) {
+                if (formField.Type == 'File' && this.formValues[formField.Id]) {
+                    // send only the content-type for the validation of a file
+                    const splitFile = this.formValues[formField.Id].split(',');
+                    if (splitFile.length > 0) {
+                        formValuesForValidation[formField.Id] = splitFile[0];
+                    } else {
+                        formValuesForValidation[formField.Id] = null;
+                    }
+                } else {
+                    formValuesForValidation[formField.Id] = this.formValues[formField.Id];
+                }
+            }
+
+            const response = await api.validateInboxForm(this.inboxConfig['FormValidationUrl'], formValuesForValidation);
 
             for (const formField of this.formFields) {
                 if (formField.Id in response) {
@@ -194,8 +210,8 @@ export default {
                 console.error("login for password change failed", error);
             })
         },
-        submitPdf(formField, event) {
-            console.log("SubmitPdf: ", formField, event);
+        submitFile(formField, event) {
+            console.log("SubmitFile: ", formField, event);
             const file = event.target.files[0];
             const reader = new FileReader();
             const that = this;
@@ -336,7 +352,7 @@ export default {
                         <select v-if="formField.Type=='UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm" disabled>
                             <option selected :value="getUserGroupsChoices(formField)[0]">{{ getUserGroupsChoices(formField)[0] }}</option>
                         </select>
-                        <input v-if="formField.Type=='PdfFile'" v-on:change="submitPdf(formField, $event)" type="file" />
+                        <input v-if="formField.Type=='File'" v-on:change="submitFile(formField, $event)" type="file" />
                         <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
                         <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
                     </div>
