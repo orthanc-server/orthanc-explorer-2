@@ -10,6 +10,17 @@
     },
     "all_modalities": "All",
     "anonymize": "Anonymize",
+    "audit_logs": {
+        "column_title_time_stamp": "Date",
+        "column_title_user_id": "User",
+        "column_title_resource_id": "Resource",
+        "column_title_action": "Action",
+        "column_title_log_data": "Data",
+        "download_as_csv": "Download as CSV",
+        "expand_logs": "Show audit logs",
+        "hide_logs": "Hide audit logs",
+        "side_bar_title": "Audit Logs"
+    },
     "cancel": "Cancel",
     "change_password": "Change password",
     "close": "Close",
@@ -76,6 +87,11 @@
     "file": "File",
     "files": "files",
     "frames": "frames",
+    "inbox" : {
+        "generic_intro_text": "Welcome to the Orthanc inbox.",
+        "fill_form_first": "Fill the form before uploading files",
+        "reload_inbox": "Upload a new study"
+    },
     "instance": "Instance",
     "instances": "Instances",
     "instances_count_header": "# instances",
@@ -270,6 +286,7 @@
     },
     "trace": "Trace",
     "upload": "Upload",
+    "uploaded_count_studies": "Uploaded {count} studies",
     "uploaded_studies": "Uploaded studies",
     "verbose": "Verbose",
     "view_in_meddream": "View in MedDream",

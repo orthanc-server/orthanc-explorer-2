@@ -46,6 +46,7 @@
             "EnableSendTo": true,                       // Enables the 'SendTo' button for Studies/Series/Instances
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
             "EnableSettings": true,                     // Enables the settings menu/interface
+            "EnableAuditLogs": true,                    // Enables the audit logs menu/interface (provided that the authorization plugin has audit logs enabled)
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
             "EnableChangePassword": true,               // Enables the 'change password' button in the side bar.  Only applicable if Keycloak is enabled
             "EnableViewerQuickButton": true,            // Enables a button in the study list to directly open a viewer
@@ -380,6 +381,63 @@
             // OE2 will then display a "Save As" dialog (for security reasons, the browser can not initiate writing to local disk without a user interaction)
             // and the HTTP response will stream to disk.  Note that this might not work on all browsers.
             "DownloadInstantLinksUseRestApiWithAuthHeaders": false    
-        }
+        },
+
+        // Configure the /ui/app/inbox.html page where users can fill a form and drop files that are then processed by a custom plugin (that you need to provide).
+        // Check this repo for a real life sample: https://github.com/orthanc-team/orthanc-auth-service/tree/main/minimal-setup/keycloak-inbox
+        "Inbox": {
+            "Enable": false,
+            
+            // If Keycloack is enabled, this configuration allows unauthenticated users to access the inbox page.
+            "EnableAnonymousAccess": false,
+            
+            // Title to display on the inbox page
+            "Title": "Welcome on the Orthanc inbox",
+            
+            // Various texts to display on the inbox page
+            "IntroTextHtml": "<p>Welcome to this inbox.</p><p>First fill the form and once all fields are valid, upload your DICOM files.</p><p>Wait for the processing to complete.</p>",
+            "SuccessTextHtml": "<p>All files have been processed successfully.</p><p></p>",
+            "FailureTextHtml": "<p>A problem occurred while processing the DICOM Files.</p><p>Please try again or contact the administrator</p>",
+            
+            // The route that is called after all files have been uploaded.  You must implement it in a plugin.  Check the sample repo for a real life example.
+            // "CommitUrl": "../../plugins/inbox/commit",
+            
+            // The route that is called to validate the form.  You must implement it in a plugin.  Check the sample repo for a real life example.
+            // "FormValidationUrl": "../../plugins/inbox/validate-form",
+            
+            // The route that is called to display the process progress.  You must implement it in a plugin.  Check the sample repo for a real life example.
+            // "ProcessingMonitoringUrl": "../../plugins/inbox/monitor-processing",
+            
+            // Define the form fields that the user must fill before uploading the files
+            // "FormFields": [
+            //{
+            //     "Type" : "Text",  // A standard text field
+            //     "Title": "Subject ID",
+            //     "Id": "SubjectId",
+            //     "Placeholder": "ex: SUB-253"
+            // }, {
+            //     "Type" : "Choice", // A drop-down box
+            //     "Title": "Visit ID",
+            //     "Id": "VisitId",
+            //     "Choices": ["T0", "T0 + 6 months", "T0 + 12 months", "T0 + 18 months", "T0 + 24 months"],
+            //     "Placeholder": "Select a visit"
+            // }, {
+            //     "Type" : "UserGroupsChoice", // A drop-down allowing to select one of the groups from the user profile
+            //     "Title": "Site ID",
+            //     "Id": "SiteId",
+            //     "GroupsRegex": "\/site-groups-(.*)",  // e.g: if group is "/site-groups-hospital-a", "hospital-a" is captured and displayed
+            //     "Placeholder": "Select your site"
+            // }, {
+            //     "Type" : "MultilineText", // A multiline form
+            //     "Title": "Comments",
+            //     "Id": "Comments",
+            //     "Placeholder": "Any comments ?"
+            // }, {
+            //     "Type" : "File",  // An upload button to select a file
+            //     "Title": "PDF form",
+            //     "Id": "PdfForm"
+            // }
+        // ]
+      }
     }
 }

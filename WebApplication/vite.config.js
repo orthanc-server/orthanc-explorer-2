@@ -17,7 +17,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         landing: resolve(__dirname, 'token-landing.html'),
-        retrieve: resolve(__dirname, 'retrieve-and-view.html')
+        retrieve: resolve(__dirname, 'retrieve-and-view.html'),
+        inbox: resolve(__dirname, 'inbox.html')
       },
     }
   },

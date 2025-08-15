@@ -203,7 +203,7 @@ export default {
                         <span class="ms-auto"></span>
                     </li>
                     <div v-if="uiOptions.EnableUpload" class="collapse" id="upload-handler">
-                        <UploadHandler />
+                        <UploadHandler :showStudyDetails="true"/>
                     </div>
 
                     <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"
@@ -258,6 +258,12 @@ export default {
                             <router-link class="router-link" to="/settings-permissions">{{ $t('settings.permissions') }}</router-link>
                         </li>
                     </ul>
+
+                    <li v-if="uiOptions.EnableAuditLogs" class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/audit-logs">
+                            <i class="fa fa-solid fa-table-list menu-icon"></i>{{ $t('audit_logs.side_bar_title') }}
+                        </router-link>
+                    </li>
 
                     <li v-if="uiOptions.EnableLinkToLegacyUi" class="d-flex align-items-center fix-router-link">
                         <a v-bind:href="this.orthancApiUrl + 'app/explorer.html'">

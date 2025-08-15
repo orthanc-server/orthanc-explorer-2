@@ -19,6 +19,10 @@ UI improvements:
   - show the list of /tools/accepted-transfer-syntaxes
   - show the list of /tools/accepted-sop-classes (in 1.12.6)
 
+- Add a PDF/Image dicomization (https://discourse.orthanc-server.org/t/orthanc-explorer-2-dicomization-feature-suggestion/6061/4).
+  Not to attach a new series to an existing study but to create a new study.
+
+
 - show attachments
 
 - support neuro plugin (download nifti)

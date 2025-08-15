@@ -619,6 +619,42 @@ export default {
 
         })
     },
+    async commitInbox(commitUrl, orthancStudiesIds, formFields) {
+        const response = (await axios.post(orthancApiUrl + commitUrl, {
+            "OrthancStudiesIds": orthancStudiesIds,
+            "FormFields": formFields
+        }))
+
+        return response.data;
+    },
+    async monitorInboxProcessing(monitorUrl, commitResponse) {
+        const response = (await axios.post(orthancApiUrl + monitorUrl, commitResponse))
+        return response.data;
+    },
+    async validateInboxForm(validationUrl, formFields) {
+        const response = (await axios.post(orthancApiUrl + validationUrl, {
+            "FormFields": formFields
+        }))
+
+        return response.data;
+    },
+    async getAuditLogs(filters, downloadAsCsv) {
+        const getArguments = new URLSearchParams();
+        if (filters) {
+            for (const [key, value] of Object.entries(filters)) {
+                getArguments.append(key, value);
+            }
+        }
+        
+        getArguments.append("log-data-format", "json");
+
+        if (downloadAsCsv) {
+            getArguments.append("format", "csv");
+            this.downloadFileWithAuthHeaders(orthancApiUrl + "auth/audit-logs?" + getArguments.toString());
+        } else {
+            return (await axios.get(orthancApiUrl + "auth/audit-logs?" + getArguments.toString())).data;
+        }
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {

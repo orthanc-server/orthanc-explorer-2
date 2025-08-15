@@ -46,6 +46,7 @@ bool hasUserProfile_ = false;
 bool openInOhifV3IsExplicitelyDisabled = false;
 bool enableShares_ = false;
 bool isReadOnly_ = false;
+bool hasAuditLogs_ = false;
 std::string customCssPath_;
 std::string theme_ = "light";
 std::string customLogoPath_;
@@ -346,6 +347,14 @@ void ReadConfiguration()
   enableShares_ = pluginJsonConfiguration_["UiOptions"]["EnableShares"].asBool(); // we are sure that the value exists since it is in the default configuration file
   
   isReadOnly_ = orthancFullConfiguration_->GetBooleanValue("ReadOnly", false);
+
+  if (orthancFullConfiguration_->IsSection("Authorization"))
+  {
+    OrthancPlugins::OrthancConfiguration authPluginConfiguration(false);
+    orthancFullConfiguration_->GetSection(authPluginConfiguration, "Authorization");
+
+    hasAuditLogs_ = authPluginConfiguration.GetBooleanValue("EnableAuditLogs", false);
+  }
 }
 
 bool GetPluginConfiguration(Json::Value& jsonPluginConfiguration, const std::string& sectionName)
@@ -404,6 +413,19 @@ Json::Value GetTokenLandingConfiguration()
   if (pluginJsonConfiguration_.isMember("Tokens") && pluginJsonConfiguration_["Tokens"].isMember("LandingOptions"))
   {
     return pluginJsonConfiguration_["Tokens"]["LandingOptions"];
+  }
+
+  return Json::nullValue;
+}
+
+Json::Value GetInboxConfiguration()
+{
+  if (pluginJsonConfiguration_.isMember("Inbox"))
+  {
+    if (pluginJsonConfiguration_["Inbox"].isMember("Enable") && pluginJsonConfiguration_["Inbox"]["Enable"].asBool())
+    {
+      return pluginJsonConfiguration_["Inbox"];
+    }
   }
 
   return Json::nullValue;
@@ -691,6 +713,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableViewerQuickButton"], permissions, "all|view");
         UpdateUiOptions(uiOptions["EnableReportQuickButton"], permissions, "all|view");
         UpdateUiOptions(uiOptions["EnableUpload"], permissions, "all|upload");
+        UpdateUiOptions(uiOptions["EnableAuditLogs"], permissions, "admin-permissions|audit-logs");
         UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
         UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
         UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
@@ -726,8 +749,10 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
       uiOptions["EnablePermissionsEdition"] = false;
     }
 
-
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
+
+    uiOptions["EnableAuditLogs"] = uiOptions["EnableAuditLogs"].asBool() && hasAuditLogs_;
+
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
   }
@@ -748,6 +773,7 @@ void GetOE2PreLoginConfiguration(OrthancPluginRestOutput* output,
     Json::Value oe2Configuration;
     oe2Configuration["Keycloak"] = GetKeycloakConfiguration();
     oe2Configuration["TokensLandingOptions"] = GetTokenLandingConfiguration();
+    oe2Configuration["Inbox"] = GetInboxConfiguration();
 
     std::string answer = oe2Configuration.toStyledString();
     OrthancPluginAnswerBuffer(context, output, answer.c_str(), answer.size(), "application/json");
@@ -866,6 +892,9 @@ extern "C"
         OrthancPlugins::RegisterRestCallback
           <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INDEX_RETRIEVE_AND_VIEW, Orthanc::MimeType_Html> >
           (oe2BaseUrl_ + "app/retrieve-and-view.html", true);
+        OrthancPlugins::RegisterRestCallback
+          <ServeEmbeddedFile<Orthanc::EmbeddedResources::WEB_APPLICATION_INBOX, Orthanc::MimeType_Html> >
+          (oe2BaseUrl_ + "app/inbox.html", true);
         
         if (customFavIconPath_.empty())
         {
