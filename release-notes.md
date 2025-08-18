@@ -1,3 +1,10 @@
+Changes not released yet
+========================
+
+Changes:
+- Added Japanese translations.
+
+
 1.9.0 (2025-08-13)
 ==================
 
