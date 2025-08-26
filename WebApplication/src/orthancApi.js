@@ -383,8 +383,8 @@ export default {
         const response = (await axios.post(orthancApiUrl + "tools/find", payload));
         return response.data;
     },
-    async getStudyInstances(orthancId) {
-        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/instances")).data;
+    async getStudyInstancesIds(orthancId) {
+        return (await axios.get(orthancApiUrl + "studies/" + orthancId + "/instances?expand=false")).data;
     },
     async getStudyInstancesExpanded(orthancId, requestedTags) {
         let url = orthancApiUrl + "studies/" + orthancId + "/instances?expanded";
@@ -411,7 +411,7 @@ export default {
         }
     },
     async getInstanceTags(orthancId) {
-        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags")).data;
+        return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags?ignore-length=VisitComments")).data;
     },
     async getSimplifiedInstanceTags(orthancId) {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/tags?simplify")).data;

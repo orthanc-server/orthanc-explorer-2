@@ -8,6 +8,8 @@ Changes:
 Fixes:
 - Fix [#34](https://github.com/orthanc-server/orthanc-auth-service/issues/34): 
   Added a language picker in the token landing page + use the `UiOptions.DefaultLanguage` configuration.
+- Now displaying the VisitComments tag in the study details even if it is longer than 256 characters (provided it 
+  is included in the `UiOptions.StudyMainTags` configuration)
 
 
 1.9.0 (2025-08-13)

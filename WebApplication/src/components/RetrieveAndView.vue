@@ -108,7 +108,7 @@ export default {
                         this.studyOrthancId = study['ID'];
                     }
                 } else {
-                    const instances = await api.getStudyInstances(this.studyOrthancId);
+                    const instances = await api.getStudyInstancesIds(this.studyOrthancId);
                     this.retrievedInstancesCount = instances.length;
                 }
 
