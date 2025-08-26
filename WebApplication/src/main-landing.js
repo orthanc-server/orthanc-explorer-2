@@ -8,6 +8,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css"
 import store from "./store"
 import orthancApi from './orthancApi'
 import axios from 'axios'
+import mitt from "mitt"
 
 
 // Names of the params that can contain an authorization token
@@ -19,25 +20,28 @@ const VALID_TOKEN_PARAMS = ["token", "auth-token", "authorization"];
 // before initialization, we must load part of the configuration to know if we need to enable Keycloak or not
 axios.get('../api/pre-login-configuration').then((config) => {
 
-  const app = createApp(AppLanding)
-  
-  app.config.globalProperties.$appConfig = {'TokensLandingOptions': config.data['TokensLandingOptions']};
+    const app = createApp(AppLanding)
+    const messageBus = mitt();
 
-  app.use(store)
-  app.use(i18n)
+    app.config.globalProperties.$appConfig = { 'TokensLandingOptions': config.data['TokensLandingOptions'] };
 
-  // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API
-  const params = new URLSearchParams(window.location.search);
+    app.use(store)
+    app.use(i18n)
 
-  for (let paramName of VALID_TOKEN_PARAMS) {
-      const paramValue = params.get(paramName);
+    app.config.globalProperties.messageBus = messageBus;
 
-      if (!paramValue) continue;
+    // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API
+    const params = new URLSearchParams(window.location.search);
 
-      localStorage.setItem(paramName, paramValue);
-      orthancApi.updateAuthHeader(paramName);
-  }
+    for (let paramName of VALID_TOKEN_PARAMS) {
+        const paramValue = params.get(paramName);
 
-  app.mount('#app-landing')
+        if (!paramValue) continue;
+
+        localStorage.setItem(paramName, paramValue);
+        orthancApi.updateAuthHeader(paramName);
+    }
+
+    app.mount('#app-landing')
 
 });

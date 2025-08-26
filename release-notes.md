@@ -1,3 +1,11 @@
+Pending changes (not released yet)
+==================================
+
+Fixes:
+- Fix [#34](https://github.com/orthanc-server/orthanc-auth-service/issues/34): 
+  Added a language picker in the token landing page + use the `UiOptions.DefaultLanguage` configuration.
+
+
 1.9.0 (2025-08-13)
 ==================
 
