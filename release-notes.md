@@ -1,5 +1,9 @@
-Pending changes (not released yet)
-==================================
+
+Changes not released yet
+========================
+
+Changes:
+- Added Japanese translations.
 
 Fixes:
 - Fix [#34](https://github.com/orthanc-server/orthanc-auth-service/issues/34): 
