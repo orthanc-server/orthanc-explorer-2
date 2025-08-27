@@ -12,6 +12,7 @@ Fixes:
   Added a language picker in the token landing page + use the `UiOptions.DefaultLanguage` configuration.
 - Now displaying the VisitComments tag in the study details even if it is longer than 256 characters (provided it 
   is included in the `UiOptions.StudyMainTags` configuration)
+- Fix the MediaStorageSOPClassUID of STL files that are added to an existing study.
 
 
 1.9.0 (2025-08-13)

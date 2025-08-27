@@ -109,8 +109,8 @@ export default {
                 this.uploadedFileType = "pdf";
             } else if (file.type.startsWith('image/')) {
                 this.uploadedFileType = "image";
-            } else if (file.type == "" && file.name.endsWith ) {
-                this.uploadedFileType = "stl"
+            } else if (file.type == "" && file.name.toLowerCase().endsWith("stl") ) {
+                this.uploadedFileType = "stl";
             } else {
                 this.uploadedFileType = null;
                 this.warningMessageId = "add_series.unrecognized_file_format"
@@ -135,7 +135,12 @@ export default {
             let reader = new FileReader();
             let that = this;
             reader.onload = function (event) {
-                that.uploadedFileBase64Content = event.target.result;
+                
+                if (that.uploadedFileType == 'stl') {
+                    that.uploadedFileBase64Content = event.target.result.replace("data:application/octet-stream;base64,", "data:model/stl;base64,");
+                } else {
+                    that.uploadedFileBase64Content = event.target.result;
+                }
             }
             reader.readAsDataURL(file);
         }
