@@ -380,7 +380,12 @@
             // So, if you need the 'download-instant-link's to use auth headers, you can set this option to true.
             // OE2 will then display a "Save As" dialog (for security reasons, the browser can not initiate writing to local disk without a user interaction)
             // and the HTTP response will stream to disk.  Note that this might not work on all browsers.
-            "DownloadInstantLinksUseRestApiWithAuthHeaders": false    
+            "DownloadInstantLinksUseRestApiWithAuthHeaders": false,
+
+            // By default, on ReadOnly systems, many UI components are disabled (like upload, delete, modify, ...).
+            // However, on very specific cases, some users might want to have the full UI available although the
+            // system is ReadOnly; this can be achived by setting AdaptUiOnReadOnlySystems to false.
+            "AdaptUiOnReadOnlySystems": true
         },
 
         // Configure the /ui/app/inbox.html page where users can fill a form and drop files that are then processed by a custom plugin (that you need to provide).

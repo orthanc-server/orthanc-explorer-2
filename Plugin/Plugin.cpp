@@ -734,11 +734,12 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
 
         oe2Configuration["Profile"] = userProfile;
       }
-
     }
 
+    bool adaptUiOnReadOnlySystems = oe2Configuration["AdvancedOptions"]["AdaptUiOnReadOnlySystems"].asBool();
+
     // disable operations on read only systems
-    if (isReadOnly_)
+    if (isReadOnly_ && adaptUiOnReadOnlySystems)
     {
       uiOptions["EnableUpload"] = false;
       uiOptions["EnableAddSeries"] = false;

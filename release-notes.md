@@ -4,6 +4,8 @@ Changes not released yet
 
 Changes:
 - Added Japanese translations.
+- new advanced configuration `AdvancedOptions.AdaptUiOnReadOnlySystems` that you can set to false
+  to keep all UI features enabled on ReadOnly systems.
 
 Fixes:
 - Fix [#34](https://github.com/orthanc-server/orthanc-auth-service/issues/34): 
