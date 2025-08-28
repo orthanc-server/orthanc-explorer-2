@@ -109,7 +109,7 @@ export default {
                 this.uploadedFileType = "pdf";
             } else if (file.type.startsWith('image/')) {
                 this.uploadedFileType = "image";
-            } else if (file.type == "" && file.name.toLowerCase().endsWith("stl") ) {
+            } else if (file.type == 'model/stl' || (file.type == "" && file.name.toLowerCase().endsWith("stl"))) {
                 this.uploadedFileType = "stl";
             } else {
                 this.uploadedFileType = null;
