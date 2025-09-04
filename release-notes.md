@@ -13,6 +13,7 @@ Fixes:
 - Now displaying the VisitComments tag in the study details even if it is longer than 256 characters (provided it 
   is included in the `UiOptions.StudyMainTags` configuration)
 - Fix the MediaStorageSOPClassUID of STL files that are added to an existing study.
+- Stop logging the HTTP headers when redirecting from root (https://discourse.orthanc-server.org/t/orthanc-explorer-2-error-logs-upon-redirection-to-new-ui/6232)
 
 
 1.9.0 (2025-08-13)

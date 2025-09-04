@@ -219,11 +219,6 @@ void RedirectRoot(OrthancPluginRestOutput* output,
   }
   else
   {
-    for (uint32_t i = 0; i < request->headersCount; ++i)
-    {
-      OrthancPlugins::LogError(std::string(request->headersKeys[i]) + " : " + request->headersValues[i]);
-    }
-
     std::string oe2BaseApp = oe2BaseUrl_ + "app/";
     OrthancPluginRedirect(context, output, &(oe2BaseApp.c_str()[1]));  // remove the first '/' to make a relative redirect !
   }
