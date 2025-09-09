@@ -182,10 +182,17 @@ export default {
         return response.data;
     },
     async findPatient(patientId) {
-        const response = (await axios.post(orthancApiUrl + "tools/lookup", patientId));
+        // note: we don't use tools/lookup since it is case insensitive ! https://discourse.orthanc-server.org/t/possible-bug-when-changing-casings-in-patientid-using-explorer2/6124
+        const response = (await axios.post(orthancApiUrl + "tools/find", {
+            "Level": "Patient",
+            "Expand": true,
+            "CaseSensitive": true,
+            "Query": {
+                "PatientID": patientId
+            }
+        }));
         if (response.data.length == 1) {
-            const patient = (await axios.get(orthancApiUrl + "patients/" + response.data[0]['ID']));
-            return patient.data;
+            return response.data[0];
         } else {
             return null;
         }
