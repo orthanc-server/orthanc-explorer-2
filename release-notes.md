@@ -1,3 +1,9 @@
+Pending changes
+===============
+
+Changes:
+- Added support for STL viewer (at instance level, provided that the STL plugin is installed)
+
 1.9.1 (2025-09-09)
 ==================
 

@@ -189,6 +189,10 @@ export default {
                     if (this.hasWsiViewer && forViewer == "wsi") {
                         return viewersIcons[viewer];
                     }
+
+                    if (this.hasStlViewer && forViewer == "stl") {
+                        return viewersIcons[viewer];
+                    }
                 }
             }
             return "bi bi-eye";
@@ -547,6 +551,19 @@ export default {
                 return false;
             }
         },
+        hasStlViewer() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "stl" in this.installedPlugins;
+        },
+        stlViewerUrl() {
+            return api.getStlViewerUrl(this.resourceOrthancId);
+        },
+        hasStlViewerButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
+                this.hasStlViewer && this.resourceLevel == 'instance' && this.isStl;
+        },
+        isStlViewerButtonEnabled() {
+            return this.resourceLevel == 'instance';
+        },
         hasMedDreamViewer() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableOpenInMedDreamViewer;
         },
@@ -559,6 +576,13 @@ export default {
         medDreamViewerUrl() {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
+        isStl() {
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
+                return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.3";
+            } else {
+                return false;
+            }
+        },
         isPdfPreview() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
                 return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
@@ -567,7 +591,7 @@ export default {
             }
         },
         hasInstancePreviewButton() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance';
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance' && !this.isStl;
         },
         instancePreviewUrl() {
             if (this.isPdfPreview) {
@@ -649,6 +673,9 @@ export default {
         },
         wsiViewerIcon() {
             return this.getViewerIcon("wsi");
+        },
+        stlViewerIcon() {
+            return this.getViewerIcon("stl");
         },
         deleteResourceTitle() {
             const texts = {
@@ -826,6 +853,12 @@ export default {
                     :disabled="!isOhifButtonMicroscopyEnabled"
                     :iconClass="ohifViewerIconMicro" :level="computedResourceLevel" :linkUrl="ohifViewerUrlMicro"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_microscopy')"
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                </TokenLinkButton>
+                <TokenLinkButton v-if="viewer == 'stl' && hasStlViewerButton"
+                    :disabled="!isStlViewerButtonEnabled"
+                    :iconClass="stlViewerIcon" :level="computedResourceLevel" :linkUrl="stlViewerUrl"
+                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stl_viewer')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true">
                 </TokenLinkButton>
             </span>

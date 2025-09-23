@@ -722,6 +722,11 @@ export default {
             return null;
         }
     },
+    getStlViewerUrl(orthancId) {
+        return orthancApiUrl + 'stl/app/o3dv.html?instance=' + orthancId;
+        // stl/app/o3dv.html
+        // stl/app/three.html
+    },
     getInstancePreviewUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/preview";
     },

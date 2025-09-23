@@ -103,7 +103,8 @@
                 "ohif-micro": "fa-solid fa-microscope fa-button",
                 "meddream": "bi bi-columns-gap",
                 "volview": "bi bi-box",
-                "wsi": "fa-solid fa-microscope fa-button"
+                "wsi": "fa-solid fa-microscope fa-button",
+                "stl": "fa-solid fa-cubes"
             },
             // Defines the order in which the viewer icons should appear in the interface
             // OHIF viewers modes that are not listed here, won't appear in the interface.
@@ -117,7 +118,8 @@
                 // "ohif-micro", // currently disabled, this is still experimental in OHIF
                 "meddream",
                 "volview",
-                "wsi"
+                "wsi",
+                "stl" // only at instance level
             ],
 
             "MaxStudiesDisplayed": 100,                 // The maximum number of studies displayed in the study list.
