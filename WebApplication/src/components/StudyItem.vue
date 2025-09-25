@@ -228,6 +228,9 @@ export default {
                 <span v-else-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
                     v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
                 </span>
+                <span v-else-if="columnTag == 'PatientSex'" data-bs-toggle="tooltip"
+                    v-bind:title="study.PatientMainDicomTags.PatientSex">{{ study.PatientMainDicomTags.PatientSex }}
+                </span>
                 <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
                     v-bind:title="formattedPatientName">{{ formattedPatientName }}
                 </span>

@@ -1029,7 +1029,7 @@ export default {
                                 :indeterminate="isPartialSelected" @click="clickSelectAll"><span style="font-weight: 400; font-size: small;">{{ selectedStudiesCount }}</span>
                         </div>
                     </th>
-                    <th width="98%" colspan="10" scope="col">
+                    <th width="98%" colspan="15" scope="col">
                         <div class="container">
                             <div class="row g-1">
                                 <div class="col-6 study-list-bulk-buttons">

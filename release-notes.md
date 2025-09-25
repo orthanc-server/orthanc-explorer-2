@@ -10,6 +10,9 @@ Changes:
     - `{studies-resource-token/download-instant-link}`, `{studies-resource-token/viewer-instant-link}` & `{studies-resource-token/meddream-instant-link}`
     - `{JsonArrayUUIDs}` & `{JsonArrayDicomIds}`
 
+Fixes:
+- Removed the horizontal scroll bar when adding new columns in `StudyListColumns`.
+- Fixed display of `PatientSex` when added in `StudyListColumns`.
 
 1.9.1 (2025-09-09)
 ==================

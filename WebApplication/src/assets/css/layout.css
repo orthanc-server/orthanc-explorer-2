@@ -1,3 +1,4 @@
 .content {
     margin-left: var(--nav-bar-width);
+    overflow-x: hidden;
 }
