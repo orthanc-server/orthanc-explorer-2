@@ -223,7 +223,7 @@ export default {
             }
         },
         async customButtonClicked(customButton) {
-            let url = await resourceHelpers.replaceResourceTagsInStringWithTokens(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
+            let url = await resourceHelpers.replaceResourceTagsInStringWithTokens(customButton.Url, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel, this.selectedStudiesIds, this.selectedStudiesDicomIds);
             let response;
 
             if (customButton.HttpMethod == 'GET') {
@@ -239,7 +239,7 @@ export default {
                 link.click();
 
             } else if (customButton.HttpMethod == 'PUT' || customButton.HttpMethod == 'POST') {
-                let payload = await resourceHelpers.replaceResourceTagsInJson(customButton.Payload, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel);
+                let payload = await resourceHelpers.replaceResourceTagsInJson(customButton.Payload, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, this.instanceTags, this.resourceOrthancId, this.resourceLevel, this.selectedStudiesIds, this.selectedStudiesDicomIds);
 
                 if (customButton.HttpMethod == 'PUT') {
                     response = axios.put(url, payload);
@@ -771,19 +771,34 @@ export default {
                 return this.resourceLevel;
             }
         },
+        resourceLevelForCustomButtons() {
+            if (this.resourceLevel == 'bulk') {
+                return "bulk-studies";
+            } else {
+                return this.resourceLevel;
+            }
+        },
         hasCustomButtons() {
-            return this.uiOptions.CustomButtons && this.uiOptions.CustomButtons[this.resourceLevel]
-                && this.uiOptions.CustomButtons[this.resourceLevel].length > 0;
+            return this.uiOptions.CustomButtons && this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons]
+                && this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons].length > 0;
         },
         CustomButtons() {
             let customButtons = [];
-            for (const customButton of this.uiOptions.CustomButtons[this.resourceLevel]) {
+            for (const customButton of this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons]) {
                 let cloneCustomButton = Object.assign({}, customButton);
                 customButtons.push(cloneCustomButton);
             }
 
             return customButtons;
-        }
+        },
+        isCustomButtonEnabled() {
+            if (this.resourceLevel == 'bulk') {
+                console.log("isCustomButtonEnabled", this.selectedStudiesIds.length > 0);
+                return this.selectedStudiesIds.length > 0;
+            } else {
+                return true;
+            }
+        },
     },
     components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal, AddSeriesModal }
 }
@@ -1074,17 +1089,23 @@ export default {
         </div>
         <div v-if="hasCustomButtons" class="btn-group">
             <div v-for="customButton in CustomButtons" :key="customButton.Id" class>
-                <a
-                    class="btn btn-sm m-1 btn-secondary" type="button"
+                <button
+                    class="btn btn-sm m-1 btn-secondary custom-button" type="button" :disabled="!isCustomButtonEnabled"
                     data-bs-toggle="tooltip" :title="customButton.Tooltip" :target="customButton.Target" @click="customButtonClicked(customButton)">
                     <i :class="customButton.Icon"></i>
-                </a>
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <style>
+
+.custom-button:disabled {
+    pointer-events: none;
+    background-color: #6c757d;
+    opacity: 0.65;
+}
 
 .dropdown-submenu {
     position: relative;

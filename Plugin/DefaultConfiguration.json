@@ -298,7 +298,8 @@
             "CustomButtons": {
                 "study": [],
                 "instance": [],
-                "series": []
+                "series": [],
+                "bulk-studies": []
                 // For each button, you must provide the following items.
                 // Example for a GET button:
                 // {
@@ -307,10 +308,17 @@
                 //   "Tooltip": "Apply custom action to series",            // The tooltip displayed when hovering the button
                 //   "Target": "_blank",                                    // The HTML target for the link
                 //   "Icon": "bi bi-alarm",                                 // The CSS class that defines the button icon (only from bootstrap icons)
-                //   "Url": "http://localhost:3001/my-url?series={UUID}&patient={PatientID}"    // The template url.   DicomTag values are replaced in the template string. 
-                //                                                                              // {UUID} is the orthanc ID of the resource.
-                //                                                                              // {study-resource-token/download-instant-link} is replaced by a token that is valid to download the study (if tokens authentication is enabled)
-                //                                                                              // {study-resource-token/viewer-instant-link}, {study-resource-token/meddream-instant-link}
+                //   "Url": "http://localhost:3001/my-url?series={UUID}&patient={PatientID}"    // The template url.
+                //                                                                              // For "study", "instance" & "series" level:
+                //                                                                              //   {DicomTag} values are replaced in the template string. 
+                //                                                                              //   {UUID} is the orthanc ID of the resource.
+                //                                                                              //   {study-resource-token/download-instant-link} is replaced by a token that is valid to download the study (if tokens authentication is enabled)
+                //                                                                              //   {study-resource-token/viewer-instant-link}, {study-resource-token/meddream-instant-link}
+                //                                                                              // For "bulkd-study" level:
+                //                                                                              //   {CommaSeparatedUUIDs} is a comma separated list of the orthanc IDs of the selected studies "abc...,bcd..."
+                //                                                                              //   {CommaSeparatedDicomIds} is a comma separated list of the StudyInstanceUIDs of the selected studies "1.2.3,2.3.4"
+                //                                                                              //   {studies-resource-token/download-instant-link} is replaced by a token that is valid to download the selected studies (if tokens authentication is enabled)
+                //                                                                              //   {studies-resource-token/viewer-instant-link}, {studies-resource-token/meddream-instant-link}
                 // },
                 // Example for a POST button:
                 // {
@@ -320,8 +328,12 @@
                 //     "Icon": "bi-broadcast",
                 //     "Url": "../../my-python-plugin/{UUID}/process",
                 //     "Payload": {                                         // The payload template to include in the POST request
-                //         "id": "{UUID}",
-                //         "patient-name": "{PatientName}"
+                //                                                          // For "study", "instance" & "series" level:
+                //         "id": "{UUID}",                                  //   {UUID} is the orthanc ID of the resource.
+                //         "patient-name": "{PatientName}",                 //   {DicomTag} values are replaced in the template string. 
+                //                                                          // For "bulk-studies" level:
+                //         "orthanc-ids": "{JsonArrayUUIDs}",               //   this will be replaced by a json array with the Orthanc IDS of the selected studies ("orthanc-ids": ["abc...", "bcd..."])
+                //         "dicom-ids": "{JsonArrayDicomIds}",              //   this will be replaced by a json array with the StudyInstanceUIDs of the selected studies ("dicom-ids": ["1.2.3", "2.3.4"])
                 //     },
                 //     "Refresh": true                                      // Refresh the resource in the UI after having received the answer from the POST request
                 // },

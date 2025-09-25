@@ -3,6 +3,13 @@ Pending changes
 
 Changes:
 - Added support for STL viewer (at instance level, provided that the STL plugin is installed)
+- Added custom buttons applicable to multiple studies:
+  - In the configuration `CustomButtons`, there is now a new entry `bulk-studies`.
+  - New keywords in the configuration to define `CustomButtons`:
+    - `{CommaSeparatedUUIDs}` & `{CommaSeparatedDicomIds}`
+    - `{studies-resource-token/download-instant-link}`, `{studies-resource-token/viewer-instant-link}` & `{studies-resource-token/meddream-instant-link}`
+    - `{JsonArrayUUIDs}` & `{JsonArrayDicomIds}`
+
 
 1.9.1 (2025-09-09)
 ==================

@@ -34,7 +34,14 @@ export default {
         return title.join(" | ");
     },
 
-    replaceResourceTagsInStringPlainText(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel) {
+    replaceResourceTagsInStringPlainText(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds) {
+        // In these 2 special cases, we actually return a Json Array and not a string
+        if (template == "{JsonArrayUUIDs}") {
+            return selectedStudiesIds;
+        } else if (template == "{JsonArrayDicomIds}") {
+            return selectedStudiesDicomIds;
+        }
+        
         let output = template;
         let transformedInstanceTags = {};
         if (instanceTags != null) {
@@ -52,29 +59,52 @@ export default {
         }
 
         output = output.replace("{UUID}", resourceId);
+        
+        if (selectedStudiesIds) {
+            output = output.replace("{CommaSeparatedUUIDs}", selectedStudiesIds.join(','));
+        }
+        if (selectedStudiesDicomIds) {
+            output = output.replace("{CommaSeparatedDicomIds}", selectedStudiesDicomIds.join(','));
+        }
+
         output = output.replace(/{[^}]+}/g, 'undefined');
         return output;
     },
 
-    async replaceResourceTagsInStringWithTokens(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel) {
+    async replaceResourceTagsInStringWithTokens(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds) {
         let output = template;
 
-        const matchStudyResourceToken = output.match(/\{study-resource-token\/(.*?)\}/);
-        if (matchStudyResourceToken) {
-            const tokenType = matchStudyResourceToken[1];
-            const resourceToken = await api.createToken({ 
-                tokenType: tokenType, 
-                resourcesIds: [resourceId], 
-                level: resourceLevel, 
-                validityDuration: store.state.configuration.tokens.InstantLinksValidity
-            });
-            output = output.replace('{study-resource-token/' + tokenType + '}', resourceToken['Token']);
+        { // single resource token
+            const matchStudyResourceToken = output.match(/\{study-resource-token\/(.*?)\}/);
+            if (matchStudyResourceToken) {
+                const tokenType = matchStudyResourceToken[1];
+                const resourceToken = await api.createToken({ 
+                    tokenType: tokenType, 
+                    resourcesIds: [resourceId], 
+                    level: resourceLevel, 
+                    validityDuration: store.state.configuration.tokens.InstantLinksValidity
+                });
+                output = output.replace('{study-resource-token/' + tokenType + '}', resourceToken['Token']);
+            }
         }
 
-        return this.replaceResourceTagsInStringPlainText(output, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel);
+        { // multiple resources token
+            const matchStudyResourcesToken = output.match(/\{studies-resource-token\/(.*?)\}/);
+            if (matchStudyResourcesToken) {
+                const tokenType = matchStudyResourcesToken[1];
+                const resourceToken = await api.createToken({ 
+                    tokenType: tokenType, 
+                    resourcesIds: selectedStudiesIds, 
+                    level: 'study', // right now, bulk actions only work at study level 
+                    validityDuration: store.state.configuration.tokens.InstantLinksValidity
+                });
+                output = output.replace('{studies-resource-token/' + tokenType + '}', resourceToken['Token']);
+            }
+        }
+        return this.replaceResourceTagsInStringPlainText(output, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds);
     },
 
-    async replaceResourceTagsInJson(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel) {
+    async replaceResourceTagsInJson(template, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds) {
         if (template == null) {
             return null;
         }
@@ -83,7 +113,7 @@ export default {
         for (const [k, v] of Object.entries(template)) {
             if (typeof v === 'string') {
                 if (v.indexOf('{') != -1) {
-                    output[k] = await this.replaceResourceTagsInStringWithTokens(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel);
+                    output[k] = await this.replaceResourceTagsInStringWithTokens(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds);
                 } else {
                     output[k] = v;
                 }
@@ -92,14 +122,14 @@ export default {
                 for (const vv of v) {
                     if (typeof vv === 'string') {
                         if (vv.indexOf('{') != -1) {
-                            output[k].push(await this.replaceResourceTagsInStringWithTokens(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel));
+                            output[k].push(await this.replaceResourceTagsInStringWithTokens(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds));
                         } else {
                             output[k].push(v);
                         }
                     }
                 }
             } else if (typeof v === 'object') {
-                output[k] = await this.replaceResourceTagsInJson(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel);
+                output[k] = await this.replaceResourceTagsInJson(v, patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, instanceTags, resourceId, resourceLevel, selectedStudiesIds, selectedStudiesDicomIds);
             } else {
                 output[k] = v;
             }
