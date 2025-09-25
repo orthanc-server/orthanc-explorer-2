@@ -178,7 +178,8 @@
             // The ordered list of columns to display in the study list.
             // Allowed values are:
             //  - Dicom Tags: "StudyDate", "AccessionNumber", "PatientID"
-            //                "PatientName", "PatientBirthDate", "StudyDescription"
+            //                "PatientName", "PatientBirthDate", "StudyDescription" 
+            //                or any other Study level MainDicomTags (or ExtraMainDicomTags)
             //  - special columns:
             //    - "modalities": the list of modalities in the study
             //    - "seriesCount": the number of series in the study
