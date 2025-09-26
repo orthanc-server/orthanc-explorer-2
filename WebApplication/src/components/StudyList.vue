@@ -206,7 +206,17 @@ export default {
         colSpanAfterMultiLabelsFilter() {
             return 3;
         },
+        colSpanClearFilter() {
+            let span = 1;
+            if (this.hasPrimaryViewerIcon) {
+                span++;
+            }
+            if (this.hasPdfReportIcon) {
+                span++;
+            }
 
+            return span;
+        }
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -931,9 +941,9 @@ export default {
         <table class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th width="2%" scope="col" ></th>
-                    <th v-if="hasPrimaryViewerIcon" width="4%" scope="col" ></th>
-                    <th v-if="hasPdfReportIcon" width="4%" scope="col" ></th>
+                    <th width="40px" scope="col" ></th>
+                    <th v-if="hasPrimaryViewerIcon" width="2.5rem" scope="col" ></th>
+                    <th v-if="hasPdfReportIcon" width="2.5rem" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
@@ -946,8 +956,8 @@ export default {
                     </th>
                 </tr>
                 <tr class="study-table-filters" v-on:keyup.enter="search">
-                    <th scope="col">
-                        <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button"
+                    <th scope="col" :colspan="colSpanClearFilter">
+                        <button @click="clearFilters" type="button" class="form-control study-list-filter btn filter-button btn-sm"
                             data-bs-toggle="tooltip" title="Clear filter">
                             <i class="fa-regular fa-circle-xmark"></i>
                         </button>
@@ -1023,13 +1033,13 @@ export default {
                     </th>
                 </tr>
                 <tr class="study-table-actions">
-                    <th width="2%" scope="col">
+                    <th width="2%" :colspan="colSpanBeforeMultiLabelsFilter" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
                             <input class="form-check-input" type="checkbox" v-model="allSelected"
                                 :indeterminate="isPartialSelected" @click="clickSelectAll"><span style="font-weight: 400; font-size: small;">{{ selectedStudiesCount }}</span>
                         </div>
                     </th>
-                    <th width="98%" colspan="15" scope="col">
+                    <th width="98%" :colspan="colSpanMultiLabelsFilter" scope="col">
                         <div class="container">
                             <div class="row g-1">
                                 <div class="col-6 study-list-bulk-buttons">
@@ -1078,6 +1088,7 @@ export default {
                             </div>
                         </div>
                     </th>
+                    <th :colspan="colSpanAfterMultiLabelsFilter" scope="col"></th>
                 </tr>
             </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId" v-observe-visibility="{callback: visibilityChanged, once: true}"
@@ -1151,6 +1162,7 @@ button.form-control.study-list-filter {
 } */
 
 .study-table {
+  table-layout: fixed;
 }
 
 .study-table> :nth-child(odd) >tr >td{
