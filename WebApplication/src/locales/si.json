@@ -56,7 +56,7 @@
         "seriesCount": "Število serij"
     },
     "dicom_web_servers": "DICOM-Web strežnik",
-    "displaying_latest_studies": "Prikaz najnovejših študij",
+    "displaying_most_recent_studies": "Prikaz najnovejših študij",
     "download_dicom_file": "Prenos datoteke DICOM",
     "download_dicomdir": "Prenesi datoteko DICOMDIR",
     "download_zip": "Prenesi datoteko ZIP",
@@ -89,7 +89,7 @@
         "study_details_title": "Oznake"
     },
     "legacy_ui": "Starejši uporabniški vmesnik",
-    "loading_latest_studies": "Nalaganje najnovejših študij",
+    "loading_most_recent_studies": "Nalaganje najnovejših študij",
     "local_studies": "Vse lokalne študije",
     "logout": "Odjava",
     "modalities_in_study": "Modalitete v študiju",

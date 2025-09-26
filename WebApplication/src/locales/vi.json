@@ -66,7 +66,7 @@
         "seriesCount": "Số lượng chuỗi ảnh"
     },
     "dicom_web_servers": "Server Dicom-web",
-    "displaying_latest_studies": "Hiển thị phiên chụp gần nhất",
+    "displaying_most_recent_studies": "Hiển thị phiên chụp gần nhất",
     "download_dicom_file": "Tải file DICOM",
     "download_dicomdir": "Tải DICOMDIR",
     "download_zip": "Tải ZIP",
@@ -107,7 +107,7 @@
         "valid_alphabet_warning": "Những ký tự được cho phép trong nhãn: Chữ cái Latin, số, - và _"
     },
     "legacy_ui": "Legacy UI",
-    "loading_latest_studies": "Đang tải những phiên chụp gần đây nhất",
+    "loading_most_recent_studies": "Đang tải những phiên chụp gần đây nhất",
     "local_studies": "Tất cả phiên chụp cục bộ",
     "logout": "Đăng xuất",
     "modalities_in_study": "Những phương thức trong phiên chụp",

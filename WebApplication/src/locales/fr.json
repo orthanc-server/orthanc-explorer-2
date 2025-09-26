@@ -66,7 +66,7 @@
         "seriesCount": "Nombre de séries"
     },
     "dicom_web_servers": "Serveurs Web DICOM",
-    "displaying_latest_studies": "Liste des examens les plus récents",
+    "displaying_most_recent_studies": "Liste des examens les plus récents",
     "download_dicom_file": "Télécharger le fichier DICOM",
     "download_dicomdir": "Télécharger DICOMDIR",
     "download_zip": "Télécharger ZIP",
@@ -112,7 +112,7 @@
         "valid_alphabet_warning": "Seuls les caractères suivant sont autorisé : lettres sans accents, chiffres, - et _"
     },
     "legacy_ui": "Ancienne interface",
-    "loading_latest_studies": "Chargement des examens les plus récents",
+    "loading_most_recent_studies": "Chargement des examens les plus récents",
     "local_studies": "Tous les examens",
     "logout": "Se déconnecter",
     "modalities_in_study": "Modalités dans l'examen",

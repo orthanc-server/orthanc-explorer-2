@@ -56,7 +56,7 @@
         "seriesCount": "Anzahl der Serien"
     },
     "dicom_web_servers": "DICOM-Webserver",
-    "displaying_latest_studies": "Anzeige der neuesten Studien",
+    "displaying_most_recent_studies": "Anzeige der neuesten Studien",
     "download_dicom_file": "DICOM-Datei herunterladen",
     "download_dicomdir": "DICOMDIR herunterladen",
     "download_zip": "ZIP herunterladen",
@@ -89,7 +89,7 @@
         "study_details_title": "Labels"
     },
     "legacy_ui": "Alte Benutzeroberfläche",
-    "loading_latest_studies": "Laden der neuesten Studien",
+    "loading_most_recent_studies": "Laden der neuesten Studien",
     "local_studies": "Alle lokalen Studien",
     "logout": "Abmelden",
     "modalities_in_study": "Modalitäten in der Studie",

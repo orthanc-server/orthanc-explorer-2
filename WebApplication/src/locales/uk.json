@@ -56,7 +56,7 @@
         "seriesCount": "Кількість серій"
     },
     "dicom_web_servers": "Сервери DICOM-Web",
-    "displaying_latest_studies": "Відображення останніх досліджень",
+    "displaying_most_recent_studies": "Відображення останніх досліджень",
     "download_dicom_file": "Завантажити файл DICOM",
     "download_dicomdir": "Завантажити DICOMDIR",
     "download_zip": "Завантажити ZIP-архів",
@@ -89,7 +89,7 @@
         "study_details_title": "Мітки"
     },
     "legacy_ui": "Старий інтерфейс",
-    "loading_latest_studies": "Завантаження останніх досліджень",
+    "loading_most_recent_studies": "Завантаження останніх досліджень",
     "local_studies": "Усі локальні дослідження",
     "logout": "Вихід",
     "modalities_in_study": "Модальності у дослідженні",

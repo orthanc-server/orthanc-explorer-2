@@ -55,7 +55,7 @@
         "seriesCount": "系列数量"
     },
     "dicom_web_servers": "DICOM-Web服务器",
-    "displaying_latest_studies": "显示最近的研究",
+    "displaying_most_recent_studies": "显示最近的研究",
     "download_dicom_file": "下载DICOM文件",
     "download_dicomdir": "下载DICOMDIR",
     "download_zip": "下载ZIP",
@@ -87,7 +87,7 @@
         "removed_labels_message_part_2_html": "从<strong>{count}</strong>个研究"
     },
     "legacy_ui": "传统用户界面",
-    "loading_latest_studies": "正在加载最近的研究",
+    "loading_most_recent_studies": "正在加载最近的研究",
     "local_studies": "所有本地研究",
     "logout": "登出",
     "modalities_in_study": "研究中的模态",

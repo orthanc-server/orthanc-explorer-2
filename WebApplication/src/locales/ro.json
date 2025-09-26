@@ -66,7 +66,7 @@
         "seriesCount": "Număr de serii"
     },
     "dicom_web_servers": "Servere DICOM-Web",
-    "displaying_latest_studies": "Se afișează cele mai recente studii",
+    "displaying_most_recent_studies": "Se afișează cele mai recente studii",
     "download_dicom_file": "Descarcă fișierul DICOM",
     "download_dicomdir": "Descarcă DICOMDIR",
     "download_zip": "Descarcă ZIP",
@@ -104,7 +104,7 @@
         "valid_alphabet_warning": "Doar caracterele permise în etichete sunt: litere latine, numere, - și _"
     },
     "legacy_ui": "Interfață veche",
-    "loading_latest_studies": "Se încarcă cele mai recente studii",
+    "loading_most_recent_studies": "Se încarcă cele mai recente studii",
     "local_studies": "Toate studiile locale",
     "logout": "Deconectare",
     "modalities_in_study": "Modalități în studiu",

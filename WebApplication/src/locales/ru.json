@@ -56,7 +56,7 @@
         "seriesCount": "Количество серий"
     },
     "dicom_web_servers": "Серверы DICOM-Web",
-    "displaying_latest_studies": "Отображение последних исследований",
+    "displaying_most_recent_studies": "Отображение последних исследований",
     "download_dicom_file": "Загрузить файл DICOM",
     "download_dicomdir": "Загрузить DICOMDIR",
     "download_zip": "Загрузить ZIP-архив",
@@ -89,7 +89,7 @@
         "study_details_title": "Метки"
     },
     "legacy_ui": "Старый интерфейс",
-    "loading_latest_studies": "Загрузка последних исследований",
+    "loading_most_recent_studies": "Загрузка последних исследований",
     "local_studies": "Все локальные исследования",
     "logout": "Выход",
     "modalities_in_study": "Модальности в исследовании",

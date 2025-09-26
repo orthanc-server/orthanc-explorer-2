@@ -94,10 +94,10 @@ export default {
             datePickerPresetRanges: document._datePickerPresetRanges,
             allSelected: false,
             isPartialSelected: false,
-            latestStudiesIds: [],
-            shouldStopLoadingLatestStudies: false,
-            isLoadingLatestStudies: false,
-            isDisplayingLatestStudies: false,
+            mostRecentStudiesIds: [],
+            shouldStopLoadingMostRecentStudies: false,
+            isLoadingMostRecentStudies: false,
+            isDisplayingMostRecentStudies: false,
             sourceType: SourceType.LOCAL_ORTHANC,
             remoteSource: null,
             showMultiLabelsFilter: false,
@@ -824,27 +824,27 @@ export default {
                     } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
                         // legacy code
 
-                        if (this.isLoadingLatestStudies) {
+                        if (this.isLoadingMostRecentStudies) {
                             // if currently loading, stop it
-                            this.shouldStopLoadingLatestStudies = true;
-                            this.isLoadingLatestStudies = false;
-                            this.isDisplayingLatestStudies = true;
+                            this.shouldStopLoadingMostRecentStudies = true;
+                            this.isLoadingMostRecentStudies = false;
+                            this.isDisplayingMostRecentStudies = true;
                         }
                         // restart loading 
                         const lastChangeId = await api.getLastChangeId();
                     
                         await this.$store.dispatch('studies/clearStudies');
-                        this.latestStudiesIds = new Set();
-                        this.shouldStopLoadingLatestStudies = false;
-                        this.isLoadingLatestStudies = true;
-                        this.isDisplayingLatestStudies = false;
+                        this.mostRecentStudiesIds = new Set();
+                        this.shouldStopLoadingMostRecentStudies = false;
+                        this.isLoadingMostRecentStudies = true;
+                        this.isDisplayingMostRecentStudies = false;
 
                         this.loadStudiesFromChange(lastChangeId, 1000);
                     }
                 } else {
-                    this.shouldStopLoadingLatestStudies = true;
-                    this.isLoadingLatestStudies = false;
-                    this.isDisplayingLatestStudies = false;
+                    this.shouldStopLoadingMostRecentStudies = true;
+                    this.isLoadingMostRecentStudies = false;
+                    this.isDisplayingMostRecentStudies = false;
                     await this.$store.dispatch('studies/reloadFilteredStudies');
                 }
             }
@@ -863,8 +863,8 @@ export default {
             for (let change of changes) {
                 // Take the first event we find -> we see last uploaded data immediately (NewStudy but no StableStudy).  
                 // An updated study that has received a new series is visible as well (its NewStudy might be too old but the StableStudy brings it back on top of the list)
-                if ((change["ChangeType"] == "NewStudy" || change["ChangeType"] == "StableStudy") && !this.latestStudiesIds.has(change["ID"])) {
-                    if (this.shouldStopLoadingLatestStudies) {
+                if ((change["ChangeType"] == "NewStudy" || change["ChangeType"] == "StableStudy") && !this.mostRecentStudiesIds.has(change["ID"])) {
+                    if (this.shouldStopLoadingMostRecentStudies) {
                         return;
                     }
                     //console.log(change);
@@ -874,10 +874,10 @@ export default {
                             this.$store.dispatch('studies/addStudy', { studyId: change["ID"], study: study, reloadStats: false });
                         }
 
-                        this.latestStudiesIds.add(change["ID"]);
-                        if (this.latestStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
-                            this.isLoadingLatestStudies = false;
-                            this.isDisplayingLatestStudies = true;
+                        this.mostRecentStudiesIds.add(change["ID"]);
+                        if (this.mostRecentStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
+                            this.isLoadingMostRecentStudies = false;
+                            this.isDisplayingMostRecentStudies = true;
                             return;
                         }
                     } catch (err) {
@@ -885,8 +885,8 @@ export default {
                     }
                 }
             }
-            if (!this.shouldStopLoadingLatestStudies) {
-                if (this.latestStudiesIds.size < this.statistics.CountStudies) {
+            if (!this.shouldStopLoadingMostRecentStudies) {
+                if (this.mostRecentStudiesIds.size < this.statistics.CountStudies) {
                     if (this.hasExtendedChanges) {
                         if (!changesResponse["Done"]) {
                             setTimeout(() => {this.loadStudiesFromChange(changesResponse["First"], 1000)}, 1);
@@ -897,12 +897,12 @@ export default {
                         }
                     }
                 } else {
-                    this.isLoadingLatestStudies = false;
-                    this.isDisplayingLatestStudies = true;
+                    this.isLoadingMostRecentStudies = false;
+                    this.isDisplayingMostRecentStudies = true;
                 }
             } else {
-                this.isLoadingLatestStudies = false;
-                this.isDisplayingLatestStudies = true;
+                this.isLoadingMostRecentStudies = false;
+                this.isDisplayingMostRecentStudies = true;
             }
         },
         onDeletedStudy(studyId) {
@@ -1047,14 +1047,14 @@ export default {
                                     </ResourceButtonGroup>
                                 </div>
                                 <div class="col-4">
-                                    <div v-if="!isSearching && isLoadingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
-                                        <span v-if="isLoadingLatestStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
+                                    <div v-if="!isSearching && isLoadingMostRecentStudies" class="alert alert-secondary study-list-alert" role="alert">
+                                        <span v-if="isLoadingMostRecentStudies" class="spinner-border spinner-border-sm alert-icon" role="status"
                                             aria-hidden="true"></span>{{
-                                                $t('loading_latest_studies') }}
+                                                $t('loading_most_recent_studies') }}
                                     </div>
-                                    <div v-else-if="!isSearching && isDisplayingLatestStudies" class="alert alert-secondary study-list-alert" role="alert">
+                                    <div v-else-if="!isSearching && isDisplayingMostRecentStudies" class="alert alert-secondary study-list-alert" role="alert">
                                         <i class="bi bi-exclamation-triangle-fill alert-icon"></i>{{
-                                                $t('displaying_latest_studies') }}
+                                                $t('displaying_most_recent_studies') }}
                                     </div>
                                     <div v-else-if="!isSearching && notShowingAllResults" class="alert alert-danger study-list-alert"
                                         role="alert">
@@ -1094,7 +1094,6 @@ export default {
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId" v-observe-visibility="{callback: visibilityChanged, once: true}"
                 @deletedStudy="onDeletedStudy">
             </StudyItem>
-
         </table>
     </div>
 </template>

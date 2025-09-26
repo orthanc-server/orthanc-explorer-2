@@ -66,7 +66,7 @@
     "seriesCount": "عدد السلاسل"
   },
   "dicom_web_servers": "خوادم دايكوم ويب",
-  "displaying_latest_studies": "عرض أحدث الدراسات",
+  "displaying_most_recent_studies": "عرض أحدث الدراسات",
   "download_dicom_file": "تنزيل ملف دايكوم",
   "download_dicomdir": "تنزيل مجلد دايكوم",
   "download_zip": "تنزيل ملف مضغوط",
@@ -107,7 +107,7 @@
     "valid_alphabet_warning": "الأحرف المسموح بها في التسميات هي: الحروف اللاتينية، الأرقام، - و _"
   },
   "legacy_ui": "واجهة المستخدم القديمة",
-  "loading_latest_studies": "جاري تحميل أحدث الدراسات",
+  "loading_most_recent_studies": "جاري تحميل أحدث الدراسات",
   "local_studies": "جميع الدراسات المخزنة محليًا",
   "logout": "تسجيل الخروج",
   "modalities_in_study": "الاجهزة في الدراسة",

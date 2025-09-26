@@ -55,7 +55,7 @@
         "seriesCount": "სერიები"
     },
     "dicom_web_servers": "DICOM-Web სერვერები",
-    "displaying_latest_studies": "ნაჩვენებია უახლესი კვლევები",
+    "displaying_most_recent_studies": "ნაჩვენებია უახლესი კვლევები",
     "download_dicom_file": "DICOM ფაილის გადმოწერა",
     "download_dicomdir": "DICOMDIR გადმოწერა",
     "download_zip": "ZIP გადმოწერა",
@@ -69,7 +69,7 @@
     "instances": "სურათები",
     "instances_number": "სურათების რაოდენობა",
     "legacy_ui": "ძველი ინტერფეისი",
-    "loading_latest_studies": "იტვირთება უახლესი კვლევები",
+    "loading_most_recent_studies": "იტვირთება უახლესი კვლევები",
     "local_studies": "ადგილობრივი კვლევები",
     "logout": "გამოსვლა",
     "modalities_in_study": "კვლევაში გამოყენებული აპარატები",

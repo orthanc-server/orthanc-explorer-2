@@ -66,7 +66,7 @@
     "seriesCount": "シリーズ数"
   },
   "dicom_web_servers": "DICOM-Webサーバー",
-  "displaying_latest_studies": "最新の検査を表示中",
+  "displaying_most_recent_studies": "最新の検査を表示中",
   "download_dicom_file": "DICOMファイルをダウンロード",
   "download_dicomdir": "DICOMDIRをダウンロード",
   "download_zip": "ZIPをダウンロード",
@@ -107,7 +107,7 @@
     "valid_alphabet_warning": "ラベルに使用できる文字は、アルファベット、数字、ハイフン(-)、アンダースコア(_)のみです"
   },
   "legacy_ui": "レガシーUI",
-  "loading_latest_studies": "最新のスタディを読み込み中",
+  "loading_most_recent_studies": "最新のスタディを読み込み中",
   "local_studies": "全てのローカルスタディ",
   "logout": "ログアウト",
   "modalities_in_study": "スタディ内のモダリティ",

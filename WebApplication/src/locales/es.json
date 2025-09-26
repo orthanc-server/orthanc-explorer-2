@@ -55,7 +55,7 @@
         "seriesCount": "Recuento de serie"
     },
     "dicom_web_servers": "Servidores DICOM-Web",
-    "displaying_latest_studies": "Se muestran los estudios más recientes",
+    "displaying_most_recent_studies": "Se muestran los estudios más recientes",
     "download_dicom_file": "Descargar archivo DICOM",
     "download_dicomdir": "Descargar DICOMDIR",
     "download_zip": "Descargar ZIP",
@@ -69,7 +69,7 @@
     "instances": "Elementos",
     "instances_number": "Número de elementos",
     "legacy_ui": "IU heredada",
-    "loading_latest_studies": "Cargando estudios más recientes",
+    "loading_most_recent_studies": "Cargando estudios más recientes",
     "local_studies": "Estudios locales",
     "logout": "Cerrar sesión",
     "modalities_in_study": "Modalidades en Estudio",

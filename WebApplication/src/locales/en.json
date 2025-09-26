@@ -77,7 +77,7 @@
         "seriesCount": "Number of series"
     },
     "dicom_web_servers": "DICOM-Web Servers",
-    "displaying_latest_studies": "Displaying most recent studies",
+    "displaying_most_recent_studies": "Displaying most recent studies",
     "download_dicom_file": "Download DICOM file",
     "download_dicomdir": "Download DICOMDIR",
     "download_zip": "Download ZIP",
@@ -123,7 +123,7 @@
         "valid_alphabet_warning": "Only allowed characters in labels are: latin letters, numbers, - and _"
     },
     "legacy_ui": "Legacy UI",
-    "loading_latest_studies": "Loading most recent studies",
+    "loading_most_recent_studies": "Loading most recent studies",
     "local_studies": "All local Studies",
     "logout": "Logout",
     "modalities_in_study": "Modalities in Study",
