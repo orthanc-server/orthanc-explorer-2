@@ -15,6 +15,14 @@ import SourceType from "../helpers/source-type";
 import { ObserveVisibility as vObserveVisibility } from 'vue3-observe-visibility'
 import { nextTick } from 'vue'
 
+const Status = Object.freeze({
+    UNDEFINED: 0,
+    LOADING_MOST_RECENT_STUDIES: 1,
+    DISPLAYING_MOST_RECENT_STUDIES: 2,
+    DISPLAYING_FILTERED_STUDIES: 3,
+});
+
+
 document._allowedFilters = ["StudyDate", "StudyTime", "AccessionNumber", "PatientID", "PatientName", "PatientBirthDate", "StudyInstanceUID", "StudyID", "StudyDescription", "ModalitiesInStudy", "labels"]
 
 document._studyColumns = {
@@ -96,8 +104,7 @@ export default {
             isPartialSelected: false,
             mostRecentStudiesIds: [],
             shouldStopLoadingMostRecentStudies: false,
-            isLoadingMostRecentStudies: false,
-            isDisplayingMostRecentStudies: false,
+            status: Status.UNDEFINED,
             sourceType: SourceType.LOCAL_ORTHANC,
             remoteSource: null,
             showMultiLabelsFilter: false,
@@ -119,6 +126,7 @@ export default {
         }),
         ...mapGetters([
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
+            'studies/isMostRecentOrdering',         // -> this['studies/isMostRecentOrdering']
         ]),
         notShowingAllResults() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC && !this.hasExtendedFind) {
@@ -129,6 +137,12 @@ export default {
             } else {
                 return false;
             }
+        },
+        isDisplayingMostRecentStudies() {
+            return this.status == Status.DISPLAYING_MOST_RECENT_STUDIES;
+        },
+        isLoadingMostRecentStudies() {
+            return this.status == Status.LOADING_MOST_RECENT_STUDIES;
         },
         isDarkMode() {
             // hack to switch the theme: get the value from our custom css
@@ -162,7 +176,7 @@ export default {
         },
         showEmptyStudyListIfNoSearch() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
-                return !this.hasExtendedFind && this.uiOptions.StudyListContentIfNoSearch == "empty";
+                return this.uiOptions.StudyListContentIfNoSearch == "empty";
             } else {
                 return true;
             }
@@ -207,12 +221,12 @@ export default {
             return 3;
         },
         colSpanClearFilter() {
-            let span = 1;
+            let span = 3;
             if (this.hasPrimaryViewerIcon) {
-                span++;
+                span--;
             }
             if (this.hasPdfReportIcon) {
-                span++;
+                span--;
             }
 
             return span;
@@ -312,7 +326,6 @@ export default {
     },
     async mounted() {
         this.updateSelectAll();
-        this.updateFilterFromRoute(this.$route.query);
     },
     methods: {
         updateSelectAll() {
@@ -806,8 +819,26 @@ export default {
         },
         async reloadStudyList() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC && this.hasExtendedFind) {
-                await this.$store.dispatch('studies/clearStudies');
-                await this.$store.dispatch('studies/reloadFilteredStudies');
+                if (this.uiOptions.StudyListContentIfNoSearch == "empty") {
+                    this.status = Status.UNDEFINED;
+                    if (this['studies/isFilterEmpty']) {
+                        await this.$store.dispatch('studies/clearStudies');
+                    } else {
+                        await this.$store.dispatch('studies/clearStudies');
+                        await this.$store.dispatch('studies/reloadFilteredStudies');
+                    }
+                } else {
+                    if (this['studies/isMostRecentOrdering']) {
+                        this.status = Status.LOADING_MOST_RECENT_STUDIES;
+                    }
+                    await this.$store.dispatch('studies/clearStudies');
+                    await this.$store.dispatch('studies/reloadFilteredStudies');
+                    if (this['studies/isMostRecentOrdering']) {
+                        this.status = Status.DISPLAYING_MOST_RECENT_STUDIES;
+                    } else {
+                        this.status = Status.DISPLAYING_FILTERED_STUDIES;
+                    }
+                }
             } else {
                 // if we are displaying most recent studies and there is only a label filter -> continue to show the list of most recent studies (filtered by label)
                 const shouldShowMostRecentsWithLabel = this.uiOptions.StudyListContentIfNoSearch == "most-recents" && this.isFilteringOnlyOnLabels();
@@ -824,11 +855,10 @@ export default {
                     } else if (this.uiOptions.StudyListContentIfNoSearch == "most-recents") {
                         // legacy code
 
-                        if (this.isLoadingMostRecentStudies) {
+                        if (this.status == Status.LOADING_MOST_RECENT_STUDIES) {
                             // if currently loading, stop it
                             this.shouldStopLoadingMostRecentStudies = true;
-                            this.isLoadingMostRecentStudies = false;
-                            this.isDisplayingMostRecentStudies = true;
+                            this.status = Status.DISPLAYING_MOST_RECENT_STUDIES;
                         }
                         // restart loading 
                         const lastChangeId = await api.getLastChangeId();
@@ -836,15 +866,13 @@ export default {
                         await this.$store.dispatch('studies/clearStudies');
                         this.mostRecentStudiesIds = new Set();
                         this.shouldStopLoadingMostRecentStudies = false;
-                        this.isLoadingMostRecentStudies = true;
-                        this.isDisplayingMostRecentStudies = false;
+                        this.status = Status.LOADING_MOST_RECENT_STUDIES;
 
                         this.loadStudiesFromChange(lastChangeId, 1000);
                     }
                 } else {
                     this.shouldStopLoadingMostRecentStudies = true;
-                    this.isLoadingMostRecentStudies = false;
-                    this.isDisplayingMostRecentStudies = false;
+                    this.status = Status.UNDEFINED;
                     await this.$store.dispatch('studies/reloadFilteredStudies');
                 }
             }
@@ -876,8 +904,7 @@ export default {
 
                         this.mostRecentStudiesIds.add(change["ID"]);
                         if (this.mostRecentStudiesIds.size == this.uiOptions.MaxStudiesDisplayed) {
-                            this.isLoadingMostRecentStudies = false;
-                            this.isDisplayingMostRecentStudies = true;
+                            this.status = Status.DISPLAYING_MOST_RECENT_STUDIES;
                             return;
                         }
                     } catch (err) {
@@ -897,12 +924,10 @@ export default {
                         }
                     }
                 } else {
-                    this.isLoadingMostRecentStudies = false;
-                    this.isDisplayingMostRecentStudies = true;
+                    this.status = Status.DISPLAYING_MOST_RECENT_STUDIES;                    
                 }
             } else {
-                this.isLoadingMostRecentStudies = false;
-                this.isDisplayingMostRecentStudies = true;
+                this.status = Status.DISPLAYING_MOST_RECENT_STUDIES;
             }
         },
         onDeletedStudy(studyId) {

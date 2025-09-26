@@ -13,6 +13,8 @@ Changes:
 Fixes:
 - Removed the horizontal scroll bar when adding new columns in `StudyListColumns`.
 - Fixed display of `PatientSex` when added in `StudyListColumns`.
+- Re-enabled `"StudyListContentIfNoSearch": "empty"`
+
 
 1.9.1 (2025-09-09)
 ==================

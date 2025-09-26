@@ -155,7 +155,11 @@ const getters = {
             }
         }
         // dicomTags filter is empty, check the labels
-        return (!state.labelsFilter || state.labelsFilter.length == 0);
+        return (!state.labelFilters || state.labelFilters.length == 0);
+    },
+
+    isMostRecentOrdering: (state) => {
+        return (state.orderByFilters.length == 1 && state.orderByFilters[0].Key == "LastUpdate" && state.orderByFilters[0].Direction == "DESC");
     }
 }
 
