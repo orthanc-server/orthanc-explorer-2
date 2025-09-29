@@ -73,7 +73,39 @@ document._studyColumns = {
     "undefined": {
         "width": "10%",
         "isOrderable": false
+    },
+    // columns that are not included by default but that are commonly added
+    "PatientSex": {
+        "width": "7%",
+        "placeholder": "",
+        "isOrderable": true
+    },
+    "OtherPatientIDs": {
+        "width": "10%",
+        "placeholder": "",
+        "isOrderable": true
+    },
+    "InstitutionName": {
+        "width": "12%",
+        "placeholder": "",
+        "isOrderable": true
+    },
+    "ReferringPhysician": {
+        "width": "10%",
+        "placeholder": "",
+        "isOrderable": true
+    },
+    "RequestingPhysician": {
+        "width": "10%",
+        "placeholder": "",
+        "isOrderable": true
+    },
+    "ManufacturerModelName": {
+        "width": "10%",
+        "placeholder": "",
+        "isOrderable": true
     }
+
 };
 
 export default {

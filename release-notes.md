@@ -14,6 +14,10 @@ Fixes:
 - Removed the horizontal scroll bar when adding new columns in `StudyListColumns`.
 - Fixed display of `PatientSex` when added in `StudyListColumns`.
 - Re-enabled `"StudyListContentIfNoSearch": "empty"`
+- Fix [#29](https://github.com/orthanc-server/orthanc-auth-service/issues/29):
+  It is now possible to filter studies against a custom column.  Sorting against a custom column
+  is also possible for a few DICOM Tags: `PatientSex`, `OtherPatientIDs`, `InstitutionName`,
+  `ReferringPhysician`,  `RequestingPhysician`,  `ManufacturerModelName`.
 
 
 1.9.1 (2025-09-09)
