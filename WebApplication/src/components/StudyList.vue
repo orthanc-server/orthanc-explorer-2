@@ -1,7 +1,8 @@
 <script>
 import StudyItem from "./StudyItem.vue"
 import ResourceButtonGroup from "./ResourceButtonGroup.vue"
-import LabelsEditor from "./LabelsEditor.vue";
+import LabelsEditor from "./LabelsEditor.vue"
+import Toasts from "./Toasts.vue"
 
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
@@ -982,7 +983,7 @@ export default {
             }
         }
     },
-    components: { StudyItem, ResourceButtonGroup, LabelsEditor }
+    components: { StudyItem, ResourceButtonGroup, LabelsEditor, Toasts }
 }
 </script>
 
@@ -1152,6 +1153,7 @@ export default {
                 @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
+        <Toasts/>
     </div>
 </template>
 

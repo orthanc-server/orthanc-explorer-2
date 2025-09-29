@@ -334,7 +334,8 @@
                 //         "orthanc-ids": "{JsonArrayUUIDs}",               //   this will be replaced by a json array with the Orthanc IDS of the selected studies ("orthanc-ids": ["abc...", "bcd..."])
                 //         "dicom-ids": "{JsonArrayDicomIds}",              //   this will be replaced by a json array with the StudyInstanceUIDs of the selected studies ("dicom-ids": ["1.2.3", "2.3.4"])
                 //     },
-                //     "Refresh": true                                      // Refresh the resource in the UI after having received the answer from the POST request
+                //     "Refresh": true,                                     // Refresh the resource in the UI after having received the answer from the POST request
+                //     "StartMessage": "my action has started"              // A custom message to display in an ephemeral notification (aka Toast message)
                 // },
                 // Example for a PUT button:
                 // {

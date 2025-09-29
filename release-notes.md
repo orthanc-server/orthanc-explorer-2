@@ -9,6 +9,8 @@ Changes:
     - `{CommaSeparatedUUIDs}` & `{CommaSeparatedDicomIds}`
     - `{studies-resource-token/download-instant-link}`, `{studies-resource-token/viewer-instant-link}` & `{studies-resource-token/meddream-instant-link}`
     - `{JsonArrayUUIDs}` & `{JsonArrayDicomIds}`
+- New `StartMessage` configuration in `CustomButtons` to display a toast message
+  when the custom action starts.
 
 Fixes:
 - Removed the horizontal scroll bar when adding new columns in `StudyListColumns`.
