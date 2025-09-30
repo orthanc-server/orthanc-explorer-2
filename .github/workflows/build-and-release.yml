@@ -114,13 +114,9 @@ jobs:
         name: web-app-dist
         path: WebApplication/dist
 
-    - name: install Mercurial on MacOS
-      if: runner.os == 'MacOS'
+    - name: install Mercurial on MacOS and Windows
+      if: runner.os == 'MacOS' || runner.os == 'Windows'
       run: pip3 install mercurial --break-system-packages
-
-    - name: install Mercurial on Windows
-      if: runner.os == 'Windows'
-      run: choco install hg
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build  ${{matrix.config.extraCMakeFlags}} -DPLUGIN_VERSION="${{needs.pre-build.outputs.current_branch_tag}}" -DSTATIC_BUILD=ON -DALLOW_DOWNLOADS=ON -DUSE_SYSTEM_ORTHANC_SDK=OFF -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DWEBAPP_DIST_SOURCE=WEB
