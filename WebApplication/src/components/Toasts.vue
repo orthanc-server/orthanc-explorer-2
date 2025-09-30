@@ -20,9 +20,6 @@ export default {
     async mounted() {
     },
     computed: {
-        ...mapState({
-            uiOptions: state => state.configuration.uiOptions,
-        }),
     },
     watch: {
     },
