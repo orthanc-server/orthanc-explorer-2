@@ -1356,6 +1356,8 @@ button.form-control.study-list-filter {
     border-bottom: 0px;
     border-style: solid;
     border-color: var(--study-table-actions-bg-color);
+    text-overflow: ellipsis;
+    overflow: hidden; 
 }
 
 .is-orderable {
