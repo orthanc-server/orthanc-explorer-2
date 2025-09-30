@@ -1101,7 +1101,7 @@ export default {
                         <div class="container">
                             <div class="row g-1">
                                 <div class="col-6 study-list-bulk-buttons">
-                                    <ResourceButtonGroup :resourceLevel="'bulk'">
+                                    <ResourceButtonGroup :resourceLevel="'bulk'" smallIcons="true">
                                     </ResourceButtonGroup>
                                 </div>
                                 <div class="col-4">

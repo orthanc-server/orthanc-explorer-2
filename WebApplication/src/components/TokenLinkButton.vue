@@ -8,7 +8,7 @@ import api from "../orthancApi"
 
 
 export default {
-    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType", "disabled"],
+    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType", "disabled", "smallIcons"],
     setup() {
         return {
         }
@@ -88,11 +88,19 @@ export default {
             return this.linkType == "icon";
         },
         classes() {
+            let c = ["btn-secondary"];
+
             if (this.disabled) {
-                return "btn-secondary disabled-link";
-            } else {
-                return "btn-secondary";
+                c.push("disabled-link");
             }
+
+            if (this.smallIcons) {
+                c.push("btn-icon-small");
+            } else {
+                c.push("btn-icon");
+            }
+
+            return c.join(" ");
         },
         divClasses() {
             if (this.linkType == "icon") {

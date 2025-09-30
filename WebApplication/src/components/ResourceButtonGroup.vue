@@ -15,7 +15,7 @@ import axios from "axios"
 
 
 export default {
-    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags", "instanceHeaders", "studySeries", "seriesInstances"],
+    props: ["resourceOrthancId", "resourceDicomUid", "resourceLevel", "customClass", "seriesMainDicomTags", "studyMainDicomTags", "patientMainDicomTags", "instanceTags", "instanceHeaders", "studySeries", "seriesInstances", "smallIcons"],
     setup() {
         return {
         }
@@ -803,6 +803,13 @@ export default {
                 return true;
             }
         },
+        buttonClasses() {
+            if (this.smallIcons) {
+                return "btn-icon-small";
+            } else {
+                return "btn-icon";
+            }
+        }
     },
     components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal, AddSeriesModal }
 }
@@ -815,99 +822,99 @@ export default {
                 <TokenLinkButton v-if="viewer == 'meddream' && hasMedDreamViewerButton"
                     :disabled="!isMedDreamViewerButtonEnabled" :iconClass="medDreamViewerIcon"
                     :level="computedResourceLevel" :linkUrl="medDreamViewerUrl" :resourcesOrthancId="resourcesOrthancId"
-                    :title="$t('view_in_meddream')" :tokenType="'meddream-instant-link'" :opensInNewTab="true">
+                    :title="$t('view_in_meddream')" :tokenType="'meddream-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton
                     v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
                     :iconClass="osimisViewerIcon" :level="this.resourceLevel" :linkUrl="osimisViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_osimis')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'stone-webviewer' && hasStoneViewerButton"
                     :disabled="!isStoneViewerButtonEnabled" :iconClass="stoneViewerIcon" :level="computedResourceLevel"
                     :linkUrl="stoneViewerUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stone')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'volview' && hasVolViewButton" :disabled="!isVolViewButtonEnabled"
                     :iconClass="volViewIcon" :level="computedResourceLevel" :linkUrl="volViewUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_volview')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif' && hasOhifViewerButton"
                     :disabled="!isOhifButtonBasicViewerEnabled" :iconClass="ohifViewerIcon"
                     :level="computedResourceLevel" :linkUrl="ohifViewerUrl" :resourcesOrthancId="resourcesOrthancId"
-                    :title="$t('view_in_ohif')" :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :title="$t('view_in_ohif')" :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-vr' && hasOhifViewerButtonVr" :disabled="!isOhifButtonVrEnabled"
                     :iconClass="ohifViewerIconVr" :level="computedResourceLevel" :linkUrl="ohifViewerUrlVr"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_vr')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-tmtv' && hasOhifViewerButtonTmtv"
                     :disabled="!isOhifButtonTmtvEnabled" :iconClass="ohifViewerIconTmtv" :level="computedResourceLevel"
                     :linkUrl="ohifViewerUrlTmtv" :resourcesOrthancId="resourcesOrthancId"
-                    :title="$t('view_in_ohif_tmtv')" :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :title="$t('view_in_ohif_tmtv')" :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-seg' && hasOhifViewerButtonSeg"
                     :disabled="!isOhifButtonSegEnabled" :iconClass="ohifViewerIconSeg" :level="computedResourceLevel"
                     :linkUrl="ohifViewerUrlSeg" :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_seg')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-micro' && hasOhifViewerButtonMicroscopy"
                     :disabled="!isOhifButtonMicroscopyEnabled" :iconClass="ohifViewerIconMicro"
                     :level="computedResourceLevel" :linkUrl="ohifViewerUrlMicro"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_microscopy')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
                 <TokenLinkButton v-if="viewer == 'stl' && hasStlViewerButton" :disabled="!isStlViewerButtonEnabled"
                     :iconClass="stlViewerIcon" :level="computedResourceLevel" :linkUrl="stlViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stl_viewer')"
-                    :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                    :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
             </span>
             <TokenLinkButton v-if="hasInstancePreviewButton" :iconClass="'bi bi-binoculars'" :level="this.resourceLevel"
                 :linkUrl="instancePreviewUrl" :resourcesOrthancId="[resourceOrthancId]" :title="$t('preview')"
-                :tokenType="'download-instant-link'" :opensInNewTab="true">
+                :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasWsiButton" :hidden="!isWsiButtonEnabled" :iconClass="wsiViewerIcon"
                 :level="this.resourceLevel" :linkUrl="wsiViewerUrl" :resourcesOrthancId="resourcesOrthancId"
-                :title="$t('view_in_wsi_viewer')" :tokenType="'viewer-instant-link'" :opensInNewTab="true">
+                :title="$t('view_in_wsi_viewer')" :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
         <div class="btn-group">
             <TokenLinkButton v-if="hasDownloadZipButton" :iconClass="'bi bi-download'" :level="this.resourceLevel"
                 :linkUrl="downloadZipUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')"
-                :tokenType="'download-instant-link'">
+                :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasBulkDownloadZipButton" :iconClass="'bi bi-download'" :level="'bulk-study'"
                 :linkUrl="downloadBulkZipUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')"
-                :tokenType="'download-instant-link'" :disabled="!isBulkDownloadZipEnabled">
+                :tokenType="'download-instant-link'" :disabled="!isBulkDownloadZipEnabled" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasDownloadDicomDirButton" :iconClass="'bi bi-box-arrow-down'"
                 :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl" :resourcesOrthancId="[resourceOrthancId]"
-                :title="$t('download_dicomdir')" :tokenType="'download-instant-link'">
+                :title="$t('download_dicomdir')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasBulkDownloadDicomDirButton" :iconClass="'bi bi-box-arrow-down'"
                 :level="'bulk-study'" :linkUrl="downloadBulkDicomDirUrl" :resourcesOrthancId="resourcesOrthancId"
                 :title="$t('download_dicomdir')" :tokenType="'download-instant-link'"
-                :disabled="!isBulkDownloadDicomDirEnabled">
+                :disabled="!isBulkDownloadDicomDirEnabled" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasInstanceDownloadButton" :iconClass="'bi bi-download'" :level="this.resourceLevel"
                 :linkUrl="instanceDownloadUrl" :resourcesOrthancId="[resourceOrthancId]"
-                :title="$t('download_dicom_file')" :tokenType="'download-instant-link'">
+                :title="$t('download_dicom_file')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
         <div class="btn-group">
             <button v-if="hasDeleteButton" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
-                v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId" :disabled="!isDeleteEnabled">
+                v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId" :disabled="!isDeleteEnabled" :class="buttonClasses">
                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
             </button>
             <Modal v-if="hasDeleteButton" :id="'delete-modal-' + this.resourceOrthancId"
@@ -917,7 +924,7 @@ export default {
         </div>
         <div v-if="hasShareButton" class="btn-group">
             <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
-                v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId" :disabled="!isShareEnabled">
+                v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId" :disabled="!isShareEnabled" :class="buttonClasses">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
             </button>
             <ShareModal :id="'share-modal-' + this.resourceOrthancId" :orthancId="this.resourceOrthancId"
@@ -926,7 +933,7 @@ export default {
         </div>
         <div v-if="hasModificationButton" class="btn-group">
             <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId">
+                data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId" :class="buttonClasses">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
             </button>
             <ModifyModal v-if="isModificationEnabled" :id="'modify-modal-' + this.resourceOrthancId"
@@ -936,7 +943,7 @@ export default {
         </div>
         <div v-if="hasAnonymizationButton" class="btn-group">
             <button v-if="isAnonymizationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
-                data-bs-toggle="modal" v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId">
+                data-bs-toggle="modal" v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId" :class="buttonClasses">
                 <i class="bi bi-person-slash" data-bs-toggle="tooltip" :title="$t('modify.anonymize_button_title')"></i>
             </button>
             <ModifyModal v-if="isAnonymizationEnabled" :id="'anonymize-modal-' + this.resourceOrthancId"
@@ -946,7 +953,7 @@ export default {
         </div>
         <div v-if="hasAddSeriesButton" class="btn-group">
             <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
-                v-bind:data-bs-target="'#add-series-modal-' + this.resourceOrthancId">
+                v-bind:data-bs-target="'#add-series-modal-' + this.resourceOrthancId" :class="buttonClasses">
                 <i class="bi bi-file-earmark-plus" data-bs-toggle="tooltip" :title="$t('add_series.button_title')"></i>
             </button>
             <AddSeriesModal :id="'add-series-modal-' + this.resourceOrthancId" :orthancStudyId="this.resourceOrthancId"
@@ -958,44 +965,44 @@ export default {
         <div class="btn-group" v-if="hasApiViewButton">
             <div class="dropdown">
                 <button class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
-                    id="apiDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false">
+                    id="apiDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false" :class="buttonClasses">
                     <span data-bs-toggle="tooltip" title="API">
                         <i class="bi bi-code-slash"></i>
                     </span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="apiDropdownMenuId">
                     <li>
-                        <button class="dropdown-item" href="#" @click="copyIdToClipboard">{{ $t('copy_orthanc_id')
+                        <button class="dropdown-item" href="#" @click="copyIdToClipboard" :class="buttonClasses">{{ $t('copy_orthanc_id')
                             }}</button>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
                             :linkUrl="getApiUrl('')" :resourcesOrthancId="[resourceOrthancId]" :title="'/'"
-                            :tokenType="'download-instant-link'" :opensInNewTab="true">
+                            :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li v-if="this.resourceLevel == 'instance'">
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
                             :linkUrl="getApiUrl('/tags?simplify')" :resourcesOrthancId="[resourceOrthancId]"
-                            :title="'/tags?simplify'" :tokenType="'download-instant-link'" :opensInNewTab="true">
+                            :title="'/tags?simplify'" :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
                             :linkUrl="getApiUrl('/metadata?expand')" :resourcesOrthancId="[resourceOrthancId]"
-                            :title="'/metadata?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true">
+                            :title="'/metadata?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
                             :linkUrl="getApiUrl('/statistics')" :resourcesOrthancId="[resourceOrthancId]"
-                            :title="'/statistics'" :tokenType="'download-instant-link'" :opensInNewTab="true">
+                            :title="'/statistics'" :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
                             :linkUrl="getApiUrl('/attachments?expand')" :resourcesOrthancId="[resourceOrthancId]"
-                            :title="'/attachments?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true">
+                            :title="'/attachments?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                 </ul>
@@ -1007,7 +1014,7 @@ export default {
                 <i class="bi bi-tag" data-bs-toggle="tooltip" :title="$t('labels.edit_labels_button')" ></i>
             </button> -->
             <button v-if="hasLabelsButton" class="btn btn-sm btn-secondary m-1" type="button"
-                :disabled="!isLabelsEnabled" @click="showBulkLabelModal()">
+                :disabled="!isLabelsEnabled" @click="showBulkLabelModal()" :class="buttonClasses">
                 <i class="bi bi-tag" data-bs-toggle="tooltip" :title="$t('labels.edit_labels_button')"></i>
             </button>
             <BulkLabelsModal v-if="uiOptions.EnableEditLabels && isBulkLabelModalVisible"
@@ -1020,7 +1027,7 @@ export default {
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false"
-                    :disabled="!isSendToEnabled">
+                    :disabled="!isSendToEnabled" :class="buttonClasses">
                     <span data-bs-toggle="tooltip" :title="$t('send_to.button_title')">
                         <i class="bi bi-send"></i>
                     </span>
@@ -1075,7 +1082,7 @@ export default {
         </div>
         <div v-if="hasRetrieveButton" class="btn-group">
             <button class="btn btn-sm btn-secondary m-1" type="button" :disabled="!isRetrieveButtonEnabled"
-                @click="retrieve">
+                @click="retrieve" :class="buttonClasses">
                 <i class="bi bi-box-arrow-in-down" data-bs-toggle="tooltip" :title="$t('retrieve')"></i>
             </button>
         </div>
@@ -1083,7 +1090,7 @@ export default {
             <div v-for="customButton in CustomButtons" :key="customButton.Id" class>
                 <button class="btn btn-sm m-1 btn-secondary custom-button" type="button"
                     :disabled="!isCustomButtonEnabled" data-bs-toggle="tooltip" :title="customButton.Tooltip"
-                    :target="customButton.Target" @click="customButtonClicked(customButton)">
+                    :target="customButton.Target" @click="customButtonClicked(customButton)" :class="buttonClasses">
                     <i :class="customButton.Icon"></i>
                 </button>
             </div>
