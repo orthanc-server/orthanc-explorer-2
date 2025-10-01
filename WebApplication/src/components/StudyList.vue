@@ -999,7 +999,7 @@ export default {
         <table class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th width="40px" scope="col" ></th>
+                    <th width="40px" scope="col" :colspan="colSpanClearFilter"></th>
                     <th v-if="hasPrimaryViewerIcon" width="2.5rem" scope="col" ></th>
                     <th v-if="hasPdfReportIcon" width="2.5rem" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
