@@ -242,7 +242,6 @@ export default {
             if (this.hasPdfReportIcon) {
                 span++;
             }
-            span++; // the first study column
             return span;
         },
         colSpanMultiLabelsFilter() {
@@ -1004,9 +1003,9 @@ export default {
         <table class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th width="40px" scope="col"></th>
-                    <th v-if="hasPrimaryViewerIcon" width="2.5rem" scope="col" ></th>
-                    <th v-if="hasPdfReportIcon" width="2.5rem" scope="col" ></th>
+                    <th width="2%" max-width="40px" scope="col"></th>
+                    <th v-if="hasPrimaryViewerIcon" width="4%" max-width="30px" scope="col" ></th>
+                    <th v-if="hasPdfReportIcon" width="4%" max-width="30px" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
@@ -1025,8 +1024,6 @@ export default {
                             <i class="fa-regular fa-circle-xmark"></i>
                         </button>
                     </th>
-                    <!-- <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
-                    <th v-if="hasPdfReportIcon" scope="col" ></th> -->
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                         <div v-if="columnTag == 'StudyDate'">
                             <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
@@ -1151,7 +1148,6 @@ export default {
                             </div>
                         </div>
                     </th>
-                    <!-- <th :colspan="colSpanAfterMultiLabelsFilter" scope="col"></th> -->
                 </tr>
             </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId" v-observe-visibility="{callback: visibilityChanged, once: true}"
