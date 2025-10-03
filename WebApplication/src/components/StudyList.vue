@@ -234,14 +234,19 @@ export default {
             }
         },
         colSpanBeforeMultiLabelsFilter() {
-            if (this.hasPrimaryViewerIcon && this.hasPdfReportIcon) {
-                return 3;
-            } else {
-                return 2;
+            let span = 1; // the select study col
+
+            if (this.hasPrimaryViewerIcon) {
+                span++;
+            } 
+            if (this.hasPdfReportIcon) {
+                span++;
             }
+            span++; // the first study column
+            return span;
         },
         colSpanMultiLabelsFilter() {
-            let totalColumnsCount = this.uiOptions.StudyListColumns.length + 1; // +1 for selection box
+            let totalColumnsCount = this.uiOptions.StudyListColumns.length+1; // +1 for selection box
             if (this.hasPrimaryViewerIcon) {
                 totalColumnsCount++;
             }
@@ -999,7 +1004,7 @@ export default {
         <table class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th width="40px" scope="col" :colspan="colSpanClearFilter"></th>
+                    <th width="40px" scope="col"></th>
                     <th v-if="hasPrimaryViewerIcon" width="2.5rem" scope="col" ></th>
                     <th v-if="hasPdfReportIcon" width="2.5rem" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
@@ -1020,8 +1025,8 @@ export default {
                             <i class="fa-regular fa-circle-xmark"></i>
                         </button>
                     </th>
-                    <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
-                    <th v-if="hasPdfReportIcon" scope="col" ></th>
+                    <!-- <th v-if="hasPrimaryViewerIcon" scope="col" ></th>
+                    <th v-if="hasPdfReportIcon" scope="col" ></th> -->
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                         <div v-if="columnTag == 'StudyDate'">
                             <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
@@ -1097,7 +1102,7 @@ export default {
                                 :indeterminate="isPartialSelected" @click="clickSelectAll"><span style="font-weight: 400; font-size: small;">{{ selectedStudiesCount }}</span>
                         </div>
                     </th>
-                    <th width="98%" :colspan="colSpanMultiLabelsFilter" scope="col">
+                    <th width="98%" :colspan="colSpanMultiLabelsFilter + colSpanAfterMultiLabelsFilter" scope="col">
                         <div class="container">
                             <div class="row g-1">
                                 <div class="col-6 study-list-bulk-buttons">
@@ -1146,7 +1151,7 @@ export default {
                             </div>
                         </div>
                     </th>
-                    <th :colspan="colSpanAfterMultiLabelsFilter" scope="col"></th>
+                    <!-- <th :colspan="colSpanAfterMultiLabelsFilter" scope="col"></th> -->
                 </tr>
             </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId" v-observe-visibility="{callback: visibilityChanged, once: true}"
