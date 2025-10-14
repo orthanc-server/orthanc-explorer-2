@@ -1100,7 +1100,7 @@ export default {
                         </div>
                     </th>
                     <th width="98%" :colspan="colSpanMultiLabelsFilter + colSpanAfterMultiLabelsFilter" scope="col">
-                        <div class="container">
+                        <div class="container px-0">
                             <div class="row g-1">
                                 <div class="col-6 study-list-bulk-buttons">
                                     <ResourceButtonGroup :resourceLevel="'bulk'" smallIcons="true">
