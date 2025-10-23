@@ -288,5 +288,10 @@
     "view_in_stone": "Visualiser avec le StoneViewer",
     "view_in_volview": "Visualiser avec VolView",
     "view_in_stl_viewer": "Visualiser avec le STL Viewer",
-    "view_in_wsi_viewer": "Visualiser avec le Whole Slide Imaging Viewer"
+    "view_in_wsi_viewer": "Visualiser avec le Whole Slide Imaging Viewer",
+    "worklists" : {
+        "side_bar_title": "Worklists",
+        "delete_bulk_worklists_title": "Effacer les worklists ?",
+        "delete_bulk_worklists_body": "Êtes vous sûr de vouloir supprimer ces {count} worklists ?"
+    }
 }

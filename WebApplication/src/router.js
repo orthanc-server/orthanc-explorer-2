@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Settings from './components/Settings.vue'
 import SettingsLabels from './components/SettingsLabels.vue'
 import SettingsPermissions from './components/SettingsPermissions.vue'
+import Worklists from './components/Worklists.vue'
 import AuditLogs from './components/AuditLogs.vue'
 import StudyList from './components/StudyList.vue'
 import SideBar from './components/SideBar.vue'
@@ -39,6 +40,14 @@ export const router = createRouter({
         ContentView: StudyList,
       },
       name: 'local-studies-list'
+    },
+    {
+      path: '/worklists',
+      components: {
+        SideBarView: SideBar,
+        ContentView: Worklists,
+      },
+      name: 'worklists'
     },
     {
       path: '/settings',

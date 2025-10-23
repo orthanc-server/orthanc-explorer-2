@@ -36,7 +36,8 @@ export default {
             configuration: state => state.configuration,
             studiesSourceType: state => state.studies.sourceType,
             studiesRemoteSource: state => state.studies.remoteSource,
-            hasExtendedFind: state => state.configuration.hasExtendedFind
+            hasExtendedFind: state => state.configuration.hasExtendedFind,
+            installedPlugins: state => state.configuration.installedPlugins
         }),
         customLogoUrl() {
             if (this.hasCustomLogo && this.configuration.customLogoUrl) {
@@ -62,6 +63,9 @@ export default {
         },
         hasLogout() {
             return window.keycloak !== undefined;
+        },
+        hasWorklists() {
+            return "worklists" in this.installedPlugins;
         },
         hasUserProfile() {
             return this.userProfile != null && this.userProfile.name;
@@ -241,7 +245,11 @@ export default {
                             </router-link>
                         </li>
                     </ul>
-
+                    <li v-if="hasWorklists"class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/worklists">
+                            <i class="fa fa-list fa-lg menu-icon"></i>{{ $t('worklists.side_bar_title') }}
+                        </router-link>
+                    </li>
                     <li v-if="hasAccessToSettings" class="d-flex align-items-center" data-bs-toggle="collapse"
                         data-bs-target="#settings-list">
                         <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings.title') }}

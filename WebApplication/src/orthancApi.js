@@ -662,6 +662,12 @@ export default {
             return (await axios.get(orthancApiUrl + "auth/audit-logs?" + getArguments.toString())).data;
         }
     },
+    async getWorklists() {
+        return (await axios.get(orthancApiUrl + "worklists?format=Full")).data;
+    },
+    async deleteWorklist(worklistId) {
+        axios.delete(orthancApiUrl + "worklists/" + worklistId);
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {

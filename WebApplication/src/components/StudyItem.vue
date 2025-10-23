@@ -206,7 +206,7 @@ export default {
 
 <template>
     <tbody>
-        <tr v-if="loaded" :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }" @dblclick="doubleClicked">
+        <tr v-if="loaded" :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" v-model="selected" @click="clickedSelect">

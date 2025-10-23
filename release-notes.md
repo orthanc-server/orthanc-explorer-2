@@ -1,3 +1,10 @@
+Pending changes (not released yet)
+==================================
+
+Changes:
+- Added a worklists view to view, edit (TODO) and delete Modality worklists.
+  This is available only if the Worklists plugin is enabled.
+
 1.9.4 (2025-10-03)
 ==================
 
