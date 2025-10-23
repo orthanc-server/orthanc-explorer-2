@@ -27,9 +27,9 @@ export default {
                     <ul>
                         <li v-for="(subItem, subIndex) in item.Value" :key="subItem">
                             Item {{subIndex + 1}}
-                        <tags-tree
+                        <TagsTree
                             :tags="subItem">
-                        </tags-tree>
+                        </TagsTree>
                         </li>
                     </ul>
             </span>
@@ -46,7 +46,7 @@ export default {
 
 .details-label {
     font-weight: 700;
-    max-width: 30%;
+    max-width: 40%;
     /* overflow: hidden;
     text-overflow: ellipsis; */
 }

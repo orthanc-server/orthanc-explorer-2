@@ -6,6 +6,7 @@ import { translateDicomTag } from "../locales/i18n"
 import dateHelpers from "../helpers/date-helpers"
 import resourceHelpers from "../helpers/resource-helpers";
 import Modal from "./Modal.vue"
+import TagsTree from "./TagsTree.vue";
 
 document._worklistsColumns = {
     "StudyDate": {
@@ -199,6 +200,10 @@ export default {
                 }
             }
             window.location.reload();
+        },
+        async deleteWorklist(event, wl) {
+            await api.deleteWorklist(wl.ID);
+            window.location.reload();
         }
     },
     watch: {
@@ -232,10 +237,13 @@ export default {
             } else {
                 return 5;
             }
+        },
+        colSpanDetails() {
+            return 1 + this.colSpanActions;
         }
 
     },
-    components: { Modal }
+    components: { Modal, TagsTree }
 }
 </script>
 <template>
@@ -279,16 +287,42 @@ export default {
                 </tr>
             </thead>
             <tbody v-for="wl in worklists" :key="wl.ID">
-                <tr :class="{ 'worklist-row-collapsed': !wl.Expanded, 'worklist-row-expanded': wl.Expanded }">
+                <tr :class="{ 'worklist-row-collapsed': !wl.Expanded, 'worklist-row-expanded': wl.Expanded }" >
                     <td>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" v-model="wl.Selected">
                         </div>
                     </td>
-                    <td v-for="columnTag in uiOptions.WorklistsColumns" :key="columnTag" class="cut-text" data-bs-toggle="tooltip"
+                    <td v-for="columnTag in uiOptions.WorklistsColumns" :key="columnTag" class="cut-text" data-bs-toggle="collapse"
+                v-bind:data-bs-target="'#worklist-details-' + wl.ID"
                     :title="formattedTag(wl, columnTag)">
                         {{ formattedTag(wl, columnTag) }}
-
+                    </td>
+                </tr>
+                <tr class="collapse worklists-details-expanded"
+                    v-bind:id="'worklist-details-' + wl.ID">
+                    <td :colspan="colSpanDetails">
+                        <div class="container mt-4 px-5">
+                            <div class="row">
+                                <div class="col-8">
+                                </div>
+                                <div class="col-4">
+                                    <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                                        v-bind:data-bs-target="'#delete-modal-worklist-' + wl.ID">
+                                        <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
+                                    </button>
+                                    <Modal :id="'delete-modal-worklist-' + wl.ID"
+                                        :headerText="$t('worklists.delete_single_worklist_title')" :okText="$t('delete')"
+                                        :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_single_worklist_body')" @ok="deleteWorklist($event, wl)">
+                                    </Modal>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <TagsTree 
+                                    :tags="wl.FullTags">
+                                </TagsTree>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -335,7 +369,9 @@ export default {
 }
 
 .worklists-details-expanded {
+    margin-top: 2rem;;
     background-color: var(--study-details-bg-color);
+    font-size: 0.8rem;
 
     border-top: 0px !important;
     border-bottom: 3px !important;

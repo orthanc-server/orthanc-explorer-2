@@ -283,7 +283,7 @@ export default {
             </td>
         </tr>
         <tr v-show="loaded" class="collapse"
-            :class="{ 'study-details-collapsed': !expanded, 'study-details-expanded': expanded }"
+            :class="{ 'study-details-expanded': expanded }"
             v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
             <td v-if="loaded && expanded" :colspan="colSpanStudyDetails">
                 <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.study.MainDicomTags"
