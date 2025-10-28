@@ -257,7 +257,18 @@ export default {
         colSpanAfterMultiLabelsFilter() {
             return 3;
         },
+        widthColum1() {
+            if (this.colSpanClearFilter == 1) {
+                return "4%";
+            } else {
+                return "2%";
+            }
+        },
         colSpanClearFilter() {
+            if (this.sourceType != SourceType.LOCAL_ORTHANC) {
+                return 1;
+            }
+
             let span = 3;
             if (this.hasPrimaryViewerIcon) {
                 span--;
@@ -1003,7 +1014,7 @@ export default {
         <table class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th width="2%" max-width="40px" scope="col"></th>
+                    <th :width="widthColum1" max-width="40px" scope="col"></th>
                     <th v-if="hasPrimaryViewerIcon" width="4%" max-width="30px" scope="col" ></th>
                     <th v-if="hasPdfReportIcon" width="4%" max-width="30px" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
