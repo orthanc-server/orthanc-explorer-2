@@ -45,6 +45,7 @@
             "EnableModification": true,                 // Enables the modify button
             "EnableSendTo": true,                       // Enables the 'SendTo' button for Studies/Series/Instances
             "EnableApiViewMenu": false,                 // Enables the API button to open API routes for Studies/Series/Instances (developer mode) 
+            "EnableWorklists": true,                    // Enables the Worklist menu (provided that the worklist plugin is enabled)
             "EnableSettings": true,                     // Enables the settings menu/interface
             "EnableAuditLogs": true,                    // Enables the audit logs menu/interface (provided that the authorization plugin has audit logs enabled)
             "EnableLinkToLegacyUi": true,               // Enables a link to the legacy Orthanc UI
@@ -255,6 +256,51 @@
                 "AccessionNumber"
             ],
 
+            // The initial list of tags that are displayed in the dialog to create a worklist.
+            // For each tag, you may define:
+            // - a "DefaultValue" field with a few keywords:
+            //      - $TODAY$
+            //      - $GENERATE_DICOM_UUID$
+            // - if it is "Required" to be filled or not (default = false)
+            // - if it is "Editable" (default = true)
+            // - if you want to offer "Choices" to select amongst
+            "NewWorklistDefaultTags" : {
+                "PatientID": {
+                    "Required": true
+                },
+                "PatientBirthDate": {
+                },
+                "PatientName": {
+                    "Required": true
+                },
+                "PatientSex": {
+                    "Choices": ["F", "M", "U", "O"]
+                },
+                // "AccessionNumber": {},
+                "StudyInstanceUID": {
+                    "DefaultValue": "$GENERATE_DICOM_UUID$",
+                    "Editable": false
+                },
+                "InstitutionName": {
+                    // "DefaultValue": "My institution",
+                    // "Editable": false
+                },
+                "ScheduledProcedureStepSequence": {
+                    "DefaultValue": [
+                        {
+                            "ScheduledProcedureStepStartDate": {
+                                "DefaultValue": "$TODAY$",
+                                "Required": true
+                            },
+                            "Modality": {
+                                "Choices": ["CR", "CT", "DR", "DX", "MG", "MR", "OT", "PT", "US", "XA", "XC"]
+                            },
+                            "ScheduledProcedureStepDescription": {
+                            }
+                        }
+                    ]
+                }
+            },
 
             // Defines the list of languages available in the language picker
             // ex: "AvailableLanguages" : ["en", "fr"],
@@ -383,7 +429,7 @@
         // This section is only relevant if the authorization plugin is enabled and user-profile based permissions are implemented.
         "Tokens" : {
             "InstantLinksValidity": 200,                // the duration, in seconds an 'instant' token is valid (e.g. used to download a study, open a study in a viewer)
-            "ShareType": "stone-viewer-publication",    // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication", "volview-viewer-publication"
+            "ShareType": "stone-viewer-publication"     // allowed values: "stone-viewer-publication", "osimis-viewer-publication", "meddream-viewer-publication", "volview-viewer-publication"
             //"RequiredForLinks": false                 // Set it to false when using basic-auth together with the auth-plugin (https://discourse.orthanc-server.org/t/user-based-access-control-with-label-based-resource-access/5454)
 
             // When opening a share link, the user actually lands on the token "landing" page.  By default, it will be redirected to the viewer directly.

@@ -7,6 +7,7 @@ import dateHelpers from "../helpers/date-helpers"
 import resourceHelpers from "../helpers/resource-helpers";
 import Modal from "./Modal.vue"
 import TagsTree from "./TagsTree.vue";
+import CreateWorklistModal from "./CreateWorklistModal.vue";
 
 document._worklistsColumns = {
     "StudyDate": {
@@ -243,7 +244,7 @@ export default {
         }
 
     },
-    components: { Modal, TagsTree }
+    components: { Modal, TagsTree, CreateWorklistModal }
 }
 </script>
 <template>
@@ -281,6 +282,12 @@ export default {
                                     :headerText="$t('worklists.delete_bulk_worklists_title')" :okText="$t('delete')"
                                     :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_bulk_worklists_body', {'count': selectedWorklistsCount})" @ok="deleteSelectedWorklists($event)">
                                 </Modal>
+                                <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                                    v-bind:data-bs-target="'#create-modal-worklists'">
+                                    <i class="bi bi-file-earmark-plus" data-bs-toggle="tooltip" :title="$t('worklists.create_title')"></i>
+                                </button>
+                                <CreateWorklistModal id="create-modal-worklists">
+                                </CreateWorklistModal>
                             </div>
                         </div>
                     </th>

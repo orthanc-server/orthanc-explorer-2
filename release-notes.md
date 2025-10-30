@@ -2,8 +2,13 @@ Pending changes (not released yet)
 ==================================
 
 Changes:
-- Added a worklists view to view, edit (TODO) and delete Modality worklists.
+- Added a worklists menu to view, edit and delete Modality worklists.
   This is available only if the Worklists plugin is enabled.
+  - New configuration "NewWorklistDefaultTags" to define the tags to display in
+    the UI to create a worklist and their default values.
+  - 
+- Fix the remote Study List layout.
+
 
 1.9.4 (2025-10-03)
 ==================

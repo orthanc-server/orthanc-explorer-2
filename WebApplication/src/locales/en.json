@@ -301,10 +301,14 @@
     "view_in_stl_viewer": "View in STL Viewer",
     "view_in_wsi_viewer": "View in Whole Slide Imaging Viewer",
     "worklists" : {
-        "side_bar_title": "Worklists",
+        "copy_tags_from_patient": "Copy",
+        "create_button": "Create",
+        "create_title": "Create a new worklist",
+        "delete_bulk_worklists_title": "Delete worklists ?",
+        "delete_bulk_worklists_body": "Are you sure you want to delete {count} worklists ?",
         "delete_single_worklist_title": "Delete worklist ?",
         "delete_single_worklist_body": "Are you sure you want to delete this worklist ?",
-        "delete_bulk_worklists_title": "Delete worklists ?",
-        "delete_bulk_worklists_body": "Are you sure you want to delete {count} worklists ?"
+        "same_patient_id_found_different_tags": "Found a patient with the same PatientID but with different tags.  Do you want to re-use that patient ?",
+        "side_bar_title": "Worklists"
     }
 }

@@ -86,6 +86,6 @@ export default {
         return "";
     },
     isDateTag(tagName) {
-        return ["StudyDate", "PatientBirthDate", "SeriesDate", "AcquisitionDate", "ContentDate"].indexOf(tagName) != -1;
+        return ["StudyDate", "PatientBirthDate", "SeriesDate", "AcquisitionDate", "ContentDate", "ScheduledProcedureStepStartDate"].indexOf(tagName) != -1;
     }
 }

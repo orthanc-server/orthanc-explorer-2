@@ -55,6 +55,9 @@ export default {
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;
         },
+        hasAccessToWorklists() {
+            return "worklists" in this.installedPlugins && this.uiOptions.EnableWorklists;
+        },
         hasAccessToSettingsLabelsAndPermissions() {
             return this.hasAccessToSettings && this.uiOptions.EnablePermissionsEdition;
         },
@@ -63,9 +66,6 @@ export default {
         },
         hasLogout() {
             return window.keycloak !== undefined;
-        },
-        hasWorklists() {
-            return "worklists" in this.installedPlugins;
         },
         hasUserProfile() {
             return this.userProfile != null && this.userProfile.name;
@@ -245,7 +245,7 @@ export default {
                             </router-link>
                         </li>
                     </ul>
-                    <li v-if="hasWorklists"class="d-flex align-items-center fix-router-link">
+                    <li v-if="hasAccessToWorklists" class="d-flex align-items-center fix-router-link">
                         <router-link class="router-link" to="/worklists">
                             <i class="fa fa-list fa-lg menu-icon"></i>{{ $t('worklists.side_bar_title') }}
                         </router-link>
