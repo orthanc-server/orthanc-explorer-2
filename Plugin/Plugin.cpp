@@ -296,7 +296,7 @@ void ReadConfiguration()
     if (jsonConfig.isMember("CustomCssPath") && jsonConfig["CustomCssPath"].isString())
     {
       customCssPath_ = jsonConfig["CustomCssPath"].asString();
-      if (!Orthanc::SystemToolbox::IsExistingFile(customCssPath_))
+      if (!Orthanc::SystemToolbox::IsRegularFile(customCssPath_))
       {
         LOG(ERROR) << "Unable to accesss the 'CustomCssPath': " << customCssPath_;
         throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile);
@@ -306,7 +306,7 @@ void ReadConfiguration()
     if (jsonConfig.isMember("CustomLogoPath") && jsonConfig["CustomLogoPath"].isString())
     {
       customLogoPath_ = jsonConfig["CustomLogoPath"].asString();
-      if (!Orthanc::SystemToolbox::IsExistingFile(customLogoPath_))
+      if (!Orthanc::SystemToolbox::IsRegularFile(customLogoPath_))
       {
         LOG(ERROR) << "Unable to accesss the 'CustomLogoPath': " << customLogoPath_;
         throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile);
@@ -326,7 +326,7 @@ void ReadConfiguration()
     if (jsonConfig.isMember("CustomFavIconPath") && jsonConfig["CustomFavIconPath"].isString())
     {
       customFavIconPath_ = jsonConfig["CustomFavIconPath"].asString();
-      if (!Orthanc::SystemToolbox::IsExistingFile(customFavIconPath_))
+      if (!Orthanc::SystemToolbox::IsRegularFile(customFavIconPath_))
       {
         LOG(ERROR) << "Unable to accesss the 'CustomFavIconPath': " << customFavIconPath_;
         throw Orthanc::OrthancException(Orthanc::ErrorCode_InexistentFile);
