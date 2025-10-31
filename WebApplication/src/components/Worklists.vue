@@ -273,22 +273,20 @@ export default {
                     </th>
                     <th width="98%" :colspan="colSpanActions" scope="col">
                         <div class="container px-0">
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
-                                    v-bind:data-bs-target="'#delete-modal-worklists'" :disabled="selectedWorklistsCount == 0">
-                                    <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
-                                </button>
-                                <Modal id="delete-modal-worklists"
-                                    :headerText="$t('worklists.delete_bulk_worklists_title')" :okText="$t('delete')"
-                                    :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_bulk_worklists_body', {'count': selectedWorklistsCount})" @ok="deleteSelectedWorklists($event)">
-                                </Modal>
-                                <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
-                                    v-bind:data-bs-target="'#create-modal-worklists'">
-                                    <i class="bi bi-file-earmark-plus" data-bs-toggle="tooltip" :title="$t('worklists.create_title')"></i>
-                                </button>
-                                <CreateWorklistModal id="create-modal-worklists">
-                                </CreateWorklistModal>
-                            </div>
+                            <button class="btn btn-sm btn-icon-small btn-secondary m-1" type="button" data-bs-toggle="modal"
+                                v-bind:data-bs-target="'#delete-modal-worklists'" :disabled="selectedWorklistsCount == 0">
+                                <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
+                            </button>
+                            <Modal id="delete-modal-worklists"
+                                :headerText="$t('worklists.delete_bulk_worklists_title')" :okText="$t('delete')"
+                                :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_bulk_worklists_body', {'count': selectedWorklistsCount})" @ok="deleteSelectedWorklists($event)">
+                            </Modal>
+                            <button class="btn btn-sm btn-icon-small btn-secondary m-1" type="button" data-bs-toggle="modal"
+                                v-bind:data-bs-target="'#create-modal-worklists'">
+                                <i class="bi bi-calendar-plus" data-bs-toggle="tooltip" :title="$t('worklists.create_title')"></i>
+                            </button>
+                            <CreateWorklistModal id="create-modal-worklists">
+                            </CreateWorklistModal>
                         </div>
                     </th>
                 </tr>
