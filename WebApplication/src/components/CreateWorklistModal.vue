@@ -3,7 +3,8 @@ import { mapState } from "vuex"
 import resourceHelpers from "../helpers/resource-helpers"
 import dateHelpers from "../helpers/date-helpers"
 import api from "../orthancApi"
-import { v4 as uuidv4 } from "uuid"
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+
 
 // these tags can not be removed
 document.worklistsRequiredTags = [
@@ -12,7 +13,7 @@ document.worklistsRequiredTags = [
 
 
 export default {
-    props: ["currentId", "originalTags"],
+    props: ["currentId", "orthancStudyId", "modifyWorklistId", "wlFullTags", "reloadWindowAfterCreation"],
     data() {
         return {
             editableTags: [],                              // the tag values entered in the dialog
@@ -33,14 +34,6 @@ export default {
         });
     },
     methods: {
-        // setTagsFromDicomTags(mainDicomTags) {
-        //     for (const [k, v] of Object.entries(mainDicomTags)) {
-        //         this.tags[k] = v;
-        //         if (dateHelpers.isDateTag(k)) {
-        //             this.dateTags[k] = dateHelpers.fromDicomDate(v);
-        //         }
-        //     }
-        // },
         async createEditableTag(tag, tagName, flattenedTagName, level, closeOpenSequence) {
             const isDate = dateHelpers.isDateTag(tagName);
             let defaultValue = ("DefaultValue" in tag ? tag["DefaultValue"] : "");
@@ -113,8 +106,54 @@ export default {
             }
             return outTags;
         },
+        mergeTagsIntoEditableTags(wlFullTags) {
+            for (let t of this.editableTags) {
+                for (const [k, v] of Object.entries(wlFullTags)) {
+                    if (t["level"] == 0) {
+                        if (t["tagName"] == v["Name"]) {
+                            if (t["isDate"]) {
+                                t["value"] = dateHelpers.fromDicomDate(v["Value"]);
+                            } else {
+                                t["value"] = v["Value"];
+                            }
+                        }
+                    } else if (t["level"] == 1 && v["Name"] == "ScheduledProcedureStepSequence") {
+                        for (const s of v["Value"]) {
+                            for (const [k1, v1] of Object.entries(s)) {
+                                if (t["tagName"] == v1["Name"]) {
+                                    if (t["isDate"]) {
+                                        t["value"] = dateHelpers.fromDicomDate(v1["Value"]);
+                                    } else {
+                                        t["value"] = v1["Value"];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         async reset() {
             this.editableTags = await (this.flattenAndUpdateKeywords(this.uiOptions.NewWorklistDefaultTags, null, 0));
+
+            if (this.modifyWorklistId && this.wlFullTags) {
+                this.mergeTagsIntoEditableTags(this.wlFullTags);
+
+            } else if (this.orthancStudyId) {
+                let study = await api.getStudy(this.orthancStudyId);
+                for (let t of this.editableTags) {
+                    for (const [k, v] of Object.entries(study.PatientMainDicomTags)) {
+                        if (t["tagName"] == k) {
+                            if (t["isDate"]) {
+                                t["value"] = dateHelpers.fromDicomDate(v);
+                            } else {
+                                t["value"] = v;
+                            }
+                        }
+                    }
+                }
+            }
+
             this.updateValidity();
         },
         async updateValidity() {
@@ -129,7 +168,7 @@ export default {
                 } else {
                     t["isValid"] = true;
                 }
-                if (t["tagName"].startsWith("Patient")) {
+                if (resourceHelpers.isPatientTag(t["tagName"])) {
                     wlPatientTags[t["tagName"]] = t["value"];
                 }
             }
@@ -160,7 +199,7 @@ export default {
         },
         copySamePatientTags() {
             for (let t of this.editableTags) {
-                if (t["tagName"].startsWith("Patient") && t["tagName"] in this.samePatientIdTags) {
+                if (resourceHelpers.isPatientTag(t["tagName"]) && t["tagName"] in this.samePatientIdTags) {
                     if (t["isDate"]) {
                         t["value"] = dateHelpers.fromDicomDate(this.samePatientIdTags[t["tagName"]]);
                     } else {
@@ -169,15 +208,22 @@ export default {
                 }
             }
         },
-        async apply() {
+        async apply(event) {
             try {
                 let apiTags = this.unflattenTags(this.editableTags);
-                console.log(apiTags);
-                await api.createWorklist(apiTags);
-                window.location.reload();
-                // dateHelpers.dicomDateFromDatePicker(this.dateTags[k])
+                if (this.modifyWorklistId) {
+                    await api.updateWorklist(this.modifyWorklistId, apiTags);
+                } else {
+                    await api.createWorklist(apiTags);
+                }
+                if (this.reloadWindowAfterCreation) {
+                    window.location.reload();
+                } else {
+                    var modal = bootstrap.Modal.getInstance(this.$refs['modal-main-div']);
+                    modal.hide();
+                }
             } catch (err) {
-                this.setError('modify.error_modify_unexpected_error_html');
+                console.error("Error creating/updating a worklist", err);
             }
         },
     },
@@ -266,9 +312,10 @@ export default {
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
-                    <button type="button" class="btn btn-primary" @click="apply()" :disabled="!allValid">{{
-                        $t("worklists.create_button")
-                    }}</button>
+                    <button type="button" class="btn btn-primary" @click="apply($event)" :disabled="!allValid">
+                        <span v-if="this.modifyWorklistId">{{$t("worklists.modify_button")}}</span>
+                        <span v-else>{{$t("worklists.create_button")}}</span>
+                    </button>
                 </div>
             </div>
         </div>

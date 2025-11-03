@@ -304,10 +304,13 @@
         "copy_tags_from_patient": "Copy",
         "create_button": "Create",
         "create_title": "Create a new worklist",
+        "create_worklist_for_this_patient": "Create a new worklist for this patient",
         "delete_bulk_worklists_title": "Delete worklists ?",
         "delete_bulk_worklists_body": "Are you sure you want to delete {count} worklists ?",
         "delete_single_worklist_title": "Delete worklist ?",
         "delete_single_worklist_body": "Are you sure you want to delete this worklist ?",
+        "modify_button": "Modify",
+        "modify_title": "Modify a worklist",
         "same_patient_id_found_different_tags": "Found a patient with the same PatientID but with different tags.  Do you want to re-use that patient ?",
         "side_bar_title": "Worklists"
     }

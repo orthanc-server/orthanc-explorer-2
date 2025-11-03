@@ -671,6 +671,9 @@ export default {
     async createWorklist(wlTags) {
         return (await axios.post(orthancApiUrl + "worklists/create", {"Tags": wlTags})).data;
     },
+    async updateWorklist(worklistId, wlTags) {
+        return (await axios.put(orthancApiUrl + "worklists/" + worklistId, {"Tags": wlTags})).data;
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {

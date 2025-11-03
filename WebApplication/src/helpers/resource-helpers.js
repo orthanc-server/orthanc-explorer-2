@@ -206,5 +206,9 @@ export default {
         } else if (viewer == 'meddream') {
             return store.state.configuration.uiOptions.MedDreamViewerPublicRoot + "?study=" + dicomId;
         }
+    },
+
+    isPatientTag(tagName) {
+        return ["PatientID", "PatientBirthDate", "PatientName", "PatientSex", "OtherPatientIDs"].indexOf(tagName) != -1;
     }
 }

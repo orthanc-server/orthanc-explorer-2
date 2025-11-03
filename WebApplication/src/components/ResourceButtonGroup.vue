@@ -11,6 +11,7 @@ import clipboardHelpers from "../helpers/clipboard-helpers"
 import TokenLinkButton from "./TokenLinkButton.vue"
 import BulkLabelsModal from "./BulkLabelsModal.vue"
 import SourceType from '../helpers/source-type';
+import CreateWorklistModal from "./CreateWorklistModal.vue";
 import axios from "axios"
 
 
@@ -782,6 +783,9 @@ export default {
                 return this.resourceLevel;
             }
         },
+        hasAccessToWorklists() {
+            return "worklists" in this.installedPlugins && this.uiOptions.EnableWorklists && this.resourceLevel == "study";
+        },
         hasCustomButtons() {
             return this.uiOptions.CustomButtons && this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons]
                 && this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons].length > 0;
@@ -811,13 +815,13 @@ export default {
             }
         }
     },
-    components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal, AddSeriesModal }
+    components: { Modal, ShareModal, ModifyModal, TokenLinkButton, BulkLabelsModal, AddSeriesModal, CreateWorklistModal }
 }
 </script>
 
 <template>
     <div>
-        <div class="btn-group">
+        <div class="custom-button-group">
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
                 <TokenLinkButton v-if="viewer == 'meddream' && hasMedDreamViewerButton"
                     :disabled="!isMedDreamViewerButtonEnabled" :iconClass="medDreamViewerIcon"
@@ -889,7 +893,7 @@ export default {
                 :title="$t('view_in_wsi_viewer')" :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
-        <div class="btn-group">
+        <div class="custom-button-group">
             <TokenLinkButton v-if="hasDownloadZipButton" :iconClass="'bi bi-download'" :level="this.resourceLevel"
                 :linkUrl="downloadZipUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')"
                 :tokenType="'download-instant-link'" :smallIcons="smallIcons">
@@ -912,7 +916,7 @@ export default {
                 :title="$t('download_dicom_file')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
-        <div class="btn-group">
+        <div class="custom-button-group">
             <button v-if="hasDeleteButton" class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#delete-modal-' + this.resourceOrthancId" :disabled="!isDeleteEnabled" :class="buttonClasses">
                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
@@ -922,7 +926,7 @@ export default {
                 :cancelText="$t('cancel')" :bodyText="$t(this.deleteResourceBody)" @ok="deleteResource($event)">
             </Modal>
         </div>
-        <div v-if="hasShareButton" class="btn-group">
+        <div v-if="hasShareButton" class="custom-button-group">
             <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#share-modal-' + this.resourceOrthancId" :disabled="!isShareEnabled" :class="buttonClasses">
                 <i class="bi bi-share" data-bs-toggle="tooltip" :title="$t('share.button_title')"></i>
@@ -931,7 +935,7 @@ export default {
                 :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags">
             </ShareModal>
         </div>
-        <div v-if="hasModificationButton" class="btn-group">
+        <div v-if="hasModificationButton" class="custom-button-group">
             <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId" :class="buttonClasses">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
@@ -941,7 +945,7 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="false"></ModifyModal>
         </div>
-        <div v-if="hasAnonymizationButton" class="btn-group">
+        <div v-if="hasAnonymizationButton" class="custom-button-group">
             <button v-if="isAnonymizationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#anonymize-modal-' + this.resourceOrthancId" :class="buttonClasses">
                 <i class="bi bi-person-slash" data-bs-toggle="tooltip" :title="$t('modify.anonymize_button_title')"></i>
@@ -951,7 +955,7 @@ export default {
                 :seriesMainDicomTags="this.seriesMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                 :patientMainDicomTags="this.patientMainDicomTags" :isAnonymization="true"></ModifyModal>
         </div>
-        <div v-if="hasAddSeriesButton" class="btn-group">
+        <div v-if="hasAddSeriesButton" class="custom-button-group">
             <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                 v-bind:data-bs-target="'#add-series-modal-' + this.resourceOrthancId" :class="buttonClasses">
                 <i class="bi bi-file-earmark-plus" data-bs-toggle="tooltip" :title="$t('add_series.button_title')"></i>
@@ -962,7 +966,7 @@ export default {
         </div>
 
 
-        <div class="btn-group" v-if="hasApiViewButton">
+        <div class="custom-button-group" v-if="hasApiViewButton">
             <div class="dropdown">
                 <button class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="apiDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false" :class="buttonClasses">
@@ -1008,7 +1012,7 @@ export default {
                 </ul>
             </div>
         </div>
-        <div class="btn-group" v-if="this.resourceLevel == 'bulk'">
+        <div class="custom-button-group" v-if="this.resourceLevel == 'bulk'">
             <!-- <button v-if="hasLabelsButton" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#labels2-modal2-' + this.componentId" :disabled="!isLabelsEnabled">
                 <i class="bi bi-tag" data-bs-toggle="tooltip" :title="$t('labels.edit_labels_button')" ></i>
@@ -1023,7 +1027,7 @@ export default {
 
             </BulkLabelsModal>
         </div>
-        <div class="btn-group">
+        <div class="custom-button-group">
             <div class="dropdown">
                 <button v-if="hasSendTo" class="dropdown btn btn-sm btn-secondary m-1 dropdown-toggle" type="button"
                     id="sendToDropdownMenuId" data-bs-toggle="dropdown" aria-expanded="false"
@@ -1080,13 +1084,13 @@ export default {
                 </ul>
             </div>
         </div>
-        <div v-if="hasRetrieveButton" class="btn-group">
+        <div v-if="hasRetrieveButton" class="custom-button-group">
             <button class="btn btn-sm btn-secondary m-1" type="button" :disabled="!isRetrieveButtonEnabled"
                 @click="retrieve" :class="buttonClasses">
                 <i class="bi bi-box-arrow-in-down" data-bs-toggle="tooltip" :title="$t('retrieve')"></i>
             </button>
         </div>
-        <div v-if="hasCustomButtons" class="btn-group">
+        <div v-if="hasCustomButtons" class="custom-button-group">
             <div v-for="customButton in CustomButtons" :key="customButton.Id" class>
                 <button class="btn btn-sm m-1 btn-secondary custom-button" type="button"
                     :disabled="!isCustomButtonEnabled" data-bs-toggle="tooltip" :title="customButton.Tooltip"
@@ -1094,6 +1098,13 @@ export default {
                     <i :class="customButton.Icon"></i>
                 </button>
             </div>
+        </div>
+        <div v-if="hasAccessToWorklists" class="custom-button-group">
+            <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                v-bind:data-bs-target="'#create-modal-worklists-' + this.resourceOrthancId" :class="buttonClasses">
+                <i class="bi bi-calendar-plus" data-bs-toggle="tooltip" :title="$t('worklists.create_worklist_for_this_patient')"></i>
+            </button>
+            <CreateWorklistModal :id="'create-modal-worklists-' + this.resourceOrthancId" :orthancStudyId="this.resourceOrthancId"  :reloadWindowAfterCreation="false"/>
         </div>
     </div>
 </template>
@@ -1104,6 +1115,12 @@ export default {
     pointer-events: none;
     background-color: #6c757d;
     opacity: 0.65;
+}
+
+.custom-button-group {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
 }
 
 .dropdown-submenu {

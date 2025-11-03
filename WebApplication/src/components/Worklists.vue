@@ -285,7 +285,7 @@ export default {
                                 v-bind:data-bs-target="'#create-modal-worklists'">
                                 <i class="bi bi-calendar-plus" data-bs-toggle="tooltip" :title="$t('worklists.create_title')"></i>
                             </button>
-                            <CreateWorklistModal id="create-modal-worklists">
+                            <CreateWorklistModal id="create-modal-worklists" reloadWindowAfterCreation="true">
                             </CreateWorklistModal>
                         </div>
                     </th>
@@ -320,6 +320,12 @@ export default {
                                         :headerText="$t('worklists.delete_single_worklist_title')" :okText="$t('delete')"
                                         :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_single_worklist_body')" @ok="deleteWorklist($event, wl)">
                                     </Modal>
+                                    <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
+                                        v-bind:data-bs-target="'#modify-modal-worklist-' + wl.ID">
+                                        <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('worklists.modify_button')"></i>
+                                    </button>
+                                    <CreateWorklistModal :id="'modify-modal-worklist-' + wl.ID" reloadWindowAfterCreation="true" :modifyWorklistId="wl.ID" :wlFullTags="wl.FullTags">
+                                    </CreateWorklistModal>
                                 </div>
                             </div>
                             <div class="row">
