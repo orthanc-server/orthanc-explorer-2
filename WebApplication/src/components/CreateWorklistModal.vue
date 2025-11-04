@@ -211,19 +211,24 @@ export default {
         async apply(event) {
             try {
                 let apiTags = this.unflattenTags(this.editableTags);
+                let msg;
                 if (this.modifyWorklistId) {
                     await api.updateWorklist(this.modifyWorklistId, apiTags);
+                    msg = 'worklists.modified';
                 } else {
                     await api.createWorklist(apiTags);
+                    msg = 'worklists.created';
                 }
                 if (this.reloadWindowAfterCreation) {
                     window.location.reload();
                 } else {
                     var modal = bootstrap.Modal.getInstance(this.$refs['modal-main-div']);
                     modal.hide();
+                    this.messageBus.emit("show-toast", this.$t(msg));
                 }
             } catch (err) {
                 console.error("Error creating/updating a worklist", err);
+                this.messageBus.emit("show-toast", "Error creating/updating a worklist");
             }
         },
     },
