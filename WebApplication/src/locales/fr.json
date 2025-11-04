@@ -49,6 +49,9 @@
         "PatientID": "ID Patient",
         "PatientName": "Nom",
         "PatientSex": "Sexe",
+        "PatientSpeciesDescription": "Espèce",
+        "PatientBreedDescription": "Race",
+        "PatientSexNeutered": "Stérilisation",
         "ProtocolName": "Nom du protocole",
         "ReferringPhysicianName": "Nom du médecin référent",
         "RequestingPhysician": "Médecin demandeur",
@@ -65,7 +68,11 @@
         "StudyID": "ID de l'examen",
         "StudyInstanceUID": "Study Instance UID",
         "StudyTime": "Heure de l'examen",
-        "seriesCount": "Nombre de séries"
+        "seriesCount": "Nombre de séries",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "owner": "Nom du propriétaire",
+        "animalName": "Nom de l'animal"
     },
     "dicom_web_servers": "Serveurs Web DICOM",
     "displaying_most_recent_studies": "Liste des examens les plus récents",

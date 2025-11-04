@@ -60,6 +60,9 @@
         "PatientID": "Patient ID",
         "PatientName": "Patient Name",
         "PatientSex": "Patient Sex",
+        "PatientSpeciesDescription": "Species",
+        "PatientBreedDescription": "Breed",
+        "PatientSexNeutered": "Sex Neutered",
         "ProtocolName": "Protocol Name",
         "ReferringPhysicianName": "Referring Physician Name",
         "RequestingPhysician": "Requesting Physician",
@@ -76,7 +79,11 @@
         "StudyID": "Study ID",
         "StudyInstanceUID": "Study Instance UID",
         "StudyTime": "Study Time",
-        "seriesCount": "Number of Series"
+        "seriesCount": "Number of Series",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "owner": "Owner Last Name",
+        "animalName": "Animal Name"
     },
     "dicom_web_servers": "DICOM-Web Servers",
     "displaying_most_recent_studies": "Displaying most recent studies",

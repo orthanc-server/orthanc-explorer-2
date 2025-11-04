@@ -22,8 +22,7 @@ export default {
             foundPatientSameIdDifferentTags: false,
             samePatientIdTags: {},
             allValid: false,
-            errorMessageId: null,
-            warningMessageId: null,
+            disablePatientNameComputation: true,
             formValidityCheckerHandler: null,
         }
     },
@@ -48,20 +47,71 @@ export default {
                 defaultValue = await api.generateUid('study');
             }
 
-            return {
-                "value": defaultValue,
-                "tagName": tagName,
-                "flattenedTagName": flattenedTagName,
-                "level": level,
-                "isDate": isDate,
-                "isChoice": "Choices" in tag,
-                "choices" : ("Choices" in tag ? tag["Choices"] : []),
-                "isEditable": ("Editable" in tag ? tag["Editable"] : true),
-                "isRequired": ("Required" in tag ? tag["Required"] : false),
-                "isValid": false,
-                "placeholder": tag["Placeholder"],
-                "closeOpenSequence": closeOpenSequence
-            };
+            if (tagName == "PatientName" && tag["PatientNameType"] == "Computed") {
+                let parts = tag["ComputedFrom"];
+
+                return [{
+                    "value": defaultValue,
+                    "tagName": parts[0],
+                    "flattenedTagName": flattenedTagName + "." + parts[0],
+                    "level": level,
+                    "isDate": false,
+                    "isChoice": false,
+                    "choices" : [],
+                    "isEditable": true,
+                    "isRequired": null,
+                    "isComputationSource": true,
+                    "isValid": false,
+                    "placeholder": null,
+                    "closeOpenSequence": null
+                }, {
+                    "value": defaultValue,
+                    "tagName": parts[1],
+                    "flattenedTagName": flattenedTagName + "." + parts[1],
+                    "level": level,
+                    "isDate": false,
+                    "isChoice": false,
+                    "choices" : [],
+                    "isEditable": true,
+                    "isRequired": null,
+                    "isComputationSource": true,
+                    "isValid": false,
+                    "placeholder": null,
+                    "closeOpenSequence": null
+                }, {
+                    "value": defaultValue,
+                    "tagName": tagName,
+                    "flattenedTagName": flattenedTagName,
+                    "level": level,
+                    "isDate": false,
+                    "isChoice": false,
+                    "choices" : [],
+                    "isEditable": false,
+                    "isRequired": ("Required" in tag ? tag["Required"] : false),
+                    "isComputationSource": false,
+                    "isValid": false,
+                    "placeholder": null,
+                    "closeOpenSequence": null,
+                    "computedFrom": parts
+                }];
+
+            } else {
+                return [{
+                    "value": defaultValue,
+                    "tagName": tagName,
+                    "flattenedTagName": flattenedTagName,
+                    "level": level,
+                    "isDate": isDate,
+                    "isChoice": "Choices" in tag,
+                    "choices" : ("Choices" in tag ? tag["Choices"] : []),
+                    "isEditable": ("Editable" in tag ? tag["Editable"] : true),
+                    "isRequired": ("Required" in tag ? tag["Required"] : false),
+                    "isComputationSource": false,
+                    "isValid": false,
+                    "placeholder": tag["Placeholder"],
+                    "closeOpenSequence": closeOpenSequence
+                }];                
+            }
         },
         async flattenAndUpdateKeywords(tags, prefix, level) {
             let outTags = [];
@@ -72,13 +122,13 @@ export default {
                 if (Object.prototype.toString.call(defaultValue) === '[object Object]') {
                     outTags = outTags.concat(await this.flattenAndUpdateKeywords(defaultValue, flattenedTagName, level + 1));
                 } else if (Object.prototype.toString.call(defaultValue) === '[object Array]') {
-                    outTags.push(await this.createEditableTag({}, k, flattenedTagName, level, "open"));
+                    outTags = outTags.concat(await this.createEditableTag({}, k, flattenedTagName, level, "open"));
                     for (const e of defaultValue) {
                         outTags = outTags.concat(await this.flattenAndUpdateKeywords(e, flattenedTagName, level + 1));
                     }
                     // outTags.push(await this.createEditableTag({}, k, flattenedTagName, level, "close"));
                 } else {
-                    outTags.push(await this.createEditableTag(v, k, flattenedTagName, level, null));
+                    outTags = outTags.concat(await this.createEditableTag(v, k, flattenedTagName, level, null));
                 }
             }
             return outTags;
@@ -87,6 +137,10 @@ export default {
             let outTags = {};
             
             for (let t of editableTags) {
+                if (t["isComputationSource"]) { // don't include these fields in the payload
+                    continue;
+                }
+
                 let value;
                 if (t["isDate"]) {
                     value = dateHelpers.dicomDateFromDatePicker(t["value"]);
@@ -159,7 +213,7 @@ export default {
             this.updateValidity();
         },
         async updateValidity() {
-            console.log("updating validity");
+            // console.log("updating validity");
             let _allValid = true;
             let wlPatientTags = {}
 
@@ -200,6 +254,7 @@ export default {
             }
         },
         copySamePatientTags() {
+            this.disablePatientNameComputation = true; // temporarily while we copy the value and the next watch() is executed
             for (let t of this.editableTags) {
                 if (resourceHelpers.isPatientTag(t["tagName"]) && t["tagName"] in this.samePatientIdTags) {
                     if (t["isDate"]) {
@@ -207,6 +262,8 @@ export default {
                     } else {
                         t["value"] = this.samePatientIdTags[t["tagName"]];
                     }
+                } else if (t["isComputationSource"]) {
+                    t["value"] = "";
                 }
             }
         },
@@ -235,12 +292,75 @@ export default {
         },
         translate(tagName) {
             return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+        },
+        handleInput(isComputationSource) {
+            if (!isComputationSource) {
+                return;
+            }
+
+            // update the PatientName
+            for (let t of this.editableTags) {
+                if (t["computedFrom"]) {
+                    let values = [];
+                    for (const part of t["computedFrom"]) {
+                        let partValue = this.editableTags.filter(s => s["tagName"] == part)[0]["value"];
+                        if (partValue && partValue != "") {
+                            values.push(partValue);
+                        }
+                    }
+                    if (values.length > 0) {
+                        t["value"] = values.join("^");
+                    } else {
+                        t["value"] = "";
+                    }
+                }
+            }
         }
         
     },
     watch: {
         editableTags: {
             handler(newValue, oldValue) {
+                // reactivate PatientNameComputation as soon as we modify the source of the computation
+                console.log(newValue, oldValue);
+                // if (this.disablePatientNameComputation) {
+                //     for (let t of this.editableTags) {
+                //         if (t["computedFrom"]) {
+                //             let values = [];
+                //             for (const part of t["computedFrom"]) {
+                //                 let partValue = this.editableTags.filter(s => s["tagName"] == part)[0]["value"];
+                //                 if (partValue && partValue != "") {
+                //                     values.push(partValue);
+                //                 }
+                //             }
+                //             if (values.length > 0) {
+                //                 t["value"] = values.join("^");
+                //             } else {
+                //                 t["value"] = "";
+                //             }
+                //         }
+                //     }
+                // }
+
+                // if (!this.disablePatientNameComputation) {
+                //     for (let t of this.editableTags) {
+                //         if (t["computedFrom"]) {
+                //             let values = [];
+                //             for (const part of t["computedFrom"]) {
+                //                 let partValue = this.editableTags.filter(s => s["tagName"] == part)[0]["value"];
+                //                 if (partValue && partValue != "") {
+                //                     values.push(partValue);
+                //                 }
+                //             }
+                //             if (values.length > 0) {
+                //                 t["value"] = values.join("^");
+                //             } else {
+                //                 t["value"] = "";
+                //             }
+                //         }
+                //     }
+                // }
+
                 // only trigger form validation when we stop typing for 300ms
                 if (this.formValidityCheckerHandler) {
                     clearTimeout(this.formValidityCheckerHandler);
@@ -265,7 +385,6 @@ export default {
         datePickerFormat() {
             return this.uiOptions.DateFormat;
         }        
-
     },
     components: {  }
 
@@ -301,12 +420,12 @@ export default {
                                 </select>
                             </div>
                             <div v-else-if="editableTag.closeOpenSequence == null" class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" v-model="editableTag.value" :disabled="!editableTag.isEditable" :placeholder="editableTag.placeholder" />
+                                <input v-if="true" type="text" class="form-control" v-model="editableTag.value" :disabled="!editableTag.isEditable" :placeholder="editableTag.placeholder" @input="handleInput(editableTag.isComputationSource)" />
                             </div>
-                            <div v-if="editableTag.closeOpenSequence == null && editableTag.isValid" class="col-md-1">
+                            <div v-if="!editableTag.isComputationSource && editableTag.closeOpenSequence == null && editableTag.isValid" class="col-md-1">
                                 <i style="color: green" class="bi-check"></i>
                             </div>
-                            <div v-else-if="editableTag.closeOpenSequence == null" class="col-md-1">
+                            <div v-else-if="!editableTag.isComputationSource && editableTag.closeOpenSequence == null" class="col-md-1">
                                 <i style="color: red" class="bi-x-lg"></i>
                             </div>
                         </div>

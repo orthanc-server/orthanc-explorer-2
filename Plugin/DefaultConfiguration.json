@@ -274,6 +274,18 @@
                 "PatientName": {
                     "Required": true
                 },
+                // other valid configurations for "PatientName" to split the encoding
+                // of the first name and last name in 2 separate fields:
+                // "PatientName": {
+                //     "Required": true,
+                //     "PatientNameType": "Computed",
+                //     "ComputedFrom": ["lastName", "firstName"] // allowed values: lastName, firstName, owner, animalName
+                // },
+                // "PatientName": {
+                //     "Required": true,
+                //     "PatientNameType": "Computed",
+                //     "ComputedFrom": ["owner", "animalName"] // allowed values: lastName, firstName, owner, animalName
+                // },
                 "PatientSex": {
                     "Choices": ["F", "M", "U", "O"]
                 },
