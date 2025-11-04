@@ -4,6 +4,7 @@ import resourceHelpers from "../helpers/resource-helpers"
 import dateHelpers from "../helpers/date-helpers"
 import api from "../orthancApi"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import { translateDicomTag } from "../locales/i18n"
 
 
 // these tags can not be removed
@@ -58,6 +59,7 @@ export default {
                 "isEditable": ("Editable" in tag ? tag["Editable"] : true),
                 "isRequired": ("Required" in tag ? tag["Required"] : false),
                 "isValid": false,
+                "placeholder": tag["Placeholder"],
                 "closeOpenSequence": closeOpenSequence
             };
         },
@@ -231,6 +233,10 @@ export default {
                 this.messageBus.emit("show-toast", "Error creating/updating a worklist");
             }
         },
+        translate(tagName) {
+            return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+        }
+        
     },
     watch: {
         editableTags: {
@@ -281,7 +287,7 @@ export default {
                     <div class="container" style="min-height: 70vh"> <!-- min height for the date picker-->
                         <div v-for="editableTag of editableTags" :key="editableTag.flattenedTagName" class="row py-1">
                             <div v-if="editableTag.closeOpenSequence == null" class="col-md-5">
-                                {{ editableTag.tagName }}
+                                {{ translate(editableTag.tagName) }}
                             </div>
                             <div v-if="editableTag.isDate" class="col-md-6">
                                 <Datepicker v-model="editableTag.value" :range="false"
@@ -295,7 +301,7 @@ export default {
                                 </select>
                             </div>
                             <div v-else-if="editableTag.closeOpenSequence == null" class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" v-model="editableTag.value" :disabled="!editableTag.isEditable" />
+                                <input v-if="true" type="text" class="form-control" v-model="editableTag.value" :disabled="!editableTag.isEditable" :placeholder="editableTag.placeholder" />
                             </div>
                             <div v-if="editableTag.closeOpenSequence == null && editableTag.isValid" class="col-md-1">
                                 <i style="color: green" class="bi-check"></i>

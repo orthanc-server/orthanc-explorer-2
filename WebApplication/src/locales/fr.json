@@ -53,6 +53,8 @@
         "ReferringPhysicianName": "Nom du médecin référent",
         "RequestingPhysician": "Médecin demandeur",
         "SOPInstanceUID": "SOP Instance UID",
+        "ScheduledProcedureStepDescription": "Description",
+        "ScheduledProcedureStepStartDate": "Date de l'examen",
         "SeriesDate": "Date de la série",
         "SeriesDescription": "Description",
         "SeriesInstanceUID": "Series Instance UID",

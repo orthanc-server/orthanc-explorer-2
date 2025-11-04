@@ -264,6 +264,7 @@
             // - if it is "Required" to be filled or not (default = false)
             // - if it is "Editable" (default = true)
             // - if you want to offer "Choices" to select amongst
+            // - a "Placeholder" to display a suggestion text
             "NewWorklistDefaultTags" : {
                 "PatientID": {
                     "Required": true
