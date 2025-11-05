@@ -801,7 +801,7 @@ export default {
         },
         isCustomButtonEnabled() {
             if (this.resourceLevel == 'bulk') {
-                console.log("isCustomButtonEnabled", this.selectedStudiesIds.length > 0);
+                // console.log("isCustomButtonEnabled", this.selectedStudiesIds.length > 0);
                 return this.selectedStudiesIds.length > 0;
             } else {
                 return true;

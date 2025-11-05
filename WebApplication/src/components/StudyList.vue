@@ -245,14 +245,18 @@ export default {
             return span;
         },
         colSpanMultiLabelsFilter() {
-            let totalColumnsCount = this.uiOptions.StudyListColumns.length+1; // +1 for selection box
-            if (this.hasPrimaryViewerIcon) {
-                totalColumnsCount++;
+            if (this.uiOptions && this.uiOptions.StudyListColumns) {
+                let totalColumnsCount = this.uiOptions.StudyListColumns.length+1; // +1 for selection box
+                if (this.hasPrimaryViewerIcon) {
+                    totalColumnsCount++;
+                }
+                if (this.hasPdfReportIcon) {
+                    totalColumnsCount++;
+                }
+                return totalColumnsCount - this.colSpanBeforeMultiLabelsFilter - this.colSpanAfterMultiLabelsFilter;
+            } else {
+                return 4; // temporary until the uiOptions have been loaded
             }
-            if (this.hasPdfReportIcon) {
-                totalColumnsCount++;
-            }
-            return totalColumnsCount - this.colSpanBeforeMultiLabelsFilter - this.colSpanAfterMultiLabelsFilter;
         },
         colSpanAfterMultiLabelsFilter() {
             return 3;

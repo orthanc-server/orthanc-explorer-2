@@ -85,10 +85,11 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
             // keycloak includes state, code and session_state -> the router does not like them -> remove them
             const params = new URLSearchParams(router.currentRoute.value.fullPath);
+            params.delete('session_state');
             params.delete('state');
             params.delete('code');
-            params.delete('session_state');
-            const cleanedRoute = decodeURIComponent(params.toString()).replace('/=', '/');
+            params.delete('iss');
+            const cleanedRoute = decodeURIComponent(params.toString()).replace(/=$/, ''); // remove trailing '='
             console.log("App mounted, moving to cleaned route ", cleanedRoute);
             await router.push(cleanedRoute);
 
@@ -110,8 +111,8 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
             }, 60000)
 
-        }).catch(() => {
-            console.log("Could not connect to Keycloak");
+        }).catch((e) => {
+            console.log("Could not connect to Keycloak", e);
         });
     } else {
         // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API

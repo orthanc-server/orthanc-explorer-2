@@ -11,16 +11,6 @@ import { baseOe2Url } from "./globalConfigurations"
 
 console.log('Base URL for router: ', baseOe2Url);
 
-function removeKeyCloakStates(to, from, next) {
-  if (to.path.includes("&state=")) {
-    // the router does not recognize the &state=... after a redirect from KeyCloak -> simply block it (it works but I don't really understand why !)
-    console.log("removeKeyCloakStates", to, from);
-    next(false);
-  } else {
-    next();
-  }
-}
-
 export const router = createRouter({
   history: createWebHashHistory(baseOe2Url),
   routes: [
@@ -83,7 +73,6 @@ export const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)',
-      beforeEnter: removeKeyCloakStates,
       components: {
         SideBarView: SideBar,
         ContentView: NotFound,
