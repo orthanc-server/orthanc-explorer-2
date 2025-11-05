@@ -666,7 +666,7 @@ export default {
         return (await axios.get(orthancApiUrl + "worklists?format=Full")).data;
     },
     async deleteWorklist(worklistId) {
-        axios.delete(orthancApiUrl + "worklists/" + worklistId);
+        await axios.delete(orthancApiUrl + "worklists/" + worklistId);
     },
     async createWorklist(wlTags) {
         return (await axios.post(orthancApiUrl + "worklists/create", {"Tags": wlTags})).data;
