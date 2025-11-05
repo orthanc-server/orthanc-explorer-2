@@ -24,6 +24,7 @@ export default {
             allValid: false,
             disablePatientNameComputation: true,
             formValidityCheckerHandler: null,
+            errorMessage: null
         }
     },
     async mounted() {
@@ -286,8 +287,12 @@ export default {
                     this.messageBus.emit("show-toast", this.$t(msg));
                 }
             } catch (err) {
+                if (err.response && err.response.data && err.response.data.Message) {
+                    this.errorMessage = "Error creating/updating a worklist: " + err.response.data.Message;
+                } else {
+                    this.errorMessage = "Error creating/updating a worklist"
+                }
                 console.error("Error creating/updating a worklist", err);
-                this.messageBus.emit("show-toast", "Error creating/updating a worklist");
             }
         },
         translate(tagName) {
@@ -434,6 +439,11 @@ export default {
                                 <p>{{ $t('worklists.same_patient_id_found_different_tags') }}</p>
                                 <p><span v-for="(v, k) in samePatientIdTags"><strong>{{ k }}:</strong> {{ v }}<br/></span></p>
                                 <p><button type="button" class="btn btn-primary" @click="copySamePatientTags()">{{ $t("worklists.copy_tags_from_patient") }}</button></p>
+                             </div>
+                        </div>
+                        <div v-if="errorMessage" class="mt-2">
+                             <div class="alert alert-danger" role="alert">
+                                <p>{{ errorMessage }}</p>
                              </div>
                         </div>
                     </div>
