@@ -83,7 +83,9 @@
         "firstName": "First Name",
         "lastName": "Last Name",
         "owner": "Owner Last Name",
-        "animalName": "Animal Name"
+        "animalName": "Animal Name",
+        "startDate": "Scheduled Date",
+        "description": "Description"
     },
     "dicom_web_servers": "DICOM-Web Servers",
     "displaying_most_recent_studies": "Displaying most recent studies",

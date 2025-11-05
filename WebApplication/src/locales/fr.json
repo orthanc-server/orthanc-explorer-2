@@ -72,7 +72,9 @@
         "firstName": "Prénom",
         "lastName": "Nom",
         "owner": "Nom du propriétaire",
-        "animalName": "Nom de l'animal"
+        "animalName": "Nom de l'animal",
+        "startDate": "Date de l'examen",
+        "description": "Description"
     },
     "dicom_web_servers": "Serveurs Web DICOM",
     "displaying_most_recent_studies": "Liste des examens les plus récents",
