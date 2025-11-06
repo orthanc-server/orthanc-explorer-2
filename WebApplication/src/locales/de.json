@@ -208,5 +208,6 @@
     "view_in_osimis": "In OsimisViewer anzeigen",
     "view_in_stone": "In StoneViewer anzeigen",
     "view_in_volview": "In VolView anzeigen",
-    "view_in_wsi_viewer": "In Whole Slide Imaging Viewer anzeigen"
+    "view_in_wsi_viewer": "In Whole Slide Imaging Viewer anzeigen",
+    "view_in_weasis": "In Weasis Viewer anzeigen"
 }

@@ -739,6 +739,17 @@ export default {
         // stl/app/o3dv.html
         // stl/app/three.html
     },
+   getWeasisViewerUrl(level, resourceDicomUid) {
+        const parts = ["$dicom:rs", "--url", `"${window.location.origin}/dicom-web"`, "-r", `"studyUID=${resourceDicomUid}"`];
+        const url = "weasis://?" + parts.map(v => encodeURIComponent(v)).join("+");
+        return url
+    },
+    getWeasisViewerUrlForBulkStudies(studiesDicomIds) {
+        const studyUids = studiesDicomIds.join(",");
+        const parts = ["$dicom:rs", "--url", `"${window.location.origin}/dicom-web"`, "-r", `"studyUID=${studyUids}"`];
+        const url = "weasis://?" + parts.map(v => encodeURIComponent(v)).join("+");
+        return url
+    },
     getInstancePreviewUrl(orthancId) {
         return orthancApiUrl + "instances/" + orthancId + "/preview";
     },

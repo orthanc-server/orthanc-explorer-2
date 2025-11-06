@@ -569,6 +569,28 @@ export default {
         isStlViewerButtonEnabled() {
             return this.resourceLevel == 'instance';
         },
+        hasWeasisViewer() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC;
+        },
+        weasisViewerUrl() {
+            if (this.resourceLevel == 'bulk') {
+                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
+                const url = api.getWeasisViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                return url;
+            } else {
+                return api.getWeasisViewerUrl(this.resourceLevel, this.resourceDicomUid);
+            }
+        },
+        hasWeasisViewerButton() {
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC &&
+                this.hasWeasisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
+        },
+        isWeasisViewerButtonEnabled() {
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+        },
+        weasisViewerIcon() {
+            return this.getViewerIcon("weasis");
+        },
         hasMedDreamViewer() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableOpenInMedDreamViewer;
         },
@@ -882,6 +904,11 @@ export default {
                     :iconClass="stlViewerIcon" :level="computedResourceLevel" :linkUrl="stlViewerUrl"
                     :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stl_viewer')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
+                </TokenLinkButton>
+                <TokenLinkButton v-if="viewer == 'weasis' && hasWeasisViewerButton"
+                    :disabled="!isWeasisViewerButtonEnabled" :iconClass="weasisViewerIcon"
+                    :level="computedResourceLevel" :linkUrl="weasisViewerUrl" :resourcesOrthancId="resourcesOrthancId"
+                    :title="$t('view_in_weasis')" :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
             </span>
             <TokenLinkButton v-if="hasInstancePreviewButton" :iconClass="'bi bi-binoculars'" :level="this.resourceLevel"
