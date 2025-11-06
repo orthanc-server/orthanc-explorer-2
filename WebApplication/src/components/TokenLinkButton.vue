@@ -48,7 +48,10 @@ export default {
             if (token["Url"] != null) {
                 finalUrl = token["Url"];
             }
-            else if (this.linkUrl.indexOf('?') == -1) {
+            else if (finalUrl.startsWith("weasis:")) {
+                const extraParts = ["-H", `"Authorization: Bearer ${token["Token"]}"`];
+                finalUrl = finalUrl + "+" + extraParts.map(v => encodeURIComponent(v)).join("+");
+            } else if (finalUrl.indexOf('?') == -1) {
                 finalUrl = finalUrl + "?token=" + token["Token"];
             } else {
                 finalUrl = finalUrl + "&token=" + token["Token"];

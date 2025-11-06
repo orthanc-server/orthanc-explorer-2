@@ -153,7 +153,8 @@ export default {
                 if ((["osimis-web-viewer", "stone-webviewer", "volview", "wsi"].indexOf(viewer) != -1 && viewer in store.state.configuration.installedPlugins) ||
                     (viewer.startsWith("ohif") && viewer in store.state.configuration.installedPlugins) ||
                     (viewer.startsWith("ohif") && store.state.configuration.uiOptions.EnableOpenInOhifViewer3) ||
-                    (viewer == "meddream" && store.state.configuration.uiOptions.EnableOpenInMedDreamViewer))
+                    (viewer == "meddream" && store.state.configuration.uiOptions.EnableOpenInMedDreamViewer) ||
+                    (viewer == "weasis" && store.state.configuration.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in store.state.configuration.installedPlugins))
                 {
                     return viewer;
                 }
@@ -205,6 +206,8 @@ export default {
             return api.getWsiViewerUrl(orthancId); // note: this must be a series ID !
         } else if (viewer == 'meddream') {
             return store.state.configuration.uiOptions.MedDreamViewerPublicRoot + "?study=" + dicomId;
+        } else if (viewer == 'weasis') {
+            return api.getWeasisViewerUrl(dicomId);
         }
     },
 

@@ -570,7 +570,7 @@ export default {
             return this.resourceLevel == 'instance';
         },
         hasWeasisViewer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in this.installedPlugins;
         },
         weasisViewerUrl() {
             if (this.resourceLevel == 'bulk') {
@@ -578,7 +578,7 @@ export default {
                 const url = api.getWeasisViewerUrlForBulkStudies(selectedStudiesDicomIds);
                 return url;
             } else {
-                return api.getWeasisViewerUrl(this.resourceLevel, this.resourceDicomUid);
+                return api.getWeasisViewerUrl(this.resourceDicomUid);
             }
         },
         hasWeasisViewerButton() {

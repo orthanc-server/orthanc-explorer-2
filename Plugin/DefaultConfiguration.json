@@ -91,6 +91,8 @@
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
             "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
 
+            "EnableOpenInWeasisViewer": false,          // Enables a "open in Weasis viewer" button.  Note that the DICOMWeb plugin must be enabled.
+
             // Defines which icons is used by which enabled viewer.
             // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif", "ohif-vr", "ohif-tmtv"
             // Allowed values: CSS class that defines the viewer icons (only from bootstrap icons)

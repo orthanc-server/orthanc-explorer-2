@@ -7,6 +7,12 @@ Changes:
   - New configuration "NewWorklistDefaultTags" to define the tags to display in
     the UI to create a worklist and their default values.
   - 
+- Added a new button to open a study in Weasis provided that:
+  - the "UiOptions.EnableOpenInWeasisViewer" configuration is set to true
+  - the DICOMWeb plugin is installed
+  - Weasis is installed on your PC
+
+Fixes:
 - Fix the remote Study List layout.
 
 
