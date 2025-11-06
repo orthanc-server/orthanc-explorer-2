@@ -311,6 +311,7 @@
     "view_in_volview": "View in VolView",
     "view_in_stl_viewer": "View in STL Viewer",
     "view_in_wsi_viewer": "View in Whole Slide Imaging Viewer",
+    "view_in_weasis": "View in Weasis Viewer",
     "worklists" : {
         "copy_tags_from_patient": "Copy",
         "create_button": "Create",
