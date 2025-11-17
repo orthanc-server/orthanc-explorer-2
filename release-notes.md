@@ -14,6 +14,7 @@ Changes:
 
 Fixes:
 - Fix the remote Study List layout.
+- Fix [browsing remote DICOMweb servers](https://discourse.orthanc-server.org/t/qido-rs-series-query-uses-undefined-study-uid-in-explorer2/6317).
 
 
 1.9.4 (2025-10-03)

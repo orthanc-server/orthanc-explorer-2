@@ -31,9 +31,9 @@ export default {
     },
     async mounted() {
         this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, this.uiOptions.ShowSamePatientStudiesFilter)).length;
-        this.reloadSeriesList();
-        this.hasLoadedSamePatientsStudiesCount = true;
         this.studyMainDicomTagsLocalCopy = {...this.studyMainDicomTags}; // make a copy to be able to modify it
+        await this.reloadSeriesList();
+        this.hasLoadedSamePatientsStudiesCount = true;
 
         if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
             this.remoteStudyFoundLocally = (await api.studyExists(this.studyMainDicomTagsLocalCopy.StudyInstanceUID));
