@@ -1,5 +1,5 @@
-Pending changes (not released yet)
-==================================
+1.10.0 (2025-11-20)
+==================
 
 Changes:
 - When the [new worklists plugin](https://orthanc.uclouvain.be/book/plugins/worklists-plugin-new.html) is installed:
