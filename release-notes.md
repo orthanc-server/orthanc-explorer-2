@@ -2,7 +2,8 @@ Pending changes (not released yet)
 ==================================
 
 Changes:
-- Added a worklists menu to view, edit and delete Modality worklists.
+- When the [new worklists plugin](https://orthanc.uclouvain.be/book/plugins/worklists-plugin-new.html) is installed:
+  Added a worklists menu to view, edit and delete Modality worklists.
   This is available only if the Worklists plugin is enabled.
   - New configuration "NewWorklistDefaultTags" to define the tags to display in
     the UI to create a worklist and their default values.
