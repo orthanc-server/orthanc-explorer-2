@@ -584,6 +584,10 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     {
       pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Worklists", "Enable", false);
     }
+    else if (pluginName == "orthanc-worklists")
+    {
+      pluginsConfiguration[pluginName]["Enabled"] = IsPluginEnabledInConfiguration("Worklists", "Enable", false);
+    }
     else if (pluginName == "wsi")
     {
       pluginsConfiguration[pluginName]["Enabled"] = true;

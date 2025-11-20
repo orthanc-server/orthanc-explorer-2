@@ -806,7 +806,7 @@ export default {
             }
         },
         hasAccessToWorklists() {
-            return "worklists" in this.installedPlugins && this.uiOptions.EnableWorklists && this.resourceLevel == "study";
+            return "orthanc-worklists" in this.installedPlugins && this.uiOptions.EnableWorklists && this.resourceLevel == "study";
         },
         hasCustomButtons() {
             return this.uiOptions.CustomButtons && this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons]
