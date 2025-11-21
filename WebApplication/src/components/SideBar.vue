@@ -56,7 +56,7 @@ export default {
             return this.uiOptions.EnableSettings;
         },
         hasAccessToWorklists() {
-            return "orthanc-worklists" in this.installedPlugins && this.uiOptions.EnableWorklists;
+            return "orthanc-worklists" in this.installedPlugins && this.installedPlugins["orthanc-worklists"].Enabled && this.uiOptions.EnableWorklists;
         },
         hasAccessToSettingsLabelsAndPermissions() {
             return this.hasAccessToSettings && this.uiOptions.EnablePermissionsEdition;

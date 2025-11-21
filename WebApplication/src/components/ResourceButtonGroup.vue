@@ -269,7 +269,10 @@ export default {
                     console.warn("Refresh " + this.resourceLevel + " currently not supported");
                 }
             }
-        }
+        },
+        isPluginEnabled(pluginName) {
+            return pluginName in this.installedPlugins && this.installedPlugins[pluginName].Enabled;
+        },
     },
     computed: {
         ...mapState({
@@ -328,7 +331,7 @@ export default {
         },
         hasShareButton() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && 
-                (this.uiOptions.EnableShares && "authorization" in this.installedPlugins && ['bulk', 'study'].includes(this.resourceLevel));
+                (this.uiOptions.EnableShares && this.isPluginEnabled("authorization") && ['bulk', 'study'].includes(this.resourceLevel));
         },
         isShareEnabled() {
             if (this.resourceLevel == 'bulk') {
@@ -361,7 +364,7 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.orthancPeers.length > 0;
         },
         hasSendToPeersWithTransfer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.hasSendToPeers && ("transfers" in this.installedPlugins);
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.hasSendToPeers && this.isPluginEnabled("transfers");
         },
         hasSendToDicomWeb() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.targetDicomWebServers.length > 0;
@@ -370,16 +373,16 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && Object.keys(this.targetDicomModalities).length > 0;
         },
         hasOsimisViewer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "osimis-web-viewer" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.isPluginEnabled("osimis-web-viewer");
         },
         osimisViewerUrl() {
             return api.getOsimisViewerUrl(this.resourceLevel, this.resourceOrthancId);
         },
         hasWsiViewer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "wsi" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.isPluginEnabled("wsi");
         },
         hasStoneViewer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "stone-webviewer" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.isPluginEnabled("stone-webviewer");
         },
         stoneViewerUrl() {
             if (this.resourceLevel == 'bulk') {
@@ -398,7 +401,7 @@ export default {
             return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
         },
         hasVolView() {
-            return "volview" in this.installedPlugins;
+            return this.isPluginEnabled("volview");
         },
         volViewUrl() {
             return api.getVolViewUrl(this.resourceLevel, this.resourceOrthancId);
@@ -557,7 +560,7 @@ export default {
             }
         },
         hasStlViewer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && "stl" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.isPluginEnabled("stl");
         },
         stlViewerUrl() {
             return api.getStlViewerUrl(this.resourceOrthancId);
@@ -570,7 +573,7 @@ export default {
             return this.resourceLevel == 'instance';
         },
         hasWeasisViewer() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in this.installedPlugins;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableOpenInWeasisViewer && this.isPluginEnabled("dicom-web");
         },
         weasisViewerUrl() {
             if (this.resourceLevel == 'bulk') {
@@ -806,7 +809,7 @@ export default {
             }
         },
         hasAccessToWorklists() {
-            return "orthanc-worklists" in this.installedPlugins && this.uiOptions.EnableWorklists && this.resourceLevel == "study";
+            return this.isPluginEnabled("orthanc-worklists") && this.uiOptions.EnableWorklists && this.resourceLevel == "study";
         },
         hasCustomButtons() {
             return this.uiOptions.CustomButtons && this.uiOptions.CustomButtons[this.resourceLevelForCustomButtons]

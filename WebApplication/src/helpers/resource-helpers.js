@@ -150,11 +150,11 @@ export default {
     getPrimaryViewer() {
         if (store.state.configuration.uiOptions.ViewersOrdering.length > 0) {
             for (let viewer of store.state.configuration.uiOptions.ViewersOrdering) {
-                if ((["osimis-web-viewer", "stone-webviewer", "volview", "wsi"].indexOf(viewer) != -1 && viewer in store.state.configuration.installedPlugins) ||
-                    (viewer.startsWith("ohif") && viewer in store.state.configuration.installedPlugins) ||
+                if ((["osimis-web-viewer", "stone-webviewer", "volview", "wsi"].indexOf(viewer) != -1 && viewer in store.state.configuration.installedPlugins && store.state.configuration.installedPlugins[viewer].Enabled) ||
+                    (viewer.startsWith("ohif") && viewer in store.state.configuration.installedPlugins && store.state.configuration.installedPlugins[viewer].Enabled) ||
                     (viewer.startsWith("ohif") && store.state.configuration.uiOptions.EnableOpenInOhifViewer3) ||
                     (viewer == "meddream" && store.state.configuration.uiOptions.EnableOpenInMedDreamViewer) ||
-                    (viewer == "weasis" && store.state.configuration.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in store.state.configuration.installedPlugins))
+                    (viewer == "weasis" && store.state.configuration.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in store.state.configuration.installedPlugins && store.state.configuration.installedPlugins["dicom-web"].Enabled))
                 {
                     return viewer;
                 }
