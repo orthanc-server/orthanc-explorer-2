@@ -22,6 +22,7 @@ UI improvements:
 - Add a PDF/Image dicomization (https://discourse.orthanc-server.org/t/orthanc-explorer-2-dicomization-feature-suggestion/6061/4).
   Not to attach a new series to an existing study but to create a new study.
 
+- Add keycloak username in a custom plugin url or payload (https://discourse.orthanc-server.org/t/get-keycloak-user-in-a-custom-plugin/6323/3).
 
 - show attachments
 
