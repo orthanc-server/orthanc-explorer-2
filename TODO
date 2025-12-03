@@ -24,6 +24,8 @@ UI improvements:
 
 - Add keycloak username in a custom plugin url or payload (https://discourse.orthanc-server.org/t/get-keycloak-user-in-a-custom-plugin/6323/3).
 
+- worklist page: suggest auto-incremented AccessionNumber (https://discourse.orthanc-server.org/t/new-worklists-plugin-oe2-1-10-0/6322/2)
+
 - show attachments
 
 - support neuro plugin (download nifti)
