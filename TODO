@@ -28,7 +28,7 @@ UI improvements:
 
 - show attachments
 
-- support neuro plugin (download nifti)
+- support neuro plugin (download nifti) (https://discourse.orthanc-server.org/t/oe2-compatibility-with-the-neuroimaging-plugin/6336)
 
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
 
