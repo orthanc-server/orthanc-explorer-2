@@ -1,3 +1,13 @@
+"Easy" stuffs - requested by community:
+--------------------------------------
+
+- Add keycloak username in a custom plugin url or payload (https://discourse.orthanc-server.org/t/get-keycloak-user-in-a-custom-plugin/6323/3).
+- support neuro plugin (download nifti) (https://discourse.orthanc-server.org/t/oe2-compatibility-with-the-neuroimaging-plugin/6336)
+- use token from url to open Stone (https://discourse.orthanc-server.org/t/passing-oe2-auth-token-to-stone-webviewer/6335)
+
+
+-----------
+
 - add a "reset" button (on Windows, to reload the config after you have changed it without going to the Services -> Orthanc -> Restart)
 - show ohif-vr and ohif-tmtv buttons only when relevant (analyse the content of the study)
 
@@ -22,13 +32,10 @@ UI improvements:
 - Add a PDF/Image dicomization (https://discourse.orthanc-server.org/t/orthanc-explorer-2-dicomization-feature-suggestion/6061/4).
   Not to attach a new series to an existing study but to create a new study.
 
-- Add keycloak username in a custom plugin url or payload (https://discourse.orthanc-server.org/t/get-keycloak-user-in-a-custom-plugin/6323/3).
-
 - worklist page: suggest auto-incremented AccessionNumber (https://discourse.orthanc-server.org/t/new-worklists-plugin-oe2-1-10-0/6322/2)
 
 - show attachments
 
-- support neuro plugin (download nifti) (https://discourse.orthanc-server.org/t/oe2-compatibility-with-the-neuroimaging-plugin/6336)
 
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
 
