@@ -25,7 +25,7 @@ export default {
         if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
             this.tags = (await api.getInstanceTags(this.instanceId));
             this.headers = (await api.getInstanceHeader(this.instanceId));
-        } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
+        } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
             this.tags = {
                 "0008,0018" : {
                     "Name": "SOPInstanceUID",
