@@ -483,7 +483,7 @@
             // if Keycloak is disabled and if tokens are being passed in the OE2 query arguments (?token=tutu),
             // this configuration tells OE2 which query arguments to re-used when opening a viewer or when
             // downloading a resource (aka 'viewer-instant-link' and 'download-instant-link')
-            "InstantLinksReuseTokenFromUri": "token",
+            //"InstantLinksReuseTokenFromUri": "token",
             
             // By default, on ReadOnly systems, many UI components are disabled (like upload, delete, modify, ...).
             // However, on very specific cases, some users might want to have the full UI available although the
