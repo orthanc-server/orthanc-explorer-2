@@ -17,11 +17,6 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import mitt from "mitt"
 import VueObserveVisibility from 'vue3-observe-visibility'
 
-// Names of the params that can contain an authorization token
-// If one of these params contain a token, it will be passed as a header
-// with each request to the Orthanc API
-const VALID_TOKEN_PARAMS = ["token", "auth-token", "authorization"];
-
 // before initialization, we must load part of the configuration to know if we need to enable Keycloak or not
 axios.get('../api/pre-login-configuration').then((config) => {
     const configData = config.data;
@@ -107,18 +102,6 @@ axios.get('../api/pre-login-configuration').then((config) => {
         }
     } else {
         console.log("Keycloak is disabled");
-
-        // // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API
-        // const params = new URLSearchParams(window.location.search);
-
-        // for (let paramName of VALID_TOKEN_PARAMS) {
-        //     const paramValue = params.get(paramName);
-
-        //     if (!paramValue) continue;
-
-        //     localStorage.setItem(paramName, paramValue);
-        //     orthancApi.updateAuthHeader(paramName);
-        // }
 
         app.mount('#app-inbox')
     }
