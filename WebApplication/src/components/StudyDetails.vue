@@ -125,8 +125,12 @@ export default {
                     "NumberOfSeriesRelatedInstances": "",
                     "Modality": "",
                     "SeriesDescription": "",
-                    "SeriesNumber": ""
-                    },
+                    "SeriesNumber": "",
+                    "SeriesDate": "",
+                    "SeriesTime": "",
+                    "BodyPartExamined": "",
+                    "ProtocolName": ""
+                },
                     false /* isUnique */));
                 this.studySeries = remoteSeries.map(s => { return {
                     "ID": s["SeriesInstanceUID"],

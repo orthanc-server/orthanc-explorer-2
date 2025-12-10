@@ -1,3 +1,9 @@
+Pending changes
+===============
+
+Fixes:
+- Fix [missing fields when browsing remote DICOMweb servers at series level](https://discourse.orthanc-server.org/t/dicom-web-client-not-requesting-all-tags-it-intends-to-display/6348)
+
 1.10.1 (2025-11-20)
 ==================
 
