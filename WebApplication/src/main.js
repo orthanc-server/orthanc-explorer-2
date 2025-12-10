@@ -115,18 +115,25 @@ axios.get('../api/pre-login-configuration').then((config) => {
             console.log("Could not connect to Keycloak", e);
         });
     } else {
-        // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API
-        const params = new URLSearchParams(window.location.search);
+        router.isReady().then(() => {
+            console.log("opening OE2 with router=", router.currentRoute.value);
+            // If there is a param with a token in the params, use it as a header in subsequent calls to the Orthanc API
 
-        for (let paramName of VALID_TOKEN_PARAMS) {
-            const paramValue = params.get(paramName);
+            for (let paramName of VALID_TOKEN_PARAMS) {
 
-            if (!paramValue) continue;
+                if (paramName in router.currentRoute.value.query) {
+                    const paramValue = router.currentRoute.value.query[paramName];
+                    if (!paramValue) {
+                        continue;
+                    }
 
-            localStorage.setItem(paramName, paramValue);
-            orthancApi.updateAuthHeader(paramName);
-        }
+                    console.log("found auth token in url: ", paramName, paramValue);
+                    localStorage.setItem(paramName, paramValue);
+                    orthancApi.updateAuthHeader(paramName);
+                }
+            }
 
-        app.mount('#app')
+            app.mount('#app');
+        });
     }
 });

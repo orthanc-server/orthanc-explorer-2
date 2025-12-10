@@ -28,20 +28,31 @@ export default {
                 return;
             }
 
-            if (!this.tokens.RequiredForLinks) {
+            if (!this.tokens.RequiredForLinks && !this.advancedOptions.InstantLinksReuseTokenFromUri) {
                 return;  // just execute the default click handler: no token in url, no HTTP headers
             }
             event.preventDefault();
-            let validityDuration = this.validityDuration;
-            if (validityDuration == null || validityDuration === undefined) {
-                validityDuration = this.tokens.InstantLinksValidity;
-            }
-            let level = this.level;
-            if (level == "bulk-study") {
-                level = "study";
+
+            let token = null;
+            if (!this.tokens.RequiredForLinks && this.advancedOptions.InstantLinksReuseTokenFromUri) {
+                token = {
+                    "Token": localStorage.getItem(this.advancedOptions.InstantLinksReuseTokenFromUri)
+                };
+                console.log("reusing token from uri: ", this.advancedOptions.InstantLinksReuseTokenFromUri, token["Token"]);
+            } else {
+                // generate a token through the auth-plugin & auth-service
+                let validityDuration = this.validityDuration;
+                if (validityDuration == null || validityDuration === undefined) {
+                    validityDuration = this.tokens.InstantLinksValidity;
+                }
+                let level = this.level;
+                if (level == "bulk-study") {
+                    level = "study";
+                }
+
+                token = await api.createToken({ tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: level, validityDuration: validityDuration });
             }
 
-            let token = await api.createToken({ tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: level, validityDuration: validityDuration });
             let finalUrl = this.linkUrl;
 
             // give priority to the urls coming from the token service

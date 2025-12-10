@@ -480,6 +480,11 @@
             // and the HTTP response will stream to disk.  Note that this might not work on all browsers.
             "DownloadInstantLinksUseRestApiWithAuthHeaders": false,
 
+            // if Keycloak is disabled and if tokens are being passed in the OE2 query arguments (?token=tutu),
+            // this configuration tells OE2 which query arguments to re-used when opening a viewer or when
+            // downloading a resource (aka 'viewer-instant-link' and 'download-instant-link')
+            "InstantLinksReuseTokenFromUri": "token",
+            
             // By default, on ReadOnly systems, many UI components are disabled (like upload, delete, modify, ...).
             // However, on very specific cases, some users might want to have the full UI available although the
             // system is ReadOnly; this can be achived by setting AdaptUiOnReadOnlySystems to false.

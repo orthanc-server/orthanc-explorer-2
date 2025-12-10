@@ -2,8 +2,6 @@
 --------------------------------------
 
 - Add keycloak username in a custom plugin url or payload (https://discourse.orthanc-server.org/t/get-keycloak-user-in-a-custom-plugin/6323/3).
-- support neuro plugin (download nifti) (https://discourse.orthanc-server.org/t/oe2-compatibility-with-the-neuroimaging-plugin/6336)
-- use token from url to open Stone (https://discourse.orthanc-server.org/t/passing-oe2-auth-token-to-stone-webviewer/6335)
 
 
 -----------
