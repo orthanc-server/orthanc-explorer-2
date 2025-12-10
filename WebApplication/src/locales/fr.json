@@ -84,6 +84,7 @@
     "drop_files": "Déposez les fichiers ici ou",
     "enter_search": "Entrez un critère de recherche pour afficher les résultats !",
     "error": "Erreur",
+    "export_to_nifti": "Exporter au format NIfTI",
     "file": "Fichier",
     "files": "fichiers",
     "frames": "Frames",

@@ -691,6 +691,9 @@ export default {
             return orthancApiUrl + 'volview/index.html?names=[archive.zip]&' + urls;
         }
     },
+    getExportToNiftiUrl(level, resourceOrthancId) {
+        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/nifti';
+    },
     getWsiViewerUrl(seriesOrthancId) {
         return orthancApiUrl + 'wsi/app/viewer.html?series=' + seriesOrthancId;
     },

@@ -95,6 +95,7 @@
     "drop_files": "Drop files here or",
     "enter_search": "Enter a search criteria to show results!",
     "error": "Error",
+    "export_to_nifti": "Export to NIfTI",
     "file": "File",
     "files": "files",
     "frames": "frames",

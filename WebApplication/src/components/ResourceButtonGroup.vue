@@ -26,7 +26,8 @@ export default {
         return {
             isBulkLabelModalVisible: false,
             isWsiSeries: false,
-            modalitiesList: []
+            modalitiesList: [],
+            isNiftiCompatible: false
         };
     },
     watch: {
@@ -60,6 +61,29 @@ export default {
     },
 
     async mounted() {
+
+        // check if the image is NIfTI compatible: make sure this is a 3D image
+        if (!this.isPluginEnabled("neuro")) {
+            return;
+        }
+
+        if (this.resourceLevel != 'series' && this.resourceLevel != 'instance') {
+            return;
+        }
+        let instanceTags = null;
+        if (this.resourceLevel == 'series') {
+            const instances = await api.getSeriesInstances(this.resourceOrthancId);
+            instanceTags = await api.getSimplifiedInstanceTags(instances[0]['ID']);
+        } else if (this.resourceLevel == 'instance') {
+            instanceTags = await api.getSimplifiedInstanceTags(this.resourceOrthancId);
+        }
+
+        if ("PixelSpacingBetweenSlices" in instanceTags || "SliceThickness" in instanceTags) {
+            this.isNiftiCompatible = true;
+        } else {
+            console.info("no PixelSpacingBetweenSlices or SliceThickness -> not possible to export to nifti");
+            this.isNiftiCompatible = false;
+        }
     },
     methods: {
         toggleSubMenu(event) {
@@ -559,6 +583,12 @@ export default {
                 return false;
             }
         },
+        hasExportToNifti() {
+            return this.isNiftiCompatible;
+        },
+        exportToNiftiUrl() {
+            return api.getExportToNiftiUrl(this.resourceLevel, this.resourceOrthancId);
+        },
         hasStlViewer() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.isPluginEnabled("stl");
         },
@@ -944,6 +974,10 @@ export default {
             <TokenLinkButton v-if="hasInstanceDownloadButton" :iconClass="'bi bi-download'" :level="this.resourceLevel"
                 :linkUrl="instanceDownloadUrl" :resourcesOrthancId="[resourceOrthancId]"
                 :title="$t('download_dicom_file')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
+            </TokenLinkButton>
+            <TokenLinkButton v-if="hasExportToNifti" :iconClass="'fa-solid fa-brain'" :level="this.resourceLevel"
+                :linkUrl="exportToNiftiUrl" :resourcesOrthancId="[resourceOrthancId]" :title="$t('export_to_nifti')"
+                :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
         <div class="custom-button-group">
