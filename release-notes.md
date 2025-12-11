@@ -9,6 +9,7 @@ Changes:
 Fixes:
 - Fix [missing fields when browsing remote DICOMweb servers at series level](https://discourse.orthanc-server.org/t/dicom-web-client-not-requesting-all-tags-it-intends-to-display/6348)
 - Fix #95 [DICOMweb: Instance retrieve sends wrong WADO-RS request](https://github.com/orthanc-server/orthanc-explorer-2/issues/95)
+- Fix #94 [Displaced columns and fields in UI](https://github.com/orthanc-server/orthanc-explorer-2/issues/94)
 
 
 1.10.1 (2025-11-20)

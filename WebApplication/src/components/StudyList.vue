@@ -273,12 +273,12 @@ export default {
                 return 1;
             }
 
-            let span = 3;
+            let span = 1;
             if (this.hasPrimaryViewerIcon) {
-                span--;
+                span++;
             }
             if (this.hasPdfReportIcon) {
-                span--;
+                span++;
             }
 
             return span;
@@ -1019,8 +1019,8 @@ export default {
             <thead class="sticky-top">
                 <tr class="study-column-titles">
                     <th :width="widthColum1" max-width="40px" scope="col"></th>
-                    <th v-if="hasPrimaryViewerIcon" width="4%" max-width="30px" scope="col" ></th>
-                    <th v-if="hasPdfReportIcon" width="4%" max-width="30px" scope="col" ></th>
+                    <th v-if="hasPrimaryViewerIcon" width="2%" max-width="30px" scope="col" ></th>
+                    <th v-if="hasPdfReportIcon" width="2%" max-width="30px" scope="col" ></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
