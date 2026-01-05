@@ -2,8 +2,8 @@
 # Copyright (C) 2012-2016 Sebastien Jodogne, Medical Physics
 # Department, University Hospital of Liege, Belgium
 # Copyright (C) 2017-2024 Osimis S.A., Belgium
-# Copyright (C) 2021-2024 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
-# Copyright (C) 2024-2024 Orthanc Team SRL, Belgium
+# Copyright (C) 2021-2026 Sebastien Jodogne, ICTEAM UCLouvain, Belgium
+# Copyright (C) 2024-2026 Orthanc Team SRL, Belgium
 #
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU Affero General Public License
