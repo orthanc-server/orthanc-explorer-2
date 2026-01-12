@@ -69,21 +69,23 @@ export default {
 
             const _logs = await api.getAuditLogs(filters);
             this.currentFilters = filters;
-            let uploadedInstanceGroup = [];
+            let lastUploadInstanceResourceId = null;
+            let countInstancesInGroup = 0;
             if (_logs) {
                 for (const log of _logs) {
                     if (log['Action'] == "uploaded-instance") {
-                        if (uploadedInstanceGroup.length == 0) {
+                        if (log['ResourceId'] != lastUploadInstanceResourceId) {
                             this.logs.push(log);
-                            uploadedInstanceGroup.push(log);
+                            countInstancesInGroup = 1;
                         } else {
-                            uploadedInstanceGroup.push(log);
+                            countInstancesInGroup++;
                             this.logs[this.logs.length - 1]["Action"] = "uploaded-instances";
                             this.logs[this.logs.length - 1]["JsonLogData"] = {
-                                "Count": uploadedInstanceGroup.length,
+                                "Count": countInstancesInGroup,
                                 "Last": log['Timestamp']
                             }
                         }
+                        lastUploadInstanceResourceId = log['ResourceId'];
                     } else {
                         this.logs.push(log);
                         uploadedInstanceGroup = [];
