@@ -5,6 +5,7 @@ Changes:
 - Added "export to NIfTI" button for 3D series and instances.
 - New configuration "AdvancedOptions.InstantLinksReuseTokenFromUri" to 
   re-use an OE2 query argument when opening a viewer or downloading a resource.
+- "ApiView" button now requires the `admin-permissions` instead of `api-view`.
 
 Fixes:
 - Fix [missing fields when browsing remote DICOMweb servers at series level](https://discourse.orthanc-server.org/t/dicom-web-client-not-requesting-all-tags-it-intends-to-display/6348)

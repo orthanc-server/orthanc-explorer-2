@@ -722,7 +722,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableModification"], permissions, "all|modify");
         UpdateUiOptions(uiOptions["EnableAnonymization"], permissions, "all|anonymize");
         UpdateUiOptions(uiOptions["EnableSendTo"], permissions, "all|send");
-        UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|api-view");
+        UpdateUiOptions(uiOptions["EnableApiViewMenu"], permissions, "all|admin-permissions");
         UpdateUiOptions(uiOptions["EnableSettings"], permissions, "all|settings");
         UpdateUiOptions(uiOptions["EnableWorklists"], permissions, "all|worklists");
         UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
