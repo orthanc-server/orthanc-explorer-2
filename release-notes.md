@@ -3,6 +3,8 @@ Pending changes
 
 Changes:
 - Added "export to NIfTI" button for 3D series and instances.
+- When using labels, added a new 'Without labels' list (provided that you
+  are using Orthanc 1.12.11 or PostgreSQL plugin 10.1 that have not been released yet)
 - New configuration "AdvancedOptions.InstantLinksReuseTokenFromUri" to 
   re-use an OE2 query argument when opening a viewer or downloading a resource.
 - "ApiView" button now requires the `admin-permissions` instead of `api-view`.

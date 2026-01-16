@@ -121,6 +121,7 @@
         "removed_labels_message_part_1_html": "Les étiquettes ",
         "removed_labels_message_part_2_html": " ont été supprimées de <strong>{count}</strong> examens",
         "study_details_title": "Étiquettes",
+        "studies_without_labels": "Sans étiquettes",
         "valid_alphabet_warning": "Seuls les caractères suivant sont autorisé : lettres sans accents, chiffres, - et _"
     },
     "legacy_ui": "Ancienne interface",

@@ -15,9 +15,9 @@ export default {
     data() {
         return {
             // selectedModality: null,
-            selectedLabel: null,
             modalitiesEchoStatus: {},
             labelsStudyCount: {},
+            noLabelsStudyCount: null
         };
     },
     computed: {
@@ -30,8 +30,10 @@ export default {
             studiesIds: state => state.studies.studiesIds,
             statistics: state => state.studies.statistics,
             labelFilters: state => state.studies.labelFilters,
+            labelsContraint: state => state.studies.labelsContraint,
             jobs: state => state.jobs.jobsIds,
             allLabels: state => state.labels.allLabels,
+            canShowStudiesWithoutLabels: state => state.labels.canShowStudiesWithoutLabels,
             hasCustomLogo: state => state.configuration.hasCustomLogo,
             configuration: state => state.configuration,
             studiesSourceType: state => state.studies.sourceType,
@@ -95,16 +97,16 @@ export default {
             return this.modalitiesEchoStatus[modality] == true;
         },
         async selectLabel(label) {
-            this.selectedLabel = label;
-            if (this.$router.name == 'local-studies-list') {
-                await this.$store.dispatch('studies/updateSource', { 'source-type': SourceType.LOCAL_ORTHANC, 'remote-source': null });
-                this.messageBus.emit('filter-label-changed', label);
-            } else {
-                this.$router.push({name: 'local-studies-list', query: {'labels': label}});
-            }
+            this.$router.push({name: 'local-studies-list', query: {'labels': label}});
+        },
+        async selectWithoutLabels() {
+            this.$router.push({name: 'local-studies-list', query: {'without-labels': true}});
         },
         isSelectedLabel(label) {
-            return this.labelFilters.includes(label);
+            return this.labelsContraint != 'None' && this.labelFilters.includes(label);
+        },
+        isSelectedWithoutLabels() {
+            return this.labelsContraint == 'None' && this.labelFilters.length == 0;
         },
         logout(event) {
             event.preventDefault();
@@ -137,6 +139,9 @@ export default {
                         if (v == null) {
                             this.labelsStudyCount[k] = await api.getLabelStudyCount(k);
                         }
+                    }
+                    if (this.canShowStudiesWithoutLabels) {
+                        this.noLabelsStudyCount = await api.getLabelStudyCount(null);
                     }
                 }
             }
@@ -193,6 +198,10 @@ export default {
                         </router-link>
                     </li>
                     <ul v-if="allLabels.length > 0" class="sub-menu" id="labels-list">
+                        <li v-if="canShowStudiesWithoutLabels" key="without-label" v-bind:class="{ 'active': isSelectedWithoutLabels() }" @click="selectWithoutLabels()">
+                            {{ $t('labels.studies_without_labels') }}
+                            <span class="study-count ms-auto">{{ noLabelsStudyCount }}</span>
+                        </li>
                         <li v-for="label in allLabels" :key="label"
                         v-bind:class="{ 'active': isSelectedLabel(label) }" @click="selectLabel(label)">
                             <i class="fa fa-tag label-icon"></i>

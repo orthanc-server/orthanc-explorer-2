@@ -77,7 +77,7 @@ export default {
             window.axiosFindStudiesAbortController = null;
         }
     },
-    async findStudies(filterQuery, labels, LabelsConstraint, orderBy, since) {
+    async findStudies(filterQuery, labels, labelsConstraint, orderBy, since) {
         await this.cancelFindStudies();
         window.axiosFindStudiesAbortController = new AbortController();
 
@@ -96,7 +96,10 @@ export default {
         
         if (labels && labels.length > 0) {
             payload["Labels"] = labels;
-            payload["LabelsConstraint"] = LabelsConstraint;
+            payload["LabelsConstraint"] = labelsConstraint;
+        } else if (labelsConstraint == 'None') {
+            payload["Labels"] = [];
+            payload["LabelsConstraint"] = 'None';
         }
 
         if (orderBy && orderBy.length > 0) {
@@ -585,12 +588,18 @@ export default {
         return response.data;
     },
     async getLabelStudyCount(label) {
-        const response = (await axios.post(orthancApiUrl + "tools/count-resources", {
+        let query = {
             "Level": "Study",
-            "Query": {},
-            "Labels": [label],
-            "LabelsConstraint" : "All"
-        }));
+            "Query": {}
+        };
+        if (label) {
+            query["Labels"] = [label];
+            query["LabelsConstraint"] = "All"
+        } else {
+            query["Labels"] = [];
+            query["LabelsConstraint"] = "None"
+        }
+        const response = (await axios.post(orthancApiUrl + "tools/count-resources", query));
         return response.data["Count"];
     },
     async downloadFileWithAuthHeaders(url) {

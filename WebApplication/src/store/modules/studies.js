@@ -155,6 +155,9 @@ const getters = {
             }
         }
         // dicomTags filter is empty, check the labels
+        if (state.labelFilters.length == 0 && state.labelsContraint == 'None') {
+            return false;
+        }
         return (!state.labelFilters || state.labelFilters.length == 0);
     },
 

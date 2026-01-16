@@ -132,6 +132,7 @@
         "removed_labels_message_part_1_html": "Removed labels ",
         "removed_labels_message_part_2_html": " from <strong>{count}</strong> studies",
         "study_details_title": "Labels",
+        "studies_without_labels": "Without labels",
         "valid_alphabet_warning": "Only allowed characters in labels are: latin letters, numbers, - and _"
     },
     "legacy_ui": "Legacy UI",

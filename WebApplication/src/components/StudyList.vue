@@ -142,6 +142,7 @@ export default {
             remoteSource: null,
             showMultiLabelsFilter: false,
             multiLabelsFilterLabelsConstraint: "All",
+            showStudiesWithoutLabels: false,
             multiLabelsComponentKey: 0, // to force refresh the multi-labels filter component
         };
     },
@@ -155,7 +156,8 @@ export default {
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics,
             hasExtendedFind: state => state.configuration.hasExtendedFind,
-            hasExtendedChanges: state => state.configuration.hasExtendedChanges
+            hasExtendedChanges: state => state.configuration.hasExtendedChanges,
+            canShowStudiesWithoutLabels: state => state.labels.canShowStudiesWithoutLabels
         }),
         ...mapGetters([
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
@@ -353,10 +355,16 @@ export default {
             this.filterPatientBirthDate = dicomNewValue;
         },
         async multiLabelsFilterLabelsConstraint(newValue, oldValue) {
-            if (this.isSearchAsYouTypeEnabled) {
-                await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels, constraint: this.multiLabelsFilterLabelsConstraint });
-                this.updateUrlNoReload();
-                this.reloadStudyList();
+            if (!this.updatingFilterUi) {
+                if (this.isSearchAsYouTypeEnabled) {
+                    if (multiLabelsFilterLabelsConstraint == 'None') {
+                        await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: [], constraint: this.multiLabelsFilterLabelsConstraint });
+                    } else {
+                        await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels, constraint: this.multiLabelsFilterLabelsConstraint });
+                    }
+                    this.updateUrlNoReload();
+                    this.reloadStudyList();
+                }
             }
         },
         selectedStudiesIds: {
@@ -371,7 +379,6 @@ export default {
     },
     async created() {
         this.messageBus.on('language-changed', this.translateDatePicker);
-        this.messageBus.on('filter-label-changed', this.filterLabelChanged); // labels are changed in the sidebar, not in the study list itself
         if (this.isConfigurationLoaded) {
             setTimeout(() => {this.showMultiLabelsFilter = true}, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         }
@@ -470,12 +477,6 @@ export default {
                     this.filterModalities[modality] = true;
                 }
             }
-        },
-        filterLabelChanged(label) {
-            this.filterLabels = [label];
-            this.multiLabelsFilterLabelsConstraint = "All";
-            this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
-            this.search();
         },
         initModalityFilter() {
             // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
@@ -647,12 +648,15 @@ export default {
 
             let routeHasOrderBy = false;
             let labelsConstraint = filters["labels-constraint"] || 'All';
+
+            let routeHasShowStudiesWithoutLabels = Object.keys(filters).filter(k => k == 'without-labels').length > 0;
+
             for (const [filterKey, filterValue] of Object.entries(filters)) {
-                if (filterKey == "labels") {
+                if (filterKey == "labels" && !routeHasShowStudiesWithoutLabels) {
                     const labels = filterValue.split(",");
                     keyValueFilters[filterKey] = labels;
                     await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: labels, constraint: labelsConstraint });
-                } else if (filterKey == 'labels-constraint') {
+                } else if (filterKey == 'labels-constraint' && !routeHasShowStudiesWithoutLabels) {
                     this.multiLabelsFilterLabelsConstraint = filterValue;
                 } else if (filterKey == 'order-by') {
                     if (this.sourceType == SourceType.LOCAL_ORTHANC) { // ignore order-by for remote sources
@@ -664,13 +668,19 @@ export default {
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: filterKey, value: filterValue });
                 } 
             }
+            if (routeHasShowStudiesWithoutLabels) {
+                await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: [], constraint: 'None' });
+                this.showStudiesWithoutLabels = true;
+            } else {
+                this.showStudiesWithoutLabels = false;
+            }
             if (!routeHasOrderBy && this.uiOptions.DefaultOrdering) {
                 const defaultOrdering = this.uiOptions.DefaultOrdering;
                 console.log("Applying default ordering: ", defaultOrdering);
                 this.updateOrderBy(defaultOrdering, false);
             }
 
-            await this.updateFilterForm(keyValueFilters, labelsConstraint);
+            await this.updateFilterForm(keyValueFilters, labelsConstraint, this.showStudiesWithoutLabels);
 
             if (this.sourceType == SourceType.LOCAL_ORTHANC || !this['studies/isFilterEmpty']) { // do not reload when we are switching to a remote study list to avoid searching for * on a remote server
                 await this.reloadStudyList();
@@ -681,11 +691,12 @@ export default {
             await nextTick();
             this.updatingFilterUi = false;
         },
-        updateFilterForm(filters, labelsConstraint) {
+        updateFilterForm(filters, labelsConstraint, showStudiesWithoutLabels) {
             // console.log("StudyList: updateFilterForm", this.updatingFilterUi);
             this.emptyFilterForm();
 
             this.multiLabelsFilterLabelsConstraint = labelsConstraint;
+            this.showStudiesWithoutLabels = showStudiesWithoutLabels;
             for (const [key, value] of Object.entries(filters)) {
                 if (key == "labels") {
                     this.filterLabels = value;
@@ -693,7 +704,6 @@ export default {
                     let orders = value.split(";")
                     for (let order of orders) {
                         let s = order.split(",");
-
                     }
                 } else if (key == "StudyDate") {
                     this.filterStudyDate = value;
@@ -726,6 +736,7 @@ export default {
             this.filterStudyDateForDatePicker = null;
             this.filterPatientBirthDate = '';
             this.multiLabelsFilterLabelsConstraint = 'All';
+            this.showStudiesWithoutLabels = false;
 
             this.filterPatientBirthDateForDatePicker = null;
             this.filterGenericTags = {};
@@ -763,7 +774,11 @@ export default {
                         }
                     }
                     await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.getModalityFilter() });    
-                    await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels, constraint: this.multiLabelsFilterLabelsConstraint });
+                    if (this.showStudiesWithoutLabels) {
+                        await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: [], constraint: 'None' });
+                    } else {
+                        await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: this.filterLabels, constraint: this.multiLabelsFilterLabelsConstraint });
+                    }
                 }
                 await this.updateUrlNoReload();
                 await this.reloadStudyList();
@@ -995,10 +1010,12 @@ export default {
             }
         },
         onMultiLabelsFilterChanged(newValues) {
-            this.filterLabels = newValues;
-            if (this.isSearchAsYouTypeEnabled) {
-                this.updateUrlNoReload();
-                this.reloadStudyList();
+            if (!this.updatingFilterUi) {
+                this.filterLabels = newValues;
+                if (this.isSearchAsYouTypeEnabled) {
+                    this.updateUrlNoReload();
+                    this.reloadStudyList();
+                }
             }
         }
     },
@@ -1103,6 +1120,10 @@ export default {
                             <input class="form-check-input ms-2 me-1" type="radio" name="multiLabelsFilterAny" id="multiLabelsFilterAny"
                                 value="Any" v-model="multiLabelsFilterLabelsConstraint">
                             <label class="form-check-label" for="multiLabelsFilterAny">{{ $t('labels.filter_labels_constraint_any') }}
+                            </label>
+                            <input v-if="canShowStudiesWithoutLabels" class="form-check-input ms-2 me-1" type="radio" name="multiLabelsFilterWithoutLabels" id="multiLabelsFilterWithoutLabels"
+                                value="None" v-model="multiLabelsFilterLabelsConstraint">
+                            <label v-if="canShowStudiesWithoutLabels" class="form-check-label" for="multiLabelsFilterWithoutLabels">{{ $t('labels.studies_without_labels') }}
                             </label>
                         </div>
                     </th>
