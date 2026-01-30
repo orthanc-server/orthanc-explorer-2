@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.10.2 (2026-01-30)
+==================
 
 Changes:
 - Added "export to NIfTI" button for 3D series and instances.
