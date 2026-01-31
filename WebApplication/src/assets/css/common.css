@@ -79,9 +79,11 @@
 .btn-icon {
   line-height: 2rem;
   height: 2.5rem;
+
 }
 
 .btn-icon-small {
   height: 2rem;
   font-size: medium;
+  background-color: #0f172a;
 }

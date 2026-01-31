@@ -265,6 +265,13 @@
         "title": "Settings",
         "verbosity_level": "Verbosity Level"
     },
+    "sidebar": {
+        "open": "Expand  menu",
+        "close": "Collapse menu",
+        "dashboard": "Dashboard",
+        "profile": "Profile"
+
+    },
     "share": {
         "anonymize": "Anonymize?",
         "button_title": "Share",
