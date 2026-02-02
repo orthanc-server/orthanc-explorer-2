@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Fixes:
+- Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
+
+
 1.10.2 (2026-01-30)
 ==================
 
