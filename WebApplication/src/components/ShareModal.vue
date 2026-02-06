@@ -4,17 +4,19 @@ import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import api from "../orthancApi"
-
+import axios from "axios";
+import TextEditor from "./TextEditor.vue";
 
 export default {
     props: ["id", "orthancId", "studyMainDicomTags", "patientMainDicomTags"],
     data() {
         return {
             expirationInDays: 0,
-            shareLink: ""
+            shareLink: "",
+            email_content: ""
         }
     },
-    mounted() {
+    async mounted() {
         this.reset();
 
         this.$refs['modal-main-div'].addEventListener('show.bs.modal', (e) => {
@@ -22,6 +24,9 @@ export default {
             document.querySelector('body').appendChild(e.target);
             this.reset();
         });
+        // this.email_content = (await axios.get("/emails/templates/share-study")).data;
+        this.email_content = "Some text"
+        // console.log(this.email_content);
     },
     watch: {
         expirationInDays(newValue, oldValue) {
@@ -54,7 +59,7 @@ export default {
         },
         copyAndClose() {
             clipboardHelpers.copyToClipboard(this.shareLink);
-        }
+        },
     },
     computed: {
         ...mapState({
@@ -74,9 +79,21 @@ export default {
         },
         studiesCount() {
             return this.selectedStudiesIds.length;
+        },
+        enableShareByEmail() {
+            return this.uiOptions.EnableSharesByEmail;
+        },
+        insertableTags() {
+            if (this.isBulkSelection) {
+                return {};
+            }
+            return {
+                'PatientID': this.patientMainDicomTags['PatientID'],
+                'PatientName': this.patientMainDicomTags['PatientName'],
+            }
         }
     },
-    components: { CopyToClipboardButton }
+    components: { CopyToClipboardButton, TextEditor }
 
 };
 </script>
@@ -122,12 +139,21 @@ export default {
                 </div>
                 </div>
                 <div class="modal-footer">
+                    <div class="container w-100">
+                    <TextEditor
+                        ref="editor"
+                        targetUsage="email"
+                        :insertableTexts="insertableTags"
+                    />
+                </div>
+                <div class="container">
                     <button type="button" class="btn btn-secondary"
                         data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button v-if="shareLink == ''" type="button" class="btn btn-primary"
                         @click="share()">{{ $t("share.button_title") }}</button>
                     <button v-if="shareLink != ''" type="button" class="btn btn-primary" data-bs-dismiss="modal"
                         @click="copyAndClose()">{{ $t("share.copy_and_close") }}</button>
+                </div>
                 </div>
             </div>
         </div>
