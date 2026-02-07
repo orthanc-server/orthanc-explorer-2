@@ -129,7 +129,6 @@ export default {
             }
         },
         async uploadFiles(files) {
-            files = Array.from(files); // make a copy (https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
             let uploadId = this.uploadCounter++;
             if (this.singleUse) {
                 this.disabledAfterUpload = true;

@@ -3,7 +3,6 @@
 
 - Add keycloak username in a custom plugin url or payload (https://discourse.orthanc-server.org/t/get-keycloak-user-in-a-custom-plugin/6323/3).
 - When transfering a study to DICOM/peer/DicomWeb, report the number of transmitted files in the progress bar (same as in upload) (Jacob)
-- Open Stone at series level (https://discourse.orthanc-server.org/t/view-a-single-series-using-the-stone-web-viewer/6378)
 
 -----------
 
