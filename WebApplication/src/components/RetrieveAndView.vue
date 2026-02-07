@@ -7,7 +7,7 @@ export default {
     props: [],
     async created() {
         const params = new URLSearchParams(window.location.search);
-        
+
         if (params.has("StudyInstanceUID")) {
             this.studyInstanceUid = params.get('StudyInstanceUID');
         } else if (params.has("study")) {
@@ -15,17 +15,17 @@ export default {
         } else {
             console.error("No study defined.  Use StudyInstanceUID=1.2.3.... in your url");
         }
-        
+
         const modality = params.get('modality');
         if (params.has("viewer")) {
             this.viewer = params.get("viewer");
         }
 
-        const study = await api.findStudy( this.studyInstanceUid);
+        const study = await api.findStudy(this.studyInstanceUid);
         if (study == null) {
             this.state = "finding-remotely";
 
-            const remoteStudies = await api.remoteDicomFind("Study", modality, {"StudyInstanceUID": this.studyInstanceUid}, true /* isUnique */);
+            const remoteStudies = await api.remoteDicomFind("Study", modality, { "StudyInstanceUID": this.studyInstanceUid }, true /* isUnique */);
             if (remoteStudies.length == 0) {
                 this.state = "not-found";
             } else {
@@ -37,7 +37,7 @@ export default {
                     const jobId = await api.remoteDicomRetrieveResource("Study", modality, moveQuery);
                     this.state = "retrieving";
                     this.startMonitoringJob(jobId);
-                }                
+                }
             }
         } else {
             this.studyOrthancId = study['ID'];
@@ -136,13 +136,14 @@ export default {
 <template>
     <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center h4 text-center">
         <span>
-            <p  v-if="state=='finding-locally'" v-html="$t('retrieve_and_view.finding_locally')"></p>
-            <p  v-if="state=='finding-remotely'" v-html="$t('retrieve_and_view.finding_remotely')"></p>
-            <p  v-if="state=='not-found'" v-html="$t('retrieve_and_view.not_found')"></p>
-            <p  v-if="state=='retrieving'" v-html="$t('retrieve_and_view.retrieving')"></p>
-            <p  v-if="state=='retrieving'" v-html="$t('retrieve_and_view.retrieved_html', { count: retrievedInstancesCount })"></p>
+            <p v-if="state == 'finding-locally'" v-html="$t('retrieve_and_view.finding_locally')"></p>
+            <p v-if="state == 'finding-remotely'" v-html="$t('retrieve_and_view.finding_remotely')"></p>
+            <p v-if="state == 'not-found'" v-html="$t('retrieve_and_view.not_found')"></p>
+            <p v-if="state == 'retrieving'" v-html="$t('retrieve_and_view.retrieving')"></p>
+            <p v-if="state == 'retrieving'"
+                v-html="$t('retrieve_and_view.retrieved_html', { count: retrievedInstancesCount })"></p>
             <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ $t('loading') }}</span>
             </div>
         </span>
     </div>

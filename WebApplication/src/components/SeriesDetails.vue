@@ -16,7 +16,7 @@ export default {
     "instancesIds",
   ],
   emits: ["deletedSeries"],
-  setup() {},
+  setup() { },
   data() {
     return {
       seriesInstances: [],
@@ -69,8 +69,8 @@ export default {
       this.seriesInstances = this.seriesInstances.sort((a, b) =>
         (parseInt(a.MainDicomTags.InstanceNumber) ??
           a.MainDicomTags.SOPInstanceUID) <
-        (parseInt(b.MainDicomTags.InstanceNumber) ??
-          b.MainDicomTags.SOPInstanceUID)
+          (parseInt(b.MainDicomTags.InstanceNumber) ??
+            b.MainDicomTags.SOPInstanceUID)
           ? 1
           : -1,
       );
@@ -96,8 +96,8 @@ export default {
       this.seriesInstances = this.seriesInstances.sort((a, b) =>
         (parseInt(a.MainDicomTags.InstanceNumber) ??
           a.MainDicomTags.SOPInstanceUID) <
-        (parseInt(b.MainDicomTags.InstanceNumber) ??
-          b.MainDicomTags.SOPInstanceUID)
+          (parseInt(b.MainDicomTags.InstanceNumber) ??
+            b.MainDicomTags.SOPInstanceUID)
           ? 1
           : -1,
       );
@@ -129,53 +129,30 @@ export default {
 <template>
   <div class="series-details-table">
     <div class="row g-3 mb-3">
-      <div class="col-12 col-md-4 series-button-group d-flex">
-        <ResourceButtonGroup
-          :resourceOrthancId="this.seriesId"
-          :resourceLevel="'series'"
-          :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
-          :studyMainDicomTags="this.studyMainDicomTags"
-          :seriesMainDicomTags="this.seriesMainDicomTags"
-          :patientMainDicomTags="this.patientMainDicomTags"
-          :seriesInstances="this.seriesInstances"
-          :customClass="'instance-button-group'"
-          @deletedResource="onDeletedSeries"
-        ></ResourceButtonGroup>
+      <div class="col-12 col-md-4 series-button-group d-flex flex-wrap">
+        <ResourceButtonGroup :resourceOrthancId="this.seriesId" :resourceLevel="'series'"
+          :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID" :studyMainDicomTags="this.studyMainDicomTags"
+          :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+          :seriesInstances="this.seriesInstances" :customClass="'instance-button-group'"
+          @deletedResource="onDeletedSeries"></ResourceButtonGroup>
       </div>
 
       <div class="col-12 col-md-8 d-flex row">
-        <ResourceDetailText
-          v-for="tag in uiOptions.SeriesMainTags"
-          :key="tag"
-          :tags="seriesMainDicomTags"
-          :tag="tag"
-          :showIfEmpty="true"
-        ></ResourceDetailText>
+        <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag" :tags="seriesMainDicomTags" :tag="tag"
+          :showIfEmpty="true"></ResourceDetailText>
       </div>
     </div>
 
     <div class="row">
       <div class="col-12">
-        <InstanceList
-          v-if="!useExtendedInstanceList"
-          :seriesId="this.seriesId"
-          :seriesMainDicomTags="this.seriesMainDicomTags"
-          :patientMainDicomTags="this.patientMainDicomTags"
-          :studyMainDicomTags="this.studyMainDicomTags"
-          :instancesIds="this.instancesIds"
-          :seriesInstances="this.seriesInstances"
-          @deletedInstance="onDeletedInstance"
-        ></InstanceList>
-        <InstanceListExtended
-          v-if="useExtendedInstanceList"
-          :seriesId="this.seriesId"
-          :seriesMainDicomTags="this.seriesMainDicomTags"
-          :patientMainDicomTags="this.patientMainDicomTags"
-          :studyMainDicomTags="this.studyMainDicomTags"
-          :instancesIds="this.instancesIds"
-          :seriesInstances="this.seriesInstances"
-          @deletedInstance="onDeletedInstance"
-        ></InstanceListExtended>
+        <InstanceList v-if="!useExtendedInstanceList" :seriesId="this.seriesId"
+          :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+          :studyMainDicomTags="this.studyMainDicomTags" :instancesIds="this.instancesIds"
+          :seriesInstances="this.seriesInstances" @deletedInstance="onDeletedInstance"></InstanceList>
+        <InstanceListExtended v-if="useExtendedInstanceList" :seriesId="this.seriesId"
+          :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+          :studyMainDicomTags="this.studyMainDicomTags" :instancesIds="this.instancesIds"
+          :seriesInstances="this.seriesInstances" @deletedInstance="onDeletedInstance"></InstanceListExtended>
       </div>
     </div>
   </div>
@@ -187,9 +164,13 @@ export default {
 }
 
 .cut-text {
-  overflow: hidden;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: pre;
+  /* preserve double white spaces (https://github.com/orthanc-server/orthanc-explorer-2/issues/30) */
+  max-width: 100% !important;
 }
+
 .resource-button-group,
 .study-button-group {
   display: flex;
@@ -500,6 +481,7 @@ export default {
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
+
   .resource-button-group button,
   .resource-button-group .btn {
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -508,6 +490,7 @@ export default {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
   .resource-button-group button,
   .resource-button-group .btn {
     transition: none;
@@ -878,6 +861,7 @@ export default {
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
+
   .resource-button-group button,
   .resource-button-group .btn {
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -886,6 +870,7 @@ export default {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
   .resource-button-group button,
   .resource-button-group .btn {
     transition: none;
@@ -901,5 +886,25 @@ export default {
   .resource-button-group {
     display: none !important;
   }
+}
+
+.study-details-expanded> :first-child {
+  border-left: 4px solid #3b82f6;
+}
+
+.study-table td {
+  border-bottom: none !important;
+}
+
+
+/* =============================================================================
+TAGS
+   ============================================================================= */
+li.tagLabel.active {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: pre;
+  /* preserve double white spaces (https://github.com/orthanc-server/orthanc-explorer-2/issues/30) */
+  max-width: 100%;
 }
 </style>

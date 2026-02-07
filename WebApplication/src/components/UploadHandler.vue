@@ -1,5 +1,5 @@
 <script>
-import {uppie} from "uppie"
+import { uppie } from "uppie"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
 
@@ -86,7 +86,8 @@ export default {
         return {
             uploadCounter: 0,
             lastUploadReports: {},
-            disabledAfterUpload: false
+            disabledAfterUpload: false,
+            isDragOver: false
         };
     },
     mounted() {
@@ -97,6 +98,7 @@ export default {
         onDrop(ev) {
             // console.log("on drop", ev);
             ev.preventDefault();
+            this.isDragOver = false;
 
             getAllFiles(ev.dataTransfer.items).then((files) => {
                 this.uploadFiles(files);
@@ -104,6 +106,12 @@ export default {
         },
         onDragOver(event) {
             event.preventDefault();
+            this.isDragOver = true;
+        },
+        onDragLeave(event) {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+                this.isDragOver = false;
+            }
         },
         onDeletedUploadReport(uploadReportId) {
             delete this.lastUploadReports[uploadReportId];
@@ -112,7 +120,7 @@ export default {
             let studyId = uploadedFileResponse["ParentStudy"];
             if (!this.lastUploadReports[uploadId].uploadedStudiesIds.has(studyId)) {
                 this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
-                
+
                 if (this.showStudyDetails) {
                     const studyResponse = await api.getStudy(studyId);
                     this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
@@ -191,26 +199,44 @@ export default {
     components: { UploadReport }
 }
 </script>
-
 <template>
     <div>
-        <div v-if="!disabledAfterUpload" class="upload-handler-drop-zone" :class="{'upload-handler-drop-zone-disabled': uploadDisabled}"  @drop="this.onDrop" @dragover="this.onDragOver" :disabled="uploadDisabled">
+        <div v-if="!disabledAfterUpload" class="upload-handler-drop-zone" :class="{
+            'upload-handler-drop-zone-disabled': uploadDisabled,
+            'upload-handler-drop-zone-dragover': isDragOver
+        }" @drop="onDrop" @dragover="onDragOver" @dragleave="onDragLeave" :disabled="uploadDisabled">
+
+            <!-- Иконка с анимацией -->
+            <div class="upload-icon">
+                <i class="fa-solid fa-angles-down"></i>
+            </div>
+
+            <!-- Текст -->
             <div v-if="uploadDisabled" class="mb-3">{{ uploadDisabledMessage }}</div>
-            <div v-if="!uploadDisabled" class="mb-3">{{ $t('drop_files') }}</div>
-            <div class="mb-3">
-                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}" >
-                    {{ $t('select_folder') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="foldersUpload" required
+            <div v-else class="mb-3 upload-text">
+                {{ isDragOver ? $t('drop_here') : $t('drop_files') }}
+            </div>
+
+            <!-- Кнопки в стиле меню -->
+            <div class="upload-menu">
+                <label class="menu-item" :class="{ 'menu-item--disabled': uploadDisabled }">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>{{ $t('select_folder') }}</span>
+                    <input :disabled="uploadDisabled" type="file" style="display: none;" id="foldersUpload" required
                         multiple directory webkitdirectory allowdirs>
                 </label>
-            </div>
-            <div class="mb-3">
-                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}">
-                    {{ $t('select_files') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="filesUpload" required multiple>
+
+                <label class="menu-item" :class="{ 'menu-item--disabled': uploadDisabled }">
+                    <i class="fa-solid fa-file-medical"></i>
+                    <span>{{ $t('select_files') }}</span>
+                    <input :disabled="uploadDisabled" type="file" style="display: none;" id="filesUpload" required
+                        multiple>
                 </label>
             </div>
         </div>
         <div class="upload-report-list">
-            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key" :showStudyDetails="showStudyDetails" :disableCloseReport="disableCloseReport"
+            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key"
+                :showStudyDetails="showStudyDetails" :disableCloseReport="disableCloseReport"
                 @deletedUploadReport="onDeletedUploadReport"></UploadReport>
         </div>
     </div>
@@ -222,15 +248,132 @@ export default {
 }
 
 .upload-handler-drop-zone {
-    border-color: white;
-    border-style: dashed;
-    border-width: 4px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    padding: 24px 20px;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.upload-handler-drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.3) 0%, rgba(148, 163, 184, 0.1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* При dragover — синий градиент */
+.upload-handler-drop-zone-dragover::before {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
 }
 
 .upload-handler-drop-zone-disabled {
-    opacity: 90;
+    opacity: 0.6;
     border-color: #ff0000d2;
     cursor: not-allowed;
 }
 
+/* Иконка */
+.upload-icon {
+    margin-bottom: 12px;
+}
+
+.upload-icon i {
+    font-size: 40px;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+}
+
+/* Пульсация при dragover */
+.upload-handler-drop-zone-dragover .upload-icon i {
+    color: #3b82f6;
+    animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Текст */
+.upload-text {
+    font-size: 13px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
+.upload-handler-drop-zone-dragover .upload-text {
+    color: #3b82f6;
+    font-weight: 500;
+}
+
+/* Подсветка зоны при dragover */
+.upload-handler-drop-zone-dragover {
+    border-color: #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+/* === Кнопки в стиле меню === */
+.upload-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.menu-item:hover:not(.menu-item--disabled) {
+    border-left: 3px solid #8b5cf6;
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #e2e8f0;
+
+    transform: translateX(4px);
+}
+
+.menu-item i {
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+.menu-item:hover:not(.menu-item--disabled) i {
+    transform: scale(1.1);
+    color: #3b82f6;
+}
+
+.menu-item--disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
 </style>

@@ -40,7 +40,7 @@ export default {
         });
 
         var el = this.$refs['series-collapsible-details'];
-        this.collapseElement = new bootstrap.Collapse(el, {toggle: false});
+        this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
 
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
@@ -64,48 +64,24 @@ export default {
     <tbody>
         <tr :class="{ 'series-row-collapsed': !expanded, 'series-row-expanded': expanded }">
             <td></td>
-            <td
-                class="cut-text text-center"
-                data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId"
-            >{{ seriesInfo.MainDicomTags.SeriesNumber }}</td>
-            <td
-                class="cut-text"
-                data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId"
-            >
-                <span
-                    data-bs-toggle="tooltip"
-                    v-bind:title="seriesInfo.MainDicomTags.SeriesDescription"
-                >{{ seriesInfo.MainDicomTags.SeriesDescription }}</span>
+            <td class="cut-text text-center" data-bs-toggle="collapse"
+                v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.SeriesNumber }}
             </td>
-            <td
-                class="cut-text text-center"
-                data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId"
-            >{{ seriesInfo.MainDicomTags.Modality }}</td>
-            <td
-                class="cut-text text-center"
-                data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId"
-            >{{ instancesCount }}</td>
+            <td class="cut-text" data-bs-toggle="collapse" v-bind:data-bs-target="'#series-details-' + this.seriesId">
+                <span data-bs-toggle="tooltip" v-bind:title="seriesInfo.MainDicomTags.SeriesDescription">{{
+                    seriesInfo.MainDicomTags.SeriesDescription }}</span>
+            </td>
+            <td class="cut-text text-center" data-bs-toggle="collapse"
+                v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.Modality }}</td>
+            <td class="cut-text text-center" data-bs-toggle="collapse"
+                v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ instancesCount }}</td>
         </tr>
-        <tr
-            class="collapse"
-            :class="{ 'series-details-collapsed': !expanded, 'series-details-expanded': expanded }"
-            v-bind:id="'series-details-' + this.seriesId"
-            ref="series-collapsible-details"
-        >
+        <tr class="collapse" :class="{ 'series-details-collapsed': !expanded, 'series-details-expanded': expanded }"
+            v-bind:id="'series-details-' + this.seriesId" ref="series-collapsible-details">
             <td colspan="100">
-                <SeriesDetails
-                    v-if="this.expanded"
-                    :seriesId="this.seriesId"
-                    :instancesIds="this.seriesInfo.Instances"
-                    :seriesMainDicomTags="this.seriesInfo.MainDicomTags"
-                    :studyMainDicomTags="this.studyMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags"
-                    @deletedSeries="onDeletedSeries"
-                ></SeriesDetails>
+                <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId" :instancesIds="this.seriesInfo.Instances"
+                    :seriesMainDicomTags="this.seriesInfo.MainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
+                    :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesDetails>
             </td>
         </tr>
     </tbody>
@@ -325,7 +301,9 @@ export default {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Active/Selected */
@@ -447,7 +425,7 @@ export default {
         justify-content: center;
         gap: 8px;
     }
-    
+
     .resource-button-group button,
     .resource-button-group .btn {
         width: 44px;
@@ -469,6 +447,7 @@ export default {
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
+
     .resource-button-group button,
     .resource-button-group .btn {
         border: 2px solid rgba(255, 255, 255, 0.3);
@@ -477,6 +456,7 @@ export default {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
     .resource-button-group button,
     .resource-button-group .btn {
         transition: none;
@@ -493,5 +473,4 @@ export default {
         display: none !important;
     }
 }
-
 </style>

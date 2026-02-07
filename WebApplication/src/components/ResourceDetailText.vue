@@ -5,15 +5,10 @@ import dateHelpers from "../helpers/date-helpers";
 import { mapState, mapGetters } from "vuex";
 
 export default {
-  props: ["truncate", "copy", "tags", "tag", "showIfEmpty"], // you can set copy=false if you don't wan't the copy button !
-  setup() {
-    return {};
-  },
+  props: ["truncate", "copy", "tags", "tag", "showIfEmpty"],
   data() {
     return {};
   },
-  mounted() {},
-  methods: {},
   computed: {
     ...mapState({
       uiOptions: (state) => state.configuration.uiOptions,
@@ -21,25 +16,33 @@ export default {
     title() {
       return translateDicomTag(this.$i18n.t, this.$i18n.te, this.tag);
     },
-    value() {
-      if (this.hasValue) {
-        let value = this.tags[this.tag];
-        if (dateHelpers.isDateTag(this.tag)) {
-          return dateHelpers.formatDateForDisplay(
-            value,
-            this.uiOptions.DateFormat,
-          );
-        } else {
-          return value;
-        }
-      } else {
-        return "";
+    rawValue() {
+      // Сырое значение из tags
+      if (this.tag in this.tags) {
+        return this.tags[this.tag];
       }
+      return null;
     },
     hasValue() {
-      return this.tag in this.tags;
+      // Проверяем что значение реально существует и не пустое
+      const val = this.rawValue;
+      if (val === null || val === undefined) return false;
+      if (typeof val === 'string' && val.trim() === '') return false;
+      return true;
+    },
+    value() {
+      if (!this.hasValue) return "";
+
+      const val = this.rawValue;
+      if (dateHelpers.isDateTag(this.tag)) {
+        return dateHelpers.formatDateForDisplay(val, this.uiOptions.DateFormat);
+      }
+      return val;
     },
     showValue() {
+      // Показываем только если:
+      // 1. showIfEmpty = true (принудительно показать даже пустые)
+      // 2. ИЛИ есть реальное значение
       return this.showIfEmpty || this.hasValue;
     },
   },
@@ -49,27 +52,15 @@ export default {
 
 <template>
   <div v-if="showValue" class="detail-item col-auto px-1">
-    <label
-      class="detail-label"
-      :class="{ 'text-truncate': this.truncate }"
-      data-bs-toggle="tooltip"
-      v-bind:title="title"
-    >
+    <label class="detail-label" :class="{ 'text-truncate': truncate }" data-bs-toggle="tooltip" :title="title">
       {{ title }}
     </label>
     <div class="d-flex align-items-start">
-      <div
-        class="detail-value flex-grow-1"
-        data-bs-toggle="tooltip"
-        v-bind:title="value"
-      >
+      <div class="detail-value flex-grow-1" data-bs-toggle="tooltip" :title="value">
         {{ value || "-" }}
       </div>
-      <CopyToClipboardButton
-        v-if="!this.copy && value && value.length > 0"
-        :valueToCopy="value"
-        class="flex-shrink-0 ms-2"
-      />
+      <CopyToClipboardButton v-if="copy !== false && value && value.length > 0" :valueToCopy="value"
+        class="flex-shrink-0 ms-2" />
     </div>
   </div>
 </template>
@@ -89,6 +80,7 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .detail-item {
   padding: 0.625rem 0;
   border-bottom: 1px solid #dee2e6;

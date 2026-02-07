@@ -2,15 +2,35 @@ import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import vue from '@vitejs/plugin-vue'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   assetsInclude: './src/assets',
   base: '',
   plugins: [vue()],
+  
   server: {
     host: true,
-    port: 3000
+    port: 3000,
+    
+    proxy: {
+      // OE2 конфигурация (темы, языки, настройки)
+      '/ui/api': {
+        target: 'http://localhost:8042',
+        changeOrigin: true,
+        secure: false
+      },
+      
+      // Стандартный Orthanc API (patients, studies, series)
+      '/orthanc': {
+        target: 'http://localhost:8042',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/orthanc/, '') // /orthanc/patients -> /patients
+      }
+      
+      // ВАЖНО: НЕ проксируем /ui/app - иначе dev server отдаст встроенный OE2 вместо вашего кода!
+    }
   },
+  
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
@@ -22,8 +42,9 @@ export default defineConfig({
       },
     }
   },
+  
   css: {
-    postcss: { // to avoid this warning: https://github.com/vitejs/vite/discussions/5079
+    postcss: {
       plugins: [
         {
           postcssPlugin: 'internal:charset-removal',

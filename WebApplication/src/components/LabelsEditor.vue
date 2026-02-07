@@ -18,7 +18,8 @@ export default {
         return {
             labelsModel: [],
             disableWatcher: false,
-            allLabelsLocalCopy: new Set()
+            allLabelsLocalCopy: new Set(),
+
         };
     },
     async created() {
@@ -88,7 +89,7 @@ export default {
     watch: {
         async isLabelsLoaded(newValue, oldValue) {
             // console.log("labels loaded, init LabelsEditor")
-            this.init();            
+            this.init();
         },
         labelsModel: {
             async handler(newValue, oldValue) {
@@ -126,10 +127,10 @@ export default {
         </label>
 
         <select class="form-select" :id="'select-' + id" name="select-labels" v-model="labelsModel" multiple
-            data-allow-clear="true" :data-allow-new="canCreateNewLabels" data-badge-style="info" data-input-filter="filterLabel"
-            :placeholder="placeHolderText">
+            data-allow-clear="true" :data-allow-new="canCreateNewLabels" data-badge-style="info"
+            data-input-filter="filterLabel" :placeholder="placeHolderText">
             <option v-for="label in allLabelsLocalCopy" :key="label" :value="label" :selected="hasLabel(label)">{{ label
-                }}
+            }}
             </option>
         </select>
     </div>

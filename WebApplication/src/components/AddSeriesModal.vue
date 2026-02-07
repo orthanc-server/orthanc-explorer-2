@@ -70,7 +70,7 @@ export default {
                 }
 
                 await api.createDicom(this.orthancStudyId, this.uploadedFileBase64Content, tags);
-                let closeButton = document.getElementById('add-series-close-'+ this.orthancStudyId);
+                let closeButton = document.getElementById('add-series-close-' + this.orthancStudyId);
                 closeButton.click();
                 this.messageBus.emit('added-series-to-study-' + this.orthancStudyId);
             } catch (err) {
@@ -88,10 +88,10 @@ export default {
             event.preventDefault();
         },
         getHumanSize(sizeInBytes) {
-            if (sizeInBytes > 1024*1024) {
-                return (Math.round(sizeInBytes/(1024*1024)*100) / 100) + " MB"; 
+            if (sizeInBytes > 1024 * 1024) {
+                return (Math.round(sizeInBytes / (1024 * 1024) * 100) / 100) + " MB";
             } else {
-                return (Math.round(sizeInBytes/1024*100) / 100) + " kB"; 
+                return (Math.round(sizeInBytes / 1024 * 100) / 100) + " kB";
             }
         },
         async uppieUploadHandler(event, formData, files) {
@@ -135,7 +135,7 @@ export default {
             let reader = new FileReader();
             let that = this;
             reader.onload = function (event) {
-                
+
                 if (that.uploadedFileType == 'stl') {
                     that.uploadedFileBase64Content = event.target.result.replace("data:application/octet-stream;base64,", "data:model/stl;base64,");
                 } else {
@@ -180,7 +180,8 @@ export default {
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalLabel">{{ $t("add_series.modal_title") + " " + resourceTitle }}
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" :id="'add-series-close-'+ orthancStudyId"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        :id="'add-series-close-' + orthancStudyId"></button>
                 </div>
                 <!-- ------------------------------------------ step 'prepare' --------------------------------------------------->
                 <div v-if="step == 'prepare'" class="modal-body">
@@ -201,7 +202,8 @@ export default {
                     </div>
                     <div v-if="uploadedFileType != null" class="modal-body">
                         <div class="container">
-                            <div class="alert alert-info" role="alert" v-html="$t('add_series.uploaded_file', {'size': uploadedFileHumanSize, 'type': uploadedFileType, 'name': uploadedFileName})">
+                            <div class="alert alert-info" role="alert"
+                                v-html="$t('add_series.uploaded_file', { 'size': uploadedFileHumanSize, 'type': uploadedFileType, 'name': uploadedFileName })">
                             </div>
                         </div>
                     </div>
@@ -220,8 +222,8 @@ export default {
 
                             <div v-if="isDateTag(key)" class="col-md-6">
                                 <Datepicker v-model="seriesDateTags[key]" :range="false" :enable-time-picker="false"
-                                    :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
-                                    arrow-navigation :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
+                                    :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat"
+                                    text-input arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
                                 </Datepicker>
                             </div>
                         </div>
@@ -244,8 +246,8 @@ export default {
                 </div>
                 <div v-if="step == 'error'" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="back()">{{
-        $t("modify.back_button_title")
-                        }}</button>
+                        $t("modify.back_button_title")
+                    }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                 </div>
 

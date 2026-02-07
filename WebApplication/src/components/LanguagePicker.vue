@@ -3,12 +3,12 @@ import allLanguages from '../store/modules/i18n';
 import { mapState } from "vuex"
 
 export default {
-    name: 'App',
-    props: [],
+    name: 'LanguageSwitcher',
+    props: ['isCollapsed'],
     data() {
         return {
-            availableLanguages: ['en'], // before the configuration is loaded, we consider that there is only Engligh
-            selectedLanguageName: ''
+            availableLanguages: ['en', 'ru'],
+            currentLanguageIndex: 0
         };
     },
     computed: {
@@ -19,107 +19,115 @@ export default {
         showLanguagePicker() {
             return this.availableLanguages.length > 1;
         },
-        pickableLanguages() {
-            if (this.availableLanguages == null) {
-                return allLanguages;
-            } else {
-                let languages = [];
-                for (let languageCode of this.availableLanguages) {
-                    for (let lang of allLanguages) {
-                        if (lang['key'] == languageCode) {
-                            languages.push(lang);
-                        }
-                    }
-                }
-
-                return languages;
-            }
+        currentLanguage() {
+            const key = this.availableLanguages[this.currentLanguageIndex];
+            return allLanguages.find(lang => lang.key === key) || { key: 'en', name: 'English' };
         }
     },
     watch: {
-        isConfigurationLoaded(newValue, oldValue) {
-            this.availableLanguages = this.uiOptions.AvailableLanguages;
-            let done = false;
+        isConfigurationLoaded(newValue) {
+            if (newValue && this.uiOptions.AvailableLanguages) {
+                const allowedLanguages = ['en', 'ru'];
+                const configLanguages = this.uiOptions.AvailableLanguages || [];
 
-            if (this.availableLanguages.length == 1) {
-                let languageKey = this.availableLanguages[0];
-                console.log("language picker: selecting first and only language: ", languageKey)
-                done = this.changeLanguage(languageKey);
-            } else if (this.availableLanguages.length > 1) {
+                this.availableLanguages = configLanguages.filter(lang =>
+                    allowedLanguages.includes(lang)
+                );
 
-                if (localStorage.getItem("OE2.languageKey") != null) {
-                    console.log("language picker: selecting language from the local storage");
-                    done = this.changeLanguage(localStorage.getItem("OE2.languageKey"));
+                if (this.availableLanguages.length === 0) {
+                    this.availableLanguages = ['en', 'ru'];
                 }
 
-                if (!done && this.uiOptions.DefaultLanguage != null) {
-                    console.log("language picker: selecting language from DefaultLanguage configuration");
-                    done = this.changeLanguage(this.uiOptions.DefaultLanguage);
-                }
+                const savedLang = localStorage.getItem("OE2.languageKey");
+                const index = this.availableLanguages.indexOf(savedLang);
+                this.currentLanguageIndex = index !== -1 ? index : 0;
 
-                if (!done) {
-                    console.log("language picker: selecting language from the browser languages");
-                    if (navigator.languages && navigator.languages.length > 0) {
-                        for (let lang of navigator.languages) {
-                            let langCode = lang.split('-')[0];
-                            done = this.changeLanguage(langCode);
-                            if (done) {
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!done) {
-                    done = this.changeLanguage(this.availableLanguages[0]);
-                }
+                const langToApply = this.availableLanguages[this.currentLanguageIndex];
+                this.applyLanguage(langToApply, false);
             }
-        },
-    },
-    created() {
-        this.selectedLanguageName = 'English'
+        }
     },
     methods: {
-        changeLanguage(key) {
-            let languageName = null;
-
-            for (let lang of allLanguages) {
-                if (lang['key'] == key) {
-                    languageName = lang['name'];
-                }
-            }
-
-            if (languageName != null) {
-                this.$i18n.locale = key;
-                this.selectedLanguageName = languageName;
-
-                localStorage.setItem("OE2.languageKey", key);
-                this.messageBus.emit('language-changed', key);
-                return true;
-            } else {
-                return false;
-            }
+        toggleLanguage() {
+            this.currentLanguageIndex = (this.currentLanguageIndex + 1) % this.availableLanguages.length;
+            const newLang = this.availableLanguages[this.currentLanguageIndex];
+            this.applyLanguage(newLang, true);
         },
-    },
+        applyLanguage(key, emitEvent = true) {
+            this.$i18n.locale = key;
+            localStorage.setItem("OE2.languageKey", key);
+            if (emitEvent && this.messageBus) {
+                this.messageBus.emit('language-changed', key);
+            }
+        }
+    }
 }
 </script>
 
 <template>
-    <div class="dropdown" v-if="showLanguagePicker">
-        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            <i class="bi bi-translate"></i> {{ selectedLanguageName }}
-        </button>
-        <ul class="dropdown-menu language-picker">
-            <li v-for="(lang, i) in pickableLanguages" :key="`lang-${i}`" :value="lang"><a class="dropdown-item" href="#"
-                    @click="changeLanguage(`${lang.key}`)">{{ lang.name }}</a></li>
-        </ul>
-    </div>
+    <button v-if="showLanguagePicker" class="menu-item language-switcher"
+        :class="{ 'language-switcher--collapsed': isCollapsed }" @click="toggleLanguage" type="button"
+        :title="isCollapsed ? currentLanguage.name : ''">
+        <i class="bi bi-globe"></i>
+        <span v-if="!isCollapsed">{{ currentLanguage.name }}</span>
+    </button>
 </template>
 
-<style>
-.language-picker {
-    margin-top: var(--details-top-margin);
-    font-size: 0.9rem;
-    --bs-dropdown-item-padding-y: 0.05rem;
+<style scoped>
+.menu-item.language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 400;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+}
+
+.menu-item.language-switcher:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    transform: translateX(4px);
+}
+
+.menu-item.language-switcher i {
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+.menu-item.language-switcher:hover i {
+    transform: scale(1.1) rotate(15deg);
+    color: #3b82f6;
+}
+
+/* Стили для collapsed режима */
+.language-switcher--collapsed {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.language-switcher--collapsed i {
+    width: auto;
+}
+
+.collapsed .language-switcher {
+    bottom: 48px !important;
+    position: relative;
+}
+
+.collapsed .language-switcher:hover {
+    bottom: 50px !important;
+    position: relative;
+    transform: scale(1.0);
 }
 </style>

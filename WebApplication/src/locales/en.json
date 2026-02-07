@@ -35,6 +35,8 @@
         "yesterday": "Yesterday"
     },
     "default": "Default",
+    "drop_files": "Drop files here",
+    "drop_here": "Release to upload",
     "delete": "Delete",
     "delete_instance_body": "Are you sure you want to delete this instance?<br/>This action can not be undone!",
     "delete_instance_title": "Delete instance?",
@@ -46,6 +48,7 @@
     "delete_study_title": "Delete study?",
     "description": "Description",
     "dicom_modalities": "DICOM Modalities",
+    "no_description": "No description",
     "dicom_tags": {
         "AccessionNumber": "Accession Number",
         "BodyPartExamined": "Body Part Examined",
@@ -53,6 +56,7 @@
         "InstitutionName": "Institution Name",
         "ModalitiesInStudy": "Modalities in Study",
         "Modality": "Modality",
+        "ManufacturerModel": "Manufacturer Model",
         "NumberOfFrames": "Number of Frames",
         "NumberOfStudyRelatedSeries": "Number of Series",
         "OtherPatientIDs": "Patient Other IDs",
@@ -88,6 +92,9 @@
         "description": "Description"
     },
     "dicom_web_servers": "DICOM-Web Servers",
+    "checking_connectivity": "Checking connectivity",
+    "c_echo_succeeded": "C-Echo succeeded",
+    "c_echo_failed": "C-Echo failed",
     "displaying_most_recent_studies": "Displaying most recent studies",
     "download_dicom_file": "Download DICOM file",
     "download_dicomdir": "Download DICOMDIR",
@@ -99,7 +106,7 @@
     "file": "File",
     "files": "files",
     "frames": "frames",
-    "inbox" : {
+    "inbox": {
         "generic_intro_text": "Welcome to the Orthanc inbox.",
         "fill_form_first": "Fill the form before uploading files",
         "reload_inbox": "Upload a new study"
@@ -110,6 +117,12 @@
     "instances_number": "Number of instances",
     "job_success": "Success",
     "job_failure": "Failure",
+    "clear_filter": "Clear filter",
+    "all": "All",
+    "search": "Search",
+    "table_view": "Table view",
+    "card_view": "Card view",
+    "last_year": "Last year",
     "labels": {
         "add_button": "Add",
         "add_labels_message_html": "<strong>Add</strong> these labels to all selected resources",
@@ -137,6 +150,7 @@
     },
     "legacy_ui": "Legacy UI",
     "loading_most_recent_studies": "Loading most recent studies",
+    "loading": "Loading...",
     "local_studies": "All local Studies",
     "logout": "Logout",
     "modalities_in_study": "Modalities in Study",
@@ -187,6 +201,7 @@
     "page_not_found": "Page not found!",
     "patients": "Patients",
     "plugin": "plugin",
+    "open_in_viewer": "Open in Viewer",
     "plugins": {
         "delayed_deletion": {
             "pending_files_count": "Delayed Deletion plugin: Files to delete"
@@ -202,6 +217,28 @@
     "preview": "Preview",
     "profile": "Profile",
     "retrieve": "Retrieve",
+    "mobile_menu": {
+        "studies": "All",
+        "filters": "Filter",
+        "settings": "Settings",
+        "profile": "Profile",
+        "logout": "Logout"
+    },
+    "mobile_filters": {
+        "title": "Filters",
+        "patient_name_placeholder": "Smith^John",
+        "patient_id_placeholder": "ID12345",
+        "description_placeholder": "CHEST, HEAD...",
+        "select_date": "Select date",
+        "apply": "Apply",
+        "id": "ID",
+        "name": "Name",
+        "an": "AN",
+        "desc": "description",
+        "bd": "bd",
+        "clearAll": "Clear all",
+        "clearAllF": "Clear all active filters"
+    },
     "retrieve_and_view": {
         "finding_locally": "Checking if the study is already available locally.",
         "finding_remotely": "Searching for the study in remote DICOM nodes.",
@@ -226,6 +263,9 @@
     "series_count_header": "# series",
     "series_and_instances_count_header": "# Ser/Inst",
     "series_plural": "Series",
+    "filter_by_modality": "Filter by this modality",
+    "collapse": "Collapse",
+    "expand": "Expand",
     "settings": {
         "allow_all_currents_and_futures_labels": "All current and future labels",
         "available_labels_global_instructions_html": "Since you have enabled permissions and you are an administrator, this page enables you to create/delete the available labels.  Users won't be able to create other labels.<br/>Once you have updated this list, don't forget to click <strong>Save</strong> to apply your changes.",
@@ -270,7 +310,6 @@
         "close": "Collapse menu",
         "dashboard": "Dashboard",
         "profile": "Profile"
-
     },
     "share": {
         "anonymize": "Anonymize?",
@@ -284,6 +323,12 @@
         "never": "never"
     },
     "show_errors": "Show errors",
+    "sort_date_newest": "Newest First ↓",
+    "sort_date_oldest": "Oldest First ↑",
+    "sort_images_most": "Most Images",
+    "sort_modality": "By Modality",
+    "sort_patient_za": "Patient Z-A",
+    "sort_patient_az": "Patient A-Z",
     "studies": "Studies",
     "study": "Study",
     "this_patient_has_no_other_studies": "This patient has no other studies.",
@@ -321,7 +366,7 @@
     "view_in_stl_viewer": "View in STL Viewer",
     "view_in_wsi_viewer": "View in Whole Slide Imaging Viewer",
     "view_in_weasis": "View in Weasis Viewer",
-    "worklists" : {
+    "worklists": {
         "copy_tags_from_patient": "Copy",
         "create_button": "Create",
         "create_title": "Create a new worklist",

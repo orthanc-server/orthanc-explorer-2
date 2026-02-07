@@ -17,32 +17,14 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import mitt from "mitt"
 import VueObserveVisibility from 'vue3-observe-visibility'
 
-// Names of the params that can contain an authorization token
-// If one of these params contain a token, it will be passed as a header
-// with each request to the Orthanc API
 const VALID_TOKEN_PARAMS = ["token", "auth-token", "authorization"];
 
-// before initialization, we must load part of the configuration to know if we need to enable Keycloak or not
 axios.get('../api/pre-login-configuration').then((config) => {
-
     const app = createApp(App)
+    
+    // ✅ Один экземпляр event bus
     const messageBus = mitt();
-
-    // uncomment this code to log messages
-    // const originalEmit = messageBus.emit;
-    // messageBus.emit = (event, payload) => {
-    //     console.log(`[EVENT BUS - EMIT] ${event} `, payload);
-    //     originalEmit.call(messageBus, event, payload);
-    // }
-
-    // const originalOn = messageBus.on;
-    // messageBus.on = (event, handler) => {
-    //     const wrappedHandler = (payload) => {
-    //         console.log(`[EVENT BUS - HANDLER] ${event} `, payload);
-    //         handler(payload);
-    //       };
-    //     originalOn.call(messageBus, event, wrappedHandler);
-    // }
+    app.config.globalProperties.messageBus = messageBus;
 
     app.use(router)
     app.use(store)
@@ -133,7 +115,9 @@ axios.get('../api/pre-login-configuration').then((config) => {
                 }
             }
 
-            app.mount('#app');
+           app.mount('#app');
         });
     }
+}).catch((error) => {  // <-- ДОБАВИТЬ ЗДЕСЬ (после } и перед ;)
+    console.error("Failed to load pre-login configuration:", error);
 });

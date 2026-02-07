@@ -140,7 +140,7 @@ const actions = {
         if ('CustomTitle' in oe2Config) {
             document.title = oe2Config['CustomTitle'];
         } else {
-            document.title = "Orthanc Explorer 2";
+            document.title = "D.PACS Explorer";
         }
 
         if ('UiOptions' in oe2Config && 'PatientNameFormatting' in oe2Config['UiOptions'] && 'PatientNameCapture' in oe2Config['UiOptions']) {

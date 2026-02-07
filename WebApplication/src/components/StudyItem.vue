@@ -11,7 +11,7 @@ import TokenLinkButton from "./TokenLinkButton.vue";
 
 export default {
   props: ["studyId"],
-  emits: ["deletedStudy"],
+  emits: ["deletedStudy", "filter-modality"],
   data() {
     return {
       study: {},
@@ -20,6 +20,7 @@ export default {
       collapseElement: null,
       selected: false,
       pdfReports: [],
+      isDownloading: false,
     };
   },
   created() {
@@ -109,8 +110,47 @@ export default {
         }
       }
     }
+
+    // 🆕 НОВАЯ СТРОКА - слушатель для закрытия dropdown при клике вне его
+    document.addEventListener('click', this.handleOutsideClick);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleOutsideClick);
   },
   methods: {
+    filterByModality() {
+      const modalities = this.modalitiesInStudyForDisplay;
+      if (modalities && modalities !== '-') {
+        this.$emit('filter-modality', modalities);
+      }
+    },
+    // === QUICK DOWNLOAD WITH SPINNER ===
+    async downloadStudyZip() {
+      if (this.isDownloading) return;
+
+      this.isDownloading = true;
+
+      try {
+        const url = this.downloadZipUrl;
+
+        // Создаём скрытую ссылку
+        const link = document.createElement('a');
+        link.href = url;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Задержка чтобы показать что скачивание началось
+        setTimeout(() => {
+          this.isDownloading = false;
+        }, 2000);
+
+      } catch (error) {
+        console.error('Download failed:', error);
+        this.isDownloading = false;
+      }
+    },
     onDeletedStudy(studyId) {
       this.$emit("deletedStudy", this.studyId);
     },
@@ -123,6 +163,7 @@ export default {
       this.study = this.studies.filter((s) => s["ID"] == this.studyId)[0];
       // console.log("StudyItem: study reloaded ", this.study.Labels);
     },
+
     onSelectedStudy() {
       this.selected = true;
     },
@@ -138,6 +179,53 @@ export default {
       this.selected = !this.selected;
       // console.log(this.studyId, this.selected);
     },
+    // === QUICK SEND METHODS ===
+    async sendToDicomModality(modality) {
+      const jobId = await api.sendToDicomModality([this.study.ID], modality);
+      this.$store.dispatch("jobs/addJob", {
+        jobId: jobId,
+        name: this.$t('send_to.button_title') + " DICOM (" + modality + ")",
+      });
+      this.closeSendDropdown();
+    },
+    async sendToOrthancPeer(peer) {
+      const jobId = await api.sendToOrthancPeer([this.study.ID], peer);
+      this.$store.dispatch("jobs/addJob", {
+        jobId: jobId,
+        name: this.$t('send_to.button_title') + " Peer (" + peer + ")",
+      });
+      this.closeSendDropdown();
+    },
+    async sendToDicomWebServer(server) {
+      const jobId = await api.sendToDicomWebServer([this.study.ID], server);
+      this.$store.dispatch("jobs/addJob", {
+        jobId: jobId,
+        name: this.$t('send_to.button_title') + " DicomWeb (" + server + ")",
+      });
+      this.closeSendDropdown();
+    },
+    closeSendDropdown() {
+      // Закрыть dropdown после выбора
+      const dropdown = this.$refs.sendDropdown;
+      if (dropdown) {
+        dropdown.classList.remove('show');
+        dropdown.querySelector('.dropdown-menu')?.classList.remove('show');
+      }
+    },
+    handleOutsideClick(event) {
+      const menu = this.$refs.sendDropdownMenu;
+      const dropdown = this.$refs.sendDropdown;
+      if (menu && dropdown && !dropdown.contains(event.target)) {
+        menu.classList.remove('show');
+      }
+    },
+    toggleSendDropdown(event) {
+      event.stopPropagation();
+      const menu = this.$refs.sendDropdownMenu;
+      if (menu) {
+        menu.classList.toggle('show');
+      }
+    },
   },
   computed: {
     ...mapState({
@@ -146,6 +234,9 @@ export default {
       studiesSourceType: (state) => state.studies.sourceType,
       selectedStudiesIds: (state) => state.studies.selectedStudiesIds,
       allLabels: (state) => state.labels.allLabels,
+      orthancPeers: (state) => state.configuration.orthancPeers,
+      targetDicomWebServers: (state) => state.configuration.targetDicomWebServers,
+      targetDicomModalities: (state) => state.configuration.targetDicomModalities,
     }),
     modalitiesInStudyForDisplay() {
       if (this.study.RequestedTags.ModalitiesInStudy) {
@@ -170,16 +261,38 @@ export default {
       );
     },
     formattedPatientBirthDate() {
-      return dateHelpers.formatDateForDisplay(
-        this.study.PatientMainDicomTags.PatientBirthDate,
-        this.uiOptions.DateFormat,
-      );
+      if (!this.study?.PatientMainDicomTags?.PatientBirthDate) return "";
+
+      const date = String(this.study.PatientMainDicomTags.PatientBirthDate);
+
+
+      const year = date.slice(0, 4);
+      const month = date.slice(4, 6);
+      const day = date.slice(6, 8);
+
+      return `${day}.${month}.${year}`;
     },
     formattedStudyDate() {
-      return dateHelpers.formatDateForDisplay(
-        this.study.MainDicomTags.StudyDate,
-        this.uiOptions.DateFormat,
-      );
+      if (!this.study?.MainDicomTags?.StudyDate) return "";
+
+      const date = this.study.MainDicomTags.StudyDate;
+      const time = this.study?.MainDicomTags?.StudyTime;
+
+
+      const year = date.slice(0, 4);
+      const month = date.slice(4, 6);
+      const day = date.slice(6, 8);
+
+      let result = `${day}.${month}.${year}`;
+
+
+      if (time && time.length >= 4) {
+        const hours = time.slice(0, 2);
+        const minutes = time.slice(2, 4);
+        result += ` ${hours}:${minutes}`;
+      }
+
+      return result;
     },
     seriesCount() {
       if (
@@ -235,6 +348,49 @@ export default {
     hasPrimaryViewerIcon() {
       return this.hasPrimaryViewerColumn && this.primaryViewerUrl;
     },
+    // === QUICK DOWNLOAD ===
+    hasQuickDownloadIcon() {
+      return (
+        this.studiesSourceType == SourceType.LOCAL_ORTHANC &&
+        this.uiOptions.EnableDownloadQuickButton
+      );
+    },
+    downloadZipUrl() {
+      const filename = resourceHelpers.replaceResourceTagsInStringPlainText(
+        this.uiOptions.DownloadStudyFileNameTemplate,
+        this.study.PatientMainDicomTags,
+        this.study.MainDicomTags,
+        null,
+        null,
+        this.study.ID,
+        'study'
+      );
+      return api.getDownloadZipUrl('study', this.study.ID, filename);
+    },
+
+    // === QUICK SEND ===
+    hasQuickSendIcon() {
+      return (
+        this.studiesSourceType == SourceType.LOCAL_ORTHANC &&
+        this.uiOptions.EnableSendQuickButton &&
+        this.hasSendToTargets
+      );
+    },
+    hasSendToTargets() {
+      return (
+        this.orthancPeers.length > 0 ||
+        this.targetDicomWebServers.length > 0 ||
+        Object.keys(this.targetDicomModalities).length > 0
+      );
+    },
+
+    // === QUICK ACTIONS COLUMN ===
+    hasQuickActionsColumn() {
+      return (
+        this.studiesSourceType == SourceType.LOCAL_ORTHANC &&
+        (this.uiOptions.EnableDownloadQuickButton || this.uiOptions.EnableSendQuickButton)
+      );
+    },
     primaryViewerUrl() {
       return resourceHelpers.getPrimaryViewerUrl(
         "study",
@@ -246,7 +402,7 @@ export default {
       return resourceHelpers.getPrimaryViewerTokenType();
     },
     colSpanStudyDetails() {
-      let span = this.uiOptions.StudyListColumns.length + 1; // +1 for the 'checkbox'
+      let span = this.uiOptions.StudyListColumns.length + 1;
       if (this.hasPrimaryViewerColumn) {
         span++;
       }
@@ -262,167 +418,159 @@ export default {
 
 <template>
   <tbody>
-    <tr
-      v-if="loaded"
-      :class="{
-        'study-row-collapsed': !expanded,
-        'study-row-expanded': expanded,
-        'study-row-show-labels': showLabels,
-      }"
-    >
+    <tr v-if="loaded" :class="{
+      'study-row-collapsed': !expanded,
+      'study-row-expanded': expanded,
+      'study-row-show-labels': showLabels,
+    }">
       <td>
         <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-model="selected"
-            @click="clickedSelect"
-          />
+          <input class="form-check-input" type="checkbox" v-model="selected" @click="clickedSelect" />
         </div>
       </td>
-      <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
-        <TokenLinkButton
-          v-if="primaryViewerUrl"
-          level="study"
-          :linkUrl="primaryViewerUrl"
-          :resourcesOrthancId="[study.ID]"
-          linkType="icon"
-          iconClass="bi bi-eye-fill"
-          :tokenType="primaryViewerTokenType"
-          :opensInNewTab="true"
-        >
-        </TokenLinkButton>
+
+      <td v-if="hasPrimaryViewerIcon || hasQuickDownloadIcon || hasQuickSendIcon"
+        class="td-viewer-icon td-quick-actions">
+        <div class="quick-actions-group">
+
+          <!-- Viewer Button -->
+          <TokenLinkButton v-if="hasPrimaryViewerIcon && primaryViewerUrl" level="study" :linkUrl="primaryViewerUrl"
+            :resourcesOrthancId="[study.ID]" linkType="icon" iconClass="bi bi-eye-fill"
+            :tokenType="primaryViewerTokenType" :opensInNewTab="true" :title="$t('open_in_viewer')">
+          </TokenLinkButton>
+
+          <!-- Download Button with Spinner -->
+          <button v-if="hasPrimaryViewerIcon && primaryViewerUrl" class="quick-action-btn quick-action-download"
+            :class="{ 'is-downloading': isDownloading }" @click.stop="downloadStudyZip" :title="$t('download_zip')"
+            :disabled="isDownloading">
+            <template v-if="isDownloading">
+              <span class="spinner-border spinner-border-sm" role="status"></span>
+            </template>
+            <template v-else>
+              <i class="bi bi-download" style="padding-top: 4px;"></i>
+            </template>
+          </button>
+
+          <!-- Send Dropdown Button -->
+          <div v-if="hasPrimaryViewerIcon && primaryViewerUrl" class="quick-send-dropdown" ref="sendDropdown">
+            <button class="quick-action-btn quick-action-send" @click.stop="toggleSendDropdown($event)"
+              :title="$t('send_to.button_title')">
+              <i class="bi bi-send-fill" style="padding-top: 4px;"></i>
+            </button>
+
+            <div class="quick-send-menu" ref="sendDropdownMenu">
+              <!-- DICOM Modalities -->
+              <div v-if="Object.keys(targetDicomModalities).length > 0" class="send-section">
+                <div class="send-section-title">{{ $t('send_to.dicom') }}</div>
+                <button v-for="modality in Object.keys(targetDicomModalities)" :key="'mod-' + modality"
+                  class="send-menu-item" @click.stop="sendToDicomModality(modality)">
+                  <i class="bi bi-display"></i>
+                  {{ modality }}
+                </button>
+              </div>
+
+              <!-- Orthanc Peers -->
+              <div v-if="orthancPeers.length > 0" class="send-section">
+                <div class="send-section-title">{{ $t('send_to.orthanc_peer') }}</div>
+                <button v-for="peer in orthancPeers" :key="'peer-' + peer" class="send-menu-item"
+                  @click.stop="sendToOrthancPeer(peer)">
+                  <i class="bi bi-hdd-network-fill" style="padding-top: 4px;"></i>
+                  {{ peer }}
+                </button>
+              </div>
+
+              <!-- DicomWeb Servers -->
+              <div v-if="targetDicomWebServers.length > 0" class="send-section">
+                <div class="send-section-title">{{ $t('send_to.dicom_web') }}</div>
+                <button v-for="server in targetDicomWebServers" :key="'dw-' + server" class="send-menu-item"
+                  @click.stop="sendToDicomWebServer(server)">
+                  <i class="bi bi-cloud-upload-fill" style="padding-top: 4px;"></i>
+                  {{ server }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </td>
-      <td v-if="hasPrimaryViewerIconPlaceholder"></td>
+
+      <!-- Placeholder если колонка должна быть, но кнопок нет -->
+      <td v-else-if="hasPrimaryViewerColumn || hasQuickActionsColumn"></td>
       <td v-if="hasPdfReportIcon" class="td-pdf-icon">
-        <TokenLinkButton
-          v-for="pdfReport in pdfReports"
-          :key="pdfReport.id"
-          level="study"
-          :linkUrl="pdfReport.url"
-          :resourcesOrthancId="[study.ID]"
-          linkType="icon"
-          iconClass="bi bi-file-earmark-text"
-          :tokenType="'download-instant-link'"
-          :opensInNewTab="true"
-          :title="pdfReport.title"
-        >
+        <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" level="study" :linkUrl="pdfReport.url"
+          :resourcesOrthancId="[study.ID]" linkType="icon" iconClass="bi bi-file-earmark-text"
+          :tokenType="'download-instant-link'" :opensInNewTab="true" :title="pdfReport.title">
         </TokenLinkButton>
       </td>
       <td v-if="hasPdfReportIconPlaceholder"></td>
 
-      <td
-        v-for="columnTag in uiOptions.StudyListColumns"
-        :key="columnTag"
-        class="cut-text"
-        :class="{
-          'text-center':
-            columnTag in
-            [
-              'modalities',
-              'seriesCount',
-              'instancesCount',
-              'seriesAndInstancesCount',
-            ],
-        }"
-        data-bs-toggle="collapse"
-        v-bind:data-bs-target="'#study-details-' + this.studyId"
-      >
-        <span
-          v-if="columnTag == 'StudyDate'"
-          data-bs-toggle="tooltip"
-          v-bind:title="formattedStudyDate"
-          >{{ formattedStudyDate }}
+      <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text" :class="{
+        'text-center':
+          columnTag in
+          [
+            'modalities',
+            'seriesCount',
+            'instancesCount',
+            'seriesAndInstancesCount',
+          ],
+      }" data-bs-toggle="collapse" v-bind:data-bs-target="'#study-details-' + this.studyId">
+        <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip" v-bind:title="formattedStudyDate">{{
+          formattedStudyDate
+        }}
         </span>
-        <span
-          v-else-if="columnTag == 'AccessionNumber'"
-          data-bs-toggle="tooltip"
-          v-bind:title="study.MainDicomTags.AccessionNumber"
-          >{{ study.MainDicomTags.AccessionNumber }}
+        <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
+          v-bind:title="study.MainDicomTags.AccessionNumber">{{ study.MainDicomTags.AccessionNumber }}
         </span>
-        <span
-          v-else-if="columnTag == 'PatientID'"
-          data-bs-toggle="tooltip"
-          v-bind:title="study.PatientMainDicomTags.PatientID"
-          >{{ study.PatientMainDicomTags.PatientID }}
+        <span v-else-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
+          v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
         </span>
-        <span
-          v-else-if="columnTag == 'PatientSex'"
-          data-bs-toggle="tooltip"
-          v-bind:title="study.PatientMainDicomTags.PatientSex"
-          >{{ study.PatientMainDicomTags.PatientSex }}
+        <span v-else-if="columnTag == 'PatientSex'" data-bs-toggle="tooltip"
+          v-bind:title="study.PatientMainDicomTags.PatientSex">{{ study.PatientMainDicomTags.PatientSex }}
         </span>
-        <span
-          v-else-if="columnTag == 'PatientName'"
-          data-bs-toggle="tooltip"
-          v-bind:title="formattedPatientName"
-          >{{ formattedPatientName }}
+        <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip" v-bind:title="formattedPatientName">{{
+          formattedPatientName }}
+          <span :colspan="uiOptions.StudyListColumns.length" class="label-row">
+            <span v-for="label in study.Labels" :key="label" class="label badge">{{
+              label
+            }}</span>
+            <span v-if="!hasLabels">&nbsp;</span>
+          </span></span>
+        <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
+          v-bind:title="formattedPatientBirthDate">{{
+            formattedPatientBirthDate }}
         </span>
-        <span
-          v-else-if="columnTag == 'PatientBirthDate'"
-          data-bs-toggle="tooltip"
-          v-bind:title="formattedPatientBirthDate"
-          >{{ formattedPatientBirthDate }}
+        <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
+          v-bind:title="study.MainDicomTags.StudyDescription">{{ study.MainDicomTags.StudyDescription }}
         </span>
-        <span
-          v-else-if="columnTag == 'StudyDescription'"
-          data-bs-toggle="tooltip"
-          v-bind:title="study.MainDicomTags.StudyDescription"
-          >{{ study.MainDicomTags.StudyDescription }}
+        <span v-else-if="columnTag == 'modalities'" class="modality-badge clickable" @click.stop="filterByModality"
+          :title="$t('filter_by_modality')" data-bs-toggle="tooltip" v-bind:title="modalitiesInStudyForDisplay">
+          {{ modalitiesInStudyForDisplay }}
         </span>
-        <span
-          v-else-if="columnTag == 'modalities'"
-          data-bs-toggle="tooltip"
-          v-bind:title="modalitiesInStudyForDisplay"
-          >{{ modalitiesInStudyForDisplay }}
+        <span v-else-if="columnTag == 'seriesCount'" data-bs-toggle="tooltip" v-bind:title="seriesCount">{{ seriesCount
+        }}
         </span>
-        <span
-          v-else-if="columnTag == 'seriesCount'"
-          data-bs-toggle="tooltip"
-          v-bind:title="seriesCount"
-          >{{ seriesCount }}
+        <span v-else-if="columnTag == 'instancesCount'" data-bs-toggle="tooltip" v-bind:title="instancesCount">{{
+          instancesCount }}
         </span>
-        <span
-          v-else-if="columnTag == 'instancesCount'"
-          data-bs-toggle="tooltip"
-          v-bind:title="instancesCount"
-          >{{ instancesCount }}
-        </span>
-        <span
-          v-else-if="columnTag == 'seriesAndInstancesCount'"
-          data-bs-toggle="tooltip"
-          v-bind:title="seriesAndInstancesCount"
-          >{{ seriesAndInstancesCount }}
+        <span v-else-if="columnTag == 'seriesAndInstancesCount'" data-bs-toggle="tooltip"
+          v-bind:title="seriesAndInstancesCount">{{ seriesAndInstancesCount }}
         </span>
         <span v-else>{{ study.MainDicomTags[columnTag] }} </span>
       </td>
     </tr>
-    <tr v-show="showLabels">
-      <td></td>
-      <td v-if="hasPrimaryViewerColumn"></td>
-      <td v-if="hasPdfReportIconColumn"></td>
-      <td :colspan="uiOptions.StudyListColumns.length" class="label-row">
-        <span v-for="label in study.Labels" :key="label" class="label badge">{{
-          label
-        }}</span>
-        <span v-if="!hasLabels">&nbsp;</span>
-      </td>
-    </tr>
-    <tr
-      v-show="loaded"
-      class="collapse"
-      :class="{ 'study-details-expanded': expanded }"
-      v-bind:id="'study-details-' + this.studyId"
-      ref="study-collapsible-details"
-    >
+    <!-- <tr v-show="showLabels" class="tttr">
+
+      <td v-if="hasPrimaryViewerColumn" class="1"></td>
+      <td v-if="hasPdfReportIconColumn" class="2"></td>
+    </tr>-->
+    <tr v-show="loaded" class="study-details-row" :class="{ 'expanded': expanded }" :id="'study-details-' + studyId"
+      ref="study-collapsible-details">
       <td v-if="loaded && expanded" :colspan="colSpanStudyDetails">
-        <StudyDetails
-          :studyId="this.studyId"
-          :studyMainDicomTags="this.study.MainDicomTags"
-          :patientMainDicomTags="this.study.PatientMainDicomTags"
-          :labels="this.study.Labels"
-          @deletedStudy="onDeletedStudy"
-        ></StudyDetails>
+        <div class="study-details-content">
+          <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
+            :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels" @deletedStudy="onDeletedStudy">
+          </StudyDetails>
+        </div>
       </td>
     </tr>
   </tbody>
@@ -446,11 +594,9 @@ export default {
 }
 
 .study-row-collapsed:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0.08) 0%,
-    rgba(59, 130, 246, 0.03) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(59, 130, 246, 0.08) 0%,
+      rgba(59, 130, 246, 0.03) 100%);
   transform: translateX(2px);
   box-shadow: inset 3px 0 0 #3b82f6;
 }
@@ -466,12 +612,12 @@ export default {
   z-index: 10;
 }
 
-.study-row-expanded > td {
+.study-row-expanded>td {
   padding: 14px 10px !important;
   color: #1e293b;
 }
 
-.study-row-expanded > :first-child {
+.study-row-expanded> :first-child {
   border-left: 4px solid #3b82f6;
 }
 
@@ -496,10 +642,25 @@ export default {
 
 .study-details-expanded td {
   padding: 20px !important;
+  background: #e1e1e1;
+}
+
+.study-table .series-row-expanded {
+  background: #e1e1e1 !important;
+  cursor: pointer;
 }
 
 .study-details-expanded:hover {
   background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+}
+
+td .collapsed {
+  cursor: pointer;
+}
+
+td .collapsed:hover {
+  cursor: pointer;
+  background: #f8fafc
 }
 
 /* =============================================================================
@@ -509,11 +670,9 @@ export default {
   border-top: none !important;
   border-bottom: none !important;
   padding: 6px 10px !important;
-  background: linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0.03) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(59, 130, 246, 0.03) 0%,
+      transparent 100%);
 }
 
 .label-row .label {
@@ -552,7 +711,8 @@ export default {
 
 /* Empty labels placeholder */
 .label-row span:empty::before {
-  content: " a0"; /* non-breaking space */
+  content: " a0";
+  /* non-breaking space */
 }
 
 /* =============================================================================
@@ -570,7 +730,8 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 0; /* Force text truncation with ellipsis */
+  max-width: 0;
+  /* Force text truncation with ellipsis */
 }
 
 /* Center alignment for specific columns */
@@ -665,21 +826,21 @@ export default {
   transition: all 0.2s ease;
 }
 
-/* Viewer Icon Hover */
+/* Viewer Icon Hover 
 .td-viewer-icon a:hover {
   background: linear-gradient(
     135deg,
     rgba(59, 130, 246, 0.1) 0%,
     rgba(59, 130, 246, 0.05) 100%
   );
-}
+}*/
 
 .td-viewer-icon a:hover .bi {
   color: #3b82f6;
   transform: scale(1.2);
 }
 
-/* PDF Icon Hover */
+/* PDF Icon Hover
 .td-pdf-icon a:hover {
   background: linear-gradient(
     135deg,
@@ -691,7 +852,7 @@ export default {
 .td-pdf-icon a:hover .bi {
   color: #ef4444;
   transform: scale(1.2);
-}
+} */
 
 /* Icon Active State */
 .td-viewer-icon a:active .bi,
@@ -700,7 +861,7 @@ export default {
 }
 
 /* Multiple PDF Reports */
-.td-pdf-icon a + a {
+.td-pdf-icon a+a {
   border-top: 1px solid #f1f5f9;
 }
 
@@ -747,6 +908,7 @@ export default {
     transform: scaleY(0);
     opacity: 0;
   }
+
   to {
     transform: scaleY(1);
     opacity: 1;
@@ -754,9 +916,216 @@ export default {
 }
 
 /* =============================================================================
+   QUICK ACTIONS (Download + Send) - Unified Column
+   ============================================================================= */
+
+.td-quick-actions {
+  width: 90px;
+  max-width: 100px;
+  padding: 4px !important;
+  vertical-align: middle;
+  display: flex;
+  margin: 0 5px;
+
+}
+
+.quick-actions-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* =============================================================================
+   QUICK ACTION BUTTONS - Base Style (matching TokenLinkButton)
+   ============================================================================= */
+
+.quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-1px);
+
+}
+
+.quick-action-btn:active {
+  transform: scale(0.95);
+}
+
+
+/*
+.quick-action-download:hover,
+.quick-actions-group :deep(a[title*="download"]):hover {
+  background: linear-gradient(135deg,#3b82f61a,#3b82f60d);
+  color: white !important;
+}
+
+
+
+.quick-action-send:hover {
+  background: linear-gradient(135deg,#3b82f61a,#3b82f60d);
+  color: white;
+}
+*/
+/* =============================================================================
+   SEND DROPDOWN - Lightweight Style
+   ============================================================================= */
+
+.quick-send-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.quick-send-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  min-width: 180px;
+  max-width: 240px;
+  padding: 8px 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.2s ease;
+}
+
+.quick-send-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Section Title */
+.send-section {
+  padding: 4px 0;
+}
+
+.send-section:not(:first-child) {
+  border-top: 1px solid #f1f5f9;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.send-section-title {
+  padding: 4px 12px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Menu Items */
+.send-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.send-menu-item:hover {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  color: #7c3aed;
+}
+
+.send-menu-item:active {
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.send-menu-item i {
+  font-size: 14px;
+  color: #8b5cf6;
+  width: 18px;
+  text-align: center;
+}
+
+/* =============================================================================
+   CLOSE DROPDOWN ON OUTSIDE CLICK
+   ============================================================================= */
+
+/* Backdrop for closing dropdown */
+.quick-send-menu.show::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+/* =============================================================================
+   RESPONSIVE & COMPACT VIEW
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+
+
+  .quick-action-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .quick-send-menu {
+    min-width: 160px;
+  }
+}
+
+/* =============================================================================
+   ANIMATION FOR DROPDOWN
+   ============================================================================= */
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.quick-send-menu.show {
+  animation: dropdownSlideIn 0.2s ease forwards;
+}
+
+/* =============================================================================
    RESPONSIVE IMPROVEMENTS
    ============================================================================= */
 @media (max-width: 1200px) {
+
   .study-row-collapsed td,
   .study-row-expanded td {
     padding: 10px 6px;
@@ -771,6 +1140,7 @@ export default {
 }
 
 @media (max-width: 768px) {
+
   .td-viewer-icon,
   .td-pdf-icon {
     width: 30px;
@@ -810,6 +1180,7 @@ export default {
 
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
+
   .study-row-collapsed,
   .study-row-expanded,
   .study-details-expanded,
@@ -835,6 +1206,7 @@ export default {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -845,26 +1217,23 @@ export default {
    ============================================================================= */
 .study-row-collapsed:has(.form-check-input:checked),
 .study-row-expanded:has(.form-check-input:checked) {
-  background: linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0.05) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(59, 130, 246, 0.05) 0%,
+      transparent 100%);
   border-left: 3px solid #3b82f6;
 }
 
 .study-row-collapsed:has(.form-check-input:checked):hover {
-  background: linear-gradient(
-    90deg,
-    rgba(59, 130, 246, 0.1) 0%,
-    rgba(59, 130, 246, 0.05) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(59, 130, 246, 0.05) 100%);
 }
 
 /* =============================================================================
    PRINT STYLES
    ============================================================================= */
 @media print {
+
   .study-row-collapsed,
   .study-row-expanded {
     border: 1px solid #000 !important;
@@ -882,9 +1251,313 @@ export default {
     border: 1px solid #000;
   }
 
+  /* =============================================================================
+   QUICK ACTIONS BUTTONS
+   ============================================================================= */
+
+  .quick-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .quick-action-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .quick-action-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .quick-action-btn:disabled {
+    cursor: wait;
+    opacity: 0.8;
+  }
+
+  /* Download Button - Green */
+  .quick-action-download {
+    color: #10b981;
+    margin: 0px 4px;
+  }
+
+  .quick-action-download:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+
+  .quick-action-download.is-downloading {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .quick-action-download .spinner-border-sm {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+  }
+
+  /* Send Button - Purple */
+  .quick-action-send {
+    color: #8b5cf6;
+  }
+
+  .quick-action-send:hover {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  }
+
+  /* =============================================================================
+   SEND DROPDOWN MENU
+   ============================================================================= */
+
+  .quick-send-dropdown {
+    position: relative;
+  }
+
+  .quick-send-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    min-width: 180px;
+    max-width: 240px;
+    padding: 8px 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+  }
+
+  .quick-send-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  /* Send Sections */
+  .send-section {
+    padding: 4px 0;
+  }
+
+  .send-section:not(:last-child) {
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .send-section-title {
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+  }
+
+  /* Send Menu Items */
+  .send-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .send-menu-item:hover {
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+    color: #7c3aed;
+  }
+
+  .send-menu-item i {
+    font-size: 14px;
+    color: #8b5cf6;
+    width: 18px;
+    flex-shrink: 0;
+  }
+
   .td-viewer-icon,
   .td-pdf-icon {
     display: none;
+  }
+}
+
+.td-quick-actions button:hover .bi {
+  color: #3b82f6;
+  transform: scale(1.2)
+}
+
+th.download-buttons-group {
+  width: 20;
+}
+
+.div-icon {
+  background: #0f172a1a;
+  border-radius: 6px;
+  height: 32px;
+  width: 32px;
+  color: white;
+  padding-bottom: 4px;
+}
+
+button.quick-action-btn.quick-action-download {
+  background: #0f172a1a;
+  border-radius: 6px;
+  height: 32px;
+  width: 32px;
+  color: white;
+  padding-bottom: 4px;
+}
+
+button.quick-action-btn.quick-action-send {
+  background: #0f172a1a;
+  border-radius: 6px;
+  height: 32px;
+  width: 32px;
+  color: white;
+  padding-bottom: 4px;
+}
+
+button.form-control.study-list-filter.btn.filter-button.btn-sm {
+  min-width: 30px;
+}
+
+.modality-badge.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.modality-badge.clickable:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Стили для строки деталей */
+.study-details-row {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.study-details-row.expanded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Контейнер контента для дополнительной анимации */
+.study-details-content {
+  animation: fadeSlideIn 0.35s ease-out;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 0 0 8px 8px;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Альтернативная анимация высоты если нужно */
+.study-details-row {
+  max-height: 0;
+  transition: max-height 0.4s ease-out, opacity 0.3s ease, transform 0.3s ease;
+}
+
+.study-details-row.expanded {
+  max-height: 2000px;
+  /* Достаточно большое значение */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+  .quick-action-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .quick-action-download .spinner-border-sm {
+    width: 12px;
+    height: 12px;
+  }
+
+  .quick-send-menu {
+    min-width: 160px;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  th.download-buttons-group {
+    width: 14%;
+    max-width: 90px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  th.download-buttons-group {
+    width: 12%;
+    max-width: 90px !important;
+  }
+}
+
+@media (min-width: 1580px) {
+  th.download-buttons-group {
+    width: 8%;
+    max-width: 90px !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  th.download-buttons-group {
+    width: 6.5%;
+    max-width: 90px !important;
+  }
+}
+
+@media (min-width: 2400px) {
+  th.download-buttons-group {
+    width: 5%;
+    max-width: 90px !important;
   }
 }
 </style>

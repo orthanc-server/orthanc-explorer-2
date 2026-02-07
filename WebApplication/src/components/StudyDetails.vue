@@ -12,7 +12,7 @@ import SourceType from "../helpers/source-type";
 export default {
   props: ["studyId", "studyMainDicomTags", "patientMainDicomTags", "labels"],
   emits: ["deletedStudy"],
-  setup() {},
+  setup() { },
   data() {
     return {
       samePatientStudiesCount: 0,
@@ -59,8 +59,8 @@ export default {
         ) {
           console.info(
             "Possibly missing tag from DB: " +
-              t +
-              ", will get it from an instance",
+            t +
+            ", will get it from an instance",
           );
           let instances = await api.getStudyInstancesIds(this.studyId);
           let instanceTags = await api.getInstanceTags(instances[0]);
@@ -190,32 +190,17 @@ export default {
     <!-- Top Row: Labels + Action Buttons -->
     <div class="top-row">
       <div class="actions-buttons d-flex">
-        <ResourceButtonGroup
-          :resourceOrthancId="this.studyId"
-          :resourceLevel="'study'"
-          :patientMainDicomTags="this.patientMainDicomTags"
-          :studyMainDicomTags="this.studyMainDicomTagsLocalCopy"
-          :resourceDicomUid="this.studyMainDicomTagsLocalCopy.StudyInstanceUID"
-          :studySeries="this.studySeries"
-          @deletedResource="onDeletedStudy"
-        >
+        <ResourceButtonGroup :resourceOrthancId="this.studyId" :resourceLevel="'study'"
+          :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTagsLocalCopy"
+          :resourceDicomUid="this.studyMainDicomTagsLocalCopy.StudyInstanceUID" :studySeries="this.studySeries"
+          @deletedResource="onDeletedStudy">
         </ResourceButtonGroup>
       </div>
-      <div
-        class="labels-section"
-        v-if="showLabels && uiOptions.EnableEditLabels"
-      >
-        <LabelsEditor
-          :labels="labels"
-          :title="'labels.study_details_title'"
-          :key="labelsComponentKey"
-          :studyId="studyId"
-        ></LabelsEditor>
+      <div class="labels-section" v-if="showLabels && uiOptions.EnableEditLabels">
+        <LabelsEditor :labels="labels" :title="'labels.study_details_title'" :key="labelsComponentKey"
+          :studyId="studyId"></LabelsEditor>
       </div>
-      <div
-        class="labels-section"
-        v-else-if="showLabels && !uiOptions.EnableEditLabels"
-      >
+      <div class="labels-section" v-else-if="showLabels && !uiOptions.EnableEditLabels">
         {{ $t("labels.study_details_title") }}
         <span v-for="label in labels" :key="label" class="label badge">{{
           label
@@ -233,13 +218,8 @@ export default {
         </div>
         <div class="card-body">
           <div class="field-list">
-            <ResourceDetailText
-              v-for="tag in uiOptions.StudyMainTags"
-              :key="tag"
-              :tags="studyMainDicomTagsLocalCopy"
-              :tag="tag"
-              :showIfEmpty="true"
-            ></ResourceDetailText>
+            <ResourceDetailText v-for="tag in uiOptions.StudyMainTags" :key="tag" :tags="studyMainDicomTagsLocalCopy"
+              :tag="tag"></ResourceDetailText>
           </div>
         </div>
       </div>
@@ -251,24 +231,16 @@ export default {
         </div>
         <div class="card-body">
           <div class="field-list">
-            <ResourceDetailText
-              v-for="tag in uiOptions.PatientMainTags"
-              :key="tag"
-              :tags="patientMainDicomTags"
-              :tag="tag"
-              :showIfEmpty="true"
-            ></ResourceDetailText>
+            <ResourceDetailText v-for="tag in uiOptions.PatientMainTags" :key="tag" :tags="patientMainDicomTags"
+              :tag="tag"></ResourceDetailText>
           </div>
 
           <!-- Other Studies Info Messages -->
-          <div
-            v-if="
-              isLocalOrthanc &&
-              hasLoadedSamePatientsStudiesCount &&
-              samePatientStudiesCount > 1
-            "
-            class="info-message info-message--link"
-          >
+          <div v-if="
+            isLocalOrthanc &&
+            hasLoadedSamePatientsStudiesCount &&
+            samePatientStudiesCount > 1
+          " class="info-message info-message--link">
             <i class="fa fa-folder-open info-icon"></i>
             <span>
               {{
@@ -282,26 +254,20 @@ export default {
             </span>
           </div>
 
-          <div
-            v-if="
-              isLocalOrthanc &&
-              hasLoadedSamePatientsStudiesCount &&
-              samePatientStudiesCount == 1
-            "
-            class="info-message info-message--success"
-          >
+          <div v-if="
+            isLocalOrthanc &&
+            hasLoadedSamePatientsStudiesCount &&
+            samePatientStudiesCount == 1
+          " class="info-message info-message--success">
             <i class="fa fa-circle-check info-icon"></i>
             <span>{{ $t("this_patient_has_no_other_studies") }}</span>
           </div>
 
-          <div
-            v-if="
-              isRemoteSource &&
-              hasLoadedSamePatientsStudiesCount &&
-              samePatientStudiesCount > 1
-            "
-            class="info-message info-message--link"
-          >
+          <div v-if="
+            isRemoteSource &&
+            hasLoadedSamePatientsStudiesCount &&
+            samePatientStudiesCount > 1
+          " class="info-message info-message--link">
             <i class="fa fa-folder-open info-icon"></i>
             <span>
               {{
@@ -315,10 +281,7 @@ export default {
             </span>
           </div>
 
-          <div
-            v-if="isRemoteSource && remoteStudyFoundLocally"
-            class="info-message info-message--link"
-          >
+          <div v-if="isRemoteSource && remoteStudyFoundLocally" class="info-message info-message--link">
             <i class="fa fa-database info-icon"></i>
             <span>
               {{ $t("this_study_is_already_stored_locally") }}
@@ -331,22 +294,15 @@ export default {
       </div>
       <!-- Series List -->
       <div class="series-section col-xl-6 col-md-12">
-        <SeriesList
-          :studyId="this.studyId"
-          :studyMainDicomTags="this.studyMainDicomTagsLocalCopy"
-          :patientMainDicomTags="this.patientMainDicomTags"
-          :studySeries="this.studySeries"
-          @deletedStudy="onDeletedStudy"
-        ></SeriesList>
+        <SeriesList :studyId="this.studyId" :studyMainDicomTags="this.studyMainDicomTagsLocalCopy"
+          :patientMainDicomTags="this.patientMainDicomTags" :studySeries="this.studySeries"
+          @deletedStudy="onDeletedStudy"></SeriesList>
       </div>
     </div>
 
     <!-- Audit Logs Link -->
     <div v-if="uiOptions.EnableAuditLogs" class="audit-logs-row">
-      <router-link
-        class="audit-link"
-        :to="'/audit-logs?resource-id=' + this.studyId"
-      >
+      <router-link class="audit-link" :to="'/audit-logs?resource-id=' + this.studyId">
         <i class="fa fa-clipboard-list"></i>
         {{ $t("audit_logs.expand_logs") }}
       </router-link>
@@ -380,9 +336,9 @@ export default {
 .labels-section {
   flex: 1;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
+
   border-radius: 6px;
-  padding: 6px 12px;
+
   min-height: 36px;
   display: flex;
   align-items: center;
@@ -681,6 +637,7 @@ export default {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .label.badge,
   .info-message a,
   .audit-link {
@@ -979,10 +936,25 @@ export default {
   border-radius: 12px;
 }
 
+.form-control.dropdown.form-select {
+  cursor: pointer;
+  position: relative !important;
+  width: auto;
+  height: 48px !important;
+  display: flex;
+}
+
+ul#tags-menu-1 {
+  position: relative !important;
+  top: 0;
+  left: 0;
+}
+
 .resource-button-group.large button i,
 .resource-button-group .btn-lg i {
   font-size: 20px;
 }
+
 .btn-icon {
   background-color: var(--nav-side-bg-color);
 }
@@ -1029,6 +1001,7 @@ export default {
 }
 
 @media (prefers-contrast: high) {
+
   .resource-button-group button,
   .resource-button-group .btn {
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -1036,6 +1009,7 @@ export default {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .resource-button-group button,
   .resource-button-group .btn {
     transition: none;

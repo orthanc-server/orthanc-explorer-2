@@ -12,21 +12,41 @@ export default {
             seriesInfo: {},
         };
     },
+    created() {
+        // Инициализируем seriesInfo сразу при создании компонента
+        this.initSeriesInfo();
+    },
     computed: {
         sortedSeriesIds() {
             let keys = Object.keys(this.seriesInfo);
-            keys.sort((a, b) => (parseInt(this.seriesInfo[a].MainDicomTags.SeriesNumber) > parseInt(this.seriesInfo[b].MainDicomTags.SeriesNumber) ? 1 : -1))
+            keys.sort((a, b) => {
+                const numA = parseInt(this.seriesInfo[a]?.MainDicomTags?.SeriesNumber) || 0;
+                const numB = parseInt(this.seriesInfo[b]?.MainDicomTags?.SeriesNumber) || 0;
+                return numA - numB;
+            });
             return keys;
         }
     },
     watch: {
-        studySeries(newValue, oldValue) {
-            for (const series of this.studySeries) {
-                this.seriesInfo[series["ID"]] = series;
-            }
+        studySeries: {
+            handler(newValue) {
+                this.initSeriesInfo();
+            },
+            deep: true
         }
     },
     methods: {
+        initSeriesInfo() {
+            if (!this.studySeries || this.studySeries.length === 0) return;
+
+            const newInfo = {};
+            for (const series of this.studySeries) {
+                if (series && series.ID) {
+                    newInfo[series.ID] = series;
+                }
+            }
+            this.seriesInfo = newInfo;
+        },
         columnTitle(tagName) {
             if (tagName == "instances_number") {
                 return "# " + this.$i18n.t('instances');
@@ -55,49 +75,23 @@ export default {
 </script>
 
 <template>
-    <table class="table table-responsive table-sm series-table">
+    <table v-if="sortedSeriesIds.length > 0" class="table table-responsive table-sm series-table">
         <thead>
             <tr>
                 <th width="2%" scope="col" class="series-table-header"></th>
-                <th
-                    width="7%"
-                    scope="col"
-                    class="series-table-header cut-text"
-                    data-bs-toggle="tooltip"
-                    :title="columnTooltip('SeriesNumber')"
-                    >{{columnTitle('SeriesNumber')}}</th>
-                <th
-                width="40%"
-                scope="col"
-                class="series-table-header cut-text"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('SeriesDescription')"
-                >{{columnTitle('SeriesDescription')}}</th>
-                <th
-                width="11%"
-                scope="col"
-                class="series-table-header cut-text text-center"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('Modality')"
-                >{{columnTitle('Modality')}}</th>
-                <th
-                width="5%"
-                scope="col"
-                class="series-table-header cut-text text-center"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('instances_number')"
-                >{{columnTitle('instances_number')}}</th>
+                <th width="7%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
+                    :title="columnTooltip('SeriesNumber')">{{ columnTitle('SeriesNumber') }}</th>
+                <th width="40%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
+                    :title="columnTooltip('SeriesDescription')">{{ columnTitle('SeriesDescription') }}</th>
+                <th width="11%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
+                    :title="columnTooltip('Modality')">{{ columnTitle('Modality') }}</th>
+                <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
+                    :title="columnTooltip('instances_number')">{{ columnTitle('instances_number') }}</th>
             </tr>
         </thead>
-        <SeriesItem
-            v-for="seriesId in sortedSeriesIds"
-            :key="seriesId"
-            :seriesId="seriesId"
-            :seriesInfo="seriesInfo[seriesId]"
-            :studyMainDicomTags="this.studyMainDicomTags"
-            :patientMainDicomTags="this.patientMainDicomTags"
-            @deletedSeries="onDeletedSeries"
-        ></SeriesItem>
+        <SeriesItem v-for="seriesId in sortedSeriesIds" :key="seriesId" :seriesId="seriesId"
+            :seriesInfo="seriesInfo[seriesId]" :studyMainDicomTags="studyMainDicomTags"
+            :patientMainDicomTags="patientMainDicomTags" @deletedSeries="onDeletedSeries" />
     </table>
 </template>
 
@@ -315,7 +309,9 @@ export default {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Active/Selected */
@@ -437,7 +433,7 @@ export default {
         justify-content: center;
         gap: 8px;
     }
-    
+
     .resource-button-group button,
     .resource-button-group .btn {
         width: 44px;
@@ -459,6 +455,7 @@ export default {
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
+
     .resource-button-group button,
     .resource-button-group .btn {
         border: 2px solid rgba(255, 255, 255, 0.3);
@@ -467,6 +464,7 @@ export default {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
     .resource-button-group button,
     .resource-button-group .btn {
         transition: none;
@@ -483,5 +481,4 @@ export default {
         display: none !important;
     }
 }
-
 </style>

@@ -6,6 +6,10 @@ import { showSaveFilePicker } from "native-file-system-adapter";
 
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
 
+let labelsCache = null;
+let labelsCacheTime = null;
+let labelsLoadingPromise = null;
+
 export default {
     updateAuthHeader(headerKey = null) {
         axios.defaults.headers.common[headerKey ?? "token"] = localStorage.getItem(headerKey ?? "vue-token")
@@ -438,9 +442,16 @@ export default {
     async getRolesConfig() {
         return (await axios.get(orthancApiUrl + "auth/settings/roles")).data;
     },
-    async setRolesConfig(roles) {
-        return (await axios.put(orthancApiUrl + "auth/settings/roles", roles)).data;
-    },
+async setRolesConfig(roles) {
+    const result = await axios.put(orthancApiUrl + "auth/settings/roles", roles);
+    
+    // Сбрасываем кэш labels после изменения конфигурации
+    labelsCache = null;
+    labelsCacheTime = null;
+    console.log("Labels cache cleared after config update");
+    
+    return result.data;
+},
     async getDelayedDeletionStatus() {
         return (await axios.get(orthancApiUrl + "plugins/delayed-deletion/status")).data;
     },
@@ -487,20 +498,60 @@ export default {
         return response.data['ID'];
     },
 
-    async loadAllLabels() {
-        const response = (await axios.get(orthancApiUrl + "tools/labels"));
-        return response.data;
-    },
+async loadAllLabels() {
+    const now = Date.now();
+    const CACHE_DURATION = 30000; // 30 секунд
+    
+    // Если уже загружается - вернуть тот же промис
+    if (labelsLoadingPromise) {
+        console.log("Labels already loading, reusing promise");
+        return labelsLoadingPromise;
+    }
+    
+    // Если в кэше и свежие - вернуть из кэша
+    if (labelsCache && labelsCacheTime && (now - labelsCacheTime) < CACHE_DURATION) {
+        console.log("Returning cached labels");
+        return labelsCache;
+    }
+    
+    // Загрузить новые
+    console.log("Loading fresh labels from API");
+    labelsLoadingPromise = axios.get(orthancApiUrl + "tools/labels")
+        .then(response => {
+            labelsCache = response.data; // Сохраняем только data
+            labelsCacheTime = Date.now();
+            labelsLoadingPromise = null;
+            console.log("Labels loaded and cached:", labelsCache.length);
+            return labelsCache;
+        })
+        .catch(error => {
+            labelsLoadingPromise = null;
+            console.error("Failed to load labels:", error);
+            throw error;
+        });
+    
+    return labelsLoadingPromise;
+},
 
-    async addLabel({studyId, label}) {
-        await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, "");
-        return label;
-    },
+async addLabel({studyId, label}) {
+    await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, "");
+    
+    // Сбрасываем кэш, так как список labels изменился
+    labelsCache = null;
+    labelsCacheTime = null;
+    
+    return label;
+},
 
-    async removeLabel({studyId, label}) {
-        await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label);
-        return label;
-    },
+async removeLabel({studyId, label}) {
+    await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label);
+    
+    // Сбрасываем кэш, так как список labels изменился
+    labelsCache = null;
+    labelsCacheTime = null;
+    
+    return label;
+},
 
     async removeAllLabels(studyId) {
         const labels = await this.getLabels(studyId);
@@ -775,33 +826,41 @@ export default {
         return orthancApiUrl + "instances/" + orthancId + "/file" + filenameArgument;
     },
     getDownloadZipUrl(level, resourceOrthancId, filename) {
-        let filenameArgument = "";
+    let url = orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive';
+    if (filename) {
+        url += "?filename=" + encodeURIComponent(filename);
+    }
+    return url;
+},
+
+getBulkDownloadZipUrl(resourcesOrthancId, filename) {
+    if (resourcesOrthancId.length > 0) {
+        let url = orthancApiUrl + "tools/create-archive?resources=" + resourcesOrthancId.join(',');
         if (filename) {
-            filenameArgument = "?filename=" + encodeURIComponent(filename);
+            url += "&filename=" + encodeURIComponent(filename);
         }
-        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive' + filenameArgument;
-    },
-    getBulkDownloadZipUrl(resourcesOrthancId) {
-        if (resourcesOrthancId.length > 0)
-        {
-            return orthancApiUrl + "tools/create-archive?resources=" + resourcesOrthancId.join(',');
-        }
-        return undefined;
-    },
-    getBulkDownloadDicomDirUrl(resourcesOrthancId) {
-        if (resourcesOrthancId.length > 0)
-        {
-            return orthancApiUrl + "tools/create-media?resources=" + resourcesOrthancId.join(',');
-        }
-        return undefined;
-    },
-    getDownloadDicomDirUrl(level, resourceOrthancId, filename) {
-        let filenameArgument = "";
+        return url;
+    }
+    return undefined;
+},
+getDownloadDicomDirUrl(level, resourceOrthancId, filename) {
+    let url = orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/media';
+    if (filename) {
+        url += "?filename=" + encodeURIComponent(filename);
+    }
+    return url;
+},
+
+getBulkDownloadDicomDirUrl(resourcesOrthancId, filename) {
+    if (resourcesOrthancId.length > 0) {
+        let url = orthancApiUrl + "tools/create-media?resources=" + resourcesOrthancId.join(',');
         if (filename) {
-            filenameArgument = "?filename=" + encodeURIComponent(filename);
+            url += "&filename=" + encodeURIComponent(filename);
         }
-        return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/media' + filenameArgument;
-    },
+        return url;
+    }
+    return undefined;
+},
     getApiUrl(level, resourceOrthancId, subroute) {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + subroute;
     },
@@ -834,3 +893,11 @@ export default {
         }
     }
 }
+
+
+
+
+
+
+
+

@@ -16,6 +16,7 @@ export default {
       labelsStudyCount: {},
       noLabelsStudyCount: null,
       isAdmin: false,
+      isMobilePortrait: false,
       isCollapsed: false,
     };
   },
@@ -92,7 +93,31 @@ export default {
     },
   },
   methods: {
+    handleMobilePortraitMode(e) {
+      this.isMobilePortrait = e.detail.isMobilePortrait;
+      if (this.isMobilePortrait) {
+        this.isCollapsed = true;
+        // НЕ сохраняем в localStorage - это временное состояние
+      }
+    },
+
+    // 🆕 ДОБАВИТЬ: Начальная проверка
+    checkMobilePortrait() {
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+      this.isMobilePortrait = isMobile && isPortrait;
+
+      if (this.isMobilePortrait) {
+        this.isCollapsed = true;
+      }
+    },
+
     toggleSidebar() {
+      // Блокируем раскрытие на мобильном в портретном режиме
+      if (this.isMobilePortrait) {
+        return;
+      }
+
       this.isCollapsed = !this.isCollapsed;
       localStorage.setItem("sidebarCollapsed", this.isCollapsed);
       window.dispatchEvent(
@@ -192,7 +217,16 @@ export default {
       this.loadLabelsCount();
     },
   },
+  beforeUnmount() {
+    window.removeEventListener("mobile-portrait-mode", this.handleMobilePortraitMode);
+    window.removeEventListener("resize", this.checkMobilePortrait);
+  },
   mounted() {
+    // 🆕 ДОБАВИТЬ: Слушатель мобильного режима
+    window.addEventListener("mobile-portrait-mode", this.handleMobilePortraitMode);
+
+    // 🆕 ДОБАВИТЬ: Начальная проверка
+    this.checkMobilePortrait();
     const savedState = localStorage.getItem("sidebarCollapsed");
     if (savedState !== null) {
       this.isCollapsed = savedState === "true";
@@ -231,6 +265,7 @@ export default {
 </script>
 
 <template>
+
   <div class="nav-side-menu" :class="{ collapsed: isCollapsed }">
     <div class="nav-side-content">
       <!-- Header with Logo -->
@@ -239,22 +274,12 @@ export default {
           <defs>
             <linearGradient id="dmisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color: #3b82f6; stop-opacity: 1" />
-              <stop
-                offset="100%"
-                style="stop-color: #8b5cf6; stop-opacity: 1"
-              />
+              <stop offset="100%" style="stop-color: #8b5cf6; stop-opacity: 1" />
             </linearGradient>
           </defs>
           <circle cx="50" cy="50" r="45" fill="url(#dmisGrad)" />
-          <text
-            x="50"
-            y="68"
-            text-anchor="middle"
-            fill="white"
-            font-size="50"
-            font-weight="bold"
-            font-family="Arial, sans-serif"
-          >
+          <text x="50" y="68" text-anchor="middle" fill="white" font-size="50" font-weight="bold"
+            font-family="Arial, sans-serif">
             D
           </text>
         </svg>
@@ -263,21 +288,13 @@ export default {
       </div>
 
       <!-- Toggle Button -->
-      <div
-        class="sidebar-toggle"
-        @click="toggleSidebar"
-        :title="isCollapsed ? $t('sidebar.open') : $t('sidebar.close')"
-      >
-        <i
-          class="fa"
-          :class="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"
-        ></i>
+      <div class="sidebar-toggle" @click="toggleSidebar"
+        :title="isCollapsed ? $t('sidebar.open') : $t('sidebar.close')">
+        <i class="fa" :class="isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
       </div>
 
-      <div
-        v-if="uiOptions.ShowOrthancName && !isCollapsed"
-        class="orthanc-name"
-      >
+
+      <div v-if="uiOptions.ShowOrthancName && !isCollapsed" class="orthanc-name">
         <p>{{ system.Name }}</p>
       </div>
 
@@ -287,32 +304,21 @@ export default {
           <!-- Local Studies -->
           <li>
             <router-link class="router-link" to="/">
-              <i class="fa fa-folder-open fa-lg menu-icon"></i
-              >{{ $t("local_studies") }}
-              <span class="study-count ms-auto"
-                >{{ displayedStudyCount }} / {{ statistics.CountStudies }}</span
-              >
+              <i class="fa fa-folder-open fa-lg menu-icon"></i>{{ $t("local_studies") }}
+              <span class="study-count ms-auto">{{ displayedStudyCount }} / {{ statistics.CountStudies }}</span>
             </router-link>
           </li>
 
           <!-- Labels submenu -->
           <ul v-if="allLabels.length > 0" class="sub-menu" id="labels-list">
-            <li
-              v-if="canShowStudiesWithoutLabels"
-              key="without-label"
-              :class="{ active: isSelectedWithoutLabels() }"
-              @click="selectWithoutLabels()"
-            >
+            <li v-if="canShowStudiesWithoutLabels" key="without-label" :class="{ active: isSelectedWithoutLabels() }"
+              @click="selectWithoutLabels()">
               {{ $t("labels.studies_without_labels") }}
               <span class="study-count ms-auto">{{ noLabelsStudyCount }}</span>
             </li>
-            <li
-              v-for="label in allLabels"
-              :key="label"
-              :class="{ active: isSelectedLabel(label) }"
-              @click="selectLabel(label)"
-            >
-              <i class="fa fa-tag label-icon"></i>{{ label }}
+            <li v-for="label in allLabels" :key="label" :class="['tagLabel ', { active: isSelectedLabel(label) }]"
+              @click="selectLabel(label)">
+              <i class="fa fa-tag label-icon"></i><span class="cut-text">{{ label }}</span>
               <span class="study-count ms-auto">{{
                 labelsStudyCount[label]
               }}</span>
@@ -320,134 +326,74 @@ export default {
           </ul>
 
           <!-- Upload -->
-          <li
-            v-if="uiOptions.EnableUpload"
-            class="d-flex align-items-center"
-            data-bs-toggle="collapse"
-            data-bs-target="#upload-handler"
-          >
-            <i class="fa fa-cloud-arrow-up fa-lg menu-icon"></i
-            >{{ $t("upload") }}
+          <li v-if="uiOptions.EnableUpload" class="d-flex align-items-center" data-bs-toggle="collapse"
+            data-bs-target="#upload-handler">
+            <i class="fa fa-cloud-arrow-up fa-lg menu-icon"></i>{{ $t("upload") }}
             <span class="ms-auto"></span>
           </li>
-          <div
-            v-if="uiOptions.EnableUpload"
-            class="collapse"
-            id="upload-handler"
-          >
+          <div v-if="uiOptions.EnableUpload" class="collapse" id="upload-handler">
             <UploadHandler :showStudyDetails="true" />
           </div>
 
           <!-- DICOM Modalities -->
-          <li
-            v-if="hasQueryableDicomModalities"
-            class="d-flex align-items-center"
-            data-bs-toggle="collapse"
-            data-bs-target="#modalities-list"
-          >
-            <i class="fa fa-server fa-lg menu-icon"></i
-            >{{ $t("dicom_modalities") }}
+          <li v-if="hasQueryableDicomModalities" class="d-flex align-items-center" data-bs-toggle="collapse"
+            data-bs-target="#modalities-list">
+            <i class="fa fa-server fa-lg menu-icon"></i>{{ $t("dicom_modalities") }}
             <span class="arrow ms-auto"></span>
           </li>
-          <ul
-            class="sub-menu collapse"
-            id="modalities-list"
-            ref="modalities-collapsible"
-          >
-            <li
-              v-for="modality of Object.keys(queryableDicomModalities)"
-              :key="modality"
-              :class="{ active: isSelectedModality(modality) }"
-            >
-              <router-link
-                class="router-link"
-                :to="{
-                  path: '/filtered-studies',
-                  query: { 'source-type': 'dicom', 'remote-source': modality },
-                }"
-              >
+          <ul class="sub-menu collapse" id="modalities-list" ref="modalities-collapsible">
+            <li v-for="modality of Object.keys(queryableDicomModalities)" :key="modality"
+              :class="['mod-btn', { active: isSelectedModality(modality) }]">
+              <router-link class="router-link dicom-modal" :to="{
+                path: '/filtered-studies',
+                query: { 'source-type': 'dicom', 'remote-source': modality },
+              }"><i class="fa-solid fa-radiation mr-1"> </i>
                 {{ modality }}
               </router-link>
-              <span
-                v-if="isEchoRunning(modality)"
-                class="ms-auto spinner-border spinner-border-sm"
-                data-bs-toggle="tooltip"
-                title="Checking connectivity"
-              ></span>
-              <span v-else-if="isEchoSuccess(modality)" class="ms-auto"
-                ><i
-                  class="bi bi-check2 text-success echo-status"
-                  data-bs-toggle="tooltip"
-                  title="C-Echo succeeded"
-                ></i
-              ></span>
-              <span v-else class="ms-auto"
-                ><i
-                  class="bi bi-x-lg text-danger echo-status"
-                  data-bs-toggle="tooltip"
-                  title="C-Echo failed"
-                ></i
-              ></span>
+              <span v-if="isEchoRunning(modality)" class="ms-auto spinner-border spinner-border-sm"
+                data-bs-toggle="tooltip" :title="$t('checking_connectivity')"></span>
+              <span v-else-if="isEchoSuccess(modality)" class="ms-auto"><i class="bi bi-check2 text-success echo-status"
+                  data-bs-toggle="tooltip" :title="$t('c_echo_succeeded')"></i></span>
+              <span v-else class="ms-auto"><i class="bi bi-x-lg text-danger echo-status" data-bs-toggle="tooltip"
+                  :title="$t('c_echo_failed')"></i></span>
             </li>
           </ul>
 
           <!-- DicomWeb Servers -->
-          <li
-            v-if="hasQueryableDicomWebServers"
-            class="d-flex align-items-center"
-            data-bs-toggle="collapse"
-            data-bs-target="#dicomweb-servers-list"
-          >
-            <i class="fa fa-globe fa-lg menu-icon"></i
-            >{{ $t("dicom_web_servers") }}
+          <li v-if="hasQueryableDicomWebServers" class="d-flex align-items-center" data-bs-toggle="collapse"
+            data-bs-target="#dicomweb-servers-list">
+            <i class="fa fa-globe fa-lg menu-icon"></i>{{ $t("dicom_web_servers") }}
             <span class="arrow ms-auto"></span>
           </li>
           <ul class="sub-menu collapse" id="dicomweb-servers-list">
-            <li
-              v-for="server in queryableDicomWebServers"
-              :key="server"
-              :class="{ active: isSelectedDicomWebServer(server) }"
-            >
-              <router-link
-                class="router-link"
-                :to="{
-                  path: '/filtered-studies',
-                  query: {
-                    'source-type': 'dicom-web',
-                    'remote-source': server,
-                  },
-                }"
-              >
+            <li v-for="server in queryableDicomWebServers" :key="server"
+              :class="{ active: isSelectedDicomWebServer(server) }">
+              <router-link class="router-link" :to="{
+                path: '/filtered-studies',
+                query: {
+                  'source-type': 'dicom-web',
+                  'remote-source': server,
+                },
+              }">
                 {{ server }}
               </router-link>
             </li>
           </ul>
 
           <!-- External Viewers -->
-          <li
-            v-if="uiOptions.EnableOpenInMedDreamViewer"
-            class="d-flex align-items-center"
-          >
+          <li v-if="uiOptions.EnableOpenInMedDreamViewer" class="d-flex align-items-center">
             <a :href="'../meddream/index.html'" target="_meddream">
-              <i class="fa fa-x-ray fa-lg menu-icon"></i
-              >{{ $t("open_meddream") }}
+              <i class="fa fa-x-ray fa-lg menu-icon"></i>{{ $t("open_meddream") }}
             </a>
             <span class="ms-auto"></span>
           </li>
-          <li
-            v-if="uiOptions.EnableOpenInStoneViewer"
-            class="d-flex align-items-center"
-          >
+          <li v-if="uiOptions.EnableOpenInStoneViewer" class="d-flex align-items-center">
             <a :href="'../stone-webviewer/index.html'" target="_stone">
-              <i class="fa fa-cube fa-lg menu-icon"></i
-              >{{ $t("open_stone_viewer") }}
+              <i class="fa fa-cube fa-lg menu-icon"></i>{{ $t("open_stone_viewer") }}
             </a>
             <span class="ms-auto"></span>
           </li>
-          <li
-            v-if="uiOptions.EnableOpenInVolView"
-            class="d-flex align-items-center"
-          >
+          <li v-if="uiOptions.EnableOpenInVolView" class="d-flex align-items-center">
             <a :href="'../volview/'" target="_volview">
               <i class="fa fa-box fa-lg menu-icon"></i>{{ $t("open_volview") }}
             </a>
@@ -457,51 +403,40 @@ export default {
           <!-- Worklists -->
           <li v-if="hasAccessToWorklists">
             <router-link class="router-link" to="/worklists">
-              <i class="fa fa-list fa-lg menu-icon"></i
-              >{{ $t("worklists.side_bar_title") }}
+              <i class="fa fa-list fa-lg menu-icon"></i>{{ $t("worklists.side_bar_title") }}
             </router-link>
           </li>
 
           <!-- Settings -->
-          <li
-            v-if="hasAccessToSettings"
-            class="d-flex align-items-center"
-            data-bs-toggle="collapse"
-            data-bs-target="#settings-list"
-          >
-            <i class="fa fa-sliders fa-lg menu-icon"></i
-            >{{ $t("settings.title") }}
+          <li v-if="hasAccessToSettings" class="d-flex align-items-center" data-bs-toggle="collapse"
+            data-bs-target="#settings-list">
+            <i class="fa fa-sliders fa-lg menu-icon"></i>{{ $t("settings.title") }}
             <span class="arrow ms-auto"></span>
           </li>
           <ul class="sub-menu collapse" id="settings-list">
             <li>
               <router-link class="router-link" to="/settings">
-                <i class="fa fa-circle-info menu-icon"></i
-                >{{ $t("settings.system_info") }}
+                <i class="fa fa-circle-info menu-icon"></i>{{ $t("settings.system_info") }}
               </router-link>
             </li>
             <li v-if="hasAccessToSettingsLabelsAndPermissions">
               <router-link class="router-link" to="/settings-labels">
-                <i class="fa fa-tags menu-icon"></i
-                >{{ $t("settings.available_labels_title") }}
+                <i class="fa fa-tags menu-icon"></i>{{ $t("settings.available_labels_title") }}
               </router-link>
             </li>
             <li v-if="hasAccessToSettingsLabelsAndPermissions">
               <router-link class="router-link" to="/settings-permissions">
-                <i class="fa fa-user-shield menu-icon"></i
-                >{{ $t("settings.permissions") }}
+                <i class="fa fa-user-shield menu-icon"></i>{{ $t("settings.permissions") }}
               </router-link>
             </li>
             <li>
               <a href="#" @click="goToProfile($event)">
-                <i class="fa fa-user-circle menu-icon"></i
-                >{{ $t("sidebar.profile") }}
+                <i class="fa fa-user-circle menu-icon"></i>{{ $t("sidebar.profile") }}
               </a>
             </li>
             <li v-if="isAdmin">
               <a href="#" @click="goToAdminDashboard($event)">
-                <i class="fa fa-chart-line menu-icon"></i
-                >{{ $t("sidebar.dashboard") }}
+                <i class="fa fa-chart-line menu-icon"></i>{{ $t("sidebar.dashboard") }}
               </a>
             </li>
             <li v-if="isAdmin">
@@ -519,16 +454,14 @@ export default {
           <!-- Audit Logs -->
           <li v-if="uiOptions.EnableAuditLogs">
             <router-link class="router-link" to="/audit-logs">
-              <i class="fa fa-table-list menu-icon"></i
-              >{{ $t("audit_logs.side_bar_title") }}
+              <i class="fa fa-table-list menu-icon"></i>{{ $t("audit_logs.side_bar_title") }}
             </router-link>
           </li>
 
           <!-- Legacy UI -->
           <li v-if="uiOptions.EnableLinkToLegacyUi">
             <a :href="orthancApiUrl + 'app/explorer.html'">
-              <i class="fa fa-solid fa-backward fa-lg menu-icon"></i
-              >{{ $t("legacy_ui") }}
+              <i class="fa fa-solid fa-backward fa-lg menu-icon"></i>{{ $t("legacy_ui") }}
             </a>
             <span class="ms-auto"></span>
           </li>
@@ -536,8 +469,7 @@ export default {
           <!-- Jobs -->
           <li v-if="hasJobs" class="d-flex align-items-center">
             <a href="#">
-              <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i
-              >{{ $t("my_jobs") }}
+              <i class="fa fa-solid fa-bars-progress fa-lg menu-icon"></i>{{ $t("my_jobs") }}
             </a>
             <span class="ms-auto"></span>
           </li>
@@ -558,11 +490,7 @@ export default {
           </li>
 
           <!-- Settings -->
-          <li
-            v-if="hasAccessToSettings"
-            class="collapsed-item"
-            :title="$t('settings.title')"
-          >
+          <li v-if="hasAccessToSettings" class="collapsed-item" :title="$t('settings.title')">
             <router-link class="router-link" to="/settings">
               <i class="fa fa-sliders"></i>
             </router-link>
@@ -578,9 +506,9 @@ export default {
       </div>
 
       <!-- Language Picker (only expanded) -->
-      <div v-show="!isCollapsed" class="bottom-side-bar">
+      <div class="bottom-side-bar">
         <div class="bottom-side-bar-button">
-          <LanguagePicker />
+          <LanguagePicker :isCollapsed="isCollapsed" />
         </div>
       </div>
     </div>
@@ -593,7 +521,7 @@ export default {
    ============================================================================= */
 .sidebar-toggle {
   position: absolute;
-  top: 50%;
+  bottom: -28px;
   right: 0px;
   transform: translateY(-50%);
   width: 28px;
@@ -628,11 +556,9 @@ export default {
   text-align: center;
   padding: 20px 10px 15px;
   margin-bottom: 10px;
-  background: linear-gradient(
-    180deg,
-    rgba(59, 130, 246, 0.1) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      transparent 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
 }
@@ -868,7 +794,7 @@ export default {
 
 .bottom-side-bar-button {
   position: absolute;
-  bottom: 1rem;
+  bottom: 0;
   width: 100%;
   height: 3rem;
 }
@@ -901,7 +827,7 @@ export default {
 }
 
 .nav-side-menu li .study-count {
-  padding-right: 0px;
+  padding-right: 4px;
   float: right;
   font-size: 12px;
   color: #64748b;
@@ -916,8 +842,14 @@ export default {
 
 .nav-side-menu ul .sub-menu li.active,
 .nav-side-menu li .sub-menu li.active {
+  border-left: 3px solid #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.1);
   color: #e2e8f0;
-  background-color: rgba(59, 130, 246, 0.15);
+  margin-left: 4px;
+}
+
+li.mod-btn {
+  margin-left: 8px;
 }
 
 .nav-side-menu ul .sub-menu li.active a,
@@ -931,8 +863,8 @@ export default {
   background-color: rgba(30, 41, 59, 0.5);
   border: none;
   line-height: 36px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  margin-left: 0px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+
   font-size: 12px;
 }
 
@@ -944,12 +876,12 @@ export default {
 }
 
 .nav-side-menu li {
-  margin-left: -10px;
+
   padding-left: 0px;
   border-left: 3px solid transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
   border-radius: 0 8px 8px 0;
-  margin-right: 10px;
+
 }
 
 .nav-side-menu li a {
@@ -959,6 +891,9 @@ export default {
   align-items: center;
   width: 100%;
   transition: all 0.2s;
+  font-weight: 100;
+  padding: 0;
+  margin-left: 0;
 }
 
 .nav-side-menu li a:hover {
@@ -976,15 +911,43 @@ export default {
 }
 
 .menu-list {
-  margin-left: 10px;
-  margin-right: 10px;
-  font-size: 13px;
+  margin-left: 2px;
+  margin-right: 8px;
+  font-size: 12px;
 }
+
+
 
 .label-icon {
   width: 16px;
   margin-right: 8px;
   line-height: 28px;
   opacity: 0.7;
+}
+
+li.tagLabel {
+  padding: 0 6px !important;
+  max-width: 110px;
+  width: auto;
+  overflow: hidden;
+
+}
+
+ul#labels-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(98px, 0fr));
+  gap: 2px 4px;
+  animation: fadeIn .2s ease;
+  justify-items: stretch;
+  justify-content: space-around;
+}
+
+.collapsed .sidebar-toggle {
+  width: 64px !important;
+  ;
+}
+
+.collapsed .sidebar-toggle:hover {
+  width: 64px !important;
 }
 </style>

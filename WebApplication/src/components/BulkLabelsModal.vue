@@ -8,7 +8,7 @@ import LabelsEditor from "./LabelsEditor.vue";
 
 export default {
     props: ["resourcesOrthancId", "resourceLevel"],
-    emits:["bulkModalClosed"],
+    emits: ["bulkModalClosed"],
     data() {
         return {
             labelsToRemove: [],
@@ -49,10 +49,12 @@ export default {
         async clearAllLabels() {
             this.clearAllInProgress = true;
             let promises = [];
-            
+
+            // ✅ Создаём все промисы сразу (параллельно)
             for (const studyId of this.resourcesOrthancId) {
-                promises.push(await api.removeAllLabels(studyId));
+                promises.push(api.removeAllLabels(studyId)); // Убрали await
             }
+
             const promisesResults = await Promise.all(promises);
             let removedLabels = new Set();
             for (const result of promisesResults) {
@@ -62,9 +64,9 @@ export default {
             }
             this.messages.push({
                 labels: removedLabels,
-                part1: this.$t('labels.cleared_labels_message_part_1_html', {count: this.resourcesOrthancId.length}),
-                part2: this.$t('labels.cleared_labels_message_part_2_html', {count: this.resourcesOrthancId.length})
-                });
+                part1: this.$t('labels.cleared_labels_message_part_1_html', { count: this.resourcesOrthancId.length }),
+                part2: this.$t('labels.cleared_labels_message_part_2_html', { count: this.resourcesOrthancId.length })
+            });
             this.clearAllInProgress = false;
 
             this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
@@ -84,7 +86,7 @@ export default {
                     promises.push(api.addLabel({
                         studyId: studyId,
                         label: label
-                    }))        
+                    }))
                 }
             }
 
@@ -95,8 +97,8 @@ export default {
             }
             this.messages.push({
                 labels: processedLabels,
-                part1: this.$t('labels.added_labels_message_part_1_html', {count: this.resourcesOrthancId.length}),
-                part2: this.$t('labels.added_labels_message_part_2_html', {count: this.resourcesOrthancId.length})
+                part1: this.$t('labels.added_labels_message_part_1_html', { count: this.resourcesOrthancId.length }),
+                part2: this.$t('labels.added_labels_message_part_2_html', { count: this.resourcesOrthancId.length })
             });
             this.addInProgress = false;
 
@@ -127,11 +129,11 @@ export default {
             }
             this.messages.push({
                 labels: processedLabels,
-                part1: this.$t('labels.removed_labels_message_part_1_html', {count: this.resourcesOrthancId.length}),
-                part2: this.$t('labels.removed_labels_message_part_2_html', {count: this.resourcesOrthancId.length})
+                part1: this.$t('labels.removed_labels_message_part_1_html', { count: this.resourcesOrthancId.length }),
+                part2: this.$t('labels.removed_labels_message_part_2_html', { count: this.resourcesOrthancId.length })
             });
             this.removeInProgress = false;
-            
+
             this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
         },
     },
@@ -167,51 +169,58 @@ export default {
                                 <p v-html="$t('labels.clear_all_labels_message_html')"></p>
                             </div>
                             <div class="col-md-3">
-                                <button type="button" class="btn btn-primary w-100" @click="clearAllLabels()" :disabled="clearAllInProgress">
+                                <button type="button" class="btn btn-primary w-100" @click="clearAllLabels()"
+                                    :disabled="clearAllInProgress">
                                     <span>{{ $t('labels.clear_all_button') }}</span>
-                                    <span v-if="clearAllInProgress" class="spinner-border spinner-border-sm alert-icon" role="status"
-                                        aria-hidden="true"></span>
+                                    <span v-if="clearAllInProgress" class="spinner-border spinner-border-sm alert-icon"
+                                        role="status" aria-hidden="true"></span>
                                 </button>
                             </div>
                         </div>
                         <div class="row border-bottom py-3">
                             <div class="col-md-9">
-                                <LabelsEditor id="addLabels" :labels="labelsToAdd" :title="'labels.add_labels_message_html'" :studyId="null" @labelsUpdated="onLabelsToAddChanged"></LabelsEditor>
+                                <LabelsEditor id="addLabels" :labels="labelsToAdd"
+                                    :title="'labels.add_labels_message_html'" :studyId="null"
+                                    @labelsUpdated="onLabelsToAddChanged"></LabelsEditor>
                             </div>
                             <div class="col-md-3">
-                                <button type="button" class="btn btn-primary w-100"
-                                    @click="addLabels()" :disabled="!isAddButtonEnabled">
+                                <button type="button" class="btn btn-primary w-100" @click="addLabels()"
+                                    :disabled="!isAddButtonEnabled">
                                     <span>{{ $t('labels.add_button') }}</span>
-                                    <span v-if="addInProgress" class="spinner-border spinner-border-sm alert-icon" role="status"
-                                        aria-hidden="true"></span>
+                                    <span v-if="addInProgress" class="spinner-border spinner-border-sm alert-icon"
+                                        role="status" aria-hidden="true"></span>
                                 </button>
                             </div>
                         </div>
                         <div class="row border-bottom py-3">
-                                <div class="col-md-9">
-                                    <LabelsEditor id="removeLabels" :labels="labelsToRemove" :title="'labels.remove_labels_message_html'" :studyId="null" @labelsUpdated="onLabelsToRemoveChanged"></LabelsEditor>
+                            <div class="col-md-9">
+                                <LabelsEditor id="removeLabels" :labels="labelsToRemove"
+                                    :title="'labels.remove_labels_message_html'" :studyId="null"
+                                    @labelsUpdated="onLabelsToRemoveChanged"></LabelsEditor>
                             </div>
                             <div class="col-md-3">
-                                <button type="button" class="btn btn-primary w-100"
-                                    @click="removeLabels()" :disabled="!isRemoveButtonEnabled">
+                                <button type="button" class="btn btn-primary w-100" @click="removeLabels()"
+                                    :disabled="!isRemoveButtonEnabled">
                                     <span>{{ $t('labels.remove_button') }}</span>
-                                    <span v-if="removeInProgress" class="spinner-border spinner-border-sm alert-icon" role="status"
-                                        aria-hidden="true"></span>
+                                    <span v-if="removeInProgress" class="spinner-border spinner-border-sm alert-icon"
+                                        role="status" aria-hidden="true"></span>
                                 </button>
                             </div>
                         </div>
                         <div class="row border-bottom py-3">
                             <div class="col-md-12">
                                 <p v-for="message in messages" :key="message">
-                                    <span v-html="message.part1"></span> 
-                                    <span v-for="label in message.labels" :key="label" class="label badge">{{ label }}</span>
+                                    <span v-html="message.part1"></span>
+                                    <span v-for="label in message.labels" :key="label" class="label badge">{{ label
+                                        }}</span>
                                     <span v-html="message.part2"></span>
                                 </p>
                             </div>
                         </div>
                         <div class="row py-3">
                             <div class="col-md-12">
-                                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal" aria-label="Close">{{ $t('close') }}</button>
+                                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal"
+                                    aria-label="Close">{{ $t('close') }}</button>
                             </div>
                         </div>
                     </div>
@@ -221,5 +230,4 @@ export default {
     </div>
 </template>
 
-<style>
-</style>
+<style></style>

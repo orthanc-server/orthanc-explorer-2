@@ -63,16 +63,10 @@ export default {
         </div>
       </div>
       <div class="button-section" style="flex-basis: 20%">
-        <ResourceButtonGroup
-          :resourceOrthancId="this.instanceId"
-          :resourceLevel="'instance'"
-          :studyMainDicomTags="this.studyMainDicomTags"
-          :seriesMainDicomTags="this.seriesMainDicomTags"
-          :patientMainDicomTags="this.patientMainDicomTags"
-          :instanceTags="this.tags"
-          :instanceHeaders="this.headers"
-          @deletedResource="onDeletedInstance"
-        ></ResourceButtonGroup>
+        <ResourceButtonGroup :resourceOrthancId="this.instanceId" :resourceLevel="'instance'"
+          :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+          :patientMainDicomTags="this.patientMainDicomTags" :instanceTags="this.tags" :instanceHeaders="this.headers"
+          @deletedResource="onDeletedInstance"></ResourceButtonGroup>
       </div>
     </div>
 
@@ -96,11 +90,11 @@ export default {
   vertical-align: top;
 }
 
-.instance-details-table > :not(caption) > * > * {
+.instance-details-table> :not(caption)>*>* {
   background-color: var(--instance-details-bg-color) !important;
 }
 
-.instance-details-table > * > * {
+.instance-details-table>*>* {
   background-color: var(--instance-details-bg-color) !important;
 }
 
@@ -123,6 +117,7 @@ export default {
 .instance-button-group i {
   font-size: 1.2rem !important;
 }
+
 .instance-details-container {
   font-size: 0.875rem;
 }
