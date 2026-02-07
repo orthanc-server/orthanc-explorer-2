@@ -35,7 +35,6 @@
         "yesterday": "Yesterday"
     },
     "default": "Default",
-    "drop_files": "Drop files here",
     "drop_here": "Release to upload",
     "delete": "Delete",
     "delete_instance_body": "Are you sure you want to delete this instance?<br/>This action can not be undone!",
@@ -214,6 +213,28 @@
             "completed": "Completed"
         }
     },
+    "devices": {
+        "add": "Add Device",
+        "add_first": "Add First Device",
+        "capabilities": "Capabilities",
+        "confirm_delete": "Delete device {id}?",
+        "created": "Device created",
+        "delete_error": "Delete error",
+        "deleted": "Device deleted",
+        "edit_title": "Edit Device",
+        "empty": "No devices configured",
+        "expand": "Expand",
+        "host": "Host",
+        "local_aet": "Local AET",
+        "manufacturer": "Manufacturer",
+        "new_title": "New Device",
+        "save_error": "Save error",
+        "test": "Test",
+        "test_failed": "Connection failed",
+        "test_success": "Connection successful",
+        "updated": "Device updated",
+        "validation_required": "Please fill required fields"
+    },
     "preview": "Preview",
     "profile": "Profile",
     "retrieve": "Retrieve",
@@ -237,7 +258,9 @@
         "desc": "description",
         "bd": "bd",
         "clearAll": "Clear all",
-        "clearAllF": "Clear all active filters"
+        "clearAllF": "Clear all active filters",
+        "single_modality_mode": "Single selected",
+        "single_modality_mode_hint": "Tap 'All' to restore"
     },
     "retrieve_and_view": {
         "finding_locally": "Checking if the study is already available locally.",
@@ -267,6 +290,11 @@
     "collapse": "Collapse",
     "expand": "Expand",
     "settings": {
+        "devices": {
+            "description": "Manage DICOM modalities and peers",
+            "manage": "Manage Devices",
+            "title": "Devices"
+        },
         "allow_all_currents_and_futures_labels": "All current and future labels",
         "available_labels_global_instructions_html": "Since you have enabled permissions and you are an administrator, this page enables you to create/delete the available labels.  Users won't be able to create other labels.<br/>Once you have updated this list, don't forget to click <strong>Save</strong> to apply your changes.",
         "available_labels_title": "Available labels",

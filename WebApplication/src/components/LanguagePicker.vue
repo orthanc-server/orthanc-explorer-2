@@ -121,7 +121,7 @@ export default {
 }
 
 .collapsed .language-switcher {
-    bottom: 48px !important;
+    bottom: 50px !important;
     position: relative;
 }
 

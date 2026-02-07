@@ -891,7 +891,28 @@ getBulkDownloadDicomDirUrl(resourcesOrthancId, filename) {
         } else if (level == "series") {
             return "series"
         }
-    }
+    },
+    async getModalities() {
+        return (await axios.get(orthancApiUrl + "modalities?expand")).data;
+    },
+    
+    async getModality(id) {
+        return (await axios.get(orthancApiUrl + "modalities/" + id)).data;
+    },
+    
+    async createOrUpdateModality(id, config) {
+        return (await axios.put(orthancApiUrl + "modalities/" + encodeURIComponent(id), config)).data;
+    },
+    
+    async deleteModality(id) {
+        return (await axios.delete(orthancApiUrl + "modalities/" + encodeURIComponent(id))).data;
+    },
+    
+    async testModalityEcho(id, timeout = 5) {
+        return (await axios.post(orthancApiUrl + "modalities/" + encodeURIComponent(id) + "/echo", {
+            Timeout: timeout
+        })).data;
+    },
 }
 
 

@@ -8,6 +8,7 @@ import StudyList from './components/StudyList.vue'
 import SideBar from './components/SideBar.vue'
 import NotFound from './components/NotFound.vue'
 import { baseOe2Url } from "./globalConfigurations"
+import Devices from './components/devices.vue'
 
 console.log('Base URL for router: ', baseOe2Url);
 
@@ -23,6 +24,14 @@ export const router = createRouter({
       },
       name: 'home'
     },
+    {
+    path: '/settings-devices',
+    components: {
+        SideBarView: SideBar,
+        ContentView: Devices,
+    },
+    name: 'settings-devices'
+},
     {
       path: '/filtered-studies',
       components: {

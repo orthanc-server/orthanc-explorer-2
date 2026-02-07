@@ -340,13 +340,25 @@ export default {
       }
     },
     toggleModality(mod) {
-      this.filters.ModalitiesInStudy[mod] = !this.filters.ModalitiesInStudy[mod];
+      const allSelected = this.selectedModalitiesCount === this.modalitiesList.length;
+
+      if (allSelected) {
+        // 🆕 Режим "только эта модальность": сбрасываем все, выбираем только кликнутую
+        for (const m of this.modalitiesList) {
+          this.filters.ModalitiesInStudy[m] = false;
+        }
+        this.filters.ModalitiesInStudy[mod] = true;
+      } else {
+        // 🆕 Обычный toggle режим
+        this.filters.ModalitiesInStudy[mod] = !this.filters.ModalitiesInStudy[mod];
+      }
     },
     selectAllModalities() {
       for (const mod of this.modalitiesList) {
         this.filters.ModalitiesInStudy[mod] = true;
       }
     },
+
     deselectAllModalities() {
       for (const mod of this.modalitiesList) {
         this.filters.ModalitiesInStudy[mod] = false;
@@ -450,17 +462,17 @@ export default {
             <div class="filter-group">
               <label class="filter-label">
                 <i class="bi bi-person"></i>
-                {{ $t('patient_name') }}
+                {{ $t('dicom_tags.PatientName') }}
               </label>
               <input type="text" v-model="filters.PatientName" class="filter-input"
-                :placeholder="$t('mobile_filters.patient_name_placeholder') || 'Иванов^Иван'" />
+                :placeholder="$t('mobile_filters.patient_name_placeholder')" />
             </div>
 
             <!-- ID пациента -->
             <div class="filter-group">
               <label class="filter-label">
                 <i class="bi bi-card-text"></i>
-                {{ $t('PatientID') }}
+                {{ $t('dicom_tags.PatientID') }}
               </label>
               <input type="text" v-model="filters.PatientID" class="filter-input"
                 :placeholder="$t('mobile_filters.patient_id_placeholder') || 'ID12345'" />
@@ -468,7 +480,7 @@ export default {
             <div class="filter-group">
               <label class="filter-label">
                 <i class="bi bi-upc-scan"></i> <!-- или bi-hash -->
-                {{ $t('AccessionNumber') }}
+                {{ $t('dicom_tags.AccessionNumber') }}
               </label>
               <input type="text" v-model="filters.AccessionNumber" class="filter-input"
                 :placeholder="$t('mobile_filters.accession_placeholder') || 'AE1234'" />
@@ -477,7 +489,7 @@ export default {
             <div class="filter-group">
               <label class="filter-label">
                 <i class="bi bi-calendar-event"></i>
-                {{ $t('StudyDate') }}
+                {{ $t('dicom_tags.StudyDate') }}
               </label>
               <Datepicker v-model="studyDateRange" :enable-time-picker="false" range :format="datePickerFormat"
                 :preview-format="datePickerFormat" text-input hide-input-icon :dark="isDarkMode"
@@ -488,7 +500,7 @@ export default {
             <div class="filter-group">
               <label class="filter-label">
                 <i class="bi bi-cake2"></i>
-                {{ $t('PatientBirthDate') }}
+                {{ $t('dicom_tags.PatientBirthDate') }}
               </label>
               <Datepicker v-model="birthDateRange" :enable-time-picker="false" range :format="datePickerFormat"
                 :preview-format="datePickerFormat" text-input hide-input-icon :dark="isDarkMode"
@@ -499,17 +511,23 @@ export default {
             <div class="filter-group">
               <label class="filter-label">
                 <i class="bi bi-file-text"></i>
-                {{ $t('StudyDescription') }}
+                {{ $t('dicom_tags.StudyDescription') }}
               </label>
               <input type="text" v-model="filters.StudyDescription" class="filter-input"
                 :placeholder="$t('mobile_filters.description_placeholder') || 'CHEST, HEAD...'" />
             </div>
 
             <!-- Модальности -->
+
             <div class="filter-group">
+              <span v-if="selectedModalitiesCount === 1 && modalitiesList.length > 1" class="single-mode-hint">
+                <i class="bi bi-info-circle"></i>
+                {{ $t('mobile_filters.single_modality_mode') }}
+                <small>{{ $t('mobile_filters.single_modality_mode_hint') }}</small>
+              </span>
               <label class="filter-label">
                 <i class="bi bi-grid-3x3"></i>
-                {{ $t('ModalitiesInStudy') }}
+                {{ $t('dicom_tags.ModalitiesInStudy') }}
                 <span class="modality-count">({{ selectedModalitiesCount }}/{{ modalitiesList.length }})</span>
               </label>
               <div class="modalities-grid">
@@ -645,6 +663,7 @@ export default {
   font-size: 18px;
   font-weight: 600;
   color: #e2e8f0;
+  padding-right: 10px;
 }
 
 .header-title i {
@@ -937,5 +956,25 @@ export default {
 .modal-body::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
+}
+
+.single-mode-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #3b82f6;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.single-mode-hint small {
+  font-weight: 400;
+  color: #64748b;
+  margin-left: 4px;
+}
+
+.single-mode-hint i {
+  font-size: 12px;
 }
 </style>

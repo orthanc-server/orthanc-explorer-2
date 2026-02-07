@@ -256,6 +256,28 @@
     "sort_patient_za": "Пациенты Я-А",
     "sort_patient_az": "Пациенты А-Я",
     "studies": "Исследования",
+    "devices": {
+        "add": "Добавить устройство",
+        "add_first": "Добавить первое устройство",
+        "capabilities": "Возможности",
+        "confirm_delete": "Удалить устройство {id}?",
+        "created": "Устройство создано",
+        "delete_error": "Ошибка удаления",
+        "deleted": "Устройство удалено",
+        "edit_title": "Редактирование устройства",
+        "empty": "Нет настроенных устройств",
+        "expand": "Развернуть",
+        "host": "Хост",
+        "local_aet": "Локальный AET",
+        "manufacturer": "Производитель",
+        "new_title": "Новое устройство",
+        "save_error": "Ошибка сохранения",
+        "test": "Проверить",
+        "test_failed": "Ошибка подключения",
+        "test_success": "Подключение успешно",
+        "updated": "Устройство обновлено",
+        "validation_required": "Заполните обязательные поля"
+    },
     "mobile_menu": {
         "studies": "Все",
         "filters": "Фильтр",
@@ -276,7 +298,9 @@
         "desc": "",
         "bd": "ДР",
         "clearAll": "Очистить все",
-        "clearAllF": "Очистить все активные фильтры"
+        "clearAllF": "Очистить все активные фильтры",
+        "single_modality_mode": "Выбрана одна",
+        "single_modality_mode_hint": "Нажмите «Все», чтобы отменить"
     },
     "study": "Исследование",
     "this_patient_has_no_other_studies": "У этого пациента нет больше исследований.",
@@ -316,6 +340,13 @@
     "view_in_volview": "Посмотреть в VolView",
     "view_in_wsi_viewer": "Посмотреть в Whole Slide Imaging Viewer",
     "settings": {
+        "settings": {
+            "devices": {
+                "description": "Управление DICOM модальностями и пирами",
+                "manage": "Управление устройствами",
+                "title": "Устройства"
+            }
+        },
         "dicom_AET": "DICOM AET",
         "dicom_port": "Порт DICOM",
         "ingest_transcoding": "Транскодирование поступающих данных",
@@ -323,8 +354,8 @@
         "orthanc_name": "Имя сервера",
         "orthanc_system_info": "Информация о системе",
         "orthanc_version": "Версия",
-        "overwrite_instances": "Заменить экземпляры",
-        "plugins_not_enabled": "Загруженные дополнительные модули, которые не включены или неверно настроены",
+        "overwrite_instances": "Перезаписывать существующие снимки",
+        "plugins_not_enabled": "Все подключенные плагины отображаются в этом списке. Неверно настроенные плагины",
         "statistics": "Статистика",
         "storage_compression": "Сжатие хранилища",
         "storage_size": "Размер хранилища",

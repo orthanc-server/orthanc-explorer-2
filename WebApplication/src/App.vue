@@ -17,21 +17,46 @@ function applyBootStrapTheme() {
   }
 }
 
+// 🆕 Утилита для определения мобильного портрета (единая логика)
+const checkMobilePortrait = () => {
+  return window.matchMedia("(max-width: 768px)").matches &&
+    window.matchMedia("(orientation: portrait)").matches;
+};
+
 export default {
   components: {
     MobileBottomMenu,
     MobileFiltersModal,
   },
   data() {
+    // 🆕 Синхронная проверка при инициализации (window уже доступен в data при клиентском рендере)
+    const isMobilePortrait = typeof window !== 'undefined' ? checkMobilePortrait() : false;
+
     return {
-      sidebarCollapsed: false,
-      isMobilePortrait: false,
-      showMobileFilters: false
+      sidebarCollapsed: isMobilePortrait ? true : (localStorage.getItem("sidebarCollapsed") === "true"),
+      isMobilePortrait: isMobilePortrait,
+      showMobileFilters: false,
+      isHydrated: false, // 🆕 Флаг полной гидратации
     };
   },
   computed: {
     currentStudyDate() {
       return this.$store.state.studies.dicomTagsFilters?.StudyDate || "";
+    },
+    // 🆕 Вычисляемое свойство для классов контента
+    contentClasses() {
+      return {
+        'sidebar-collapsed': this.sidebarCollapsed && !this.isMobilePortrait,
+        'mobile-full': this.isMobilePortrait,
+        'no-transition': !this.isHydrated, // 🆕 Отключаем transition до гидратации
+      };
+    },
+    sidebarClasses() {
+      return {
+        'collapsed': this.sidebarCollapsed && !this.isMobilePortrait,
+        'mobile-hidden': this.isMobilePortrait,
+        'no-transition': !this.isHydrated, // 🆕 Отключаем transition до гидратации
+      };
     }
   },
   async created() {
@@ -52,61 +77,69 @@ export default {
     await this.$store.dispatch("labels/refresh");
     console.log("App created");
 
-    const savedState = localStorage.getItem("sidebarCollapsed");
-    if (savedState !== null) {
-      this.sidebarCollapsed = savedState === "true";
-    }
+    // 🆕 Проверяем ещё раз после загрузки (на случай изменения ориентации во время загрузки)
+    this.isMobilePortrait = checkMobilePortrait();
 
-    this.checkMobilePortrait();
-    window.addEventListener("resize", this.checkMobilePortrait);
-    window.addEventListener("orientationchange", this.checkMobilePortrait);
+    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("orientationchange", this.handleOrientationChange);
     window.addEventListener("sidebar-collapsed", this.handleSidebarToggle);
+  },
+  mounted() {
+    // 🆕 Включаем transitions только после полного монтирования и рендера
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.isHydrated = true;
+        // 🆕 Убираем preload классы из HTML
+        document.documentElement.classList.remove('preload', 'mobile-portrait-initial');
+      });
+    });
   },
   beforeUnmount() {
     window.removeEventListener("sidebar-collapsed", this.handleSidebarToggle);
-    window.removeEventListener("resize", this.checkMobilePortrait);
-    window.removeEventListener("orientationchange", this.checkMobilePortrait);
+    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("orientationchange", this.handleOrientationChange);
   },
   methods: {
     openMobileFilters() {
       this.showMobileFilters = true;
     },
-
     closeMobileFilters() {
       this.showMobileFilters = false;
     },
-
     onMobileFiltersApplied(appliedFilters) {
       this.showMobileFilters = false;
-      // Эмитим событие для StudyList
       if (this.$root.messageBus) {
         this.$root.messageBus.emit('filters-applied-from-mobile', appliedFilters);
       }
     },
-
     onMobileNavigate(target) {
       console.log('Mobile navigation to:', target);
     },
-
     handleSidebarToggle(e) {
       if (!this.isMobilePortrait) {
         this.sidebarCollapsed = e.detail.collapsed;
       }
     },
-
-    checkMobilePortrait() {
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
-      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    // 🆕 Объединяем логику resize/orientationchange
+    handleResize() {
+      this.updateMobileState();
+    },
+    handleOrientationChange() {
+      // Небольшая задержка для корректного определения после поворота
+      setTimeout(() => this.updateMobileState(), 100);
+    },
+    updateMobileState() {
       const wasMobilePortrait = this.isMobilePortrait;
-
-      this.isMobilePortrait = isMobile && isPortrait;
+      this.isMobilePortrait = checkMobilePortrait();
 
       if (this.isMobilePortrait && !wasMobilePortrait) {
+        // Переход на мобильный портрет
         this.sidebarCollapsed = true;
         window.dispatchEvent(new CustomEvent('mobile-portrait-mode', {
           detail: { isMobilePortrait: true }
         }));
       } else if (!this.isMobilePortrait && wasMobilePortrait) {
+        // Выход из мобильного портрета
         const savedState = localStorage.getItem("sidebarCollapsed");
         this.sidebarCollapsed = savedState === "true";
         window.dispatchEvent(new CustomEvent('mobile-portrait-mode', {
@@ -119,14 +152,22 @@ export default {
 </script>
 
 <template>
-  <div class="full-page" :class="{ 'sidebar-collapsed': sidebarCollapsed, 'mobile-portrait': isMobilePortrait }">
-    <div class="nav-side-layout" :class="{ collapsed: sidebarCollapsed, 'mobile-hidden': isMobilePortrait }">
+  <div class="full-page" :class="{
+    'sidebar-collapsed': sidebarCollapsed && !isMobilePortrait,
+    'mobile-portrait': isMobilePortrait,
+    'layout-ready': isHydrated  // 🆕 класс для включения анимаций
+  }">
+    <!-- Sidebar: v-if полностью убирает из DOM на мобильных -->
+    <div v-if="!isMobilePortrait" class="nav-side-layout" :class="sidebarClasses">
       <router-view name="SideBarView"></router-view>
     </div>
-    <div class="content" :class="{ 'sidebar-collapsed': sidebarCollapsed, 'mobile-full': isMobilePortrait }">
+
+    <!-- Content: вычисляемые классы -->
+    <div class="content" :class="contentClasses">
       <router-view name="ContentView"></router-view>
     </div>
 
+    <!-- Мобильное меню -->
     <MobileBottomMenu v-if="isMobilePortrait" :showFiltersModal="showMobileFilters" @open-filters="openMobileFilters"
       @navigate="onMobileNavigate" />
 
@@ -157,6 +198,13 @@ export default {
   background-color: var(--nav-side-bg-color);
   color: var(--nav-side-color);
   z-index: 1000;
+  /* 🆕 Transition только когда layout готов */
+  transition: none;
+  /* По умолчанию без анимации */
+}
+
+/* 🆕 Включаем анимацию только после гидратации */
+.layout-ready .nav-side-layout {
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
 }
 
@@ -164,11 +212,9 @@ export default {
   width: 60px;
 }
 
-/* 🆕 На мобильном в портретном режиме полностью скрываем sidebar */
+/* 🆕 Явное скрытие через display:none вместо width:0 */
 .nav-side-layout.mobile-hidden {
-  width: 0 !important;
-  transform: translateX(-100%);
-  overflow: hidden;
+  display: none !important;
 }
 
 .nav-side-layout .toggle-btn {
@@ -181,6 +227,12 @@ export default {
 .content {
   margin-left: 220px;
   min-height: 100vh;
+  /* 🆕 По умолчанию без анимации */
+  transition: none;
+}
+
+/* 🆕 Включаем анимацию только после гидратации */
+.layout-ready .content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -188,41 +240,87 @@ export default {
   margin-left: 60px;
 }
 
-/* 🆕 На мобильном в портретном режиме контент на всю ширину */
+/* 🆕 Мобильный портрет — немедленное применение без анимации */
 .content.mobile-full {
   margin-left: 0 !important;
+  /* Явно отключаем transition для мобильных */
+  transition: none !important;
 }
 
 /* ============================================
-   RESPONSIVE ADJUSTMENTS
+   RESPONSIVE ADJUSTMENTS (Desktop only)
    ============================================ */
-@media (max-width: 768px) {
-  .nav-side-layout {
+@media (min-width: 769px) {
+  .nav-side-layout.collapsed {
     width: 60px;
   }
 
-  .nav-side-layout.collapsed {
-    width: 0;
+  .content.sidebar-collapsed {
+    margin-left: 60px;
+  }
+}
+
+/* ============================================
+   MOBILE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* На мобильных в landscape — узкий sidebar */
+  .nav-side-layout {
+    width: 60px;
   }
 
   .content {
     margin-left: 60px;
   }
 
-  .content.sidebar-collapsed {
-    margin-left: 0;
+  /* В портретном режиме — полное скрытие */
+  .nav-side-layout.mobile-hidden {
+    display: none !important;
+  }
+
+  .content.mobile-full {
+    margin-left: 0 !important;
+    width: 100vw;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  div#app {
+    margin-left: 0 !important;
+  }
+
+  .full-page.mobile-portrait {
+    width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .content.mobile-full {
+    padding-bottom: 70px !important;
+  }
+
+  .studies-cards-container {
+    padding-bottom: 80px !important;
+  }
+
+  .sidebar-toggle {
+    display: none !important;
   }
 }
 
 /* ============================================
-   SMOOTH TRANSITIONS FOR CHILD ELEMENTS
+   UTILITY CLASSES
    ============================================ */
 .full-page {
   min-height: 100vh;
 }
 
-.full-page.mobile-portrait {
-  /* Дополнительные стили для мобильного портретного режима при необходимости */
+/* 🆕 Отключение transition */
+.no-transition,
+.no-transition * {
+  transition: none !important;
+  animation: none !important;
 }
 
 div#app {
@@ -235,60 +333,5 @@ tr.study-row-collapsed {
 
 .dmis-header {
   user-select: none;
-}
-
-/* =============================================================================
-   MOBILE PORTRAIT STYLES
-   ============================================================================= */
-
-@media (max-width: 768px) and (orientation: portrait) {
-
-  /* App container - offset for collapsed sidebar */
-  div#app {
-    margin-left: 0 !important;
-  }
-
-  /* Sidebar completely hidden */
-  .nav-side-layout.mobile-hidden {
-    width: 0 !important;
-    transform: translateX(-100%);
-    overflow: hidden;
-    visibility: hidden;
-  }
-
-  /* Content takes full width */
-  .content.mobile-full {
-    margin-left: 0 !important;
-    width: 100vw;
-  }
-
-  /* Full page adjustments */
-  .full-page.mobile-portrait {
-    width: 100vw;
-    overflow-x: hidden;
-  }
-
-  /* Hide sidebar toggle on mobile portrait */
-  .sidebar-toggle {
-    display: none !important;
-  }
-}
-
-/* General mobile styles (both orientations) */
-@media (max-width: 768px) {
-  div#app {
-    overflow-x: hidden;
-  }
-}
-
-@media (max-width: 768px) and (orientation: portrait) {
-  .content.mobile-full {
-    padding-bottom: 70px !important;
-  }
-
-  /* Карточки не должны скрываться за меню */
-  .studies-cards-container {
-    padding-bottom: 80px !important;
-  }
 }
 </style>
