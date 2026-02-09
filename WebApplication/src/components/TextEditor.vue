@@ -68,8 +68,7 @@ export default {
 
       this.editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
     },
-    insertText(event, key) {
-      event.preventDefault();
+    insertText(key) {
       this.editor.chain().focus().insertContent(this.insertableTexts[key]).run();
     }
   },
@@ -88,6 +87,15 @@ export default {
     }
 
   },
+  watch: {
+    modelValue(value) {
+      if (!this.editor) return
+
+      if (value !== this.editor.getHTML()) {
+        this.editor.commands.setContent(value, false)
+      }
+    },
+  },  
   components: { EditorContent }
 };
 </script>
@@ -153,7 +161,7 @@ export default {
             Insert
           </button>
           <ul class="dropdown-menu">
-            <li v-for="(v, k) in insertableTexts" :key="k"><a class="dropdown-item" href="#" @click="insertText($event, k)">{{ k + ": " + v }}</a></li>
+            <li v-for="(v, k) in insertableTexts" :key="k"><a class="dropdown-item" href="#" @click.prevent="insertText(k)">{{ k + ": " + v }}</a></li>
           </ul>
         </div>
       </div>

@@ -257,13 +257,17 @@
     "share": {
         "anonymize": "Anonymiser ?",
         "button_title": "Partager",
-        "copy_and_close": "Copier et fermer",
+        "copy_and_close": "Copier le lien et fermer",
         "days": "jours",
-        "expires_in": "Expire dans",
+        "link_expires_in": "Ce lien expire dans {count} jours.",
+        "link_never_expires": "Ce lien n'expire jamais.",
         "link": "Lien",
         "modal_title": "Partager l'examen",
         "modal_title_multiple_studies": "Partager {count} examens",
-        "never": "jamais"
+        "never": "jamais",
+        "email_recipient": "Destinataire",
+        "email_title": "Sujet",
+        "send_email": "Send email"
     },
     "show_errors": "Afficher les erreurs",
     "studies": "Examens",

@@ -268,13 +268,17 @@
     "share": {
         "anonymize": "Anonymize?",
         "button_title": "Share",
-        "copy_and_close": "Copy and close",
+        "copy_and_close": "Copy link and close",
         "days": "days",
-        "expires_in": "Expires in",
+        "link_expires_in": "This link expires in {count} days.",
+        "link_never_expires": "This link never expires.",
         "link": "Link",
         "modal_title": "Share study",
         "modal_title_multiple_studies": "Share {count} studies",
-        "never": "never"
+        "never": "never",
+        "email_recipient": "Email recipient",
+        "email_title": "Subject",
+        "send_email": "Send email"
     },
     "show_errors": "Show errors",
     "studies": "Studies",

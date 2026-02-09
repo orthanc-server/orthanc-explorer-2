@@ -668,6 +668,11 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
 
     Json::Value& uiOptions = oe2Configuration["UiOptions"];
 
+    if (!uiOptions.isMember("ShareDuration") && uiOptions.isMember("DefaultShareDuration"))  // In 1.11.0, DefaultShareDuration has been replaced by ShareDuration
+    {
+      uiOptions["ShareDuration"] = uiOptions["DefaultShareDuration"];
+    }
+
     if (hasUserProfile_)
     {
       {// get the available-labels from the auth plugin (and the auth-service)

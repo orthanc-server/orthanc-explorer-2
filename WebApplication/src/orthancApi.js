@@ -544,7 +544,16 @@ export default {
         return labelsToAdd.length > 0 || labelsToRemove.length > 0;
     },
 
-
+    async sendEmail(destinationEmail, emailTitle, emailContent, layoutTemplate) {
+        const response = (await axios.post(orthancApiUrl + "emails/send", {
+            "destination-email" : destinationEmail,
+            "email-title": emailTitle,
+            "email-content": emailContent,
+            "layout-template": layoutTemplate
+        }));
+        
+        return response.data;
+    },
 
     async createToken({tokenType, resourcesIds, level, validityDuration=null, id=null, expirationDate=null}) {
         let body = {
