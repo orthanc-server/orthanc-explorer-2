@@ -27,6 +27,7 @@ UI improvements:
 - settings:
   - show the list of /tools/accepted-transfer-syntaxes
   - show the list of /tools/accepted-sop-classes (in 1.12.6)
+  - edit/add modalities (maybe done in this PR: https://github.com/orthanc-server/orthanc-explorer-2/pull/100)
 
 - Add a PDF/Image dicomization (https://discourse.orthanc-server.org/t/orthanc-explorer-2-dicomization-feature-suggestion/6061/4).
   Not to attach a new series to an existing study but to create a new study.
