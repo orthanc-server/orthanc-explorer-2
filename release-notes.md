@@ -1,6 +1,29 @@
 Pending changes
 ===============
 
+Changes:
+- When sharing studies:
+  - It is now possible to write an email to share the link provided that
+    a web service has been configured to send the emails through a few new configurations:
+    - `Emails.ServerRootUrl`
+    - `Emails.ServerLogin`
+    - `Emails.ServerPwd`
+    - `Emails.ServerHttpHeaders`
+    OE2 will forward calls from the frontend to this webservice to avoid CORS issues.
+    Other configuration are also available:
+    - `UiOptions.EnableSharesByEmail`
+    - `UiOptions.ShareEmailContentTemplate`
+    - `UiOptions.ShareEmailLayoutTemplate`
+    - `UiOptions.ShareEmailTitle`
+  - The user can no longer select the validity duration.  We consider
+    that selecting the validity duration is a 'sys-admin' decision that must be taken once
+    during the configuration:
+    - The validity duration is fixed and defined in the new configuration `UiOptions.ShareDuration`.
+    - `UiOptions.DefaultShareDuration` and `UiOptions.ShareDurations` configuration have been removed.
+    - However, if `UiOptions.ShareDuration` is not defined but `UiOptions.DefaultShareDuration` is still defined, the
+      `UiOptions.DefaultShareDuration` value is copied into `UiOptions.ShareDuration`.
+  - The token is now created directly as soon as the Share dialog is opened.
+
 Fixes:
 - Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
 

@@ -10,6 +10,12 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.1",
     "@popperjs/core": "^2.11.8",
+    "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/extension-list": "^3.19.0",
+    "@tiptap/extension-text-align": "^3.19.0",
+    "@tiptap/pm": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
+    "@tiptap/vue-3": "^3.19.0",
     "@vuepic/vue-datepicker": "^11.0.2",
     "axios": "^1.12.0",
     "bootstrap": "5.3.3",
@@ -20,13 +26,14 @@
     "mime-types": "^2.1.35",
     "mitt": "^3.0.1",
     "native-file-system-adapter": "^3.0.1",
+    "sass-embedded": "^1.97.3",
     "uppie": "^4.1.0",
     "uuid": "^9.0.1",
     "vue": "^3.5.13",
     "vue-i18n": "^9.14.5",
     "vue-router": "^4.5.0",
-    "vuex": "^4.1.0",
-    "vue3-observe-visibility": "^1.0.2"
+    "vue3-observe-visibility": "^1.0.2",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
