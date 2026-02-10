@@ -32,15 +32,9 @@ export default {
 <template>
     <div>
         <div class="upload-report-list">
-            <JobItem
-                v-for="jobId of jobsIds"
-                :job="this.getJob(jobId)"
-                :key="jobId"
-                v-bind:href="jobId"
-                @deletedJob="onDeletedJobItem"
-            ></JobItem>
+            <JobItem v-for="jobId of jobsIds" :job="this.getJob(jobId)" :key="jobId" v-bind:href="jobId"
+                @deletedJob="onDeletedJobItem"></JobItem>
         </div>
     </div>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

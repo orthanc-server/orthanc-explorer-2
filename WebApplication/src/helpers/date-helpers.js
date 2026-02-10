@@ -15,13 +15,13 @@ export default {
         return parse(dateStr, format, 0);
     },
     toDicomDate(date) {
-        return (date.getFullYear() * 10000 + (date.getMonth()+1) * 100 + date.getDate()).toString();
+        return (date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()).toString();
     },
     fromDicomDate(dateStr) {
         let match = null;
         match = dateStr.match(/^(\d{4})(\d{1,2})(\d{1,2})$/); // yyyymmdd (DICOM)
         if (match) {
-            return new Date(match[1], match[2]-1, match[3]);
+            return new Date(match[1], match[2] - 1, match[3]);
         }
         return null;
     },
@@ -29,11 +29,11 @@ export default {
         let match = null;
         match = str.match(/^(\d{4})(\d{1,2})(\d{1,2})$/); // yyyymmdd (DICOM)
         if (match) {
-            return [new Date(match[1], match[2]-1, match[3]), null];
+            return [new Date(match[1], match[2] - 1, match[3]), null];
         }
         match = str.match(/^(\d{4})(\d{1,2})(\d{1,2})\-(\d{4})(\d{1,2})(\d{1,2})$/); // yyyymmdd-yyyymmdd (DICOM range)
         if (match) {
-            return [new Date(match[1], match[2]-1, match[3]), new Date(match[4], match[5]-1, match[6])];
+            return [new Date(match[1], match[2] - 1, match[3]), new Date(match[4], match[5] - 1, match[6])];
         }
         // match = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/); // dd/mm/yyyy or dd-mm-yyyy
         // if (match) {

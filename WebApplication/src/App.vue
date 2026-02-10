@@ -23,7 +23,7 @@ export default {
             link.rel = 'stylesheet';
             link.type = 'text/css';
             link.href = 'customizable/custom.css';
-    
+
             document.getElementsByTagName('HEAD')[0].appendChild(link);
 
             setTimeout(applyBootStrapTheme, 0);
@@ -35,7 +35,7 @@ export default {
         //     link.rel = 'stylesheet';
         //     link.type = 'text/css';
         //     link.href = 'customizable/custom.css';
-    
+
         //     document.getElementsByTagName('HEAD')[0].appendChild(link);
         // }
 
@@ -80,5 +80,4 @@ export default {
 .nav-side-layout .toggle-btn {
     display: none;
 }
-
 </style>

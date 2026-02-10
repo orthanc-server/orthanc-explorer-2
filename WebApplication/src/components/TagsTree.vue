@@ -14,7 +14,7 @@ export default {
     },
     methods: {
     },
-    components : { CopyToClipboardButton }
+    components: { CopyToClipboardButton }
 
 }
 </script>
@@ -22,20 +22,19 @@ export default {
 <template>
     <ul>
         <li v-for="(item, key) in tags" :key="key">
-            <span v-if="item.Type=='Sequence'">
-                <span class="details-label">{{key}} - {{item.Name}}: </span>
-                    <ul>
-                        <li v-for="(subItem, subIndex) in item.Value" :key="subItem">
-                            Item {{subIndex + 1}}
-                        <TagsTree
-                            :tags="subItem">
+            <span v-if="item.Type == 'Sequence'">
+                <span class="details-label">{{ key }} - {{ item.Name }}: </span>
+                <ul>
+                    <li v-for="(subItem, subIndex) in item.Value" :key="subItem">
+                        Item {{ subIndex + 1 }}
+                        <TagsTree :tags="subItem">
                         </TagsTree>
-                        </li>
-                    </ul>
+                    </li>
+                </ul>
             </span>
             <span v-else class="d-flex w-100">
-                <span class="details-label">{{key}} - {{item.Name}}: </span>
-                <span v-if="item.Type=='String'" class="details">{{item.Value}}</span>
+                <span class="details-label">{{ key }} - {{ item.Name }}: </span>
+                <span v-if="item.Type == 'String'" class="details">{{ item.Value }}</span>
                 <CopyToClipboardButton :valueToCopy="item.Value" />
             </span>
         </li>
@@ -43,7 +42,6 @@ export default {
 </template>
 
 <style scoped>
-
 .details-label {
     font-weight: 700;
     max-width: 40%;
@@ -73,12 +71,10 @@ ul li {
 }
 
 ul:last-child {
-    border:none;
+    border: none;
 }
 
 ul li:last-child {
-    border:none;
+    border: none;
 }
-
 </style>
-

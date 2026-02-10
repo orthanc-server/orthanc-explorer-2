@@ -95,7 +95,7 @@ export default {
         this.editor.commands.setContent(value, false)
       }
     },
-  },  
+  },
   components: { EditorContent }
 };
 </script>
@@ -118,11 +118,12 @@ export default {
         </button>
       </div>
       <div class="btn-group">
-        <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }" class="btn btn-light">
+        <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }"
+          class="btn btn-light">
           <i class="bi bi-type-bold"></i>
         </button>
-        <button @click="editor.chain().focus().toggleItalic().run()"
-          :class="{ 'is-active': editor.isActive('italic') }" class="btn btn-light">
+        <button @click="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }"
+          class="btn btn-light">
           <i class="bi bi-type-italic"></i>
         </button>
         <!-- <button @click="editor.chain().focus().toggleStrike().run()"
@@ -151,7 +152,7 @@ export default {
       </div>
       <div class="btn-group" v-if="hasListButtons">
         <button @click="editor.chain().focus().toggleBulletList().run()"
-         :class="{ 'is-active': editor.isActive('bulletList') }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive('bulletList') }" class="btn btn-light">
           <i class="bi bi-list-ul"></i>
         </button>
       </div>
@@ -161,14 +162,15 @@ export default {
             Insert
           </button>
           <ul class="dropdown-menu">
-            <li v-for="(v, k) in insertableTexts" :key="k"><a class="dropdown-item" href="#" @click.prevent="insertText(k)">{{ k + ": " + v }}</a></li>
+            <li v-for="(v, k) in insertableTexts" :key="k"><a class="dropdown-item" href="#"
+                @click.prevent="insertText(k)">{{ k + ": " + v }}</a></li>
           </ul>
         </div>
       </div>
     </div>
     <div class="editor-content">
-    <editor-content v-if="editor" :editor="editor" />
-    <p v-else>Editor is loading...</p>
+      <editor-content v-if="editor" :editor="editor" />
+      <p v-else>Editor is loading...</p>
     </div>
   </div>
 </template>
@@ -176,8 +178,10 @@ export default {
 .editor-container {
   width: 100%;
   min-width: 280px;
-  resize: vertical;          /* drag handle */
-  overflow: hidden;          /* required for resize */
+  resize: vertical;
+  /* drag handle */
+  overflow: hidden;
+  /* required for resize */
 }
 
 .editor-content :deep(.ProseMirror) {

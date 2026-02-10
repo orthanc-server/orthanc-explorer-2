@@ -49,7 +49,7 @@ const actions = {
         commit('addJob', { jobId: jobId, name: name });
 
         if (this.state.configuration.uiOptions.MaxMyJobsHistorySize > 0) {
-            while (state.jobsIds.length >  this.state.configuration.uiOptions.MaxMyJobsHistorySize) {
+            while (state.jobsIds.length > this.state.configuration.uiOptions.MaxMyJobsHistorySize) {
                 commit('removeJob', { jobId: state.jobsIds[0] })
             }
         }

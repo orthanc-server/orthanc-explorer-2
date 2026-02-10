@@ -297,7 +297,7 @@ export default {
                                 keepSource: false
                             });
                             console.log("attach-series-to-existing-study: created job ", jobId);
-                            this.startMonitoringJob(jobId);                            
+                            this.startMonitoringJob(jobId);
                         }
                     }
                 } else if (this.action == 'create-new-study-from-series') {
@@ -316,7 +316,7 @@ export default {
                         } else {
                             console.log("create-new-study-from-series: warning accepted, copying existing Patient tags");
                             this.tags['PatientName'] = targetPatient['MainDicomTags']['PatientName'];
-                            this.tags['PatientBirthDate'] =  targetPatient['MainDicomTags']['PatientBirthDate'];
+                            this.tags['PatientBirthDate'] = targetPatient['MainDicomTags']['PatientBirthDate'];
                             this.dateTags['PatientBirthDate'] = dateHelpers.fromDicomDate(targetPatient['MainDicomTags']['PatientBirthDate']);
                             this.tags['PatientSex'] = targetPatient['MainDicomTags']['PatientSex'];
                         }
@@ -333,7 +333,7 @@ export default {
                         keepSource: false
                     });
                     console.log("create-new-study-from-series: created job ", jobId);
-                    this.startMonitoringJob(jobId);                            
+                    this.startMonitoringJob(jobId);
 
                 } else if (this.action == 'modify-series-tags') {
                     const jobId = await api.modifyResource({
@@ -344,7 +344,7 @@ export default {
                         keepSource: this.keepSource,
                     });
                     console.log("modify-series-tags: created job ", jobId);
-                    this.startMonitoringJob(jobId);                            
+                    this.startMonitoringJob(jobId);
                 } else if (this.action == 'anonymize-series') {
                     this.updateDateTags();
                     const jobId = await api.anonymizeResource({
@@ -432,13 +432,13 @@ export default {
         async showModifiedResources() {
             let newUrl = "";
             let query = {
-                'forceRefresh' : Date.now() // to force refresh
+                'forceRefresh': Date.now() // to force refresh
             };
             if (this.showModifiedResourceKey) {
                 query[this.showModifiedResourceKey] = this.showModifiedResourceValue;
             }
 
-            this.$router.push({path: newUrl, query: query});
+            this.$router.push({ path: newUrl, query: query });
             // location.reload();
         },
         isFrozenTag(tag) {
@@ -549,8 +549,8 @@ export default {
             for (const [k,] of Object.entries(this.tags)) {
                 if (dateHelpers.isDateTag(k)) {
                     this.tags[k] = dateHelpers.dicomDateFromDatePicker(this.dateTags[k]);
-                    
-                    if (this.tags[k] == null && this.originalTags[k] == '') { 
+
+                    if (this.tags[k] == null && this.originalTags[k] == '') {
                         // for https://github.com/orthanc-server/orthanc-explorer-2/issues/72
                         // this way, we do not detect a false change from '' to null
                         this.tags[k] = '';
@@ -684,7 +684,7 @@ export default {
         },
         datePickerFormat() {
             return this.uiOptions.DateFormat;
-        }        
+        }
 
     },
     components: { CopyToClipboardButton }
@@ -698,15 +698,17 @@ export default {
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 v-if="!isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.modify_modal_title") + " " + resourceTitle }} </h5>
-                    <h5 v-if="isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.anonymize_modal_title") + " " + resourceTitle }} </h5>
+                    <h5 v-if="!isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.modify_modal_title") +
+                        " " + resourceTitle }} </h5>
+                    <h5 v-if="isAnonymization" class="modal-title" id="modalLabel">{{ $t("modify.anonymize_modal_title")
+                        + " " + resourceTitle }} </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <!-- ------------------------------------------ step 'init' --------------------------------------------------->
                 <div v-if="step == 'init'" class="modal-body">
                     <div class="container">
-                        <div v-if="resourceLevel=='study' && !isAnonymization" class="row border-bottom pb-3">
+                        <div v-if="resourceLevel == 'study' && !isAnonymization" class="row border-bottom pb-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_attach_study_to_existing_patient_html')">
                             </div>
@@ -716,7 +718,8 @@ export default {
                                     @click="goToNextStep(step, 'attach-study-to-existing-patient')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel=='study' && !isAnonymization && samePatientStudiesCount > 1" class="row border-bottom border-3 py-3">
+                        <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount > 1"
+                            class="row border-bottom border-3 py-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_patient_has_other_studies_html', { count: samePatientStudiesCount })">
                             </div>
@@ -726,7 +729,8 @@ export default {
                                     @click="goToNextStep(step, 'modify-patient-tags-in-all-studies')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel=='study' && !isAnonymization && samePatientStudiesCount >= 1" class="row pt-3">
+                        <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount >= 1"
+                            class="row pt-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_modify_study_html', { count: samePatientStudiesCount })">
                             </div>
@@ -736,7 +740,7 @@ export default {
                                     @click="goToNextStep(step, 'modify-any-tags-in-one-study')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel=='series' && !isAnonymization" class="row border-bottom pb-3">
+                        <div v-if="resourceLevel == 'series' && !isAnonymization" class="row border-bottom pb-3">
                             <div class="col-md-9"
                                 v-html="$t('modify.series_step_0_attach_series_to_existing_study_html')">
                             </div>
@@ -746,9 +750,8 @@ export default {
                                     @click="goToNextStep(step, 'attach-series-to-existing-study')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel=='series' && !isAnonymization" class="row border-bottom border-3 py-3">
-                            <div class="col-md-9"
-                                v-html="$t('modify.series_step_0_create_new_study_html')">
+                        <div v-if="resourceLevel == 'series' && !isAnonymization" class="row border-bottom border-3 py-3">
+                            <div class="col-md-9" v-html="$t('modify.series_step_0_create_new_study_html')">
                             </div>
                             <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100"
@@ -756,9 +759,8 @@ export default {
                                     @click="goToNextStep(step, 'create-new-study-from-series')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel=='series' && !isAnonymization" class="row pt-3">
-                            <div class="col-md-9"
-                                v-html="$t('modify.series_step_0_modify_series_html')">
+                        <div v-if="resourceLevel == 'series' && !isAnonymization" class="row pt-3">
+                            <div class="col-md-9" v-html="$t('modify.series_step_0_modify_series_html')">
                             </div>
                             <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100"
@@ -783,17 +785,17 @@ export default {
 
                             <!----  edit text  ---->
                             <div v-if="isFrozenTag(key)" class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" disabled :class="{ 'striked-through': !isDicomUid(key) }"
-                                    v-model="originalTags[key]" />
+                                <input v-if="true" type="text" class="form-control" disabled
+                                    :class="{ 'striked-through': !isDicomUid(key) }" v-model="originalTags[key]" />
                             </div>
                             <div v-if="isEditableTag(key) && !isDateTag(key)" class="col-md-6">
                                 <input v-if="true" type="text" class="form-control" v-model="tags[key]" />
                             </div>
 
                             <div v-if="isEditableTag(key) && isDateTag(key)" class="col-md-6">
-                                <Datepicker v-model="dateTags[key]" :range="false"
-                                    :enable-time-picker="false" :format="datePickerFormat"
-                                    :preview-format="datePickerFormat" hide-input-icon text-input arrow-navigation :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
+                                <Datepicker v-model="dateTags[key]" :range="false" :enable-time-picker="false"
+                                    :format="datePickerFormat" :preview-format="datePickerFormat" hide-input-icon
+                                    text-input arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
                                 </Datepicker>
                             </div>
 
@@ -828,7 +830,8 @@ export default {
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li v-for="key of insertableTags" :key="key" :value="key"><a
-                                                class="dropdown-item" href="#" @click="insertTag($event, key)">{{ key }}</a>
+                                                class="dropdown-item" href="#" @click="insertTag($event, key)">{{ key
+                                                }}</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -838,15 +841,13 @@ export default {
                             <div v-if="isModeAllowed('modify-new-uids')" class="form-check">
                                 <input class="form-check-input" type="radio" name="modificationMode" id="modifyNewUids"
                                     value="modify-new-uids" v-model="modificationMode">
-                                <label class="form-check-label" for="modifyNewUids"
-                                    v-html="$t(modifyModeNewUidText)">
+                                <label class="form-check-label" for="modifyNewUids" v-html="$t(modifyModeNewUidText)">
                                 </label>
                             </div>
                             <div v-if="isModeAllowed('modify-keep-uids')" class="form-check">
                                 <input class="form-check-input" type="radio" name="modificationMode" id="modifyKeepUids"
                                     value="modify-keep-uids" v-model="modificationMode">
-                                <label class="form-check-label" for="modifyKeepUids"
-                                    v-html="$t(modifyModeKeepUidText)">
+                                <label class="form-check-label" for="modifyKeepUids" v-html="$t(modifyModeKeepUidText)">
                                 </label>
                             </div>
                             <div v-if="isModeAllowed('duplicate')" class="form-check">
@@ -862,11 +863,11 @@ export default {
                 <div v-if="step == 'tags'" class="modal-footer">
                     <button v-if="!isAnonymization" type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
-                    }}</button>
+                        }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" :disabled="!modifyButtonEnabled" @click="modify()">{{
                         $t(modifyButtonTitle)
-                    }}</button>
+                        }}</button>
                 </div>
 
                 <!-- ------------------------------------------ step 'warning' or 'error' --------------------------------------------------->
@@ -882,16 +883,16 @@ export default {
                 <div v-if="step == 'warning'" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
-                    }}</button>
+                        }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" @click="modify(true)">{{
                         $t(modifyButtonTitle)
-                    }}</button>
+                        }}</button>
                 </div>
                 <div v-if="step == 'error'" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
-                    }}</button>
+                        }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                 </div>
 

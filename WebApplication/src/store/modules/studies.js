@@ -3,7 +3,7 @@ import SourceType from "../../helpers/source-type";
 import store from "../../store"
 
 const _clearedFilter = {
-    StudyDate : "",
+    StudyDate: "",
     AccessionNumber: "",
     PatientID: "",
     PatientName: "",
@@ -18,7 +18,7 @@ const state = () => ({
     studies: [],  // studies as returned by tools/find
     studiesIds: [],
     isStudiesComplete: false, // true if we have received all studies
-    dicomTagsFilters: {..._clearedFilter},
+    dicomTagsFilters: { ..._clearedFilter },
     labelFilters: [],
     labelsContraint: "All",
     orderByFilters: [],
@@ -49,14 +49,14 @@ async function get_studies_shared(context, append) {
     }
 
     try {
-        commit('setIsSearching', { isSearching: true});
+        commit('setIsSearching', { isSearching: true });
         let studies = [];
         let isComplete = false;
 
         if (state.sourceType == SourceType.LOCAL_ORTHANC) {
             let orderBy = [...state.orderByFilters];
             if (state.orderByFilters.length == 0) {
-                orderBy.push({'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC'})
+                orderBy.push({ 'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC' })
             }
             let since = (append ? state.studiesIds.length : null);
 
@@ -94,13 +94,13 @@ async function get_studies_shared(context, append) {
             } else if (state.sourceType == SourceType.REMOTE_DICOM_WEB) {
                 remoteStudies = (await api.qidoRs("Study", state.remoteSource, filters, true /* isUnique */));
             }
-            
+
             // copy the tags in MainDicomTags, ... to have a common study structure between local and remote studies
-            studies = remoteStudies.map(s => { return {"MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"]} });
+            studies = remoteStudies.map(s => { return { "MainDicomTags": s, "PatientMainDicomTags": s, "RequestedTags": s, "ID": s["StudyInstanceUID"] } });
             isComplete = true; // no pagination on remote modalities/servers
         }
 
-        studies = studies.map(s => {return {...s, "sourceType": state.sourceType} });
+        studies = studies.map(s => { return { ...s, "sourceType": state.sourceType } });
         let studiesIds = studies.map(s => s['ID']);
 
         if (!append) {
@@ -111,7 +111,7 @@ async function get_studies_shared(context, append) {
     } catch (err) {
         console.log("Find studies cancelled", err);
     } finally {
-        commit('setIsSearching', { isSearching: false});
+        commit('setIsSearching', { isSearching: false });
     }
 }
 
@@ -195,7 +195,7 @@ const mutations = {
         state.dicomTagsFilters[dicomTagName] = value;
     },
     clearFilter(state) {
-        state.dicomTagsFilters = {..._clearedFilter};
+        state.dicomTagsFilters = { ..._clearedFilter };
         state.labelFilters = [];
         state.labelsContraint = "All";
     },
@@ -216,7 +216,7 @@ const mutations = {
         state.sourceType = sourceType;
         state.remoteSource = remoteSource;
     },
-    deleteStudy(state, {studyId}) {
+    deleteStudy(state, { studyId }) {
         const pos = state.studiesIds.indexOf(studyId);
         if (pos >= 0) {
             state.studiesIds.splice(pos, 1);
@@ -229,20 +229,20 @@ const mutations = {
             state.selectedStudiesIds.splice(pos, 1);
         }
     },
-    refreshStudyLabels(state, {studyId, labels}) {
+    refreshStudyLabels(state, { studyId, labels }) {
         for (const i in state.studies) {
             if (state.studies[i].ID == studyId) {
                 state.studies[i].Labels = labels
             }
         }
     },
-    setStatistics(state, {statistics}) {
+    setStatistics(state, { statistics }) {
         state.statistics = statistics;
     },
-    setIsSearching(state, {isSearching}) {
+    setIsSearching(state, { isSearching }) {
         state.isSearching = isSearching;
     },
-    selectStudy(state, {studyId, isSelected}) {
+    selectStudy(state, { studyId, isSelected }) {
         if (isSelected && !state.selectedStudiesIds.includes(studyId)) {
             state.selectedStudiesIds.push(studyId);
             state.selectedStudies = state.studies.filter(s => state.selectedStudiesIds.includes(s["ID"]));
@@ -254,7 +254,7 @@ const mutations = {
             }
         }
     },
-    selectAllStudies(state, {isSelected}) {
+    selectAllStudies(state, { isSelected }) {
         if (isSelected) {
             state.selectedStudiesIds = [...state.studiesIds];
             state.selectedStudies = [...state.studies];
@@ -262,14 +262,14 @@ const mutations = {
             state.selectedStudiesIds = [];
             state.selectedStudies = [];
         }
-       
+
     }
 }
 
 ///////////////////////////// ACTIONS
 
 const actions = {
-    async initialLoad({ commit, state}) {
+    async initialLoad({ commit, state }) {
         this.dispatch('studies/loadStatistics');
     },
     async updateFilter({ commit }, payload) {
@@ -304,7 +304,7 @@ const actions = {
         const sourceType = payload['source-type'];
         const remoteSource = payload['remote-source'];
         commit('setSource', { sourceType, remoteSource });
-        commit('selectAllStudies', { isSelected: false});  // clear selection when changing source
+        commit('selectAllStudies', { isSelected: false });  // clear selection when changing source
     },
     async clearFilter({ commit, state }) {
         commit('clearFilter');
@@ -349,11 +349,11 @@ const actions = {
     async selectStudy({ commit }, payload) {
         const studyId = payload['studyId'];
         const isSelected = payload['isSelected'];
-        commit('selectStudy', { studyId: studyId, isSelected: isSelected});
+        commit('selectStudy', { studyId: studyId, isSelected: isSelected });
     },
     async selectAllStudies({ commit }, payload) {
         const isSelected = payload['isSelected'];
-        commit('selectAllStudies', { isSelected: isSelected});
+        commit('selectAllStudies', { isSelected: isSelected });
     },
     async reloadStudy({ commit }, payload) {
         const studyId = payload['studyId'];
@@ -367,7 +367,7 @@ const actions = {
         for (const studyId of studiesIds) {
             const labels = await api.getLabels(studyId);
 
-            commit('refreshStudyLabels', { studyId: studyId, labels: labels});
+            commit('refreshStudyLabels', { studyId: studyId, labels: labels });
         }
     },
 }

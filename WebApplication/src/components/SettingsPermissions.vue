@@ -329,14 +329,16 @@ export default {
                             {{ $t('settings.allow_all_currents_and_futures_labels') }}
                         </label>
                     </div>
-                    <div class="labels-list" :class="{'d-none': isLabelsListEmpty}">
+                    <div class="labels-list" :class="{ 'd-none': isLabelsListEmpty }">
                         <button v-for="label in labels" :key="label" @click="toggleSelectedLabel($event, label)"
-                            class="labels-item border d-flex justify-content-between align-items-center" :disabled="hasAllLabelsAllowed" :class="{'is-label-selected': isLabelSelected(label), 'is-label-not-selected': !isLabelSelected(label)}">
+                            class="labels-item border d-flex justify-content-between align-items-center"
+                            :disabled="hasAllLabelsAllowed"
+                            :class="{ 'is-label-selected': isLabelSelected(label), 'is-label-not-selected': !isLabelSelected(label) }">
                             <span class="list-group-item-with-button-content">{{ label }}</span>
                         </button>
                     </div>
-                    <div class="labels-list mt-4" :class="{'d-none': !isLabelsListEmpty}">
-                        <p class="w-100 text-center">{{  $t('settings.labels_list_empty') }}</p>
+                    <div class="labels-list mt-4" :class="{ 'd-none': !isLabelsListEmpty }">
+                        <p class="w-100 text-center">{{ $t('settings.labels_list_empty') }}</p>
                     </div>
                 </div>
             </div>
@@ -369,9 +371,9 @@ export default {
 
             <div class="d-flex justify-content-end mt-2 mb-4">
                 <button type="button" class="btn btn-primary mx-1" :disabled="!hasChanged" @click="save"> {{ $t('save')
-                    }}</button>
+                }}</button>
                 <button type="button" class="btn btn-secondary mx-1" :disabled="!hasChanged" @click="cancel">{{
-                $t('cancel') }}</button>
+                    $t('cancel') }}</button>
             </div>
         </div>
     </div>

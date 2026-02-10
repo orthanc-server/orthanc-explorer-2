@@ -72,7 +72,7 @@ export default {
     data() {
         return {
             worklists: [],
-            columns: document._studyColumns,            
+            columns: document._studyColumns,
             currentOrderByTag: null,
             currentOrderDirection: 'ASC',
             allSelected: false,
@@ -134,7 +134,7 @@ export default {
             }
         },
         isOrderable(tagName) {
-            if (tagName in document._worklistsColumns) { 
+            if (tagName in document._worklistsColumns) {
                 return document._worklistsColumns[tagName].isOrderable;
             } else {
                 return false;
@@ -157,8 +157,8 @@ export default {
                 this.currentOrderDirection = 'ASC';
             }
             this.worklists.sort((a, b) => (this.currentOrderDirection == 'ASC' ?
-                                           this.getTag(a, this.currentOrderByTag).localeCompare(this.getTag(b, this.currentOrderByTag)) :
-                                           -this.getTag(a, this.currentOrderByTag).localeCompare(this.getTag(b, this.currentOrderByTag))));
+                this.getTag(a, this.currentOrderByTag).localeCompare(this.getTag(b, this.currentOrderByTag)) :
+                -this.getTag(a, this.currentOrderByTag).localeCompare(this.getTag(b, this.currentOrderByTag))));
 
         },
         clickSelectAll() {
@@ -257,10 +257,12 @@ export default {
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
                         <div class="title-container">
-                            <div v-if="isOrderable(columnTag)" class="title-text is-orderable" @click="toggleOrder($event, columnTag)">{{ columnTitle(columnTag) }}</div>
+                            <div v-if="isOrderable(columnTag)" class="title-text is-orderable"
+                                @click="toggleOrder($event, columnTag)">{{ columnTitle(columnTag) }}</div>
                             <div v-if="!isOrderable(columnTag)" class="title-text">{{ columnTitle(columnTag) }}</div>
                             <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i></div>
-                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i class="bi bi-arrow-down"></i></div>
+                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i class="bi bi-arrow-down"></i>
+                            </div>
                         </div>
                     </th>
                 </tr>
@@ -268,22 +270,26 @@ export default {
                     <th width="2%" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
                             <input class="form-check-input" type="checkbox" v-model="allSelected"
-                                :indeterminate="isPartialSelected" @click="clickSelectAll"><span style="font-weight: 400; font-size: small;">{{ selectedWorklistsCount }}</span>
+                                :indeterminate="isPartialSelected" @click="clickSelectAll"><span
+                                style="font-weight: 400; font-size: small;">{{ selectedWorklistsCount }}</span>
                         </div>
                     </th>
                     <th width="98%" :colspan="colSpanActions" scope="col">
                         <div class="container px-0">
-                            <button class="btn btn-sm btn-icon-small btn-secondary m-1" type="button" data-bs-toggle="modal"
-                                v-bind:data-bs-target="'#delete-modal-worklists'" :disabled="selectedWorklistsCount == 0">
+                            <button class="btn btn-sm btn-icon-small btn-secondary m-1" type="button"
+                                data-bs-toggle="modal" v-bind:data-bs-target="'#delete-modal-worklists'"
+                                :disabled="selectedWorklistsCount == 0">
                                 <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
                             </button>
-                            <Modal id="delete-modal-worklists"
-                                :headerText="$t('worklists.delete_bulk_worklists_title')" :okText="$t('delete')"
-                                :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_bulk_worklists_body', {'count': selectedWorklistsCount})" @ok="deleteSelectedWorklists($event)">
+                            <Modal id="delete-modal-worklists" :headerText="$t('worklists.delete_bulk_worklists_title')"
+                                :okText="$t('delete')" :cancelText="$t('cancel')"
+                                :bodyText="$t('worklists.delete_bulk_worklists_body', { 'count': selectedWorklistsCount })"
+                                @ok="deleteSelectedWorklists($event)">
                             </Modal>
-                            <button class="btn btn-sm btn-icon-small btn-secondary m-1" type="button" data-bs-toggle="modal"
-                                v-bind:data-bs-target="'#create-modal-worklists'">
-                                <i class="bi bi-calendar-plus" data-bs-toggle="tooltip" :title="$t('worklists.create_title')"></i>
+                            <button class="btn btn-sm btn-icon-small btn-secondary m-1" type="button"
+                                data-bs-toggle="modal" v-bind:data-bs-target="'#create-modal-worklists'">
+                                <i class="bi bi-calendar-plus" data-bs-toggle="tooltip"
+                                    :title="$t('worklists.create_title')"></i>
                             </button>
                             <CreateWorklistModal id="create-modal-worklists" reloadWindowAfterCreation="true">
                             </CreateWorklistModal>
@@ -292,20 +298,19 @@ export default {
                 </tr>
             </thead>
             <tbody v-for="wl in worklists" :key="wl.ID">
-                <tr :class="{ 'worklist-row-collapsed': !wl.Expanded, 'worklist-row-expanded': wl.Expanded }" >
+                <tr :class="{ 'worklist-row-collapsed': !wl.Expanded, 'worklist-row-expanded': wl.Expanded }">
                     <td>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" v-model="wl.Selected">
                         </div>
                     </td>
-                    <td v-for="columnTag in uiOptions.WorklistsColumns" :key="columnTag" class="cut-text" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#worklist-details-' + wl.ID"
-                    :title="formattedTag(wl, columnTag)">
+                    <td v-for="columnTag in uiOptions.WorklistsColumns" :key="columnTag" class="cut-text"
+                        data-bs-toggle="collapse" v-bind:data-bs-target="'#worklist-details-' + wl.ID"
+                        :title="formattedTag(wl, columnTag)">
                         {{ formattedTag(wl, columnTag) }}
                     </td>
                 </tr>
-                <tr class="collapse worklists-details-expanded"
-                    v-bind:id="'worklist-details-' + wl.ID">
+                <tr class="collapse worklists-details-expanded" v-bind:id="'worklist-details-' + wl.ID">
                     <td :colspan="colSpanDetails">
                         <div class="container mt-4 px-5">
                             <div class="row">
@@ -317,20 +322,24 @@ export default {
                                         <i class="bi bi-trash" data-bs-toggle="tooltip" :title="$t('delete')"></i>
                                     </button>
                                     <Modal :id="'delete-modal-worklist-' + wl.ID"
-                                        :headerText="$t('worklists.delete_single_worklist_title')" :okText="$t('delete')"
-                                        :cancelText="$t('cancel')" :bodyText="$t('worklists.delete_single_worklist_body')" @ok="deleteWorklist($event, wl)">
+                                        :headerText="$t('worklists.delete_single_worklist_title')"
+                                        :okText="$t('delete')" :cancelText="$t('cancel')"
+                                        :bodyText="$t('worklists.delete_single_worklist_body')"
+                                        @ok="deleteWorklist($event, wl)">
                                     </Modal>
                                     <button class="btn btn-sm btn-secondary m-1" type="button" data-bs-toggle="modal"
                                         v-bind:data-bs-target="'#modify-modal-worklist-' + wl.ID">
-                                        <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('worklists.modify_button')"></i>
+                                        <i class="bi bi-pencil" data-bs-toggle="tooltip"
+                                            :title="$t('worklists.modify_button')"></i>
                                     </button>
-                                    <CreateWorklistModal :id="'modify-modal-worklist-' + wl.ID" reloadWindowAfterCreation="true" :modifyWorklistId="wl.ID" :wlFullTags="wl.FullTags">
+                                    <CreateWorklistModal :id="'modify-modal-worklist-' + wl.ID"
+                                        reloadWindowAfterCreation="true" :modifyWorklistId="wl.ID"
+                                        :wlFullTags="wl.FullTags">
                                     </CreateWorklistModal>
                                 </div>
                             </div>
                             <div class="row">
-                                <TagsTree 
-                                    :tags="wl.FullTags">
+                                <TagsTree :tags="wl.FullTags">
                                 </TagsTree>
                             </div>
                         </div>
@@ -342,8 +351,8 @@ export default {
 </template>
 <style scoped>
 .worklists-column-titles {
-  background-color: var(--study-table-header-bg-color) !important;
-  font-size: smaller;
+    background-color: var(--study-table-header-bg-color) !important;
+    font-size: smaller;
 }
 
 .worklists-row-collapsed {
@@ -380,7 +389,8 @@ export default {
 }
 
 .worklists-details-expanded {
-    margin-top: 2rem;;
+    margin-top: 2rem;
+    ;
     background-color: var(--study-details-bg-color);
     font-size: 0.8rem;
 
@@ -390,14 +400,13 @@ export default {
     border-color: black !important;
 }
 
-.worklists-table-actions > th {
-  background-color: var(--study-table-actions-bg-color) !important;
-  vertical-align: middle;
+.worklists-table-actions>th {
+    background-color: var(--study-table-actions-bg-color) !important;
+    vertical-align: middle;
 }
 
-.worklists-table-actions > th > div {
-  background-color: var(--study-table-actions-bg-color) !important;
-  text-align: left;
+.worklists-table-actions>th>div {
+    background-color: var(--study-table-actions-bg-color) !important;
+    text-align: left;
 }
-
 </style>

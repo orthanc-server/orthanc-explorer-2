@@ -130,15 +130,14 @@ export default {
 
 <template>
     <div :class="divClasses">
-        <a v-if="isButton" class="btn btn-sm m-1" type="button"
-            data-bs-toggle="tooltip" :title="title" @click="clicked" :target="target" :href="linkUrl" :class="classes">
+        <a v-if="isButton" class="btn btn-sm m-1" type="button" data-bs-toggle="tooltip" :title="title" @click="clicked"
+            :target="target" :href="linkUrl" :class="classes">
             <i :class="iconClass"></i>
         </a>
-        <a v-if="isDropDownItem" class="dropdown-item" :target="target" @click="clicked"
-            :href="linkUrl">{{ title }}
+        <a v-if="isDropDownItem" class="dropdown-item" :target="target" @click="clicked" :href="linkUrl">{{ title }}
         </a>
-        <a v-if="isIcon" class="icon" :target="target" @click="clicked"
-            data-bs-toggle="tooltip" :title="title" :href="linkUrl">
+        <a v-if="isIcon" class="icon" :target="target" @click="clicked" data-bs-toggle="tooltip" :title="title"
+            :href="linkUrl">
             <i :class="iconClass" style="padding-top: 4px;"></i>
         </a>
     </div>
@@ -154,18 +153,20 @@ export default {
 
 .icon {
     color: var(--bs-table-color);
-    width: 100%;    /* increase the size of the clickable area */
+    width: 100%;
+    /* increase the size of the clickable area */
     height: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;    
+    align-items: center;
 }
 
 .div-icon {
-    width: 100%;    /* increase the size of the clickable area */
+    width: 100%;
+    /* increase the size of the clickable area */
     height: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;    
+    align-items: center;
 }
 </style>

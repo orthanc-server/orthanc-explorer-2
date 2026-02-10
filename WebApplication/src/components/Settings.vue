@@ -104,7 +104,7 @@ export default {
         },
         hkStatusText() {
             if (this.hkLastProcessedChange >= 1) {
-                return this.hkLastProcessedChange +" / " + this.hkLastChangeToProcess;
+                return this.hkLastProcessedChange + " / " + this.hkLastChangeToProcess;
             } else {
                 return this.$t('plugins.housekeeper.completed')
             }
@@ -122,7 +122,7 @@ export default {
                         <th scope="row" class="w-50 header"># {{ $t('patients') }}</th>
                         <td v-if="!hasMaxPatientCount" class="value">{{ statistics.CountPatients }}</td>
                         <td v-if="hasMaxPatientCount" class="value">{{ statistics.CountPatients }} / {{
-                system.MaximumPatientCount }} ({{ system.MaximumStorageMode }})</td>
+                            system.MaximumPatientCount }} ({{ system.MaximumStorageMode }})</td>
                     </tr>
                     <tr>
                         <th scope="row" class="w-50 header"># {{ $t('studies') }}</th>
@@ -140,7 +140,7 @@ export default {
                         <th scope="row" class="header">{{ $t('settings.storage_size') }}</th>
                         <td v-if="!hasMaxStorageSize" class="value">{{ totalDiskSize }}</td>
                         <td v-if="hasMaxStorageSize" class="value">{{ totalDiskSize }} / {{ maxStorageSize }} ({{
-                system.MaximumStorageMode }})</td>
+                            system.MaximumStorageMode }})</td>
                     </tr>
                     <tr v-if="hasDelayedDeletionPlugin">
                         <th scope="row" class="w-50 header"># {{ $t('plugins.delayed_deletion.pending_files_count') }}
@@ -148,7 +148,8 @@ export default {
                         <td class="value">{{ delayedDeletionPendingFilesCount }}</td>
                     </tr>
                     <tr v-if="hasAdvancedStorageDelayedDeletion">
-                        <th scope="row" class="w-50 header"># {{ $t('plugins.advanced_storage.pending_deletion_files_count') }}
+                        <th scope="row" class="w-50 header"># {{
+                            $t('plugins.advanced_storage.pending_deletion_files_count') }}
                         </th>
                         <td class="value">{{ advancedStoragePendingDeletionFilesCount }}</td>
                     </tr>
@@ -158,9 +159,11 @@ export default {
                         <td class="value">
                             <div class="progress mt-1 mb-1" style="width:100%">
                                 <div class="progress-bar bg-success" role="progressbar"
-                                    v-bind:style="'width: ' + this.hkPctDone + '%'"><span v-if="hkPctDone > 50">{{ hkStatusText }}</span></div>
+                                    v-bind:style="'width: ' + this.hkPctDone + '%'"><span v-if="hkPctDone > 50">{{
+                                        hkStatusText }}</span></div>
                                 <div class="progress-bar bg-secondary" role="progressbar"
-                                    v-bind:style="'width: ' + this.hkPctRemaining + '%'"><span v-if="hkPctDone <= 50">{{ hkStatusText }}</span></div>
+                                    v-bind:style="'width: ' + this.hkPctRemaining + '%'"><span v-if="hkPctDone <= 50">{{
+                                        hkStatusText }}</span></div>
                             </div>
                         </td>
                     </tr>
@@ -211,13 +214,13 @@ export default {
             <div>
                 <button type="button" class="btn mx-2" @click="setVerboseLevel('default')"
                     :class="{ 'btn-primary': verboseLevel == 'default', 'btn-secondary': verboseLevel != 'default' }">{{
-                $t('default') }}</button>
+                        $t('default') }}</button>
                 <button type="button" class="btn mx-2" @click="setVerboseLevel('verbose')"
                     :class="{ 'btn-primary': verboseLevel == 'verbose', 'btn-secondary': verboseLevel != 'verbose' }">{{
-                $t('verbose') }}</button>
+                        $t('verbose') }}</button>
                 <button type="button" class="btn mx-2" @click="setVerboseLevel('trace')"
                     :class="{ 'btn-primary': verboseLevel == 'trace', 'btn-secondary': verboseLevel != 'trace' }">{{
-                $t('trace') }}</button>
+                        $t('trace') }}</button>
             </div>
         </div>
         <div>
@@ -281,6 +284,4 @@ h6 {
 .instructions-text {
     font-size: smaller;
 }
-
-
 </style>

@@ -35,8 +35,7 @@ const actions = {
         commit('setLabels', { allLabels: allLabels });
 
         let showStudiesWithoutLabels = false;
-        if (store.state.configuration.system.ApiVersion >= 30 && allLabels.length > 0)
-        {
+        if (store.state.configuration.system.ApiVersion >= 30 && allLabels.length > 0) {
             if (store.state.configuration.userProfile) { // only the users who have access to all labels can see this option !
                 showStudiesWithoutLabels = store.state.configuration.userProfile["authorized-labels"].length == 1 && store.state.configuration.userProfile["authorized-labels"][0] == "*";
             } else {

@@ -58,7 +58,7 @@ export default {
                     "level": level,
                     "isDate": false,
                     "isChoice": false,
-                    "choices" : [],
+                    "choices": [],
                     "isEditable": true,
                     "isRequired": null,
                     "isComputationSource": true,
@@ -72,7 +72,7 @@ export default {
                     "level": level,
                     "isDate": false,
                     "isChoice": false,
-                    "choices" : [],
+                    "choices": [],
                     "isEditable": true,
                     "isRequired": null,
                     "isComputationSource": true,
@@ -86,7 +86,7 @@ export default {
                     "level": level,
                     "isDate": false,
                     "isChoice": false,
-                    "choices" : [],
+                    "choices": [],
                     "isEditable": false,
                     "isRequired": ("Required" in tag ? tag["Required"] : false),
                     "isComputationSource": false,
@@ -104,14 +104,14 @@ export default {
                     "level": level,
                     "isDate": isDate,
                     "isChoice": "Choices" in tag,
-                    "choices" : ("Choices" in tag ? tag["Choices"] : []),
+                    "choices": ("Choices" in tag ? tag["Choices"] : []),
                     "isEditable": ("Editable" in tag ? tag["Editable"] : true),
                     "isRequired": ("Required" in tag ? tag["Required"] : false),
                     "isComputationSource": false,
                     "isValid": false,
                     "placeholder": tag["Placeholder"],
                     "closeOpenSequence": closeOpenSequence
-                }];                
+                }];
             }
         },
         async flattenAndUpdateKeywords(tags, prefix, level) {
@@ -136,7 +136,7 @@ export default {
         },
         unflattenTags(editableTags) {
             let outTags = {};
-            
+
             for (let t of editableTags) {
                 if (t["isComputationSource"]) { // don't include these fields in the payload
                     continue;
@@ -158,7 +158,7 @@ export default {
                     }
                 } else if (t["level"] == 1) {
                     const s = t["flattenedTagName"].split(".");
-                    outTags[s[0]][outTags[s[0]].length-1][s[1]] = value;
+                    outTags[s[0]][outTags[s[0]].length - 1][s[1]] = value;
                 }
             }
             return outTags;
@@ -244,7 +244,7 @@ export default {
                             if (wlPatientTags[k] && v && (wlPatientTags[k].toISOString() != dateHelpers.fromDicomDate(v).toISOString())) {
                                 _allIdentical = false;
                             }
-                        } 
+                        }
                         else if (wlPatientTags[k] != v) {
                             _allIdentical = false;
                         }
@@ -321,7 +321,7 @@ export default {
                 }
             }
         }
-        
+
     },
     watch: {
         editableTags: {
@@ -389,9 +389,9 @@ export default {
         },
         datePickerFormat() {
             return this.uiOptions.DateFormat;
-        }        
+        }
     },
-    components: {  }
+    components: {}
 
 };
 </script>
@@ -414,47 +414,56 @@ export default {
                                 {{ translate(editableTag.tagName) }}
                             </div>
                             <div v-if="editableTag.isDate" class="col-md-6">
-                                <Datepicker v-model="editableTag.value" :range="false"
-                                    :enable-time-picker="false" :format="datePickerFormat"
-                                    :preview-format="datePickerFormat" hide-input-icon text-input arrow-navigation :disabled="!editableTag.isEditable" :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
+                                <Datepicker v-model="editableTag.value" :range="false" :enable-time-picker="false"
+                                    :format="datePickerFormat" :preview-format="datePickerFormat" hide-input-icon
+                                    text-input arrow-navigation :disabled="!editableTag.isEditable"
+                                    :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
                                 </Datepicker>
                             </div>
                             <div v-else-if="editableTag.isChoice" class="col-md-6 text-end">
-                                <select v-model="editableTag.value" class="form-select-sm" :disabled="!editableTag.isEditable">
-                                    <option v-for="choice of editableTag.choices" :key="choice" :value="choice">{{ choice }}</option>
+                                <select v-model="editableTag.value" class="form-select-sm"
+                                    :disabled="!editableTag.isEditable">
+                                    <option v-for="choice of editableTag.choices" :key="choice" :value="choice">{{
+                                        choice }}</option>
                                 </select>
                             </div>
                             <div v-else-if="editableTag.closeOpenSequence == null" class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" v-model="editableTag.value" :disabled="!editableTag.isEditable" :placeholder="editableTag.placeholder" @input="handleInput(editableTag.isComputationSource)" />
+                                <input v-if="true" type="text" class="form-control" v-model="editableTag.value"
+                                    :disabled="!editableTag.isEditable" :placeholder="editableTag.placeholder"
+                                    @input="handleInput(editableTag.isComputationSource)" />
                             </div>
-                            <div v-if="!editableTag.isComputationSource && editableTag.closeOpenSequence == null && editableTag.isValid" class="col-md-1">
+                            <div v-if="!editableTag.isComputationSource && editableTag.closeOpenSequence == null && editableTag.isValid"
+                                class="col-md-1">
                                 <i style="color: green" class="bi-check"></i>
                             </div>
-                            <div v-else-if="!editableTag.isComputationSource && editableTag.closeOpenSequence == null" class="col-md-1">
+                            <div v-else-if="!editableTag.isComputationSource && editableTag.closeOpenSequence == null"
+                                class="col-md-1">
                                 <i style="color: red" class="bi-x-lg"></i>
                             </div>
                         </div>
                         <div v-if="foundPatientSameIdDifferentTags" class="mt-2">
-                             <div class="alert alert-warning" role="alert">
+                            <div class="alert alert-warning" role="alert">
                                 <p>{{ $t('worklists.same_patient_id_found_different_tags') }}</p>
-                                <p><span v-for="(v, k) in samePatientIdTags"><strong>{{ k }}:</strong> {{ v }}<br/></span></p>
-                                <p><button type="button" class="btn btn-primary" @click="copySamePatientTags()">{{ $t("worklists.copy_tags_from_patient") }}</button></p>
-                             </div>
+                                <p><span v-for="(v, k) in samePatientIdTags"><strong>{{ k }}:</strong> {{ v
+                                        }}<br /></span></p>
+                                <p><button type="button" class="btn btn-primary" @click="copySamePatientTags()">{{
+                                    $t("worklists.copy_tags_from_patient") }}</button></p>
+                            </div>
                         </div>
                         <div v-if="errorMessage" class="mt-2">
-                             <div class="alert alert-danger" role="alert">
+                            <div class="alert alert-danger" role="alert">
                                 <p>{{ errorMessage }}</p>
-                             </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" @click="apply($event)" :disabled="!allValid">
-                        <span v-if="this.modifyWorklistId">{{$t("worklists.modify_button")}}</span>
-                        <span v-else>{{$t("worklists.create_button")}}</span>
+                        <span v-if="this.modifyWorklistId">{{ $t("worklists.modify_button") }}</span>
+                        <span v-else>{{ $t("worklists.create_button") }}</span>
                     </button>
                 </div>
             </div>

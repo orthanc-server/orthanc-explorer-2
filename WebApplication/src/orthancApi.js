@@ -27,36 +27,36 @@ export default {
     },
     async sendToDicomWebServer(resourcesIds, destination) {
         const response = (await axios.post(orthancApiUrl + "dicom-web/servers/" + destination + "/stow", {
-            "Resources" : resourcesIds,
+            "Resources": resourcesIds,
             "Synchronous": false
         }));
-        
+
         return response.data['ID'];
     },
     async sendToOrthancPeer(resourcesIds, destination) {
         const response = (await axios.post(orthancApiUrl + "peers/" + destination + "/store", {
-            "Resources" : resourcesIds,
+            "Resources": resourcesIds,
             "Synchronous": false
         }));
-        
+
         return response.data['ID'];
     },
     async sendToOrthancPeerWithTransfers(resources, destination) {
         const response = (await axios.post(orthancApiUrl + "transfers/send", {
-            "Resources" : resources,
+            "Resources": resources,
             "Compression": "gzip",
             "Peer": destination,
             "Synchronous": false
         }));
-        
+
         return response.data['ID'];
     },
     async sendToDicomModality(resourcesIds, destination) {
         const response = (await axios.post(orthancApiUrl + "modalities/" + destination + "/store", {
-            "Resources" : resourcesIds,
+            "Resources": resourcesIds,
             "Synchronous": false
         }));
-        
+
         return response.data['ID'];
     },
     async getJobStatus(jobId) {
@@ -93,7 +93,7 @@ export default {
             "RequestedTags": store.state.configuration.requestedTagsForStudyList,
             "Expand": true
         };
-        
+
         if (labels && labels.length > 0) {
             payload["Labels"] = labels;
             payload["LabelsConstraint"] = labelsConstraint;
@@ -111,7 +111,7 @@ export default {
         }
 
         let response = {
-            "studies": (await axios.post(orthancApiUrl + "tools/find", payload, 
+            "studies": (await axios.post(orthancApiUrl + "tools/find", payload,
                 {
                     signal: window.axiosFindStudiesAbortController.signal
                 })).data
@@ -128,7 +128,7 @@ export default {
             "Limit": store.state.configuration.uiOptions.PageLoadSize,
             "Query": {},
             "RequestedTags": store.state.configuration.requestedTagsForStudyList,
-            "OrderBy" : [{
+            "OrderBy": [{
                 'Type': 'Metadata',
                 'Key': 'LastUpdate',
                 'Direction': 'DESC'
@@ -141,7 +141,7 @@ export default {
         }
 
         let response = {
-            "studies": (await axios.post(orthancApiUrl + "tools/find", payload, 
+            "studies": (await axios.post(orthancApiUrl + "tools/find", payload,
                 {
                     signal: window.axiosFindStudiesAbortController.signal
                 })).data
@@ -170,7 +170,7 @@ export default {
             console.error("Unable to getSamePatientStudies if 'tags' is not defined or empty");
             return {};
         }
-        
+
         let query = {};
         for (let tag of tags) {
             if (tag in patientTags) {
@@ -213,7 +213,7 @@ export default {
         const response = (await axios.post(orthancApiUrl + "tools/lookup", studyInstanceUid));
         return response.data.length >= 1;
     },
-    async mergeSeriesInExistingStudy({seriesIds, targetStudyId, keepSource}) {
+    async mergeSeriesInExistingStudy({ seriesIds, targetStudyId, keepSource }) {
         const response = (await axios.post(orthancApiUrl + "studies/" + targetStudyId + "/merge", {
             "Resources": seriesIds,
             "KeepSource": keepSource,
@@ -232,34 +232,33 @@ export default {
             await this.cancelRemoteDicomFind();
             window.axiosRemoteDicomFindAbortController = new AbortController();
         }
-        
+
         try {
             let axiosOptions = {}
             if (isUnique) {
                 axiosOptions['signal'] = window.axiosRemoteDicomFindAbortController.signal
             }
             const queryResponse = (await axios.post(orthancApiUrl + "modalities/" + remoteModality + "/query", {
-                    "Level": level,
-                    "Query": filterQuery
-                }, 
+                "Level": level,
+                "Query": filterQuery
+            },
                 axiosOptions
-                )).data;
+            )).data;
             // console.log(queryResponse);
             const answers = (await axios.get(orthancApiUrl + "queries/" + queryResponse["ID"] + "/answers?expand&simplify")).data;
             // console.log(answers);
             return answers;
-        } catch (err)
-        {
+        } catch (err) {
             console.log("Error during query:", err);  // TODO: display error to user
             return {};
         }
     },
-    async qidoRs(level, remoteServer, filterQuery, isUnique){
+    async qidoRs(level, remoteServer, filterQuery, isUnique) {
         if (isUnique) {
             await this.cancelQidoRs();
             window.axiosQidoRsAbortController = new AbortController();
         }
-        
+
         try {
             let axiosOptions = {}
             if (isUnique) {
@@ -276,16 +275,16 @@ export default {
                 delete filterQuery["StudyInstanceUID"];  // we don't need it the filter since it is in the url
                 delete filterQuery["SeriesInstanceUID"];
             }
-            let args = {...filterQuery};
+            let args = { ...filterQuery };
             args["limit"] = String(store.state.configuration.uiOptions.MaxStudiesDisplayed);
             args["fuzzymatching"] = "true";
-            
+
             const queryResponse = (await axios.post(orthancApiUrl + "dicom-web/servers/" + remoteServer + "/qido", {
-                    "Uri": uri,
-                    "Arguments": args
-                }, 
+                "Uri": uri,
+                "Arguments": args
+            },
                 axiosOptions
-                )).data;
+            )).data;
             // transform the response into something similar to a DICOM C-Find API response
             let responses = [];
             for (let qr of queryResponse) {
@@ -298,8 +297,7 @@ export default {
                 responses.push(r);
             }
             return responses;
-        } catch (err)
-        {
+        } catch (err) {
             console.log("Error during query:", err);  // TODO: display error to user
             return {};
         }
@@ -310,12 +308,12 @@ export default {
             window.axiosQidoRsAbortController = null;
         }
     },
-    async wadoRsRetrieve(remoteServer, resources){
+    async wadoRsRetrieve(remoteServer, resources) {
         const retrieveJob = (await axios.post(orthancApiUrl + "dicom-web/servers/" + remoteServer + "/retrieve", {
-                "Resources": resources,
-                "Asynchronous": true
-            }
-            )).data;
+            "Resources": resources,
+            "Asynchronous": true
+        }
+        )).data;
         return retrieveJob["ID"];
     },
     async remoteDicomRetrieveResource(level, remoteModality, filterQuery) {
@@ -328,7 +326,7 @@ export default {
         let uriSegment = "/get";
         let query = {
             "Level": level,
-            "Resources" : filterQueries,
+            "Resources": filterQueries,
             "Synchronous": false
         }
 
@@ -377,10 +375,11 @@ export default {
             "Limit": limit,
             "ParentSeries": orthancId,
             "Query": {},
-            "OrderBy" : [
-                { "Type": "MetadataAsInt",
-                  "Key": "IndexInSeries",
-                  "Direction": "ASC"  
+            "OrderBy": [
+                {
+                    "Type": "MetadataAsInt",
+                    "Key": "IndexInSeries",
+                    "Direction": "ASC"
                 }
             ],
             "Expand": true
@@ -389,7 +388,7 @@ export default {
         if (since) {
             payload["Since"] = since;
         }
-        
+
         const response = (await axios.post(orthancApiUrl + "tools/find", payload));
         return response.data;
     },
@@ -461,7 +460,7 @@ export default {
         return (await axios.get(orthancApiUrl + "tools/log-level")).data;
     },
 
-    async anonymizeResource({resourceLevel, orthancId, replaceTags={}, removeTags=[]}) {
+    async anonymizeResource({ resourceLevel, orthancId, replaceTags = {}, removeTags = [] }) {
         const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/anonymize", {
             "Replace": replaceTags,
             "Remove": removeTags,
@@ -473,7 +472,7 @@ export default {
         return response.data['ID'];
     },
 
-    async modifyResource({resourceLevel, orthancId, replaceTags={}, removeTags=[], keepTags=[], keepSource}) {
+    async modifyResource({ resourceLevel, orthancId, replaceTags = {}, removeTags = [], keepTags = [], keepSource }) {
         const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/modify", {
             "Replace": replaceTags,
             "Remove": removeTags,
@@ -492,12 +491,12 @@ export default {
         return response.data;
     },
 
-    async addLabel({studyId, label}) {
+    async addLabel({ studyId, label }) {
         await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, "");
         return label;
     },
 
-    async removeLabel({studyId, label}) {
+    async removeLabel({ studyId, label }) {
         await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label);
         return label;
     },
@@ -520,7 +519,7 @@ export default {
         return response.data;
     },
 
-    async updateLabels({studyId, labels}) {
+    async updateLabels({ studyId, labels }) {
         const currentLabels = await this.getLabels(studyId);
         const labelsToRemove = currentLabels.filter(x => !labels.includes(x));
         const labelsToAdd = labels.filter(x => !currentLabels.includes(x));
@@ -550,18 +549,18 @@ export default {
 
     async sendEmail(destinationEmail, emailTitle, emailContent, layoutTemplate) {
         const response = (await axios.post(oe2ApiUrl + "emails/send", {
-            "destination-email" : destinationEmail,
+            "destination-email": destinationEmail,
             "email-title": emailTitle,
             "email-content": emailContent,
             "layout-template": layoutTemplate
         }));
-        
+
         return response.data;
     },
 
-    async createToken({tokenType, resourcesIds, level, validityDuration=null, id=null, expirationDate=null}) {
+    async createToken({ tokenType, resourcesIds, level, validityDuration = null, id = null, expirationDate = null }) {
         let body = {
-            "Resources" : [],
+            "Resources": [],
             "Type": tokenType
         }
 
@@ -576,7 +575,7 @@ export default {
         }
 
         if (validityDuration != null) {
-           body["ValidityDuration"] = validityDuration;
+            body["ValidityDuration"] = validityDuration;
         }
 
         if (expirationDate != null) {
@@ -589,7 +588,7 @@ export default {
 
         const response = (await axios.put(orthancApiUrl + "auth/tokens/" + tokenType, body));
         // console.log(response);
-        
+
         return response.data;
     },
     async parseToken(tokenKey, tokenValue) {
@@ -620,33 +619,33 @@ export default {
             method: "GET",
             headers: axios.defaults.headers.common
         })
-        .then(async (response) => {
-            let responseStream = response.body;
-            // console.info(response);
+            .then(async (response) => {
+                let responseStream = response.body;
+                // console.info(response);
 
-            let suggestedFileName = null;
-            if (response.headers.has('content-disposition')) {
-                suggestedFileName = response.headers.get('content-disposition').split('"')[1]
-            }
-                
-            const extension = mime.extension(response.headers.get('content-type'));
-            let acceptedTypes = [];
-            acceptedTypes.push({ accept: { [response.headers.get('content-type').split(",")[0]]: ["." + extension] } });
+                let suggestedFileName = null;
+                if (response.headers.has('content-disposition')) {
+                    suggestedFileName = response.headers.get('content-disposition').split('"')[1]
+                }
 
-            const fileHandle = await showSaveFilePicker({
-                _preferPolyfill: true,
-                suggestedName: suggestedFileName,
-                types: acceptedTypes,
-                excludeAcceptAllOption: false,
-            }).catch((error) => console.error(error));;
+                const extension = mime.extension(response.headers.get('content-type'));
+                let acceptedTypes = [];
+                acceptedTypes.push({ accept: { [response.headers.get('content-type').split(",")[0]]: ["." + extension] } });
 
-            let writableStream = await (fileHandle).createWritable();
-            await responseStream.pipeTo(writableStream);
-            console.log(suggestedFileName + " downloaded");
-        })
-        .catch((error) => {
+                const fileHandle = await showSaveFilePicker({
+                    _preferPolyfill: true,
+                    suggestedName: suggestedFileName,
+                    types: acceptedTypes,
+                    excludeAcceptAllOption: false,
+                }).catch((error) => console.error(error));;
 
-        })
+                let writableStream = await (fileHandle).createWritable();
+                await responseStream.pipeTo(writableStream);
+                console.log(suggestedFileName + " downloaded");
+            })
+            .catch((error) => {
+
+            })
     },
     async commitInbox(commitUrl, orthancStudiesIds, formFields) {
         const response = (await axios.post(orthancApiUrl + commitUrl, {
@@ -674,7 +673,7 @@ export default {
                 getArguments.append(key, value);
             }
         }
-        
+
         getArguments.append("log-data-format", "json");
 
         if (downloadAsCsv) {
@@ -691,10 +690,10 @@ export default {
         await axios.delete(orthancApiUrl + "worklists/" + worklistId);
     },
     async createWorklist(wlTags) {
-        return (await axios.post(orthancApiUrl + "worklists/create", {"Tags": wlTags})).data;
+        return (await axios.post(orthancApiUrl + "worklists/create", { "Tags": wlTags })).data;
     },
     async updateWorklist(worklistId, wlTags) {
-        return (await axios.put(orthancApiUrl + "worklists/" + worklistId, {"Tags": wlTags})).data;
+        return (await axios.put(orthancApiUrl + "worklists/" + worklistId, { "Tags": wlTags })).data;
     },
 
     ////////////////////////////////////////// HELPERS
@@ -764,7 +763,7 @@ export default {
         // stl/app/o3dv.html
         // stl/app/three.html
     },
-   getWeasisViewerUrl(resourceDicomUid) {
+    getWeasisViewerUrl(resourceDicomUid) {
         const dicomWebRootUrl = new URL(orthancApiUrl + "dicom-web", window.location.origin);
         const parts = ["$dicom:rs", "--url", `"${dicomWebRootUrl.toString()}"`, "-r", `"studyUID=${resourceDicomUid}"`];
         const url = "weasis://?" + parts.map(v => encodeURIComponent(v)).join("+");
@@ -795,15 +794,13 @@ export default {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + '/archive' + filenameArgument;
     },
     getBulkDownloadZipUrl(resourcesOrthancId) {
-        if (resourcesOrthancId.length > 0)
-        {
+        if (resourcesOrthancId.length > 0) {
             return orthancApiUrl + "tools/create-archive?resources=" + resourcesOrthancId.join(',');
         }
         return undefined;
     },
     getBulkDownloadDicomDirUrl(resourcesOrthancId) {
-        if (resourcesOrthancId.length > 0)
-        {
+        if (resourcesOrthancId.length > 0) {
             return orthancApiUrl + "tools/create-media?resources=" + resourcesOrthancId.join(',');
         }
         return undefined;

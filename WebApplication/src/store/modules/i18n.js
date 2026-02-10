@@ -13,6 +13,6 @@ let allLanguages = [
     { name: "Українська", key: "uk" },
     { name: "Tiếng Việt", key: "vi" },
     { name: '中文', key: 'zh' },
-	{ name: "Portugues", key: "pt"}
+    { name: "Portugues", key: "pt" }
 ]
 export default allLanguages;

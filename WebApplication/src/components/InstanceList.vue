@@ -52,7 +52,7 @@ export default {
                 <th width="40%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
                     title="SOP Instance UID">SOP Instance UID</th>
                 <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
-                    :title="$t('dicom_tags.NumberOfFrames')"># {{$t('frames')}}</th>
+                    :title="$t('dicom_tags.NumberOfFrames')"># {{ $t('frames') }}</th>
             </tr>
         </thead>
         <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
@@ -63,8 +63,7 @@ export default {
 </template>
 
 <style>
-.instance-table {
-}
+.instance-table {}
 
 .instance-table> :not(:first-child) {
     border-top: 0px !important;
@@ -76,11 +75,11 @@ export default {
     border-color: black !important;
 }
 
-.instance-table>:nth-child(odd) >* >* {
+.instance-table>:nth-child(odd)>*>* {
     background-color: var(--instance-odd-bg-color);
 }
 
-.instance-table>:nth-child(even) >* >* {
+.instance-table>:nth-child(even)>*>* {
     background-color: var(--instance-even-bg-color);
 }
 
@@ -89,14 +88,15 @@ export default {
     padding-left: 10px;
 }
 
-.instance-table > tbody > tr:hover > * {
+.instance-table>tbody>tr:hover>* {
     background-color: var(--instance-hover-color);
 }
 
-.instance-table > tbody > tr.instance-row-expanded:hover > * {
+.instance-table>tbody>tr.instance-row-expanded:hover>* {
     background-color: var(--instance-details-bg-color);
 }
-.instance-table > tbody > tr.instance-details-expanded:hover > * {
+
+.instance-table>tbody>tr.instance-details-expanded:hover>* {
     background-color: var(--instance-details-bg-color);
 }
 
@@ -105,5 +105,4 @@ export default {
     text-align: left;
     padding-left: 10px;
 }
-
 </style>

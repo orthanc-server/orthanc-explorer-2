@@ -110,7 +110,8 @@ export default {
                     </label>
                 </div>
                 <div class="mt-1">
-                    <p class="instructions-text" v-html="$t('settings.available_labels_global_instructions_html')" :class="{'instructions-text-disabled': !limitAvailableLabels} "></p>
+                    <p class="instructions-text" v-html="$t('settings.available_labels_global_instructions_html')"
+                        :class="{ 'instructions-text-disabled': !limitAvailableLabels }"></p>
                 </div>
                 <div class="form-check" style="height: 3rem"><label for="new-label-input" class="form-label"><span
                             class="invalid-label-tips invalid-label-tips-hidden">{{ $t('labels.valid_alphabet_warning')
@@ -121,7 +122,7 @@ export default {
                         @keyup="labelKeyPressed($event)" :disabled="!limitAvailableLabels">
                     <button type="button" class="btn btn-sm btn-secondary m-1" @click="createLabel"
                         :disabled="!limitAvailableLabels">{{
-                $t('settings.create_new_label') }}</button>
+                            $t('settings.create_new_label') }}</button>
                 </div>
                 <div class="labels-list mt-5">
                     <div v-for="label in availableLabels" :key="label"
@@ -136,9 +137,9 @@ export default {
             </div>
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-primary mx-1" :disabled="!hasChanged" @click="save"> {{ $t('save')
-                    }}</button>
+                }}</button>
                 <button type="button" class="btn btn-secondary mx-1" :disabled="!hasChanged" @click="cancel">{{
-                $t('cancel') }}</button>
+                    $t('cancel') }}</button>
             </div>
         </div>
     </div>

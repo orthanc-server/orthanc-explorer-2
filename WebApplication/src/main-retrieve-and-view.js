@@ -28,12 +28,12 @@ axios.get('../api/pre-login-configuration').then((config) => {
   const params = new URLSearchParams(window.location.search);
 
   for (let paramName of VALID_TOKEN_PARAMS) {
-      const paramValue = params.get(paramName);
+    const paramValue = params.get(paramName);
 
-      if (!paramValue) continue;
+    if (!paramValue) continue;
 
-      localStorage.setItem(paramName, paramValue);
-      orthancApi.updateAuthHeader(paramName);
+    localStorage.setItem(paramName, paramValue);
+    orthancApi.updateAuthHeader(paramName);
   }
 
   app.mount('#app-retrieve-and-view')

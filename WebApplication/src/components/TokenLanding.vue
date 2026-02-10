@@ -30,7 +30,7 @@ export default {
             link.rel = 'stylesheet';
             link.type = 'text/css';
             link.href = 'customizable/custom.css';
-    
+
             document.getElementsByTagName('HEAD')[0].appendChild(link);
 
             setTimeout(applyBootStrapTheme, 0);
@@ -49,10 +49,10 @@ export default {
             this.resourcesDicomIds = decodedToken['ResourcesDicomIds'];
             this.options = this.$appConfig['TokensLandingOptions'];
             this.redirectUrl = decodedToken['RedirectUrl'];
-            
+
             if (this.resourcesOrthancIds.length == 1) {
                 let study = await api.getStudy(this.resourcesOrthancIds[0]);
-                this.studyMainDicomTags = {...study['MainDicomTags'], ...study['PatientMainDicomTags']};
+                this.studyMainDicomTags = { ...study['MainDicomTags'], ...study['PatientMainDicomTags'] };
             }
         } else if ('RedirectUrl' in decodedToken) {
             // There are no options to provide to the user -> redirect to the viewer.
@@ -168,7 +168,7 @@ export default {
                 return api.getBulkDownloadZipUrl(this.resourcesOrthancIds);
             }
             let filename = resourceHelpers.replaceResourceTagsInStringPlainText(this.uiOptions.DownloadStudyFileNameTemplate, this.studyMainDicomTags, null, null, null, this.resourcesOrthancIds[0], 'study');
-            
+
             return api.getDownloadZipUrl('study', this.resourcesOrthancIds[0], filename);
         },
     },
@@ -180,20 +180,22 @@ export default {
     <div class="d-flex flex-column min-vh-100">
         <div class="row w-100 mt-2">
             <div class="col-10"></div>
-            <div class="col-2"><LanguagePicker></LanguagePicker></div>
+            <div class="col-2">
+                <LanguagePicker></LanguagePicker>
+            </div>
         </div>
         <div class="d-flex flex-column justify-content-center align-items-center mt-5">
             <div class="row w-100 px-3 h4 text-center">
                 <div v-if="!hasCustomLogo">
-                    <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
+                    <img class="orthanc-logo" src="../assets/images/orthanc.png" />
                 </div>
                 <div v-if="hasCustomLogo">
                     <img class="custom-logo" :src="customLogoUrl" />
                 </div>
                 <div v-if="hasCustomLogo">
                     <p class="powered-by-orthanc">
-                    powered by
-                    <img src="../assets/images/orthanc.png" />
+                        powered by
+                        <img src="../assets/images/orthanc.png" />
                     </p>
                 </div>
                 <div v-if="uiOptions.ShowOrthancName" class="orthanc-name">
@@ -201,8 +203,11 @@ export default {
                 </div>
             </div>
             <div class="row w-100 px-3 h4 text-center">
-                <p v-if="tokenChecked && showOptions && showStudyDetails" v-html="$t('token.landing_options_single_study_intro_text')"></p>
-                <p v-if="tokenChecked && showOptions && !showStudyDetails" v-html="$t('token.landing_options_multiple_studies_intro_text', {count: this.resourcesOrthancIds.length})"></p>
+                <p v-if="tokenChecked && showOptions && showStudyDetails"
+                    v-html="$t('token.landing_options_single_study_intro_text')"></p>
+                <p v-if="tokenChecked && showOptions && !showStudyDetails"
+                    v-html="$t('token.landing_options_multiple_studies_intro_text', { count: this.resourcesOrthancIds.length })">
+                </p>
                 <span v-if="!tokenChecked">
                     <p v-html="$t('token.token_being_checked_html')"></p>
                     <div class="spinner-border" role="status">
@@ -216,7 +221,7 @@ export default {
             <div v-if="tokenChecked && showOptions" class="w-100">
                 <div v-if="showStudyDetails" class="w-100">
                     <div class="row w-100 px-3" v-for="tag in tagsToDisplay" :key="tag">
-                        <div class="col-6 tag-label" >
+                        <div class="col-6 tag-label">
                             <span v-html="titleForTag(tag)"></span>
                         </div>
                         <div class="col-6 tag-value">
@@ -224,21 +229,25 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="row w-100 m-3"></div> 
+                <div class="row w-100 m-3"></div>
                 <p v-for="option in options" :key="option" class="text-center">
                     <button v-if="option.Type == 'download-study'" type="button" class="btn btn-primary"
                         @click="downloadStudy()">
-                        <span v-if="showStudyDetails"><i class="bi bi-download px-1"/> {{ $t('token.download_study') }}</span>
-                        <span v-if="!showStudyDetails"><i class="bi bi-download px-1"/> {{ $t('token.download_studies', {count: this.resourcesOrthancIds.length}) }}</span>
+                        <span v-if="showStudyDetails"><i class="bi bi-download px-1" /> {{ $t('token.download_study')
+                            }}</span>
+                        <span v-if="!showStudyDetails"><i class="bi bi-download px-1" /> {{ $t('token.download_studies',
+                            { count: this.resourcesOrthancIds.length}) }}</span>
                     </button>
                     <button v-if="option.Type == 'open-viewer-button'" type="button" class="btn btn-primary"
                         @click="viewStudy()">
-                        <span v-if="showStudyDetails"><i class="bi bi-eye px-1"/> {{ $t('token.open_study_in_viewer') }}</span>
-                        <span v-if="!showStudyDetails"><i class="bi bi-eye px-1"/> {{ $t('token.open_studies_in_viewer', {count: this.resourcesOrthancIds.length}) }}</span>
+                        <span v-if="showStudyDetails"><i class="bi bi-eye px-1" /> {{ $t('token.open_study_in_viewer')
+                            }}</span>
+                        <span v-if="!showStudyDetails"><i class="bi bi-eye px-1" /> {{
+                            $t('token.open_studies_in_viewer', { count: this.resourcesOrthancIds.length}) }}</span>
                     </button>
-                    <button v-if="option.Type == 'custom' && isCustomButtonEnabled(option)" type="button" class="btn btn-primary"
-                        @click="customButtonClicked(option)">
-                        <span><i :class="customButtonIcon(option) + ' px-1'"/> {{ option.Title }}</span>
+                    <button v-if="option.Type == 'custom' && isCustomButtonEnabled(option)" type="button"
+                        class="btn btn-primary" @click="customButtonClicked(option)">
+                        <span><i :class="customButtonIcon(option) + ' px-1'" /> {{ option.Title }}</span>
                     </button>
                 </p>
             </div>
@@ -247,7 +256,6 @@ export default {
 </template>
 
 <style>
-
 body {
     background-color: var(--nav-side-bg-color) !important;
     color: var(--nav-side-submenu-color) !important;
@@ -275,7 +283,7 @@ body {
     font-size: small;
 }
 
-.powered-by-orthanc > img {
+.powered-by-orthanc>img {
     filter: brightness(50);
     max-width: 50%;
     max-height: 30px;

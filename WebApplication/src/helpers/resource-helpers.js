@@ -41,7 +41,7 @@ export default {
         } else if (template == "{JsonArrayDicomIds}") {
             return selectedStudiesDicomIds;
         }
-        
+
         let output = template;
         let transformedInstanceTags = {};
         if (instanceTags != null) {
@@ -49,7 +49,7 @@ export default {
                 transformedInstanceTags[v['Name']] = v['Value'];
             }
         }
-        
+
         for (let levelTags of [patientMainDicomTags, studyMainDicomTags, seriesMainDicomTags, transformedInstanceTags]) {
             if (levelTags != null) {
                 for (const [k, v] of Object.entries(levelTags)) {
@@ -59,7 +59,7 @@ export default {
         }
 
         output = output.replace("{UUID}", resourceId);
-        
+
         if (selectedStudiesIds) {
             output = output.replace("{CommaSeparatedUUIDs}", selectedStudiesIds.join(','));
         }
@@ -78,10 +78,10 @@ export default {
             const matchStudyResourceToken = output.match(/\{study-resource-token\/(.*?)\}/);
             if (matchStudyResourceToken) {
                 const tokenType = matchStudyResourceToken[1];
-                const resourceToken = await api.createToken({ 
-                    tokenType: tokenType, 
-                    resourcesIds: [resourceId], 
-                    level: resourceLevel, 
+                const resourceToken = await api.createToken({
+                    tokenType: tokenType,
+                    resourcesIds: [resourceId],
+                    level: resourceLevel,
                     validityDuration: store.state.configuration.tokens.InstantLinksValidity
                 });
                 output = output.replace('{study-resource-token/' + tokenType + '}', resourceToken['Token']);
@@ -92,9 +92,9 @@ export default {
             const matchStudyResourcesToken = output.match(/\{studies-resource-token\/(.*?)\}/);
             if (matchStudyResourcesToken) {
                 const tokenType = matchStudyResourcesToken[1];
-                const resourceToken = await api.createToken({ 
-                    tokenType: tokenType, 
-                    resourcesIds: selectedStudiesIds, 
+                const resourceToken = await api.createToken({
+                    tokenType: tokenType,
+                    resourcesIds: selectedStudiesIds,
                     level: 'study', // right now, bulk actions only work at study level 
                     validityDuration: store.state.configuration.tokens.InstantLinksValidity
                 });
@@ -109,7 +109,7 @@ export default {
             return null;
         }
         let output = {};
-        
+
         for (const [k, v] of Object.entries(template)) {
             if (typeof v === 'string') {
                 if (v.indexOf('{') != -1) {
@@ -137,8 +137,8 @@ export default {
         return output;
     },
 
-    patientNameCapture : "([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?",
-    patientNameFormatting : null,
+    patientNameCapture: "([^\\^]+)\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?\\^?([^\\^]+)?",
+    patientNameFormatting: null,
     formatPatientName(originalPatientName) {
         if (originalPatientName && this.patientNameFormatting && this.patientNameCapture) {
             return originalPatientName.replace(new RegExp(this.patientNameCapture), this.patientNameFormatting);
@@ -154,8 +154,7 @@ export default {
                     (viewer.startsWith("ohif") && viewer in store.state.configuration.installedPlugins && store.state.configuration.installedPlugins[viewer].Enabled) ||
                     (viewer.startsWith("ohif") && store.state.configuration.uiOptions.EnableOpenInOhifViewer3) ||
                     (viewer == "meddream" && store.state.configuration.uiOptions.EnableOpenInMedDreamViewer) ||
-                    (viewer == "weasis" && store.state.configuration.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in store.state.configuration.installedPlugins && store.state.configuration.installedPlugins["dicom-web"].Enabled))
-                {
+                    (viewer == "weasis" && store.state.configuration.uiOptions.EnableOpenInWeasisViewer && "dicom-web" in store.state.configuration.installedPlugins && store.state.configuration.installedPlugins["dicom-web"].Enabled)) {
                     return viewer;
                 }
             }
@@ -181,7 +180,7 @@ export default {
         if (!viewer) {
             return null;
         }
-        
+
         if (viewer == 'osimis-web-viewer') {
             return api.getOsimisViewerUrl(level, orthancId);
         } else if (viewer == 'stone-webviewer') {

@@ -1,5 +1,5 @@
 <script>
-import {uppie} from "uppie"
+import { uppie } from "uppie"
 import UploadReport from "./UploadReport.vue"
 import api from "../orthancApi"
 
@@ -112,7 +112,7 @@ export default {
             let studyId = uploadedFileResponse["ParentStudy"];
             if (!this.lastUploadReports[uploadId].uploadedStudiesIds.has(studyId)) {
                 this.lastUploadReports[uploadId].uploadedStudiesIds.add(studyId);
-                
+
                 if (this.showStudyDetails) {
                     const studyResponse = await api.getStudy(studyId);
                     this.lastUploadReports[uploadId].uploadedStudies[studyId] = studyResponse;
@@ -194,23 +194,27 @@ export default {
 
 <template>
     <div>
-        <div v-if="!disabledAfterUpload" class="upload-handler-drop-zone" :class="{'upload-handler-drop-zone-disabled': uploadDisabled}"  @drop="this.onDrop" @dragover="this.onDragOver" :disabled="uploadDisabled">
+        <div v-if="!disabledAfterUpload" class="upload-handler-drop-zone"
+            :class="{ 'upload-handler-drop-zone-disabled': uploadDisabled }" @drop="this.onDrop"
+            @dragover="this.onDragOver" :disabled="uploadDisabled">
             <div v-if="uploadDisabled" class="mb-3">{{ uploadDisabledMessage }}</div>
             <div v-if="!uploadDisabled" class="mb-3">{{ $t('drop_files') }}</div>
             <div class="mb-3">
-                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}" >
-                    {{ $t('select_folder') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="foldersUpload" required
-                        multiple directory webkitdirectory allowdirs>
+                <label class="btn btn-primary btn-file" :class="{ 'disabled': uploadDisabled }">
+                    {{ $t('select_folder') }} <input :disabled="uploadDisabled" type="file" style="display: none;"
+                        id="foldersUpload" required multiple directory webkitdirectory allowdirs>
                 </label>
             </div>
             <div class="mb-3">
-                <label class="btn btn-primary btn-file" :class="{'disabled': uploadDisabled}">
-                    {{ $t('select_files') }} <input :disabled="uploadDisabled" type="file" style="display: none;" id="filesUpload" required multiple>
+                <label class="btn btn-primary btn-file" :class="{ 'disabled': uploadDisabled }">
+                    {{ $t('select_files') }} <input :disabled="uploadDisabled" type="file" style="display: none;"
+                        id="filesUpload" required multiple>
                 </label>
             </div>
         </div>
         <div class="upload-report-list">
-            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key" :showStudyDetails="showStudyDetails" :disableCloseReport="disableCloseReport"
+            <UploadReport v-for="(upload, key) in lastUploadReports" :report="upload" :key="key"
+                :showStudyDetails="showStudyDetails" :disableCloseReport="disableCloseReport"
                 @deletedUploadReport="onDeletedUploadReport"></UploadReport>
         </div>
     </div>
@@ -232,5 +236,4 @@ export default {
     border-color: #ff0000d2;
     cursor: not-allowed;
 }
-
 </style>

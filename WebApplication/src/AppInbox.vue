@@ -42,5 +42,4 @@ export default {
 .nav-side-layout .toggle-btn {
     display: none;
 }
-
 </style>

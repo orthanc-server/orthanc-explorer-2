@@ -14,9 +14,8 @@ export default {
 </script>
 <template>
     <div class="alert alert-danger" role="alert">
-        {{$t('page_not_found')}} <br/>
-        {{path}}
+        {{ $t('page_not_found') }} <br />
+        {{ path }}
     </div>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

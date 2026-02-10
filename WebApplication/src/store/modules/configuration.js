@@ -18,7 +18,7 @@ const state = () => ({
     system: {},
     ohifDataSource: "dicom-web",
     customLogoUrl: null,
-    hasCustomLogo: false, 
+    hasCustomLogo: false,
     requestedTagsForStudyList: [],
     hasExtendedFind: false,
     hasExtendedChanges: false,
@@ -92,13 +92,13 @@ const mutations = {
 ///////////////////////////// ACTIONS
 
 const actions = {
-    async load({ commit, state}) {
+    async load({ commit, state }) {
         await this.dispatch('configuration/loadOe2Configuration');
 
         if (state.uiOptions.EnableSendTo) {
             try {
                 const orthancPeers = await api.loadOrthancPeers();
-                commit('setOrthancPeers', { orthancPeers: orthancPeers});
+                commit('setOrthancPeers', { orthancPeers: orthancPeers });
             } catch (err) {
                 console.warn("can not get Orthanc peers - not authorized ?")
             }
@@ -107,25 +107,25 @@ const actions = {
         if (state.uiOptions.EnableSendTo || state.uiOptions.EnableDicomModalities) {
             try {
                 const dicomModalities = await api.loadDicomModalities();
-                commit('setDicomModalities', { dicomModalities: dicomModalities});
+                commit('setDicomModalities', { dicomModalities: dicomModalities });
             } catch (err) {
                 console.warn("can not get DICOM modalities - not authorized ?")
             }
         }
 
         const system = await api.loadSystem();
-        commit('setSystem', { system: system});
+        commit('setSystem', { system: system });
 
         commit('setLoaded');
     },
     async loadOe2Configuration({ commit }) {
         const oe2Config = await api.loadOe2Configuration();
-        commit('setUiOptions', { uiOptions: oe2Config['UiOptions']});
-        commit('setTokens', { tokens: oe2Config['Tokens']});
-        commit('setAdvancedOptions', { advancedOptions: oe2Config['AdvancedOptions']});
+        commit('setUiOptions', { uiOptions: oe2Config['UiOptions'] });
+        commit('setTokens', { tokens: oe2Config['Tokens'] });
+        commit('setAdvancedOptions', { advancedOptions: oe2Config['AdvancedOptions'] });
 
         if ('Profile' in oe2Config) {
-            commit('setUserProfile', { profile: oe2Config['Profile']});
+            commit('setUserProfile', { profile: oe2Config['Profile'] });
         }
         document._mustTranslateDicomTags = oe2Config['UiOptions']['TranslateDicomTags'];
 
@@ -134,7 +134,7 @@ const actions = {
             if ('CustomLogoUrl' in oe2Config) {
                 customLogoUrl = oe2Config['CustomLogoUrl']
             }
-            commit('setCustomLogo', { customLogoUrl: customLogoUrl, hasCustomLogo: oe2Config['HasCustomLogo']});
+            commit('setCustomLogo', { customLogoUrl: customLogoUrl, hasCustomLogo: oe2Config['HasCustomLogo'] });
         }
 
         if ('CustomTitle' in oe2Config) {
@@ -150,19 +150,19 @@ const actions = {
 
         for (const [pluginName, pluginConfiguration] of Object.entries(oe2Config['Plugins'])) {
 
-            commit('setInstalledPlugin', { plugin: pluginName, pluginConfiguration: pluginConfiguration})
+            commit('setInstalledPlugin', { plugin: pluginName, pluginConfiguration: pluginConfiguration })
 
             if (pluginName === "dicom-web") {
                 try {
                     const dicomWebServers = await api.loadDicomWebServers();
-                    commit('setDicomWebServers', { dicomWebServers: dicomWebServers});
+                    commit('setDicomWebServers', { dicomWebServers: dicomWebServers });
                 } catch (err) {
                     console.warn("can not get DicomWEB servers - not authorized ?")
                 }
             } else if (pluginName === "ohif") {
-                commit('setOhifDataSource', { ohifDataSource: pluginConfiguration["DataSource"]})
+                commit('setOhifDataSource', { ohifDataSource: pluginConfiguration["DataSource"] })
             }
-            
+
         }
 
     },

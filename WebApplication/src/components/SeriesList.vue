@@ -59,50 +59,23 @@ export default {
         <thead>
             <tr>
                 <th width="2%" scope="col" class="series-table-header"></th>
-                <th
-                    width="7%"
-                    scope="col"
-                    class="series-table-header cut-text"
-                    data-bs-toggle="tooltip"
-                    :title="columnTooltip('SeriesNumber')"
-                    >{{columnTitle('SeriesNumber')}}</th>
-                <th
-                width="40%"
-                scope="col"
-                class="series-table-header cut-text"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('SeriesDescription')"
-                >{{columnTitle('SeriesDescription')}}</th>
-                <th
-                width="11%"
-                scope="col"
-                class="series-table-header cut-text text-center"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('Modality')"
-                >{{columnTitle('Modality')}}</th>
-                <th
-                width="5%"
-                scope="col"
-                class="series-table-header cut-text text-center"
-                data-bs-toggle="tooltip"
-                :title="columnTooltip('instances_number')"
-                >{{columnTitle('instances_number')}}</th>
+                <th width="7%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
+                    :title="columnTooltip('SeriesNumber')">{{ columnTitle('SeriesNumber') }}</th>
+                <th width="40%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
+                    :title="columnTooltip('SeriesDescription')">{{ columnTitle('SeriesDescription') }}</th>
+                <th width="11%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
+                    :title="columnTooltip('Modality')">{{ columnTitle('Modality') }}</th>
+                <th width="5%" scope="col" class="series-table-header cut-text text-center" data-bs-toggle="tooltip"
+                    :title="columnTooltip('instances_number')">{{ columnTitle('instances_number') }}</th>
             </tr>
         </thead>
-        <SeriesItem
-            v-for="seriesId in sortedSeriesIds"
-            :key="seriesId"
-            :seriesId="seriesId"
-            :seriesInfo="seriesInfo[seriesId]"
-            :studyMainDicomTags="this.studyMainDicomTags"
-            :patientMainDicomTags="this.patientMainDicomTags"
-            @deletedSeries="onDeletedSeries"
-        ></SeriesItem>
+        <SeriesItem v-for="seriesId in sortedSeriesIds" :key="seriesId" :seriesId="seriesId"
+            :seriesInfo="seriesInfo[seriesId]" :studyMainDicomTags="this.studyMainDicomTags"
+            :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesItem>
     </table>
 </template>
 
 <style>
-
 .series-table>:not(:first-child) {
     border-top: 0px !important;
 }
@@ -113,25 +86,25 @@ export default {
     border-color: black !important;
 }
 
-.series-table {
-}
+.series-table {}
 
-.series-table>:nth-child(odd) >* >* {
+.series-table>:nth-child(odd)>*>* {
     background-color: var(--series-odd-bg-color);
 }
 
-.series-table>:nth-child(even) >* >* {
+.series-table>:nth-child(even)>*>* {
     background-color: var(--series-even-bg-color);
 }
 
-.series-table > tbody > tr:hover > *{
+.series-table>tbody>tr:hover>* {
     background-color: var(--series-hover-color);
 }
 
-.series-table > tbody > tr.series-row-expanded:hover > * {
+.series-table>tbody>tr.series-row-expanded:hover>* {
     background-color: var(--series-details-bg-color);
 }
-.series-table > tbody > tr.series-details-expanded:hover > * {
+
+.series-table>tbody>tr.series-details-expanded:hover>* {
     background-color: var(--series-details-bg-color);
 }
 
@@ -145,5 +118,4 @@ export default {
     text-align: left;
     padding-left: 10px;
 }
-
 </style>

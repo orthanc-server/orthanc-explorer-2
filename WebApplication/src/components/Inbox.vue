@@ -30,7 +30,7 @@ export default {
             link.rel = 'stylesheet';
             link.type = 'text/css';
             link.href = 'customizable/custom.css';
-    
+
             document.getElementsByTagName('HEAD')[0].appendChild(link);
 
             setTimeout(applyBootStrapTheme, 0);
@@ -68,7 +68,7 @@ export default {
                 if (!this.isFormValuesInitialized) {
                     return;
                 }
-                
+
                 // only trigger form validation when we stop typing for 300ms
                 if (this.formValidityCheckerHandler) {
                     clearTimeout(this.formValidityCheckerHandler);
@@ -215,7 +215,7 @@ export default {
             const file = event.target.files[0];
             const reader = new FileReader();
             const that = this;
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 that.formValues[formField.Id] = e.target.result;
             }
             reader.readAsDataURL(file)
@@ -245,7 +245,7 @@ export default {
                 }
                 this.isFormValuesInitialized = true;
             }
-            
+
             return this.inboxConfig_;
         },
         hasForm() {
@@ -285,7 +285,7 @@ export default {
             return this.userProfile != null && this.userProfile.name;
         },
     },
-    components: {UploadHandler}
+    components: { UploadHandler }
 }
 </script>
 
@@ -295,7 +295,8 @@ export default {
             <div class="col-10"></div>
             <div class="col-2">
                 <li class="d-flex align-items-center">
-                    <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
+                    <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name
+                        }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
                     <span class="arrow ms-auto"></span>
                 </li>
                 <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center profile-menu">
@@ -313,20 +314,21 @@ export default {
         <div class="d-flex flex-column justify-content-center align-items-center">
             <div class="row w-100 px-3 h4 text-center">
                 <div v-if="!hasCustomLogo">
-                    <img class="orthanc-logo" src="../assets/images/orthanc.png"/>
+                    <img class="orthanc-logo" src="../assets/images/orthanc.png" />
                 </div>
                 <div v-if="hasCustomLogo">
                     <img class="custom-logo" :src="customLogoUrl" />
                 </div>
                 <div v-if="hasCustomLogo">
                     <p class="powered-by-orthanc">
-                    powered by
-                    <img src="../assets/images/orthanc.png" />
+                        powered by
+                        <img src="../assets/images/orthanc.png" />
                     </p>
                 </div>
                 <div v-if="hasCustomTitle || uiOptions.ShowOrthancName" class="orthanc-name">
                     <p><span v-if="hasCustomTitle">{{ customTitle }}</span>
-                    <span v-else-if="uiOptions.ShowOrthancName">{{ system.Name }}</span></p>
+                        <span v-else-if="uiOptions.ShowOrthancName">{{ system.Name }}</span>
+                    </p>
                 </div>
             </div>
             <div class="row w-75 px-3">
@@ -335,31 +337,44 @@ export default {
             </div>
             <div v-if="hasForm" class="row w-100 px-3">
                 <div class="row w-100 py-1" v-for="formField in formFields" :key="formField.Id">
-                    <div class="col-6 tag-label text-end" >
+                    <div class="col-6 tag-label text-end">
                         <span>{{ formField.Title }}</span>
                     </div>
                     <div class="col-6 tag-value">
-                        <input v-if="formField.Type=='Text'" v-model="formValues[formField.Id]" type="text" :placeholder="formField.Placeholder"/>
-                        <textarea v-if="formField.Type=='MultilineText'" v-model="formValues[formField.Id]" cols="60" rows="3" :placeholder="formField.Placeholder"/>
-                        <select v-if="formField.Type=='Choice'" v-model="formValues[formField.Id]" class="form-select-sm">
-                            <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
-                            <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}</option>
+                        <input v-if="formField.Type == 'Text'" v-model="formValues[formField.Id]" type="text"
+                            :placeholder="formField.Placeholder" />
+                        <textarea v-if="formField.Type == 'MultilineText'" v-model="formValues[formField.Id]" cols="60"
+                            rows="3" :placeholder="formField.Placeholder" />
+                        <select v-if="formField.Type == 'Choice'" v-model="formValues[formField.Id]"
+                            class="form-select-sm">
+                            <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}
+                            </option>
+                            <option v-for="choice of formField.Choices" :key="choice" :value="choice">{{ choice }}
+                            </option>
                         </select>
-                        <select v-if="formField.Type=='UserGroupsChoice' && hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm">
-                            <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}</option>
-                            <option v-for="group of getUserGroupsChoices(formField)" :key="group" :value="group">{{ group }}</option>
+                        <select v-if="formField.Type == 'UserGroupsChoice' && hasMultipleUserGroupsChoices(formField)"
+                            v-model="formValues[formField.Id]" class="form-select-sm">
+                            <option v-if="formField.Placeholder" selected value="null">{{ formField.Placeholder }}
+                            </option>
+                            <option v-for="group of getUserGroupsChoices(formField)" :key="group" :value="group">{{
+                                group }}</option>
                         </select>
-                        <select v-if="formField.Type=='UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)" v-model="formValues[formField.Id]" class="form-select-sm" disabled>
-                            <option selected :value="getUserGroupsChoices(formField)[0]">{{ getUserGroupsChoices(formField)[0] }}</option>
+                        <select v-if="formField.Type == 'UserGroupsChoice' && !hasMultipleUserGroupsChoices(formField)"
+                            v-model="formValues[formField.Id]" class="form-select-sm" disabled>
+                            <option selected :value="getUserGroupsChoices(formField)[0]">{{
+                                getUserGroupsChoices(formField)[0] }}</option>
                         </select>
-                        <input v-if="formField.Type=='File'" v-on:change="submitFile(formField, $event)" type="file" />
+                        <input v-if="formField.Type == 'File'" v-on:change="submitFile(formField, $event)" type="file" />
                         <span class="mx-1 text-success" v-if="isFieldValid(formField)"><i class="bi-check"></i></span>
-                        <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{ fieldErrorMessage(formField) }}</span>
+                        <span class="mx-1 text-danger" v-if="!isFieldValid(formField)"><i class="bi-x"></i>{{
+                            fieldErrorMessage(formField) }}</span>
                     </div>
                 </div>
             </div>
             <div class="row w-75 mt-2 px-3 text-center">
-                <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false" :uploadDisabled="!canUpload" :singleUse="true" :disableCloseReport="true" :uploadDisabledMessage="$t('inbox.fill_form_first')"/>
+                <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false"
+                    :uploadDisabled="!canUpload" :singleUse="true" :disableCloseReport="true"
+                    :uploadDisabledMessage="$t('inbox.fill_form_first')" />
             </div>
             <div v-if="isProcessing" class="row w-75 mt-2 px-3 text-center my-2">
                 <div>
@@ -367,8 +382,10 @@ export default {
                         <div class="card-header jobs-header">
                             <p v-if="isProcessing">{{ processingMessageComputed }}</p>
                             <div class="progress mt-1 mb-1" style="width:90%">
-                                <div class="progress-bar" :class="{'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed &&!processingIsComplete}" role="progressbar"
-                                    v-bind:style="'width: ' + this.processingPctProcessed + '%'"></div>
+                                <div class="progress-bar"
+                                    :class="{ 'bg-failure': processingHasFailed, 'bg-success': processingIsComplete && (processingPctProcessed >= 100), 'bg-secondary': !processingHasFailed && !processingIsComplete }"
+                                    role="progressbar" v-bind:style="'width: ' + this.processingPctProcessed + '%'">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -383,14 +400,14 @@ export default {
                 </div>
             </div>
             <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
-                <button type="button" class="btn btn-secondary" @click="reload"><i class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
+                <button type="button" class="btn btn-secondary" @click="reload"><i
+                        class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
             </div>
         </div>
     </div>
 </template>
 
 <style>
-
 body {
     background-color: var(--nav-side-bg-color) !important;
     color: var(--nav-side-submenu-color) !important;
@@ -418,7 +435,7 @@ body {
     font-size: small;
 }
 
-.powered-by-orthanc > img {
+.powered-by-orthanc>img {
     filter: brightness(50);
     max-width: 50%;
     max-height: 30px;
@@ -430,7 +447,7 @@ body {
     max-height: 150px;
 }
 
-.profile-menu > a {
+.profile-menu>a {
     color: var(--nav-side-submenu-color);
 }
 
@@ -438,5 +455,4 @@ body {
     width: 20px;
     margin-right: 10px;
 }
-
 </style>

@@ -27,7 +27,7 @@ export default {
             this.headers = (await api.getInstanceHeader(this.instanceId));
         } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
             this.tags = {
-                "0008,0018" : {
+                "0008,0018": {
                     "Name": "SOPInstanceUID",
                     "Type": "String",
                     "Value": this.instanceId
@@ -52,27 +52,19 @@ export default {
         <tbody>
             <tr>
                 <td width="80%" class="cut-text">
-                    <TagsTree 
-                        :tags="headers">
+                    <TagsTree :tags="headers">
                     </TagsTree>
                 </td>
                 <td width="20%" class="instance-button-group">
-                    <ResourceButtonGroup
-                    :resourceOrthancId="this.instanceId"
-                    :resourceLevel="'instance'"
-                    :studyMainDicomTags="this.studyMainDicomTags"
-                    :seriesMainDicomTags="this.seriesMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags"
-                    :instanceTags="this.tags"
-                    :instanceHeaders="this.headers"
-                    @deletedResource="onDeletedInstance"
-                    ></ResourceButtonGroup>
+                    <ResourceButtonGroup :resourceOrthancId="this.instanceId" :resourceLevel="'instance'"
+                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags" :instanceTags="this.tags"
+                        :instanceHeaders="this.headers" @deletedResource="onDeletedInstance"></ResourceButtonGroup>
                 </td>
             </tr>
             <tr>
                 <td width="80%" class="cut-text">
-                    <TagsTree 
-                        :tags="tags">
+                    <TagsTree :tags="tags">
                     </TagsTree>
                 </td>
             </tr>
@@ -93,12 +85,12 @@ export default {
     vertical-align: top;
 }
 
-.instance-details-table>:not(caption) >* >* {
-  background-color: var(--instance-details-bg-color) !important;
+.instance-details-table>:not(caption)>*>* {
+    background-color: var(--instance-details-bg-color) !important;
 }
 
-.instance-details-table >* >* {
-  background-color: var(--instance-details-bg-color) !important;
+.instance-details-table>*>* {
+    background-color: var(--instance-details-bg-color) !important;
 }
 
 
@@ -116,12 +108,9 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 </style>
 <style>
-
 .instance-button-group i {
     font-size: 1.2rem !important;
 }
 </style>
-

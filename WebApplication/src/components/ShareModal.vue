@@ -132,7 +132,7 @@ export default {
                         <h5 class="modal-title" id="modalLabel" v-if="isBulkSelection">{{
                             $t("share.modal_title_multiple_studies", { count: studiesCount }) }} </h5>
                         <p v-if="uiOptions.ShareDuration > 0" class="text-muted small mb-0">{{
-                            $t("share.link_expires_in", { 'count': this.uiOptions.ShareDuration}) }}</p>
+                            $t("share.link_expires_in", { 'count': this.uiOptions.ShareDuration }) }}</p>
                         <p v-if="uiOptions.ShareDuration == 0" class="text-muted small mb-0">{{
                             $t("share.link_never_expires") }}</p>
                     </div>
@@ -199,7 +199,7 @@ export default {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel")
-                    }}</button>
+                        }}</button>
                 </div>
             </div>
         </div>

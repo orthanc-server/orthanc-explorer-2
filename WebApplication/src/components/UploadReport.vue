@@ -26,7 +26,7 @@ export default {
             return 100.0 * this.report.failedFilesCount / this.report.filesCount;
         },
         pctRemaining() {
-            return 100.0 * (this.report.filesCount - (this.report.successFilesCount + this.report.skippedFilesCount + this.report.failedFilesCount) ) / this.report.filesCount;
+            return 100.0 * (this.report.filesCount - (this.report.successFilesCount + this.report.skippedFilesCount + this.report.failedFilesCount)) / this.report.filesCount;
         },
         progressSuccessText() {
             if (this.pctSuccess >= Math.max(this.pctRemaining, this.pctSkipped, this.pctFailed)) {
@@ -82,9 +82,9 @@ export default {
             }
             if (infos.length == 0) { // if nothing to display, display the study id
                 infos.push(studyId.slice(0, 20) + "...");
-            }   
+            }
             return infos.slice(0, this.uiOptions.UploadReportMaxTags).join(" - ");
-        }        
+        }
     },
     components: { Modal }
 }
@@ -138,16 +138,15 @@ export default {
                     <router-link
                         v-bind:to="'/filtered-studies?StudyInstanceUID=' + study.MainDicomTags['StudyInstanceUID'] + '&expand=study'"
                         class="upload-details-study">{{ this.getStudyLine(studyId, study.MainDicomTags,
-                                study.PatientMainDicomTags)
+                            study.PatientMainDicomTags)
                         }}</router-link>
                     <br />
                 </span>
             </p>
             <p v-if="!showStudyDetails" class="card-text">
-                <span class="upload-details">{{ $t('uploaded_count_studies', {'count': uploadedStudiesCount }) }}</span>
+                <span class="upload-details">{{ $t('uploaded_count_studies', { 'count': uploadedStudiesCount }) }}</span>
             </p>
         </div>
     </div>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

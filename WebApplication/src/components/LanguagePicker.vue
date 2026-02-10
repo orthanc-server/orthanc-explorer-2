@@ -105,13 +105,13 @@ export default {
 
 <template>
     <div class="dropdown" v-if="showLanguagePicker">
-        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown"
-            aria-expanded="false">
+        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+            data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-translate"></i> {{ selectedLanguageName }}
         </button>
         <ul class="dropdown-menu language-picker">
-            <li v-for="(lang, i) in pickableLanguages" :key="`lang-${i}`" :value="lang"><a class="dropdown-item" href="#"
-                    @click="changeLanguage(`${lang.key}`)">{{ lang.name }}</a></li>
+            <li v-for="(lang, i) in pickableLanguages" :key="`lang-${i}`" :value="lang"><a class="dropdown-item"
+                    href="#" @click="changeLanguage(`${lang.key}`)">{{ lang.name }}</a></li>
         </ul>
     </div>
 </template>

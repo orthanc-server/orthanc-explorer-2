@@ -46,7 +46,7 @@ export default {
         },
         async auditLogsTimeRange(newValue, oldValue) {
             //  make a copy otherwise, the router does not see that the object has changed 
-            let query = {...this.$route.query};
+            let query = { ...this.$route.query };
 
             if (this.auditLogsTimeRange && this.auditLogsTimeRange.length >= 2) {
                 query["from-timestamp"] = this.auditLogsTimeRange[0].toISOString();
@@ -56,7 +56,7 @@ export default {
                 delete query["to-timestamp"];
             }
 
-            this.$router.push({name: 'audit-logs', query: query});
+            this.$router.push({ name: 'audit-logs', query: query });
         }
     },
     async mounted() {
@@ -109,26 +109,29 @@ export default {
                 Select date range:
             </div>
             <div class="col-6">
-                <Datepicker v-model="auditLogsTimeRange" :range="true"
-                                    :enable-time-picker="true" format="yyyy-MM-dd HH:mm:ss"
-                                    preview-format="yyyy-MM-dd HH:mm:ss" arrow-navigation :highlight="{ weekdays: [6, 0]}" :dark="isDarkMode">
-                                </Datepicker>
+                <Datepicker v-model="auditLogsTimeRange" :range="true" :enable-time-picker="true"
+                    format="yyyy-MM-dd HH:mm:ss" preview-format="yyyy-MM-dd HH:mm:ss" arrow-navigation
+                    :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
+                </Datepicker>
 
             </div>
             <div class="col-3">
-                <button type="button" class="btn btn-primary btn-sm m-1" @click="downloadAsCsv()">{{ $t('audit_logs.download_as_csv') }}</button>
+                <button type="button" class="btn btn-primary btn-sm m-1" @click="downloadAsCsv()">{{
+                    $t('audit_logs.download_as_csv') }}</button>
             </div>
         </div>
         <div class="text-end">
-            
+
         </div>
         <table class="table table-responsive table-sm audit-logs-table">
             <thead>
                 <tr>
-                    <th width="15%" scope="col" class="audit-logs-table-header cut-text text-center" data-bs-toggle="tooltip"
-                        :title="$t('audit_logs.column_title_time_stamp')">{{ $t('audit_logs.column_title_time_stamp') }}</th>
-                    <th v-if="showUser" width="15%" scope="col" class="audit-logs-table-header cut-text text-center" data-bs-toggle="tooltip"
-                        :title="$t('audit_logs.column_title_user_id')">{{ $t('audit_logs.column_title_user_id') }}</th>
+                    <th width="15%" scope="col" class="audit-logs-table-header cut-text text-center"
+                        data-bs-toggle="tooltip" :title="$t('audit_logs.column_title_time_stamp')">{{
+                            $t('audit_logs.column_title_time_stamp') }}</th>
+                    <th v-if="showUser" width="15%" scope="col" class="audit-logs-table-header cut-text text-center"
+                        data-bs-toggle="tooltip" :title="$t('audit_logs.column_title_user_id')">{{
+                            $t('audit_logs.column_title_user_id') }}</th>
                     <th v-if="showResource" width="15%" scope="col" class="audit-logs-table-header cut-text text-center"
                         data-bs-toggle="tooltip" :title="$t('audit_logs.column_title_resource_id')">
                         {{ $t('audit_logs.column_title_resource_id') }}</th>
@@ -144,42 +147,48 @@ export default {
                 <td class="cut-text">{{ log.Timestamp }}</td>
                 <td v-if="showUser" class="cut-text">
                     <router-link class="router-link" :to="'/audit-logs?user-id=' + log.UserId">
-                            <span v-if="log.UserName">{{ log.UserName }}</span>
-                            <span v-else>{{ log.UserId }}</span>
+                        <span v-if="log.UserName">{{ log.UserName }}</span>
+                        <span v-else>{{ log.UserId }}</span>
                     </router-link>
                 </td>
                 <td v-if="showResource" class="cut-text">
                     <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.ResourceId">
-                            {{ log.ResourceId }}
+                        {{ log.ResourceId }}
                     </router-link>
                 </td>
                 <td class="cut-text">{{ log.Action }}</td>
                 <td v-if="log.Action == 'new-study-from-anonymization-job'" class="log-data">
-                    <span class="log-data-title">source</span>: <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.JsonLogData['SourceResourceId']">
-                            {{ log.JsonLogData['SourceResourceId'] }}
-                    </router-link>{{  }}
+                    <span class="log-data-title">source</span>: <router-link class="router-link"
+                        :to="'/audit-logs?resource-id=' + log.JsonLogData['SourceResourceId']">
+                        {{ log.JsonLogData['SourceResourceId'] }}
+                    </router-link>{{ }}
                 </td>
-                <td v-else-if="log.Action == 'success-anonymization-job' || log.Action == 'success-modification-job'" class="log-data">
-                    <span class="log-data-title">output</span>:  <router-link class="router-link" :to="'/audit-logs?resource-id=' + log.JsonLogData['ModifiedResourceId']">
-                            {{ log.JsonLogData['ModifiedResourceId'] }}
-                    </router-link>{{  }}
+                <td v-else-if="log.Action == 'success-anonymization-job' || log.Action == 'success-modification-job'"
+                    class="log-data">
+                    <span class="log-data-title">output</span>: <router-link class="router-link"
+                        :to="'/audit-logs?resource-id=' + log.JsonLogData['ModifiedResourceId']">
+                        {{ log.JsonLogData['ModifiedResourceId'] }}
+                    </router-link>{{ }}
                 </td>
                 <td v-else-if="log.Action == 'uploaded-instance'" class="log-data">
                     instance-id: {{ log.JsonLogData }}
                 </td>
                 <td v-else-if="log.Action == 'uploaded-instances'" class="log-data">
-                    <span class="log-data-title"># instances</span>: {{ log.JsonLogData['Count'] }}<br/>
+                    <span class="log-data-title"># instances</span>: {{ log.JsonLogData['Count'] }}<br />
                     <span class="log-data-title">last upload</span>: {{ log.JsonLogData['Last'] }}
                 </td>
                 <td v-else-if="log.Action == 'start-anonymization-job'" class="log-data">
-                    <span class="log-data-title">replaced</span>:<br/>
-                    <span v-for="(v, k) in log.JsonLogData['Payload']['Replace']" :key="k">{{ k + ": " + v }}<br/></span>
+                    <span class="log-data-title">replaced</span>:<br />
+                    <span v-for="(v, k) in log.JsonLogData['Payload']['Replace']" :key="k">{{ k + ": " + v
+                        }}<br /></span>
                 </td>
                 <td v-else-if="log.Action == 'start-modification-job'" class="log-data">
-                    <span class="log-data-title">replaced</span>:<br/>
-                    <span v-for="(v, k) in log.JsonLogData['Payload']['Replace']" :key="k">{{ k + ": " + v }}<br/></span>
-                    <span class="log-data-title">original-values</span>:<br/>
-                    <span v-for="(v, k) in log.JsonLogData['TagsBeforeModification']" :key="k">{{ k + ": " + v }}<br/></span>
+                    <span class="log-data-title">replaced</span>:<br />
+                    <span v-for="(v, k) in log.JsonLogData['Payload']['Replace']" :key="k">{{ k + ": " + v
+                        }}<br /></span>
+                    <span class="log-data-title">original-values</span>:<br />
+                    <span v-for="(v, k) in log.JsonLogData['TagsBeforeModification']" :key="k">{{ k + ": " + v
+                        }}<br /></span>
                 </td>
                 <td v-else class="log-data">{{ log.JsonLogData }}</td>
             </tr>
@@ -198,9 +207,7 @@ export default {
     border-color: black !important;
 }
 
-.audit-logs-table {
-
-}
+.audit-logs-table {}
 
 .audit-logs-table>:nth-child(odd)>* {
     background-color: var(--series-odd-bg-color);

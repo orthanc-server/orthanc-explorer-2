@@ -4,9 +4,9 @@ export default {
         if (str && str.length > 0 && !regexLabel.test(str)) {
             console.log("invalid label: ", str);
             const invalidLabelTips = document.querySelectorAll('.invalid-label-tips');
-                invalidLabelTips.forEach(element => {
-                    element.classList.remove('invalid-label-tips-hidden');
-                })
+            invalidLabelTips.forEach(element => {
+                element.classList.remove('invalid-label-tips-hidden');
+            })
             setTimeout(() => {
                 const invalidLabelTips = document.querySelectorAll('.invalid-label-tips');
                 invalidLabelTips.forEach(element => {

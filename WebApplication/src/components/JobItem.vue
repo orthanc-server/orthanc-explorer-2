@@ -82,8 +82,8 @@ export default {
                     v-bind:style="'width: ' + this.pctComplete + '%'">{{ statusText }}</div>
                 <div class="progress-bar bg-secondary" role="progressbar"
                     v-bind:style="'width: ' + this.pctRemaining + '%'"></div>
-                <div class="progress-bar bg-danger" role="progressbar"
-                    v-bind:style="'width: ' + this.pctFailed + '%'">{{ statusText }}</div>
+                <div class="progress-bar bg-danger" role="progressbar" v-bind:style="'width: ' + this.pctFailed + '%'">
+                    {{ statusText }}</div>
             </div>
 
         </div>
@@ -94,6 +94,4 @@ export default {
 
     </div>
 </template>
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -38,32 +38,36 @@ export default {
             }
         } else if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
             let remoteInstances = (await api.remoteDicomFind("Instance", this.studiesRemoteSource, {
-                    "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
-                    "PatientID": this.patientMainDicomTags.PatientID,
-                    "SeriesInstanceUID": this.seriesMainDicomTags.SeriesInstanceUID,
-                    "SOPInstanceUID": "",
-                    "InstanceNumber": "",
-                    "NumberOfFrames": ""
-                },
+                "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
+                "PatientID": this.patientMainDicomTags.PatientID,
+                "SeriesInstanceUID": this.seriesMainDicomTags.SeriesInstanceUID,
+                "SOPInstanceUID": "",
+                "InstanceNumber": "",
+                "NumberOfFrames": ""
+            },
                 false /* isUnique */));
-            this.seriesInstances = remoteInstances.map(s => { return {
-                "ID": s["SOPInstanceUID"],
-                "MainDicomTags": s
-            }})
+            this.seriesInstances = remoteInstances.map(s => {
+                return {
+                    "ID": s["SOPInstanceUID"],
+                    "MainDicomTags": s
+                }
+            })
             this.seriesInstances = this.seriesInstances.sort((a, b) => (parseInt(a.MainDicomTags.InstanceNumber) ?? a.MainDicomTags.SOPInstanceUID) < (parseInt(b.MainDicomTags.InstanceNumber) ?? b.MainDicomTags.SOPInstanceUID) ? 1 : -1);
         } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
             let remoteInstances = (await api.qidoRs("Instance", this.studiesRemoteSource, {
-                    "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
-                    "SeriesInstanceUID": this.seriesMainDicomTags.SeriesInstanceUID,
-                    "SOPInstanceUID": "",
-                    "InstanceNumber": "",
-                    "NumberOfFrames": ""
-                },
+                "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
+                "SeriesInstanceUID": this.seriesMainDicomTags.SeriesInstanceUID,
+                "SOPInstanceUID": "",
+                "InstanceNumber": "",
+                "NumberOfFrames": ""
+            },
                 false /* isUnique */));
-            this.seriesInstances = remoteInstances.map(s => { return {
-                "ID": s["SOPInstanceUID"],
-                "MainDicomTags": s
-            }})
+            this.seriesInstances = remoteInstances.map(s => {
+                return {
+                    "ID": s["SOPInstanceUID"],
+                    "MainDicomTags": s
+                }
+            })
             this.seriesInstances = this.seriesInstances.sort((a, b) => (parseInt(a.MainDicomTags.InstanceNumber) ?? a.MainDicomTags.SOPInstanceUID) < (parseInt(b.MainDicomTags.InstanceNumber) ?? b.MainDicomTags.SOPInstanceUID) ? 1 : -1);
         }
     },
@@ -93,43 +97,30 @@ export default {
             <tr>
                 <td width="70%" class="cut-text">
                     <ul>
-                        <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag" :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
+                        <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag"
+                            :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                     </ul>
                 </td>
                 <td width="30%" class="series-button-group">
-                    <ResourceButtonGroup
-                    :resourceOrthancId="this.seriesId"
-                    :resourceLevel="'series'"
-                    :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
-                    :studyMainDicomTags="this.studyMainDicomTags"
-                    :seriesMainDicomTags="this.seriesMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags"
-                    :seriesInstances="this.seriesInstances"
-                    :customClass="'instance-button-group'"
-                    @deletedResource="onDeletedSeries"
-                    ></ResourceButtonGroup>
+                    <ResourceButtonGroup :resourceOrthancId="this.seriesId" :resourceLevel="'series'"
+                        :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
+                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags" :seriesInstances="this.seriesInstances"
+                        :customClass="'instance-button-group'" @deletedResource="onDeletedSeries"></ResourceButtonGroup>
                 </td>
             </tr>
             <tr>
                 <td colspan="100">
-                    <InstanceList v-if="!useExtendedInstanceList"
-                        :seriesId="this.seriesId"
+                    <InstanceList v-if="!useExtendedInstanceList" :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
-                        :patientMainDicomTags="this.patientMainDicomTags"
-                        :studyMainDicomTags="this.studyMainDicomTags"
-                        :instancesIds="this.instancesIds"
-                        :seriesInstances="this.seriesInstances"
-                        @deletedInstance="onDeletedInstance"
-                    ></InstanceList>
-                    <InstanceListExtended v-if="useExtendedInstanceList"
-                        :seriesId="this.seriesId"
+                        :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
+                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances"
+                        @deletedInstance="onDeletedInstance"></InstanceList>
+                    <InstanceListExtended v-if="useExtendedInstanceList" :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
-                        :patientMainDicomTags="this.patientMainDicomTags"
-                        :studyMainDicomTags="this.studyMainDicomTags"
-                        :instancesIds="this.instancesIds"
-                        :seriesInstances="this.seriesInstances"
-                        @deletedInstance="onDeletedInstance"
-                    ></InstanceListExtended>
+                        :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
+                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances"
+                        @deletedInstance="onDeletedInstance"></InstanceListExtended>
                 </td>
             </tr>
         </tbody>
@@ -149,14 +140,13 @@ export default {
     vertical-align: top;
 }
 
-.series-details-table>:not(caption) >* >* {
-  background-color: var(--series-details-bg-color) !important;
+.series-details-table>:not(caption)>*>* {
+    background-color: var(--series-details-bg-color) !important;
 }
 
-.series-details-table >* >* {
-  background-color: var(--series-details-bg-color) !important;
+.series-details-table>*>* {
+    background-color: var(--series-details-bg-color) !important;
 }
-
 </style>
 <style>
 .series-button-group i {
