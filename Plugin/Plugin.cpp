@@ -26,6 +26,7 @@
 #include <SystemToolbox.h>
 #include <Toolbox.h>
 #include <SerializationToolbox.h>
+#include <HttpClient.h>
 
 #include <EmbeddedResources.h>
 
@@ -622,6 +623,50 @@ void UpdateUiOptions(Json::Value& uiOption, const std::list<std::string>& permis
   uiOption = uiOption.asBool() && hasPermission;
 }
 
+static Orthanc::WebServiceParameters emailServer_;
+
+void GetEmailTemplates(OrthancPluginRestOutput* output,
+                       const char* /*url*/,
+                       const OrthancPluginHttpRequest* request)
+{
+  std::string templateName = request->groups[0];
+  
+  Orthanc::HttpClient httpClient(emailServer_, "templates/" + templateName);
+  httpClient.SetMethod(Orthanc::HttpMethod_Get);
+
+  std::string templateContent;
+  if (httpClient.Apply(templateContent))
+  {
+    OrthancPlugins::AnswerString(templateContent, Orthanc::MIME_HTML, output);
+    return;
+  }
+
+  LOG(ERROR) << "Failed to retrieve template '" << templateName << "' from the email web-service; check the web-service logs.";
+  
+  OrthancPlugins::AnswerHttpError(httpClient.GetLastStatus(), output);
+}
+
+void SendEmail(OrthancPluginRestOutput* output,
+               const char* /*url*/,
+               const OrthancPluginHttpRequest* request)
+{
+  Orthanc::HttpClient httpClient(emailServer_, "send");
+  httpClient.SetMethod(Orthanc::HttpMethod_Post);
+  httpClient.AssignBody(request->body, request->bodySize);
+  httpClient.AddHeader("Content-Type", Orthanc::MIME_JSON_UTF8);
+
+  std::string response;
+  if (httpClient.Apply(response))
+  {
+    OrthancPlugins::AnswerString(response, Orthanc::MIME_JSON_UTF8, output);
+    return;
+  }
+
+  LOG(ERROR) << "Failed to send email from the email web-service; check the web-service logs.";
+  
+  OrthancPlugins::AnswerHttpError(httpClient.GetLastStatus(), output);
+}
+
 void GetOE2Configuration(OrthancPluginRestOutput* output,
                          const char* /*url*/,
                          const OrthancPluginHttpRequest* request)
@@ -933,6 +978,28 @@ extern "C"
           OrthancPlugins::RegisterRestCallback<RedirectRoot>("/", true);
         }
 
+        if (pluginJsonConfiguration_.isMember("UiOptions") && pluginJsonConfiguration_["UiOptions"].isMember("EnableSharesByEmail")
+            && pluginJsonConfiguration_["UiOptions"]["EnableSharesByEmail"].asBool())
+        {
+          if (!pluginJsonConfiguration_.isMember("Emails") || !pluginJsonConfiguration_["Emails"].isObject())
+          {
+            LOG(ERROR) << "OE2: Shares by email are enabled but `OrthancExplorer2.Emails` configuration is not defined or not a JSON object.";
+            return -1;
+          }
+
+          if (!pluginJsonConfiguration_["Emails"].isMember("Server") || !pluginJsonConfiguration_["Emails"]["Server"].isObject())
+          {
+            LOG(ERROR) << "OE2: Shares by email are enabled but `OrthancExplorer2.Emails.Server` configuration is not defined or not a JSON object.";
+            return -1;
+          }
+
+          emailServer_.Unserialize(pluginJsonConfiguration_["Emails"]["Server"]);
+
+          LOG(WARNING) << "OE2: Shares by email are enabled";
+          OrthancPlugins::RegisterRestCallback<GetEmailTemplates>(oe2BaseUrl_ + "api/emails/templates/(.*)", true);
+          OrthancPlugins::RegisterRestCallback<SendEmail>(oe2BaseUrl_ + "api/emails/send", true);
+        }
+        
         OrthancPluginRegisterOnChangeCallback(context, OnChangeCallback);
 
         {

@@ -88,7 +88,7 @@ else()
 
   set(ENABLE_LOCALE OFF)         # Enable support for locales (notably in Boost)
   #set(ENABLE_GOOGLE_TEST ON)
-  #set(ENABLE_WEB_CLIENT ON)
+  set(ENABLE_WEB_CLIENT ON)
 
   # Those modules of the Orthanc framework are not needed
   set(ENABLE_MODULE_IMAGES OFF)

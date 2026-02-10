@@ -544,8 +544,12 @@ export default {
         return labelsToAdd.length > 0 || labelsToRemove.length > 0;
     },
 
+    async getEmailTemplate(templateName) {
+        return (await axios.get(oe2ApiUrl + "/emails/templates/" + templateName)).data;
+    },
+
     async sendEmail(destinationEmail, emailTitle, emailContent, layoutTemplate) {
-        const response = (await axios.post(orthancApiUrl + "emails/send", {
+        const response = (await axios.post(oe2ApiUrl + "emails/send", {
             "destination-email" : destinationEmail,
             "email-title": emailTitle,
             "email-content": emailContent,

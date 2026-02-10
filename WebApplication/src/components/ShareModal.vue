@@ -36,7 +36,7 @@ export default {
             await this.share();
 
             if (this.enableShareByEmail) {
-                let templateEmail = (await axios.get("/emails/templates/" + this.uiOptions.ShareEmailContentTemplate)).data;
+                let templateEmail = await api.getEmailTemplate(this.uiOptions.ShareEmailContentTemplate);
 
                 templateEmail = templateEmail.replace('{ShareUrl}', this.shareLink);
                 templateEmail = await resourceHelpers.replaceResourceTagsInStringPlainText(templateEmail, this.patientMainDicomTags, this.studyMainDicomTags, {}, {}, this.orthancId, null, [], []);

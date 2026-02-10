@@ -60,18 +60,16 @@
             "EnableMultiLabelsSearch": false,           // Enables an additional Labels filter in the study list
 
             "EnableShares": false,                      // Enables sharing studies.  See "Tokens" section below.
-            //"DefaultShareDuration": 0,                  // [in days].  0 means no expiration date, 
-            // "ShareDurations": [0, 7, 15, 30, 90, 365],  // The share durations proposed in the UI
-            "ShareDuration": 15,  // if not present, take DefaultShareDuration  TODO
-            "EnableSharesByEmail": true,                // Enables sending emails when sharing studies.  
-                                                        // Note that you must have an external web-service configured in the "Emails" section.
-            "ShareEmailContentTemplate": "share-study-content",     // The name of the HTML template to use when sharing a study by email 
-                                                                    // (only the content part that is editable in the text editor).  
-                                                                    // Your email web-service must provide the HTML template at {Emails.ServerRootUrl}/templates/{UiOptions.ShareEmailContentTemplate}
-            "ShareEmailLayoutTemplate": "share-study-layout",       // The name of the HTML layout template to use when sharing a study by email.
-                                                                    // This identifier is included in the 'layout-template' field of the payload sent to {Emails.ServerRootUrl}/send 
-                                                                    // of the external email web-service
-            "ShareEmailTitle": "[Your INSTITUTION] has shared a study with you", // Default title for the email
+            "ShareDuration": 15,                         // The share duration (in days)
+            "EnableSharesByEmail": false,                     // Enables sending emails when sharing studies.  
+                                                              // Note that you must have an external web-service configured in the "Emails" section.
+            "ShareEmailContentTemplate": "TO BE DEFINED",     // The name of the HTML template to use when sharing a study by email 
+                                                              // (only the content part that is editable in the text editor).  
+                                                              // Your email web-service must provide the HTML template at {Emails.ServerRootUrl}/templates/{UiOptions.ShareEmailContentTemplate}
+            "ShareEmailLayoutTemplate": null,                 // The name of the HTML layout template to use when sharing a study by email.
+                                                              // This identifier is included in the 'layout-template' field of the payload sent to {Emails.ServerRootUrl}/send 
+                                                              // of the external email web-service
+            "ShareEmailTitle": "TO BE DEFINED",               // Default title for the email
 
             "EnableAddSeries": true,                    // Enables the "Add series" button
             "AddSeriesDefaultTags": {                   // Default tag values when adding a new series of each type ("pdf", "image" or "stl")
@@ -556,16 +554,23 @@
             //     "Id": "PdfForm"
             // }
         // ]
-        },
-
-        "Emails": {
-            "ServerRootUrl": "http://localhost:8000/emails/"  // The root url of a web-service that must implement a Rest API (as defined in TODO):
-                                                              // {Emails.ServerRootUrl}/templates/{...} to retrieve HTML templates that can then be edited in a text editor
-                                                              // {Emails.ServerRootUrl}/send to send an email
-            // "ServerLogin": "share-user",
-            // "ServerPwd": "change-me",
-            // "ServerHttpHeaders": {}
-
         }
+
+        // // Email server configuration (when using UiOptions.EnableSharesByEmail)
+        // "Emails": {
+        //     "Server": {
+        //         "Url": "http://localhost:8000/emails/"  // The root url of a web-service that must implement a Rest API (as defined in TODO):
+        //                                                 // {Emails.ServerRootUrl}/templates/{...} to retrieve HTML templates that can then be edited in a text editor
+        //                                                 // {Emails.ServerRootUrl}/send to send an email
+        //         //   "Username" : "alice",
+        //         //   "Password" : "alicePassword",
+        //         //   "HttpHeaders" : { "Token" : "Hello world" },
+        //         //   "CertificateFile" : "client.crt",
+        //         //   "CertificateKeyFile" : "client.key",
+        //         //   "CertificateKeyPassword" : "certpass",
+        //         //   "Pkcs11" : false,
+        //         //   "Timeout" : 42
+        //     }
+        // }
     }
 }
