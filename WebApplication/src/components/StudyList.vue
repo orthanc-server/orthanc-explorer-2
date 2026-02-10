@@ -15,7 +15,6 @@ import { ref } from 'vue';
 import SourceType from "../helpers/source-type";
 import { ObserveVisibility as vObserveVisibility } from 'vue3-observe-visibility'
 import { nextTick } from 'vue'
-import TextEditor from "./TextEditor.vue";
 
 
 const Status = Object.freeze({
@@ -146,7 +145,6 @@ export default {
             multiLabelsFilterLabelsConstraint: "All",
             showStudiesWithoutLabels: false,
             multiLabelsComponentKey: 0, // to force refresh the multi-labels filter component
-            testContent: '<p>TEST Content !</p>'
         };
     },
     computed: {
@@ -1022,14 +1020,13 @@ export default {
             }
         }
     },
-    components: { StudyItem, ResourceButtonGroup, LabelsEditor, Toasts, TextEditor }
+    components: { StudyItem, ResourceButtonGroup, LabelsEditor, Toasts }
 }
 </script>
 
 
 <template>
     <div>
-        <div class="w-100"><TextEditor v-model="testContent"></TextEditor></div>
         <div v-if="isRemoteDicom || isRemoteDicomWeb" class="remote-browsing-warning">
             <div>
                 <p v-if="isRemoteDicom" v-html="$t('remote_dicom_browsing', { source: remoteSource})"></p>
