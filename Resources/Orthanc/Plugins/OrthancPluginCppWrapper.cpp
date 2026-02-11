@@ -1468,6 +1468,29 @@ namespace OrthancPlugins
     OrthancPluginSendHttpStatusCode(GetGlobalContext(), output, httpError);
   }
 
+  void AnswerHttpError(uint16_t httpError,
+                       OrthancPluginRestOutput* output,
+                       const std::string& answer,
+                       const char* mimeType)
+  {
+    if (answer.size() > static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
+    {
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange, "Cannot send HTTP response larger than 4GB");
+    }
+
+    OrthancPluginSetHttpHeader(GetGlobalContext(),
+                               output,
+                               "content-type",
+                               mimeType);
+                               
+    OrthancPluginSendHttpStatus(GetGlobalContext(),
+                                output,
+                                httpError,
+                                answer.c_str(),
+                                static_cast<uint32_t>(answer.size()));
+  }
+
+
   void AnswerMethodNotAllowed(OrthancPluginRestOutput *output, const char* allowedMethods)
   {
     OrthancPluginSendMethodNotAllowed(GetGlobalContext(), output, allowedMethods);

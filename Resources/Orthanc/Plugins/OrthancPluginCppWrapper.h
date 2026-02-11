@@ -675,6 +675,11 @@ namespace OrthancPlugins
   void AnswerHttpError(uint16_t httpError,
                        OrthancPluginRestOutput* output);
 
+  void AnswerHttpError(uint16_t httpError,
+                       OrthancPluginRestOutput* output,
+                       const std::string& answer,
+                       const char* mimeType);
+
   void AnswerMethodNotAllowed(OrthancPluginRestOutput* output, const char* allowedMethods);
 
 #if ORTHANC_PLUGINS_VERSION_IS_ABOVE(1, 5, 0)

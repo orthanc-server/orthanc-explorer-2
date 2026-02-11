@@ -21,6 +21,7 @@
  **/
 
 #include "../Resources/Orthanc/Plugins/OrthancPluginCppWrapper.h"
+#include "Helpers.h"
 
 #include <Logging.h>
 #include <SystemToolbox.h>
@@ -630,41 +631,21 @@ void GetEmailTemplates(OrthancPluginRestOutput* output,
                        const OrthancPluginHttpRequest* request)
 {
   std::string templateName = request->groups[0];
-  
-  Orthanc::HttpClient httpClient(emailServer_, "templates/" + templateName);
-  httpClient.SetMethod(Orthanc::HttpMethod_Get);
 
-  std::string templateContent;
-  if (httpClient.Apply(templateContent))
-  {
-    OrthancPlugins::AnswerString(templateContent, Orthanc::MIME_HTML, output);
-    return;
-  }
-
-  LOG(ERROR) << "Failed to retrieve template '" << templateName << "' from the email web-service; check the web-service logs.";
-  
-  OrthancPlugins::AnswerHttpError(httpClient.GetLastStatus(), output);
+  OrthancPlugins::ForwardToWebService(output,
+                                      request,
+                                      emailServer_,
+                                      "templates/" + templateName);
 }
 
 void SendEmail(OrthancPluginRestOutput* output,
                const char* /*url*/,
                const OrthancPluginHttpRequest* request)
 {
-  Orthanc::HttpClient httpClient(emailServer_, "send");
-  httpClient.SetMethod(Orthanc::HttpMethod_Post);
-  httpClient.AssignBody(request->body, request->bodySize);
-  httpClient.AddHeader("Content-Type", Orthanc::MIME_JSON_UTF8);
-
-  std::string response;
-  if (httpClient.Apply(response))
-  {
-    OrthancPlugins::AnswerString(response, Orthanc::MIME_JSON_UTF8, output);
-    return;
-  }
-
-  LOG(ERROR) << "Failed to send email from the email web-service; check the web-service logs.";
-  
-  OrthancPlugins::AnswerHttpError(httpClient.GetLastStatus(), output);
+  OrthancPlugins::ForwardToWebService(output,
+                                      request,
+                                      emailServer_,
+                                      "send");
 }
 
 void GetOE2Configuration(OrthancPluginRestOutput* output,
