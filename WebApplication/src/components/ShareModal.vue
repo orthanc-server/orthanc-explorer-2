@@ -4,8 +4,9 @@ import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import api from "../orthancApi"
-import axios from "axios";
 import TextEditor from "./TextEditor.vue";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+
 
 
 
@@ -16,7 +17,8 @@ export default {
             shareLink: "",
             emailContent: "",
             emailTitle: "",
-            emailDestination: ""
+            emailDestination: "",
+            sendEmailErrorMessage: null
         }
     },
     async mounted() {
@@ -64,9 +66,20 @@ export default {
         copyAndClose() {
             clipboardHelpers.copyToClipboard(this.shareLink);
         },
-        sendEmail() {
+        closeEmailErrorMessage() {
+            this.sendEmailErrorMessage = null;
+        },
+        async sendEmail() {
             // console.log("Sending email to ", this.emailContent);
-            api.sendEmail(this.emailDestination, this.emailTitle, this.emailContent, this.uiOptions.ShareEmailLayoutTemplate);
+            let response = await api.sendEmail(this.emailDestination, this.emailTitle, this.emailContent, this.uiOptions.ShareEmailLayoutTemplate);
+            if (response.success) {
+                var modal = bootstrap.Modal.getInstance(this.$refs['modal-main-div']);
+                modal.hide();
+                this.messageBus.emit("show-toast", this.$t('share.email_sent'));
+            } else {
+                this.sendEmailErrorMessage = response.details;
+                console.error('Error while sending email: ', response.details)
+            }
         }
     },
     computed: {
@@ -163,6 +176,15 @@ export default {
                             </div>
                         </div>
                         <div v-if="enableShareByEmail" class="row border-top pt-3">
+                            <div v-if="sendEmailErrorMessage" class="col-md-12">
+                                <div class="alert alert-danger fade show d-flex" role="alert" ref="email-error-message">
+                                    <div class="me-auto">
+                                        <p>{{ $t('share.failed_to_send_email') }}</p>
+                                        <p>{{ sendEmailErrorMessage }}</p>
+                                    </div>
+                                    <button type="button" @click="closeEmailErrorMessage()" class="btn-close" aria-label="Close"></button>
+                                </div>
+                            </div>
                             <div class="col-md-10">
                                 <div class="container py-3">
                                     <div class="row py-1">
@@ -189,7 +211,7 @@ export default {
                             </div>
                             <div class="col-md-2">
                                 <div class="py-3">
-                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                                    <button type="button" class="btn btn-primary" 
                                         @click="sendEmail()" :disabled="!destinationContainsValidEmailAddresses">{{
                                             $t("share.send_email") }}</button>
                                 </div>

@@ -267,7 +267,9 @@
         "never": "jamais",
         "email_recipient": "Destinataire",
         "email_title": "Sujet",
-        "send_email": "Send email"
+        "send_email": "Envoyer l'email",
+        "email_sent": "Email envoyé",
+        "failed_to_send_email": "Échec de l'envoi du mail:"
     },
     "show_errors": "Afficher les erreurs",
     "studies": "Examens",

@@ -278,7 +278,9 @@
         "never": "never",
         "email_recipient": "Email recipient",
         "email_title": "Subject",
-        "send_email": "Send email"
+        "send_email": "Send email",
+        "email_sent": "Email sent",
+        "failed_to_send_email": "Failed to send email:"
     },
     "show_errors": "Show errors",
     "studies": "Studies",

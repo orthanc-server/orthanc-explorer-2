@@ -548,14 +548,25 @@ export default {
     },
 
     async sendEmail(destinationEmail, emailTitle, emailContent, layoutTemplate) {
-        const response = (await axios.post(oe2ApiUrl + "emails/send", {
-            "destination-email": destinationEmail,
-            "email-title": emailTitle,
-            "email-content": emailContent,
-            "layout-template": layoutTemplate
-        }));
+        try {
+            const response = (await axios.post(oe2ApiUrl + "emails/send", {
+                "destination-email": destinationEmail,
+                "email-title": emailTitle,
+                "email-content": emailContent,
+                "layout-template": layoutTemplate
+            }));
 
-        return response.data;
+            return response.data;
+        } catch (error) {
+            if (error.response.data) {
+                return error.response.data;
+            } else {
+                return {
+                    'success': false,
+                    'details': "Unknown error"
+                }
+            }
+        }
     },
 
     async createToken({ tokenType, resourcesIds, level, validityDuration = null, id = null, expirationDate = null }) {
