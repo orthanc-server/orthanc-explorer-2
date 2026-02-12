@@ -175,6 +175,8 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
         set(ORTHANC_FRAMEWORK_MD5 "eb1c719234338e8277b80d3453563e9f")
       elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.12.9")
         set(ORTHANC_FRAMEWORK_MD5 "66b5a2ee60706c4a502896083b9e1a01")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1.12.10")
+        set(ORTHANC_FRAMEWORK_MD5 "d5e1ba442104c89a24013cb859a9d6bf")
 
       # Below this point are development snapshots that were used to
       # release some plugin, before an official release of the Orthanc
@@ -219,6 +221,21 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
         # Worklists plugin 0.9.0 (framework pre-1.12.10)
         set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
         set(ORTHANC_FRAMEWORK_MD5 "17a5ca9254e881ab89c93d052d4655cb")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "e0979326ac53")
+        # DICOMweb 1.22 + PG 10.0 (framework post-1.12.10)
+        # for BlockingSharedMessageQueue + fix SetCurrentThreadName from plugins
+        set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
+        set(ORTHANC_FRAMEWORK_MD5 "e66a7e996d56063b3abb790bb8f12e8d")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "94c7f3784456")
+        # PixelsMasker 0.1.0 (framework post-1.12.10)
+        # for BlockingSharedMessageQueue.WaitEmpty()
+        set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
+        set(ORTHANC_FRAMEWORK_MD5 "c037cd2ddbe1b65b431692855483161b")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "56eb61c86f93")
+        # OE2 1.11.0 (framework post-1.12.10)
+        # for HttpClient that returns the answer body in case of HTTP error
+        set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
+        set(ORTHANC_FRAMEWORK_MD5 "665f8aa70d7c5091bc20da37cf664910")
       endif()
     endif()
   endif()

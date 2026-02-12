@@ -559,7 +559,7 @@
         // // Email server configuration (when using UiOptions.EnableSharesByEmail)
         // "Emails": {
         //     "Server": {
-        //         "Url": "http://localhost:8000/emails/"  // The root url of a web-service that must implement a Rest API (as defined in TODO):
+        //         "Url": "http://localhost:8000/emails/"  // The root url of a web-service that must implement a Rest API (as defined in this sample project: https://github.com/orthanc-team/orthanc-auth-service/blob/main/sources/orthanc_auth_service/app.py):
         //                                                 // {Emails.ServerRootUrl}/templates/{...} to retrieve HTML templates that can then be edited in a text editor
         //                                                 // {Emails.ServerRootUrl}/send to send an email
         //         //   "Username" : "alice",

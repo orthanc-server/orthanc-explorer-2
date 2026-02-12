@@ -1544,11 +1544,25 @@ namespace OrthancPlugins
 
 #endif /* HAS_ORTHANC_PLUGIN_FIND_MATCHER == 1 */
 
+  void CheckAnswerSizeIsLessThan4GB(const std::string& answer)
+  {
+    if (answer.size() > static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
+    {
+  #if HAS_ORTHANC_EXCEPTION == 1
+      throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange, "Cannot send HTTP response larger than 4GB");
+  #else
+      ORTHANC_PLUGINS_LOG_ERROR("Cannot send HTTP response larger than 4GB");
+      ORTHANC_PLUGINS_THROW_PLUGIN_ERROR_CODE(OrthancPluginErrorCode_ParameterOutOfRange);          
+  #endif
+    }
+  }
+
   void AnswerJson(const Json::Value& value,
                   OrthancPluginRestOutput* output)
   {
     std::string bodyString;
-    WriteStyledJson(bodyString, value);    
+    WriteStyledJson(bodyString, value);
+    CheckAnswerSizeIsLessThan4GB(bodyString);    
     OrthancPluginAnswerBuffer(GetGlobalContext(), output, bodyString.c_str(), bodyString.size(), "application/json");
   }
 
@@ -1556,6 +1570,7 @@ namespace OrthancPlugins
                     const char* mimeType,
                     OrthancPluginRestOutput* output)
   {
+    CheckAnswerSizeIsLessThan4GB(answer);
     OrthancPluginAnswerBuffer(GetGlobalContext(), output, answer.c_str(), answer.size(), mimeType);
   }
 
@@ -1569,10 +1584,7 @@ namespace OrthancPlugins
                        const std::string& answer,
                        const char* mimeType)
   {
-    if (answer.size() > static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
-    {
-      throw Orthanc::OrthancException(Orthanc::ErrorCode_ParameterOutOfRange, "Cannot send HTTP response larger than 4GB");
-    }
+    CheckAnswerSizeIsLessThan4GB(answer);
 
     OrthancPluginSetHttpHeader(GetGlobalContext(),
                                output,
