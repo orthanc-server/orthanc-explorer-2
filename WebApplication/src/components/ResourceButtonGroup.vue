@@ -276,7 +276,7 @@ export default {
             }
 
             if (customButton.StartMessage) {
-                this.messageBus.emit("show-toast", customButton.StartMessage);
+                this.messageBus.emit("show-toast", {"message": customButton.StartMessage, "type": "info"});
             }
 
             await response;

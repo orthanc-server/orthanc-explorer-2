@@ -18,7 +18,8 @@ export default {
             emailContent: "",
             emailTitle: "",
             emailDestination: "",
-            sendEmailErrorMessage: null
+            sendEmailErrorMessage: null,
+            sendEmailInProgress: false
         }
     },
     async mounted() {
@@ -49,6 +50,8 @@ export default {
             this.shareLink = "";
             this.emailDestination = "";
             this.emailTitle = this.uiOptions.ShareEmailTitle;
+            this.sendEmailErrorMessage = null;
+            this.sendEmailInProgress = false;
         },
         async share() {
             let resourcesIds = [this.orthancId];
@@ -71,6 +74,7 @@ export default {
         },
         async sendEmail() {
             // console.log("Sending email to ", this.emailContent);
+            this.sendEmailInProgress = true;
             let response = await api.sendEmail(this.emailDestination, this.emailTitle, this.emailContent, this.uiOptions.ShareEmailLayoutTemplate);
             if (response.success) {
                 var modal = bootstrap.Modal.getInstance(this.$refs['modal-main-div']);
@@ -78,6 +82,7 @@ export default {
                 this.messageBus.emit("show-toast", this.$t('share.email_sent'));
             } else {
                 this.sendEmailErrorMessage = response.details;
+                this.sendEmailInProgress = false;
                 console.error('Error while sending email: ', response.details)
             }
         }
@@ -212,8 +217,11 @@ export default {
                             <div class="col-md-2">
                                 <div class="py-3">
                                     <button type="button" class="btn btn-primary" 
-                                        @click="sendEmail()" :disabled="!destinationContainsValidEmailAddresses">{{
-                                            $t("share.send_email") }}</button>
+                                        @click="sendEmail()" :disabled="!destinationContainsValidEmailAddresses">
+                                    <span v-if="!sendEmailInProgress">{{ $t('share.send_email') }}</span>
+                                    <span v-if="sendEmailInProgress" class="spinner-border spinner-border-sm alert-icon"
+                                        role="status" aria-hidden="true"></span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
