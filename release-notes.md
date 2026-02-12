@@ -27,6 +27,9 @@ Changes:
 Fixes:
 - Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
 
+Internals:
+- For developers: removed the need for nginx during development.  The dev setup is now served by `npm run dev` and is available at [http://localhost:3000/ui/app/](http://localhost:3000/ui/app/)
+
 
 1.10.2 (2026-01-30)
 ==================

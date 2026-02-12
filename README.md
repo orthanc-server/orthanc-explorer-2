@@ -53,7 +53,6 @@ docker run -p 8042:8042 orthancteam/orthanc:latest
 Prerequisites:
 
 - install `nodejs` version 14 or higher and `npm` version 6 or higher
-- install nginx
 
 Then, to continuously build and serve the front-end code on your machine, in a shell, type:
 
@@ -62,24 +61,16 @@ cd WebApplication
 npm install
 npm run dev
 ```
-Npm will then serve the `/ui/app/` static code (HTML/JS).
+Npm will then serve the `/ui/app/` static code (HTML/JS) and run a reverse proxy to Orthanc (assuming it is running on localhost:8043).
 
 Then, launch an Orthanc with the OE2 plugin already enabled and listening on localhost:8043.  This can be achieved with by typing this command in another shell:
 
 ```shell
 docker run -p 8043:8042 -e ORTHANC__AUTHENTICATION_ENABLED=false orthancteam/orthanc:24.6.2
 ```
-This Orthanc will serve the `/ui/api/` routes.
+This Orthanc will serve the `/ui/api/` routes and all other Orthanc API routes..
 
-In third shell, type:
-
-```shell
-sudo ./scripts/start-nginx.sh
-``` 
-This will launch an nginx server that will implement reverse proxies to serve both the static code and the Orthanc Rest API on a single endpoind.
-You may then open http://localhost:9999/ui/app/ to view and debug your current front-end code.  As soon as you modify a `WebApplication` source file, the UI shall reload automatically in the browser.
-
-Edit scripts/nginx-dev.conf if needed.
+You may then open http://localhost:3000/ui/app/ to view and debug your current front-end code.  As soon as you modify a `WebApplication` source file, the UI shall reload automatically in the browser.
 
 
 ## Compilation
