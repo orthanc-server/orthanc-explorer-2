@@ -4,9 +4,9 @@ import vue from '@vitejs/plugin-vue'
 
 const targetOrthanc = 'http://localhost:8043'
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   assetsInclude: './src/assets',
-  base: '/ui/app/',
+  base: (command === 'build' ? '' : '/ui/app/'),
   plugins: [vue()],
   server: {
     host: true,
@@ -52,4 +52,4 @@ export default defineConfig({
       ]
     }
   }
-})
+}))
