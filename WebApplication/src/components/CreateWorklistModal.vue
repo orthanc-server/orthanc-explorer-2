@@ -46,6 +46,21 @@ export default {
                 }
             } else if (defaultValue == "$GENERATE_DICOM_UUID$") {
                 defaultValue = await api.generateUid('study');
+            } else if (defaultValue == "$NOW$" || defaultValue == "$NOW-MS") {
+                const now = new Date();
+                const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
+                const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+
+                if (defaultValue == "$NOW$") {
+                    defaultValue = `${year}${month}${day}${hours}${minutes}${seconds}`;
+                } else {
+                    defaultValue = `${year}${month}${day}${hours}${minutes}${seconds}.${milliseconds}`;
+                }
             }
 
             if (tagName == "PatientName" && tag["PatientNameType"] == "Computed") {

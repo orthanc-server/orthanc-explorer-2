@@ -23,6 +23,9 @@ Changes:
     - However, if `UiOptions.ShareDuration` is not defined but `UiOptions.DefaultShareDuration` is still defined, the
       `UiOptions.DefaultShareDuration` value is copied into `UiOptions.ShareDuration`.
   - The token is now created directly as soon as the Share dialog is opened.
+- The default configuration for `UiOptions.NewWorklistDefaultTags` has changed and now contains an `AccessionNumber`
+  field whose default value is `$NOW$` (`YYMMDDhhmmss`).
+
 
 Fixes:
 - Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)

@@ -271,13 +271,19 @@
             // The initial list of tags that are displayed in the dialog to create a worklist.
             // For each tag, you may define:
             // - a "DefaultValue" field with a few keywords:
-            //      - $TODAY$
+            //      - $TODAY$  (YYMMDD)
             //      - $GENERATE_DICOM_UUID$
+            //      - $NOW$  (YYMMDDhhmmss)
+            //      - $NOW-M$  (YYMMDDhhmmss.ms)
             // - if it is "Required" to be filled or not (default = false)
             // - if it is "Editable" (default = true)
             // - if you want to offer "Choices" to select amongst
             // - a "Placeholder" to display a suggestion text
             "NewWorklistDefaultTags" : {
+                "AccessionNumber": {
+                    "Required": true,
+                    "DefaultValue": "$NOW$"
+                },
                 "PatientID": {
                     "Required": true
                 },
@@ -301,7 +307,6 @@
                 "PatientSex": {
                     "Choices": ["F", "M", "U", "O"]
                 },
-                // "AccessionNumber": {},
                 "StudyInstanceUID": {
                     "DefaultValue": "$GENERATE_DICOM_UUID$",
                     "Editable": false
