@@ -29,6 +29,8 @@ Changes:
 
 Fixes:
 - Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
+- When a user had access to a few labels only, she was not able to modify a `PatientID` or attach
+  a study to another patient.
 
 Internals:
 - For developers: removed the need for nginx during development.  The dev setup is now served by `npm run dev` and is available at [http://localhost:3000/ui/app/](http://localhost:3000/ui/app/)

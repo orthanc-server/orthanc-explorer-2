@@ -165,7 +165,11 @@ export default {
         const response = (await axios.get(url));
         return response.data;
     },
-    async getSamePatientStudies(patientTags, tags) {
+    async getStudyPatient(studyId) {
+        const response = (await axios.get(orthancApiUrl + "studies/" + studyId + "/patient"));
+        return response.data;
+    },
+    async getSamePatientStudies(patientTags, tags, expand) {
         if (!tags || tags.length == 0) {
             console.error("Unable to getSamePatientStudies if 'tags' is not defined or empty");
             return {};
@@ -180,7 +184,7 @@ export default {
         const response = (await axios.post(orthancApiUrl + "tools/find", {
             "Level": "Study",
             "Query": query,
-            "Expand": false
+            "Expand": expand
         }));
         return response.data;
     },

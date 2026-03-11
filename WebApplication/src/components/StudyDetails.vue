@@ -30,7 +30,7 @@ export default {
         this.messageBus.on('added-series-to-study-' + this.studyId, this.reloadSeriesList);
     },
     async mounted() {
-        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, this.uiOptions.ShowSamePatientStudiesFilter)).length;
+        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, this.uiOptions.ShowSamePatientStudiesFilter, false)).length;
         this.studyMainDicomTagsLocalCopy = { ...this.studyMainDicomTags }; // make a copy to be able to modify it
         await this.reloadSeriesList();
         this.hasLoadedSamePatientsStudiesCount = true;

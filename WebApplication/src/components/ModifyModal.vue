@@ -73,7 +73,7 @@ export default {
             this.step = 'init';
             if (!this.hasLoadedSamePatientsStudiesCount) {
                 // console.log("loading", this.hasLoadedSamePatientsStudiesCount);
-                this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
+                this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'], false)).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
                 this.hasLoadedSamePatientsStudiesCount = true;
             }
 
@@ -195,15 +195,22 @@ export default {
                 // perform checks before modification
                 if (this.action == 'attach-study-to-existing-patient') {
                     // make sure we use an existing PatientID
-                    const targetPatient = await api.findPatient(this.tags['PatientID']);
-                    if (targetPatient) {
+                    const newPatientIdStudies = await api.getSamePatientStudies(this.tags, ['PatientID'], false);
+                    if (newPatientIdStudies.length > 0) {
+                        let newPatient = await api.getStudyPatient(newPatientIdStudies[0]); // this includes OtherPatientIDs while the PatientMainDicomTags of the study does not
+                        let removedTagsList = [... this.removedTagsList];
+                        if ('OtherPatientIDs' in this.originalTags && !('OtherPatientIDs' in newPatient.MainDicomTags)) {
+                            console.warn('Removing OtherPatientIDs since it is not defined in target patient');
+                            removedTagsList.push('OtherPatientIDs');
+                        }
+
                         const jobId = await api.modifyResource({
                             resourceLevel: 'study',
                             orthancId: this.orthancId,
-                            replaceTags: targetPatient.MainDicomTags,
+                            replaceTags: newPatient.MainDicomTags,
                             keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
                             keepSource: this.keepSource,
-                            removeTags: this.removedTagsList
+                            removeTags: removedTagsList
                         });
                         console.log("attach-study-to-existing-patient: created job ", jobId);
                         this.startMonitoringJob(jobId);
@@ -216,15 +223,20 @@ export default {
 
                     if ('PatientID' in this.modifiedTags) {
                         console.log("modify-any-tags-in-one-study: PatientID has changed");
-                        const targetPatient = await api.findPatient(this.tags['PatientID']);
-                        if (targetPatient) {
+
+                        const newPatientIdStudies = await api.getSamePatientStudies(this.modifiedTags, ['PatientID'], true);
+                        if (newPatientIdStudies.length > 0) {
+                            const futureStudyPatientTags = Object.fromEntries(
+                                Object.entries({ ... this.originalTags, ... this.modifiedTags }).filter(([key]) => ['PatientID', 'PatientName', 'PatientBirthDate', 'PatientSex', 'OtherPatientIDs'].includes(key)));
+
+                            console.warning("TODO: we should check that the futureStudyPatientTags are compatible with the newPatientIdStudies");
                             console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
                             this.setError('modify.error_modify_any_study_tags_patient_exists_html');
                             return;
                         }
                     } else if ('PatientName' in this.modifiedTags || 'PatientBirthDate' in this.modifiedTags || 'PatientSex' in this.modifiedTags) {
                         console.log("modify-any-tags-in-one-study: Patient tags have changed");
-                        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.originalTags, ['PatientID'])).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
+                        this.samePatientStudiesCount = (await api.getSamePatientStudies(this.originalTags, ['PatientID'], false)).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
                         if (this.samePatientStudiesCount > 1) {
                             console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, this patient has other studies, you can not modify patient tags ", this.originalTags['PatientID'], this.modifiedTags);
                             this.setError('modify.error_modify_any_study_tags_can_not_modify_patient_tags_because_of_other_studies_html');
