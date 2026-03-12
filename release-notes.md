@@ -25,11 +25,11 @@ Changes:
   - The token is now created directly as soon as the Share dialog is opened.
 - The default configuration for `UiOptions.NewWorklistDefaultTags` has changed and now contains an `AccessionNumber`
   field whose default value is `$NOW$` (`YYMMDDhhmmss`).
-
+- When changing the patient of a study, now displaying the patient tags before applying the change.
 
 Fixes:
 - Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
-- When a user had access to a few labels only, she was not able to modify a `PatientID` or attach
+- When users had access to a few labels only, they were not able to modify a `PatientID` or attach
   a study to another patient.
 
 Internals:

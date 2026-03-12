@@ -1,11 +1,13 @@
 <script>
 import { mapState } from "vuex"
 import CopyToClipboardButton from "./CopyToClipboardButton.vue";
+import ResourceDetailText from "./ResourceDetailText.vue";
 import resourceHelpers from "../helpers/resource-helpers"
 import dateHelpers from "../helpers/date-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
 import api from "../orthancApi"
 import { v4 as uuidv4 } from "uuid"
+import labels from "../store/modules/labels";
 
 // these tags can not be removed
 document.requiredTags = [
@@ -50,7 +52,9 @@ export default {
             showModifiedResourceValue: null,
             modificationMode: null,
             step: 'init', // allowed values: 'init', 'tags', 'warning', 'error', 'progress', 'done'
-            action: 'none'
+            action: 'none',
+            selectablePatientTags: [],
+            selectedPatientTags: {}
         }
     },
     async mounted() {
@@ -71,6 +75,8 @@ export default {
         },
         async reset() {
             this.step = 'init';
+            this.selectablePatientTags = [];
+            this.selectedPatientTags = {};
             if (!this.hasLoadedSamePatientsStudiesCount) {
                 // console.log("loading", this.hasLoadedSamePatientsStudiesCount);
                 this.samePatientStudiesCount = (await api.getSamePatientStudies(this.patientMainDicomTags, ['PatientID'], false)).length;  // here, we only use the PatientID since this is the only tag used by Orthanc when modifying the resources
@@ -190,16 +196,37 @@ export default {
                 }
             }
         },
+        async selectPatientToAttachTo(patientTags) {
+            this.selectedPatientTags = patientTags;
+            this.modify(true);
+        },
         async modify(hasAcceptedWarning = false) {
             try {
                 // perform checks before modification
                 if (this.action == 'attach-study-to-existing-patient') {
-                    // make sure we use an existing PatientID
-                    const newPatientIdStudies = await api.getSamePatientStudies(this.tags, ['PatientID'], false);
-                    if (newPatientIdStudies.length > 0) {
-                        let newPatient = await api.getStudyPatient(newPatientIdStudies[0]); // this includes OtherPatientIDs while the PatientMainDicomTags of the study does not
+                    if (!hasAcceptedWarning) {
+                        // make sure we use an existing PatientID
+                        const newPatientIdStudies = await api.getSamePatientStudies(this.tags, ['PatientID'], true);
+                        if (newPatientIdStudies.length == 0) {
+                            console.error("Error while changing patient, the new PatientID does not exist ", this.tags['PatientID']);
+                            this.setError('modify.error_attach_study_to_existing_patient_target_does_not_exist_html');
+                            return;
+                        } else {
+                            let uniquePatientsSet = new Set();
+                            for (const np of newPatientIdStudies) {
+                                uniquePatientsSet.add(JSON.stringify(np.RequestedTags));
+                            }
+                            this.selectablePatientTags = [];
+                            for (const np of uniquePatientsSet) {
+                                this.selectablePatientTags.push(JSON.parse(np));
+                            }
+                            this.step = 'select-patient';
+                            return;
+                        }
+                    } else {
+                        // let newPatient = await api.getStudyPatient(newPatientIdStudies[0]); // this includes OtherPatientIDs while the PatientMainDicomTags of the study does not
                         let removedTagsList = [... this.removedTagsList];
-                        if ('OtherPatientIDs' in this.originalTags && !('OtherPatientIDs' in newPatient.MainDicomTags)) {
+                        if ('OtherPatientIDs' in this.originalTags && !('OtherPatientIDs' in this.selectedPatientTags)) {
                             console.warn('Removing OtherPatientIDs since it is not defined in target patient');
                             removedTagsList.push('OtherPatientIDs');
                         }
@@ -207,17 +234,13 @@ export default {
                         const jobId = await api.modifyResource({
                             resourceLevel: 'study',
                             orthancId: this.orthancId,
-                            replaceTags: newPatient.MainDicomTags,
+                            replaceTags: this.selectedPatientTags,
                             keepTags: (this.keepDicomUids ? ['StudyInstanceUID', 'SeriesInstanceUID', 'SOPInstanceUID'] : []),
                             keepSource: this.keepSource,
                             removeTags: removedTagsList
                         });
                         console.log("attach-study-to-existing-patient: created job ", jobId);
                         this.startMonitoringJob(jobId);
-                    } else {
-                        console.error("Error while changing patient, the new PatientID does not exist ", this.tags['PatientID']);
-                        this.setError('modify.error_attach_study_to_existing_patient_target_does_not_exist_html');
-                        return;
                     }
                 } else if (this.action == 'modify-any-tags-in-one-study') {
 
@@ -372,6 +395,7 @@ export default {
                 }
             } catch (err) {
                 this.setError('modify.error_modify_unexpected_error_html');
+                console.error(err);
             }
         },
         goToNextStep(step, action) {
@@ -395,6 +419,8 @@ export default {
                     this.tags = {};
                     this.dateTags = {};
                     this.tags['PatientID'] = this.patientMainDicomTags['PatientID'];
+                    this.selectablePatientTags = [];
+                    this.selectedPatientTags = {};
                 } else if (action == 'modify-any-tags-in-one-study') {
                     this.tags = {};
                     this.dateTags = {};
@@ -573,7 +599,8 @@ export default {
     },
     computed: {
         ...mapState({
-            uiOptions: state => state.configuration.uiOptions
+            uiOptions: state => state.configuration.uiOptions,
+            labels: state => state.labels
         }),
         resourceTitle() {
             return resourceHelpers.getResourceTitle(this.resourceLevel, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, null);
@@ -699,7 +726,7 @@ export default {
         }
 
     },
-    components: { CopyToClipboardButton }
+    components: { CopyToClipboardButton, ResourceDetailText }
 
 };
 </script>
@@ -730,8 +757,9 @@ export default {
                                     @click="goToNextStep(step, 'attach-study-to-existing-patient')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount > 1"
+                        <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount > 1 && labels.hasAccessToAllLabels"
                             class="row border-bottom border-3 py-3">
+                            <!-- only the users who have access to all labels can modify a patient -->
                             <div class="col-md-9"
                                 v-html="$t('modify.study_step_0_patient_has_other_studies_html', { count: samePatientStudiesCount })">
                             </div>
@@ -762,7 +790,8 @@ export default {
                                     @click="goToNextStep(step, 'attach-series-to-existing-study')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel == 'series' && !isAnonymization" class="row border-bottom border-3 py-3">
+                        <div v-if="resourceLevel == 'series' && !isAnonymization"
+                            class="row border-bottom border-3 py-3">
                             <div class="col-md-9" v-html="$t('modify.series_step_0_create_new_study_html')">
                             </div>
                             <div class="col-md-3">
@@ -875,11 +904,11 @@ export default {
                 <div v-if="step == 'tags'" class="modal-footer">
                     <button v-if="!isAnonymization" type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
-                        }}</button>
+                    }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" :disabled="!modifyButtonEnabled" @click="modify()">{{
                         $t(modifyButtonTitle)
-                        }}</button>
+                    }}</button>
                 </div>
 
                 <!-- ------------------------------------------ step 'warning' or 'error' --------------------------------------------------->
@@ -895,16 +924,53 @@ export default {
                 <div v-if="step == 'warning'" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
-                        }}</button>
+                    }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                     <button type="button" class="btn btn-primary" @click="modify(true)">{{
                         $t(modifyButtonTitle)
-                        }}</button>
+                    }}</button>
                 </div>
                 <div v-if="step == 'error'" class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="back()">{{
                         $t("modify.back_button_title")
-                        }}</button>
+                    }}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
+                </div>
+
+                <!-- ------------------------------------------ step 'select-patient' --------------------------------------------------->
+                <div v-if="step == 'select-patient'" class="modal-body">
+                    <div class="container">
+                        <div class="row pb-2">
+                            {{ $t("modify.validate_select_patient") }}
+                        </div>
+                        <div v-for="patientTags in selectablePatientTags" class="row border-top py-2">
+                            <div class="col-md-9">
+                                <table class="table table-responsive table-sm patient-tags-table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <td width="100%" class="cut-text">
+                                                <ul>
+                                                    <ResourceDetailText v-for="tag in uiOptions.PatientMainTags"
+                                                        :key="tag" :tags="patientTags" :tag="tag" :showIfEmpty="true">
+                                                    </ResourceDetailText>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-primary w-100"
+                                    v-html="$t('modify.select_this_patient')"
+                                    @click="selectPatientToAttachTo(patientTags)"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="step == 'select-patient'" class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="back()">{{
+                        $t("modify.back_button_title")
+                    }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
                 </div>
 
@@ -1013,5 +1079,9 @@ input:checked+.slider:before {
 
 .striked-through {
     text-decoration: line-through;
+}
+
+.patient-tags-table {
+    font-size: 0.9rem;
 }
 </style>

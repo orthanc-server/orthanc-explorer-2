@@ -153,6 +153,7 @@
         "modify_study_mode_new_uids_html": "Modifier l'examen original.  <small>(en générant de nouveaux UID DICOM)</small>",
         "remove_tag_tooltip": "Supprimer le tag",
         "remove_tag_undo_tooltip": "Annuler la suppression du tag",
+        "select_this_patient": "Sélectionner",
         "series_step_0_attach_series_to_existing_study_button_title_html": "Déplacez dans un examen existant",
         "series_step_0_attach_series_to_existing_study_html": "Déplacez cette série vers un examen existant.",
         "series_step_0_create_new_study_button_title_html": "Créer un nouvel examen",
@@ -166,6 +167,7 @@
         "study_step_0_modify_study_html": "Modifier les tags relatif au patient et à l'examen uniquement dans cet examen ?",
         "study_step_0_patient_has_other_studies_button_title_html": "Modifier les tags du Patient",
         "study_step_0_patient_has_other_studies_html": "Ce patient a <strong>{count}</strong> examen au total.<br/>Voulez-vous modifier le patient dans tous ces examens ?",
+        "validate_select_patient": "Valider et sélectionner le patient auquel attacher cet examen.",
         "warning_create_new_study_from_series_html": "Un patient avec le même identifiant existe déjà avec des tags différents.  Voulez-vous utiliser les nom, sexe et date de naissance du patient existant ?"
     },
     "my_jobs": "Mes jobs",

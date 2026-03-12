@@ -181,11 +181,16 @@ export default {
                 query[tag] = patientTags[tag];
             }
         }
-        const response = (await axios.post(orthancApiUrl + "tools/find", {
+        let payload = {
             "Level": "Study",
             "Query": query,
             "Expand": expand
-        }));
+        }
+        if (expand) {
+            payload["RequestedTags"] = ["PatientID", "PatientName", "PatientBirthDate", "OtherPatientIDs"];
+        }
+
+        const response = await axios.post(orthancApiUrl + "tools/find", payload);
         return response.data;
     },
     async findPatient(patientId) {
