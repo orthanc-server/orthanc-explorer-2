@@ -224,7 +224,6 @@ export default {
                             return;
                         }
                     } else {
-                        // let newPatient = await api.getStudyPatient(newPatientIdStudies[0]); // this includes OtherPatientIDs while the PatientMainDicomTags of the study does not
                         let removedTagsList = [... this.removedTagsList];
                         if ('OtherPatientIDs' in this.originalTags && !('OtherPatientIDs' in this.selectedPatientTags)) {
                             console.warn('Removing OtherPatientIDs since it is not defined in target patient');
@@ -600,7 +599,8 @@ export default {
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
-            labels: state => state.labels
+            labels: state => state.labels,
+            system: state => state.configuration.system,
         }),
         resourceTitle() {
             return resourceHelpers.getResourceTitle(this.resourceLevel, this.patientMainDicomTags, this.studyMainDicomTags, this.seriesMainDicomTags, null);
@@ -757,7 +757,7 @@ export default {
                                     @click="goToNextStep(step, 'attach-study-to-existing-patient')"></button>
                             </div>
                         </div>
-                        <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount > 1 && labels.hasAccessToAllLabels"
+                        <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount > 1 && labels.hasAccessToAllLabels && system.PatientLevelEnabled"
                             class="row border-bottom border-3 py-3">
                             <!-- only the users who have access to all labels can modify a patient -->
                             <div class="col-md-9"

@@ -114,6 +114,9 @@ const actions = {
         }
 
         const system = await api.loadSystem();
+        if (!('PatientLevelEnabled' in system)) {  // this option has been introduced in 1.12.11
+            system['PatientLevelEnabled'] = true;
+        }
         commit('setSystem', { system: system });
 
         commit('setLoaded');

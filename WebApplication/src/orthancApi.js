@@ -165,10 +165,6 @@ export default {
         const response = (await axios.get(url));
         return response.data;
     },
-    async getStudyPatient(studyId) {
-        const response = (await axios.get(orthancApiUrl + "studies/" + studyId + "/patient"));
-        return response.data;
-    },
     async getSamePatientStudies(patientTags, tags, expand) {
         if (!tags || tags.length == 0) {
             console.error("Unable to getSamePatientStudies if 'tags' is not defined or empty");
