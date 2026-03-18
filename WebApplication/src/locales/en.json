@@ -106,6 +106,7 @@
     },
     "instance": "Instance",
     "instances": "Instances",
+    "instances_from_study": "Instances from",
     "instances_count_header": "# instances",
     "instances_number": "Number of instances",
     "job_success": "Success",
@@ -188,6 +189,7 @@
     "open": "Open",
     "page_not_found": "Page not found!",
     "patients": "Patients",
+    "patient": "Patient",
     "plugin": "plugin",
     "plugins": {
         "delayed_deletion": {
@@ -225,6 +227,7 @@
         "transfers": "Send to Orthanc Peer (advanced-transfers)"
     },
     "series": "Series",
+    "series_from_study": "Series from",
     "series_count_header": "# series",
     "series_and_instances_count_header": "# Ser/Inst",
     "series_plural": "Series",

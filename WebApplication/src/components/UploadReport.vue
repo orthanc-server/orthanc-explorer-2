@@ -132,19 +132,19 @@ export default {
         </div>
         <div class="card-body text-secondary jobs-body">
             <p v-if="showStudyDetails" class="card-text">
-                <span class="upload-details">{{ $t('uploaded_studies') }}:</span>
+                {{ $t('uploaded_studies') }}:
                 <br />
                 <span v-for="(study, studyId) in report.uploadedStudies" :key="studyId">
                     <router-link
                         v-bind:to="'/filtered-studies?StudyInstanceUID=' + study.MainDicomTags['StudyInstanceUID'] + '&expand=study'"
-                        class="upload-details-study">{{ this.getStudyLine(studyId, study.MainDicomTags,
+                        >{{ this.getStudyLine(studyId, study.MainDicomTags,
                             study.PatientMainDicomTags)
                         }}</router-link>
                     <br />
                 </span>
             </p>
             <p v-if="!showStudyDetails" class="card-text">
-                <span class="upload-details">{{ $t('uploaded_count_studies', { 'count': uploadedStudiesCount }) }}</span>
+                {{ $t('uploaded_count_studies', { 'count': uploadedStudiesCount }) }}
             </p>
         </div>
     </div>

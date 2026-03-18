@@ -2,6 +2,11 @@ Pending changes
 ===============
 
 Changes:
+- The default configuration for `UiOptions.NewWorklistDefaultTags` has changed and now contains an `AccessionNumber`
+  field whose default value is `$NOW$` (`YYMMDDhhmmss`).
+- When changing the patient of a study, now displaying the patient tags before applying the change.
+- When sending a resource to a DICOM/peer/DICOMWeb destination, now showing the resource below the job progress bar
+  to easily identify it.
 - When sharing studies:
   - It is now possible to write an email to share the link provided that
     a web service has been configured to send the emails through a few new configurations:
@@ -23,9 +28,6 @@ Changes:
     - However, if `UiOptions.ShareDuration` is not defined but `UiOptions.DefaultShareDuration` is still defined, the
       `UiOptions.DefaultShareDuration` value is copied into `UiOptions.ShareDuration`.
   - The token is now created directly as soon as the Share dialog is opened.
-- The default configuration for `UiOptions.NewWorklistDefaultTags` has changed and now contains an `AccessionNumber`
-  field whose default value is `$NOW$` (`YYMMDDhhmmss`).
-- When changing the patient of a study, now displaying the patient tags before applying the change.
 
 Fixes:
 - Fix #98 [Concurrent folder uploads freeze](https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
