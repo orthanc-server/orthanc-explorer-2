@@ -171,7 +171,7 @@ export default {
             return this.hasPdfReportIconColumn && !this.hasPdfReportIcon;
         },
         hasPdfReportIcon() {
-            return this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1 && this.uiOptions.EnableReportQuickButton;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1 && this.uiOptions.EnableReportQuickButton;
         },
         hasPrimaryViewerColumn() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableViewerQuickButton;
