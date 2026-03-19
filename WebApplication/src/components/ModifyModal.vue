@@ -252,7 +252,7 @@ export default {
                                 Object.entries({ ... this.originalTags, ... this.modifiedTags }).filter(([key]) => ['PatientID', 'PatientName', 'PatientBirthDate', 'PatientSex', 'OtherPatientIDs'].includes(key)));
 
                             console.warn("TODO: we should check that the futureStudyPatientTags are compatible with the newPatientIdStudies");
-                            console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, another patient with the same PatientID already exists ", this.tags['PatientID'], targetPatient);
+                            console.error("modify-any-tags-in-one-study: Error while modifying patient-study tags, another patient with the same PatientID already exists ", this.tags['PatientID'], newPatientIdStudies);
                             this.setError('modify.error_modify_any_study_tags_patient_exists_html');
                             return;
                         }
