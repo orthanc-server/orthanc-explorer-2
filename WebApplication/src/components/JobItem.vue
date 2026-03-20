@@ -107,13 +107,13 @@ export default {
                         }
                         // if, at this point, the resources are empty, it means we are sending only instances
                         if (Object.keys(this.resources).length == 0 && "Instances" in jobStatus.Content.Resources) {
-                            for (let rid of jobStatus.Content.Resources.Patients) {
+                            for (let rid of jobStatus.Content.Resources.Instances) {
                                 let rj = {};
-                                const study = await api.getInstanceParentStudy(r.ID);
+                                const study = await api.getInstanceParentStudy(rid);
                                 rj["ID"] = rid;
                                 rj["Type"] = "Instance";
                                 rj["LabelPrefix"] = this.$t("instances_from_study") + ": ";
-                                rj["LabelLink"] = this.getStudyLine(r.ID, study.MainDicomTags, study.PatientMainDicomTags);
+                                rj["LabelLink"] = this.getStudyLine(rid, study.MainDicomTags, study.PatientMainDicomTags);
                                 rj["StudyInstanceUID"] = study.MainDicomTags.StudyInstanceUID;
                                 this.resources[rj.ID] = rj;
                             } 
