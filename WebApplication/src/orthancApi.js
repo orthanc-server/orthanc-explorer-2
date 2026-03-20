@@ -66,9 +66,10 @@ export default {
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },
-    async deleteResources(resourcesIds) {
+    async deleteResources(level, resourcesIds) {
         return axios.post(orthancApiUrl + "tools/bulk-delete", {
-            "Resources": resourcesIds
+            "Resources": resourcesIds,
+            "Level": level // not part of the Orthanc API but this helps the auth-plugin
         });
     },
     async cancelFindStudies() {

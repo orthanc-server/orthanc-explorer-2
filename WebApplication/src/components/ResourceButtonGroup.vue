@@ -97,7 +97,7 @@ export default {
         },
         deleteResource(event) {
             if (this.resourceLevel == 'bulk') {
-                api.deleteResources(this.resourcesOrthancId)
+                api.deleteResources(this.resourceLevel, this.resourcesOrthancId)
                     .then(() => {
                         window.location.reload();
                     })
