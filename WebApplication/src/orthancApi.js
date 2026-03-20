@@ -491,6 +491,23 @@ export default {
         return response.data['ID'];
     },
 
+    async bulkModifyResources({ resourceLevel, orthancIds, replaceTags = {}, removeTags = [], keepTags = [], keepSource, userData = {} }) {
+        const response = (await axios.post(orthancApiUrl + "tools/bulk-modify", {
+            "Resources": orthancIds,
+            "Level": resourceLevel,
+            "Replace": replaceTags,
+            "Remove": removeTags,
+            "Keep": keepTags,
+            "KeepSource": keepSource,
+            "KeepLabels": true,
+            "Force": true,
+            "Synchronous": false,
+            "UserData": userData
+        }))
+
+        return response.data['ID'];
+    },
+
     async loadAllLabels() {
         const response = (await axios.get(orthancApiUrl + "tools/labels"));
         return response.data;

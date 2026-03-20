@@ -83,7 +83,7 @@
         "error_attach_study_to_existing_patient_target_does_not_exist_html": "Error al cambiar de paciente, no se encontró ningún paciente con este ID de paciente.  <strong>Modificar etiquetas de estudio</strong> función en su lugar.",
         "error_modify_any_study_tags_can_not_modify_patient_tags_because_of_other_studies_html": "Error al modificar etiquetas de estudio: este paciente tiene otros estudios.  <strong>Modificar etiquetas de pacientes</strong> función en su lugar.",
         "error_modify_any_study_tags_patient_exists_html": "Error al modificar las etiquetas del estudio: ya existe otro paciente con el mismo ID de paciente.  <strong>Cambiar de paciente</strong> función en su lugar.",
-        "error_modify_patient_tags_another_patient_exists_with_same_patient_id_html": "Error al modificar las etiquetas de un paciente: ya existe otro paciente con el mismo ID de paciente.  <strong>Modificar etiquetas de pacientes</strong> función en su lugar.",
+        "error_modify_patient_tags_another_patient_exists_with_same_patient_id_html": "Error al modificar las etiquetas de un paciente: ya existe otro paciente con el mismo ID de paciente.  <strong>Cambiar de paciente</strong> función en su lugar.",
         "error_modify_unexpected_error_html": "Error inesperado durante la modificación, verifique los registros de Orthanc",
         "insert_tag": "Insertar una etiqueta DICOM",
         "job_in_progress": "Se está procesando la modificación",
