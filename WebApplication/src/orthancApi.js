@@ -850,7 +850,7 @@ export default {
         return orthancApiUrl + this.pluralizeResourceLevel(level) + '/' + resourceOrthancId + subroute;
     },
     getRetrieveMethod(modality) {
-        const defaultRetrieveMethod = store.state.configuration.system.DefaultRetrieveMethod;
+        const defaultRetrieveMethod = store.state.configuration.system.DicomDefaultRetrieveMethod;
         if (store.state.configuration.queryableDicomModalities[modality].RetrieveMethod == "SystemDefault") {
             return defaultRetrieveMethod;
         } else {
