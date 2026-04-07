@@ -951,7 +951,7 @@ extern "C"
         OrthancPlugins::RegisterRestCallback<GetOE2PreLoginConfiguration>(oe2BaseUrl_ + "api/pre-login-configuration", true);
 
         std::string pluginRootUri = oe2BaseUrl_ + "app/";
-        OrthancPlugins::SetRootUri(ORTHANC_PLUGIN_NAME, pluginRootUri.c_str());
+        OrthancPlugins::SetRootUri(ORTHANC_PLUGIN_NAME, pluginRootUri);
 
         if (pluginJsonConfiguration_["IsDefaultOrthancUI"].asBool())
         {
