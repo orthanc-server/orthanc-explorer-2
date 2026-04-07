@@ -1544,7 +1544,7 @@ namespace OrthancPlugins
 
 #endif /* HAS_ORTHANC_PLUGIN_FIND_MATCHER == 1 */
 
-  void CheckAnswerSizeIsLessThan4GB(const std::string& answer)
+  static void CheckAnswerSizeIsLessThan4GB(const std::string& answer)
   {
     if (answer.size() > static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
     {
