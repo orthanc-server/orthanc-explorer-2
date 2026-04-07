@@ -128,7 +128,6 @@ void ServeCustomFile(OrthancPluginRestOutput* output,
   else
   {
     std::string fileContent;
-    std::string customFileContent;
     std::string customFilePath;
     if (customFile == CustomFilesPath_FavIcon)
     {
@@ -597,10 +596,10 @@ Json::Value GetPluginsConfiguration(bool& hasUserProfile)
     else if (pluginName == "multitenant-dicom")
     {
       pluginsConfiguration[pluginName]["Enabled"] = false;
-      Json::Value pluginConfiguration;
-      if (GetPluginConfiguration(pluginConfiguration, "MultitenantDicom"))
+      Json::Value config;
+      if (GetPluginConfiguration(config, "MultitenantDicom"))
       {
-        pluginsConfiguration[pluginName]["Enabled"] = pluginConfiguration.isMember("Servers") && pluginConfiguration["Servers"].isArray() && pluginConfiguration["Servers"].size() > 0;
+        pluginsConfiguration[pluginName]["Enabled"] = config.isMember("Servers") && config["Servers"].isArray() && config["Servers"].size() > 0;
       }
     }
 

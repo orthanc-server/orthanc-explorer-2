@@ -66,9 +66,6 @@ namespace OrthancPlugins
       client.AssignBody(request->body, request->bodySize);
     }
 
-    HttpHeaders answerHeaders;
-    std::string answerBody;
-
     std::string response;
     Orthanc::HttpClient::HttpHeaders responseHeaders;
 
