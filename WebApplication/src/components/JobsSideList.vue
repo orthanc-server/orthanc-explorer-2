@@ -1,5 +1,5 @@
 <script>
-import JobItem from "./JobItem.vue"
+import JobSideItem from "./JobSideItem.vue"
 import { mapState } from "vuex"
 
 export default {
@@ -25,15 +25,15 @@ export default {
             return this.jobs[jobId];
         }
     },
-    components: { JobItem }
+    components: { JobSideItem }
 }
 </script>
 
 <template>
     <div>
         <div class="upload-report-list">
-            <JobItem v-for="jobId of jobsIds" :job="this.getJob(jobId)" :key="jobId" v-bind:href="jobId"
-                @deletedJob="onDeletedJobItem"></JobItem>
+            <JobSideItem v-for="jobId of jobsIds" :job="this.getJob(jobId)" :key="jobId" v-bind:href="jobId"
+                @deletedJob="onDeletedJobItem"></JobSideItem>
         </div>
     </div>
 </template>
