@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.11.0 (2026-04-13)
+==================
 
 Changes:
 - The default configuration for `UiOptions.NewWorklistDefaultTags` has changed and now contains an `AccessionNumber`
@@ -20,6 +20,8 @@ Changes:
     - `UiOptions.ShareEmailContentTemplate`
     - `UiOptions.ShareEmailLayoutTemplate`
     - `UiOptions.ShareEmailTitle`
+    The 'email' web service must implement a Rest API similar to the one defined in this project:
+    https://github.com/orthanc-team/orthanc-auth-service/blob/main/sources/orthanc_auth_service/app.py
   - The user can no longer select the validity duration.  We consider
     that selecting the validity duration is a 'sys-admin' decision that must be taken once
     during the configuration:
