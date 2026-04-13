@@ -1,7 +1,7 @@
 <script>
 
 import UploadHandler from "./UploadHandler.vue"
-import JobsList from "./JobsList.vue";
+import JobsSideList from "./JobsSideList.vue";
 import LanguagePicker from "./LanguagePicker.vue";
 import { mapState, mapGetters } from "vuex"
 import { orthancApiUrl, oe2ApiUrl } from "../globalConfigurations";
@@ -167,7 +167,7 @@ export default {
             }
         });
     },
-    components: { UploadHandler, JobsList, LanguagePicker },
+    components: { UploadHandler, JobsSideList, LanguagePicker },
 }
 </script>
 <template>
@@ -317,7 +317,7 @@ export default {
                         </a><span class="ms-auto"></span>
                     </li>
                     <div v-if="hasJobs" class="collapse show" id="jobs-list">
-                        <JobsList />
+                        <JobsSideList />
                     </div>
                 </ul>
             </div>
