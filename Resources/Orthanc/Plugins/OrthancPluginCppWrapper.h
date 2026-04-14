@@ -27,7 +27,6 @@
 
 #include <orthanc/OrthancCPlugin.h>
 #include <boost/noncopyable.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <json/value.h>
