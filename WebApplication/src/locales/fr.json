@@ -100,6 +100,15 @@
     "instances_number": "Nombre d'instances",
     "job_success": "Succès",
     "job_failure": "Échec",
+    "jobs" : {
+        "column_title_id": "ID",
+        "column_title_last_update": "Mise à jour",
+        "column_title_priority": "Priorité",
+        "column_title_progress": "Progression",
+        "column_title_status": "Statut",
+        "column_title_type": "Type",
+        "side_bar_title": "Tâches"
+    },
     "labels": {
         "add_button": "Ajouter",
         "add_labels_message_html": "<strong>Ajouter</strong> ces étiquettes aux examens sélectionnés",

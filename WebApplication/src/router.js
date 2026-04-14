@@ -5,6 +5,7 @@ import SettingsPermissions from './components/SettingsPermissions.vue'
 import Worklists from './components/Worklists.vue'
 import AuditLogs from './components/AuditLogs.vue'
 import StudyList from './components/StudyList.vue'
+import JobsList from './components/JobsList.vue'
 import SideBar from './components/SideBar.vue'
 import NotFound from './components/NotFound.vue'
 import { baseOe2Url } from "./globalConfigurations"
@@ -70,6 +71,14 @@ export const router = createRouter({
         ContentView: AuditLogs,
       },
       name: 'audit-logs'
+    },
+    {
+      path: '/jobs',
+      components: {
+        SideBarView: SideBar,
+        ContentView: JobsList,
+      },
+      name: 'jobs'
     },
     {
       path: '/:pathMatch(.*)',

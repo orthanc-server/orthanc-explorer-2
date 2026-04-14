@@ -63,6 +63,10 @@ export default {
         const response = (await axios.get(orthancApiUrl + "jobs/" + jobId));
         return response.data;
     },
+    async getAllJobs() {
+        const response = (await axios.get(orthancApiUrl + "jobs?expand"));
+        return response.data;
+    },
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },

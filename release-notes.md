@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Changes:
+- Implemented a job page
+
+
 1.11.0 (2026-04-13)
 ==================
 

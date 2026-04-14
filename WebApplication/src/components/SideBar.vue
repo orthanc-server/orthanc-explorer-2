@@ -60,6 +60,9 @@ export default {
         hasAccessToWorklists() {
             return "orthanc-worklists" in this.installedPlugins && this.installedPlugins["orthanc-worklists"].Enabled && this.uiOptions.EnableWorklists;
         },
+        hasAccessToAllJobs() {
+            return this.uiOptions.EnableJobsList;
+        },
         hasAccessToSettingsLabelsAndPermissions() {
             return this.hasAccessToSettings && this.uiOptions.EnablePermissionsEdition;
         },
@@ -259,6 +262,11 @@ export default {
                     <li v-if="hasAccessToWorklists" class="d-flex align-items-center fix-router-link">
                         <router-link class="router-link" to="/worklists">
                             <i class="fa fa-list fa-lg menu-icon"></i>{{ $t('worklists.side_bar_title') }}
+                        </router-link>
+                    </li>
+                    <li v-if="hasAccessToAllJobs" class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/jobs">
+                            <i class="fa fa-bars-progress fa-lg menu-icon"></i>{{ $t('jobs.side_bar_title') }}
                         </router-link>
                     </li>
                     <li v-if="hasAccessToSettings" class="d-flex align-items-center" data-bs-toggle="collapse"

@@ -120,6 +120,16 @@
     "instances_number": "Number of instances",
     "job_success": "Success",
     "job_failure": "Failure",
+    "jobs" : {
+        "column_title_id": "ID",
+        "column_title_last_update": "Last update",
+        "column_title_priority": "Priority",
+        "column_title_progress": "Progress",
+        "column_title_status": "Status",
+        "column_title_type": "Type",
+        "full_details_button_title": "Full details",
+        "side_bar_title": "All jobs"
+    },
     "labels": {
         "add_button": "Add",
         "add_labels_message_html": "<strong>Add</strong> these labels to all selected resources",
