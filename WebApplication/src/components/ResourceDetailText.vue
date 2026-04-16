@@ -63,7 +63,7 @@ export default {
 <style>
 .details-label {
     font-weight: 700;
-    max-width: 50%;
+    max-width: 30%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -71,7 +71,7 @@ export default {
 .details {
     margin-left: auto !important;
     font-weight: 500;
-    max-width: 75%;
+    max-width: 25vw;
     overflow: hidden;
     text-overflow: ellipsis;
 }

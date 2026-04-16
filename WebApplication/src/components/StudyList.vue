@@ -145,6 +145,12 @@ export default {
             multiLabelsFilterLabelsConstraint: "All",
             showStudiesWithoutLabels: false,
             multiLabelsComponentKey: 0, // to force refresh the multi-labels filter component
+            showModalityDropdown: false,
+            modalityDropdownStyle: {},
+            isMobilePortrait: false,
+            isMobileLandscape: false,
+            _mqlMobilePortrait: null,
+            _mqlMobileLandscape: null,
         };
     },
     computed: {
@@ -164,6 +170,9 @@ export default {
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
             'studies/isMostRecentOrdering',         // -> this['studies/isMostRecentOrdering']
         ]),
+        isMobile() {
+            return this.isMobilePortrait || this.isMobileLandscape;
+        },
         notShowingAllResults() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC && !this.hasExtendedFind) {
                 if (this.studiesIds.length >= this.statistics.CountStudies) {
@@ -195,6 +204,16 @@ export default {
         },
         isMultiLabelsFilterVisible() {
             return this.sourceType == SourceType.LOCAL_ORTHANC && this.showMultiLabelsFilter && this.uiOptions.EnableMultiLabelsSearch;
+        },
+        mobileFilterRow1() {
+            const cols = this.uiOptions.StudyListColumns || [];
+            const half = Math.ceil(cols.length / 2);
+            return cols.slice(0, half);
+        },
+        mobileFilterRow2() {
+            const cols = this.uiOptions.StudyListColumns || [];
+            const half = Math.ceil(cols.length / 2);
+            return cols.slice(half);
         },
         isSearchAsYouTypeEnabled() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
@@ -386,6 +405,31 @@ export default {
     },
     async mounted() {
         this.updateSelectAll();
+        this._onDocumentClick = this.onDocumentClick.bind(this);
+        document.addEventListener('click', this._onDocumentClick, true);
+
+        this._mqlMobilePortrait = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
+        this.isMobilePortrait = this._mqlMobilePortrait.matches;
+        this._mqlMobilePortraitListener = (e) => {
+            this.isMobilePortrait = e.matches;
+        };
+        this._mqlMobilePortrait.addEventListener('change', this._mqlMobilePortraitListener);
+
+        this._mqlMobileLandscape = window.matchMedia('(max-width: 1300px) and (orientation: landscape)');
+        this.isMobileLandscape = this._mqlMobileLandscape.matches;
+        this._mqlMobileLandscapeListener = (e) => {
+            this.isMobileLandscape = e.matches;
+        };
+        this._mqlMobileLandscape.addEventListener('change', this._mqlMobileLandscapeListener);
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this._onDocumentClick, true);
+        if (this._mqlMobilePortrait && this._mqlMobilePortraitListener) {
+            this._mqlMobilePortrait.removeEventListener('change', this._mqlMobilePortraitListener);
+        }
+        if (this._mqlMobileLandscape && this._mqlMobileLandscapeListener) {
+            this._mqlMobileLandscape.removeEventListener('change', this._mqlMobileLandscapeListener);
+        }
     },
     methods: {
         updateSelectAll() {
@@ -824,9 +868,44 @@ export default {
         modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
             ev.stopPropagation();
         },
+        toggleModalityDropdown(ev) {
+            ev.stopPropagation();
+            this.showModalityDropdown = !this.showModalityDropdown;
+            if (this.showModalityDropdown) {
+                this.$nextTick(() => {
+                    this.positionModalityDropdown();
+                });
+            }
+        },
+        positionModalityDropdown() {
+            let btn = document.getElementById('dropdown-modalities-button');
+            if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile');
+            if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-row2');
+            if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-landscape');
+            if (!btn) return;
+            const rect = btn.getBoundingClientRect();
+            this.modalityDropdownStyle = {
+                position: 'fixed',
+                top: (rect.bottom + 2) + 'px',
+                right: (window.innerWidth - rect.right) + 'px',
+                zIndex: 1050,
+                display: 'block',
+            };
+        },
+        onDocumentClick(ev) {
+            if (!this.showModalityDropdown) return;
+            const dropdown = document.getElementById('modality-filter-dropdown');
+            let btn = document.getElementById('dropdown-modalities-button');
+            if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile');
+            if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-row2');
+            if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-landscape');
+
+            if (dropdown && dropdown.contains(ev.target)) return;
+            if (btn && btn.contains(ev.target)) return;
+            this.showModalityDropdown = false;
+        },
         closeModalityFilter(ev) {
-            // simulate a click on the dropdown toggle (TODO: fix error in console)
-            $("#dropdown-modalities-button").click();
+            this.showModalityDropdown = false;
             ev.preventDefault();
             ev.stopPropagation();
         },
@@ -1033,12 +1112,12 @@ export default {
                 <p v-if="isRemoteDicomWeb" v-html="$t('remote_dicom_web_browsing', { source: remoteSource })"></p>
             </div>
         </div>
-        <table class="table table-sm study-table table-borderless">
+        <table v-if="!isMobile" class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th :width="widthColum1" max-width="40px" scope="col"></th>
-                    <th v-if="hasPrimaryViewerIcon" width="2%" max-width="30px" scope="col"></th>
-                    <th v-if="hasPdfReportIcon" width="2%" max-width="30px" scope="col"></th>
+                    <th :width="widthColum1" class="col-prefix col-checkbox" scope="col"></th>
+                    <th v-if="hasPrimaryViewerIcon" width="2%" class="col-prefix col-viewer" scope="col"></th>
+                    <th v-if="hasPdfReportIcon" width="2%" class="col-prefix col-pdf" scope="col"></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
@@ -1053,19 +1132,22 @@ export default {
                     </th>
                 </tr>
                 <tr class="study-table-filters" v-on:keyup.enter="search">
-                    <th scope="col" :colspan="colSpanClearFilter">
+                    <th scope="col" :width="widthColum1" class="col-prefix col-checkbox">
                         <button @click="clearFilters" type="button"
                             class="form-control study-list-filter btn filter-button btn-sm" data-bs-toggle="tooltip"
                             title="Clear filter">
                             <i class="fa-regular fa-circle-xmark"></i>
                         </button>
                     </th>
+                    <th v-if="hasPrimaryViewerIcon" width="2%" class="col-prefix col-viewer" scope="col"></th>
+                    <th v-if="hasPdfReportIcon" width="2%" class="col-prefix col-pdf" scope="col"></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                         <div v-if="columnTag == 'StudyDate'">
-                            <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                                :enable-time-picker="false" range :preset-dates="datePickerPresetRanges"
-                                :format="datePickerFormat" :preview-format="datePickerFormat" text-input
-                                arrow-navigation hide-input-icon :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
+                            <Datepicker v-model="filterStudyDateForDatePicker" :enable-time-picker="false" range
+                                :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                                :preview-format="datePickerFormat" placeholder="Date" arrow-navigation hide-input-icon
+                                :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode" :mobile="isMobile"
+                                :teleport="true">
                                 <template #yearly="{ label, range, presetDate }">
                                     <span @click="presetDate(range)">{{ label }}</span>
                                 </template>
@@ -1073,31 +1155,36 @@ export default {
                         </div>
                         <div v-else-if="columnTag == 'modalities'" class="dropdown">
                             <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
-                                data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
-                                    class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
-                                @click="modalityFilterClicked" id="modality-filter-dropdown">
-                                <li><label class="dropdown-item"><input type="checkbox" data-value="all"
-                                            @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
-                                                $t('all_modalities') }}</label></li>
-                                <li><label class="dropdown-item"><input type="checkbox" data-value="none"
-                                            @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
-                                                $t('no_modalities') }}</label></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
-                                    <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
-                                            v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
-                                </li>
-                                <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close')
-                                        }}</button></li>
-                            </ul>
+                                @click="toggleModalityDropdown" id="dropdown-modalities-button"
+                                :aria-expanded="showModalityDropdown"><span class="fa fa-list"></span>&nbsp;<span
+                                    class="caret"></span></button>
+                            <Teleport to="body">
+                                <ul v-if="showModalityDropdown" class="dropdown-menu show"
+                                    :style="modalityDropdownStyle" @click="modalityFilterClicked"
+                                    id="modality-filter-dropdown">
+                                    <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                                @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                                    $t('all_modalities') }}</label></li>
+                                    <li><label class="dropdown-item"><input type="checkbox" data-value="none"
+                                                @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
+                                                    $t('no_modalities') }}</label></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                        <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
+                                                v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
+                                    </li>
+                                    <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close')
+                                            }}</button></li>
+                                </ul>
+                            </Teleport>
                         </div>
                         <div v-else-if="columnTag == 'PatientBirthDate'">
                             <Datepicker v-model="filterPatientBirthDateForDatePicker" :enable-time-picker="false" range
-                                :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
-                                arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
+                                :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat"
+                                arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode" :mobile="isMobile"
+                                :teleport="true">
                             </Datepicker>
                         </div>
                         <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
@@ -1174,7 +1261,7 @@ export default {
                                     <div v-else-if="!isSearching && notShowingAllResults"
                                         class="alert alert-danger study-list-alert" role="alert">
                                         <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{
-                                        $t('not_showing_all_results') }} !
+                                            $t('not_showing_all_results') }} !
                                         !
                                     </div>
                                     <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
@@ -1185,7 +1272,7 @@ export default {
                                     <div v-else-if="!isSearching && isStudyListEmpty"
                                         class="alert alert-warning study-list-alert" role="alert">
                                         <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{
-                                        $t('no_result_found') }}
+                                            $t('no_result_found') }}
                                     </div>
                                     <div v-else-if="isSearching" class="alert alert-secondary study-list-alert"
                                         role="alert">
@@ -1211,9 +1298,378 @@ export default {
                 </tr>
             </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId"
-                v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
+                v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy"
+                :isMobilePortrait="false" :isMobileLandscape="false">
             </StudyItem>
         </table>
+        <div v-else class="mobile-study-list" :class="{ 'mobile-landscape': isMobileLandscape }">
+            <!-- Filter Strip (two-row grid) -->
+            <div class="mobile-filter-strip" v-on:keyup.enter="search">
+                <!-- Portrait: two rows / Landscape: single row -->
+                <template v-if="isMobileLandscape">
+                    <!-- Landscape: everything in ONE row -->
+                    <div class="mobile-filter-row">
+                        <div class="mobile-filter-column mobile-clear-col">
+                            <div class="mobile-filter-title">&nbsp;</div>
+                            <div class="mobile-filter-input">
+                                <button @click="clearFilters" type="button"
+                                    class="btn filter-button btn-sm mobile-clear-filter" title="Clear filter">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag"
+                            class="mobile-filter-column">
+                            <div class="mobile-filter-title"
+                                @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
+                                :class="{ 'is-orderable': isOrderable(columnTag) }">
+                                {{ columnTitle(columnTag) }}
+                                <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
+                                </div>
+                                <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
+                                        class="bi bi-arrow-down"></i>
+                                </div>
+                            </div>
+                            <div class="mobile-filter-input">
+                                <div v-if="columnTag == 'StudyDate'">
+                                    <Datepicker uid="landscape-study-date" v-model="filterStudyDateForDatePicker"
+                                        :enable-time-picker="false" range :preset-dates="datePickerPresetRanges"
+                                        :format="datePickerFormat" :preview-format="datePickerFormat" placeholder="Date"
+                                        arrow-navigation hide-input-icon :highlight="{ weekdays: [6, 0] }"
+                                        :dark="isDarkMode" :mobile="isMobile" :teleport="true">
+                                        <template #yearly="{ label, range, presetDate }">
+                                            <span @click="presetDate(range)">{{ label }}</span>
+                                        </template>
+                                    </Datepicker>
+                                </div>
+                                <div v-else-if="columnTag == 'modalities'" class="dropdown">
+                                    <button type="button"
+                                        class="btn btn-default btn-sm filter-button dropdown-toggle w-100 text-start"
+                                        @click="toggleModalityDropdown" id="dropdown-modalities-button-mobile-landscape"
+                                        :aria-expanded="showModalityDropdown"><span
+                                            class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
+                                    <Teleport to="body">
+                                        <ul v-if="showModalityDropdown" class="dropdown-menu show"
+                                            :style="modalityDropdownStyle" @click="modalityFilterClicked"
+                                            id="modality-filter-dropdown">
+                                            <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                                        @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                                            $t('all_modalities') }}</label></li>
+                                            <li><label class="dropdown-item"><input type="checkbox" data-value="none"
+                                                        @click="toggleModalityFilter"
+                                                        v-model="noneModalities" />&nbsp;{{
+                                                            $t('no_modalities') }}</label></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                                <label class="dropdown-item"><input type="checkbox"
+                                                        v-bind:data-value="modality"
+                                                        v-model="filterModalities[modality]" />&nbsp;{{ modality
+                                                        }}</label>
+                                            </li>
+                                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{
+                                                $t('close')
+                                                    }}</button></li>
+                                        </ul>
+                                    </Teleport>
+                                </div>
+                                <div v-else-if="columnTag == 'PatientBirthDate'">
+                                    <Datepicker uid="landscape-birth-date" v-model="filterPatientBirthDateForDatePicker"
+                                        :enable-time-picker="false" range :format="datePickerFormat" hide-input-icon
+                                        :preview-format="datePickerFormat" placeholder="Date" arrow-navigation
+                                        :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode" :mobile="isMobile"
+                                        :teleport="true">
+                                    </Datepicker>
+                                </div>
+                                <input v-else-if="hasFilter(columnTag)" type="text"
+                                    class="form-control study-list-filter w-100 py-1"
+                                    v-model="this.filterGenericTags[columnTag]"
+                                    v-bind:placeholder="getFilterPlaceholder(columnTag)"
+                                    v-bind:class="getFilterClass(columnTag)" />
+                            </div>
+                        </div>
+                        <!-- Search Button -->
+                        <div class="mobile-filter-column mobile-search-col" v-if="isSearchButtonEnabled">
+                            <div class="mobile-filter-title">&nbsp;</div>
+                            <div class="mobile-filter-input">
+                                <button @click="search" type="submit"
+                                    class="form-control study-list-filter btn filter-button btn-secondary search-button"
+                                    :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                    title="Search">
+                                    <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+                                    <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
+                    <!-- Portrait: two rows -->
+                    <div class="mobile-filter-row">
+                        <div class="mobile-filter-column mobile-clear-col">
+                            <div class="mobile-filter-title">&nbsp;</div>
+                            <div class="mobile-filter-input">
+                                <button @click="clearFilters" type="button"
+                                    class="btn filter-button btn-sm mobile-clear-filter" title="Clear filter">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div v-for="columnTag in mobileFilterRow1" :key="columnTag" class="mobile-filter-column">
+                            <div class="mobile-filter-title"
+                                @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
+                                :class="{ 'is-orderable': isOrderable(columnTag) }">
+                                {{ columnTitle(columnTag) }}
+                                <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
+                                </div>
+                                <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
+                                        class="bi bi-arrow-down"></i>
+                                </div>
+                            </div>
+                            <div class="mobile-filter-input">
+                                <div v-if="columnTag == 'StudyDate'">
+                                    <Datepicker v-model="filterStudyDateForDatePicker" :enable-time-picker="false" range
+                                        :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                                        :preview-format="datePickerFormat" placeholder="Date" arrow-navigation
+                                        hide-input-icon :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode"
+                                        :mobile="isMobile" :teleport="true">
+                                        <template #yearly="{ label, range, presetDate }">
+                                            <span @click="presetDate(range)">{{ label }}</span>
+                                        </template>
+                                    </Datepicker>
+                                </div>
+                                <div v-else-if="columnTag == 'modalities'" class="dropdown">
+                                    <button type="button"
+                                        class="btn btn-default btn-sm filter-button dropdown-toggle w-100 text-start"
+                                        @click="toggleModalityDropdown" id="dropdown-modalities-button-mobile"
+                                        :aria-expanded="showModalityDropdown"><span
+                                            class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
+                                    <Teleport to="body">
+                                        <ul v-if="showModalityDropdown" class="dropdown-menu show"
+                                            :style="modalityDropdownStyle" @click="modalityFilterClicked"
+                                            id="modality-filter-dropdown">
+                                            <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                                        @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                                            $t('all_modalities') }}</label></li>
+                                            <li><label class="dropdown-item"><input type="checkbox" data-value="none"
+                                                        @click="toggleModalityFilter"
+                                                        v-model="noneModalities" />&nbsp;{{
+                                                            $t('no_modalities') }}</label></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                                <label class="dropdown-item"><input type="checkbox"
+                                                        v-bind:data-value="modality"
+                                                        v-model="filterModalities[modality]" />&nbsp;{{ modality
+                                                        }}</label>
+                                            </li>
+                                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{
+                                                $t('close')
+                                                    }}</button></li>
+                                        </ul>
+                                    </Teleport>
+                                </div>
+                                <div v-else-if="columnTag == 'PatientBirthDate'">
+                                    <Datepicker v-model="filterPatientBirthDateForDatePicker"
+                                        :enable-time-picker="false" range :format="datePickerFormat" hide-input-icon
+                                        :preview-format="datePickerFormat" placeholder="Date" arrow-navigation
+                                        :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode" :mobile="isMobile"
+                                        :teleport="true">
+                                    </Datepicker>
+                                </div>
+                                <input v-else-if="hasFilter(columnTag)" type="text"
+                                    class="form-control study-list-filter w-100 py-1"
+                                    v-model="this.filterGenericTags[columnTag]"
+                                    v-bind:placeholder="getFilterPlaceholder(columnTag)"
+                                    v-bind:class="getFilterClass(columnTag)" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Row 2: remaining columns + search button -->
+                    <div class="mobile-filter-row">
+                        <div v-for="(columnTag, index) in mobileFilterRow2" :key="columnTag"
+                            class="mobile-filter-column" :class="{
+                                'mobile-filter-column-estudio': index === 0,
+                                'mobile-filter-column-acceso': index === mobileFilterRow2.length - 1
+                            }">
+                            <div class="mobile-filter-title"
+                                @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
+                                :class="{ 'is-orderable': isOrderable(columnTag) }">
+                                {{ columnTitle(columnTag) }}
+                                <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
+                                </div>
+                                <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
+                                        class="bi bi-arrow-down"></i>
+                                </div>
+                            </div>
+                            <div class="mobile-filter-input">
+                                <div v-if="columnTag == 'StudyDate'">
+                                    <Datepicker v-model="filterStudyDateForDatePicker" :enable-time-picker="false" range
+                                        :preset-dates="datePickerPresetRanges" :format="datePickerFormat"
+                                        :preview-format="datePickerFormat" placeholder="Date" arrow-navigation
+                                        hide-input-icon :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode"
+                                        :mobile="isMobile" :teleport="true">
+                                        <template #yearly="{ label, range, presetDate }">
+                                            <span @click="presetDate(range)">{{ label }}</span>
+                                        </template>
+                                    </Datepicker>
+                                </div>
+                                <div v-else-if="columnTag == 'modalities'" class="dropdown">
+                                    <button type="button"
+                                        class="btn btn-default btn-sm filter-button dropdown-toggle w-100 text-start"
+                                        @click="toggleModalityDropdown" id="dropdown-modalities-button-mobile-row2"
+                                        :aria-expanded="showModalityDropdown"><span
+                                            class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
+                                    <Teleport to="body">
+                                        <ul v-if="showModalityDropdown" class="dropdown-menu show"
+                                            :style="modalityDropdownStyle" @click="modalityFilterClicked"
+                                            id="modality-filter-dropdown">
+                                            <li><label class="dropdown-item"><input type="checkbox" data-value="all"
+                                                        @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
+                                                            $t('all_modalities') }}</label></li>
+                                            <li><label class="dropdown-item"><input type="checkbox" data-value="none"
+                                                        @click="toggleModalityFilter"
+                                                        v-model="noneModalities" />&nbsp;{{
+                                                            $t('no_modalities') }}</label></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
+                                                <label class="dropdown-item"><input type="checkbox"
+                                                        v-bind:data-value="modality"
+                                                        v-model="filterModalities[modality]" />&nbsp;{{ modality
+                                                        }}</label>
+                                            </li>
+                                            <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{
+                                                $t('close')
+                                                    }}</button></li>
+                                        </ul>
+                                    </Teleport>
+                                </div>
+                                <div v-else-if="columnTag == 'PatientBirthDate'">
+                                    <Datepicker v-model="filterPatientBirthDateForDatePicker"
+                                        :enable-time-picker="false" range :format="datePickerFormat" hide-input-icon
+                                        :preview-format="datePickerFormat" arrow-navigation
+                                        :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode" :mobile="isMobile"
+                                        :teleport="true">
+                                    </Datepicker>
+                                </div>
+                                <input v-else-if="hasFilter(columnTag)" type="text"
+                                    class="form-control study-list-filter w-100 py-1"
+                                    v-model="this.filterGenericTags[columnTag]"
+                                    v-bind:placeholder="getFilterPlaceholder(columnTag)"
+                                    v-bind:class="getFilterClass(columnTag)" />
+                            </div>
+                        </div>
+                        <!-- Search Button -->
+                        <div class="mobile-filter-column mobile-search-col" v-if="isSearchButtonEnabled">
+                            <div class="mobile-filter-title">&nbsp;</div>
+                            <div class="mobile-filter-input">
+                                <button @click="search" type="submit"
+                                    class="form-control study-list-filter btn filter-button btn-secondary search-button"
+                                    :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                    title="Search">
+                                    <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+                                    <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Mobile Labels Bar (if enabled) -->
+            <div v-if="isMultiLabelsFilterVisible"
+                class="mobile-labels-filter d-flex align-items-center justify-content-between my-2 p-2 rounded">
+                <!-- Left side: Title and Radios -->
+                <div class="d-flex flex-column me-3" style="min-width: 80px;">
+                    <div class="text-light mb-1 text-center" style="font-size: 1rem;">{{
+                        $t('labels.study_details_title') ||
+                        'Labels' }}</div>
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="form-check form-check-inline m-0 p-0 me-3 d-flex align-items-center">
+                            <input class="form-check-input m-0 me-1" type="radio" name="mobileMultiLabelsFilter"
+                                value="All" v-model="multiLabelsFilterLabelsConstraint"
+                                style="width: 14px; height: 14px;">
+                            <label class="form-check-label text-light m-0" style="font-size: 0.9rem;">{{
+                                $t('labels.filter_labels_constraint_all') || 'All' }}</label>
+                        </div>
+                        <div class="form-check form-check-inline m-0 p-0 d-flex align-items-center">
+                            <input class="form-check-input m-0 me-1" type="radio" name="mobileMultiLabelsFilter"
+                                value="Any" v-model="multiLabelsFilterLabelsConstraint"
+                                style="width: 14px; height: 14px;">
+                            <label class="form-check-label text-light m-0" style="font-size: 0.9rem;">{{
+                                $t('labels.filter_labels_constraint_any') || 'Any' }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side: Dropdown -->
+                <div class="flex-grow-1 mobile-labels-dropdown">
+                    <LabelsEditor id="multiLabelsFilterMobile" :labels="filterLabels" :key="multiLabelsComponentKey"
+                        :studyId="null" @labelsUpdated="onMultiLabelsFilterChanged" :showTitle="false" :isFilter="true">
+                    </LabelsEditor>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="mobile-action-bar sticky-top py-2"
+                style="background-color: var(--study-table-actions-bg-color); z-index: 10;">
+                <div class="d-flex align-items-center">
+                    <div class="form-check mx-2">
+                        <input class="form-check-input" type="checkbox" v-model="allSelected"
+                            :indeterminate="isPartialSelected" @click="clickSelectAll">
+                        <span style="font-weight: 500; font-size: 0.9rem;">{{ selectedStudiesCount }}</span>
+                    </div>
+
+                    <div v-if="!isSearching && isLoadingMostRecentStudies"
+                        class="alert alert-secondary m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <span v-if="isLoadingMostRecentStudies" class="spinner-border spinner-border-sm alert-icon"
+                            role="status" aria-hidden="true"></span>{{ $t('loading_most_recent_studies') }}
+                    </div>
+                    <div v-else-if="!isSearching && isDisplayingMostRecentStudies"
+                        class="alert alert-info m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-info-circle-fill alert-icon"></i>{{ $t('displaying_most_recent_studies') }}
+                    </div>
+                    <div v-else-if="!isSearching && notShowingAllResults"
+                        class="alert alert-danger m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('not_showing_all_results') }} !
+                        !
+                    </div>
+                    <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
+                        class="alert alert-warning m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('enter_search') }}
+                    </div>
+                    <div v-else-if="!isSearching && isStudyListEmpty"
+                        class="alert alert-warning m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('no_result_found') }}
+                    </div>
+                    <div v-else-if="isSearching" class="alert alert-secondary m-0 px-2 py-1 flex-grow-1" role="alert"
+                        style="font-size: 0.8rem">
+                        <span class="spinner-border spinner-border-sm alert-icon" role="status"
+                            aria-hidden="true"></span>{{
+                                $t('searching') }}
+                    </div>
+                </div>
+
+                <!-- Conditional Bulk Actions -->
+                <div v-if="selectedStudiesCount > 0" class="mobile-bulk-actions mt-2 px-2">
+                    <ResourceButtonGroup :resourceLevel="'bulk'" smallIcons="true"></ResourceButtonGroup>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="mobile-cards-container mt-2">
+                <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId"
+                    :isMobilePortrait="isMobilePortrait" :isMobileLandscape="isMobileLandscape"
+                    v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
+                </StudyItem>
+            </div>
+        </div>
         <Toasts />
     </div>
 </template>
@@ -1433,5 +1889,208 @@ button.form-control.study-list-filter {
     bottom: 0;
     right: 0;
     padding-right: 5px;
+}
+
+/* ───── Mobile portrait & landscape breakpoint ───── */
+@media (max-width: 767px) and (orientation: portrait),
+(max-width: 1300px) and (orientation: landscape) {
+    .col-prefix {
+        width: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        padding: 0 4px !important;
+    }
+
+    /* Ensure DatePicker in table cell is visible and clickable */
+    :deep(.dp__main),
+    :deep(.dp__input) {
+        width: 100% !important;
+        min-width: 100px !important;
+        height: 36px !important;
+        background-color: var(--study-even-bg-color, #212529) !important;
+        border: 1px solid #4caf50 !important;
+        cursor: pointer !important;
+    }
+}
+</style>
+
+<style scoped>
+/* Mobile Portrait Specific Styles */
+.mobile-study-list {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+.mobile-filter-strip {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 8px;
+    background-color: var(--study-table-filter-bg-color);
+    border-bottom: 2px solid var(--bs-border-color);
+    min-height: 150px;
+}
+
+/* Landscape: single-row filter strip */
+.mobile-landscape .mobile-filter-strip {
+    min-height: auto;
+}
+
+.mobile-landscape .mobile-filter-row {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+.mobile-landscape .mobile-filter-column {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.mobile-landscape .mobile-clear-col {
+    flex: 0 0 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+}
+
+.mobile-landscape .mobile-search-col {
+    flex: 0 0 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+}
+
+.mobile-filter-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+    gap: 8px;
+    flex: 1;
+    width: 100%;
+}
+
+.mobile-filter-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.mobile-filter-column-estudio {
+    flex: 0 0 47%;
+    max-width: 50%;
+}
+
+.mobile-filter-column-acceso {
+    flex: 0 0 calc((100% - 66px) / 3);
+    max-width: calc((100% - 66px) / 3);
+}
+
+
+.mobile-clear-col {
+    flex: 0 0 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    justify-content: flex-start;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: var(--study-table-filter-bg-color);
+}
+
+.mobile-search-col {
+    flex: 0 0 45px !important;
+    min-width: 45px !important;
+    max-width: 45px !important;
+    justify-content: flex-end;
+}
+
+.mobile-filter-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    height: 28px;
+    line-height: 28px;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-filter-input {
+    height: 36px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-filter-title.is-orderable {
+    cursor: pointer;
+    text-decoration: underline dotted;
+}
+
+.title-arrow {
+    margin-left: 4px;
+}
+
+.mobile-action-bar {
+    border-bottom: 1px solid var(--bs-border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-labels-filter {
+    background-color: var(--study-odd-bg-color, #2b3035);
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Deep selector to force the bootstrap5-tags dropdown to have the green border */
+.mobile-labels-dropdown :deep(.form-select),
+.mobile-labels-dropdown :deep(.dropdown.tags) {
+    border: 1px solid #4caf50 !important;
+    background-color: var(--study-even-bg-color, #212529) !important;
+    border-radius: 6px;
+}
+
+
+.mobile-clear-col .btn,
+.mobile-search-col .btn {
+    border: 1px solid #4caf50 !important;
+    background-color: var(--study-even-bg-color, #212529) !important;
+    border-radius: 6px;
+    color: var(--bs-body-color, #fff) !important;
+    width: 100%;
+    height: 36px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.mobile-filter-column :deep(.form-control),
+.mobile-filter-column :deep(.dp__input),
+.mobile-filter-column .btn.dropdown-toggle {
+    border: 1px solid #4caf50 !important;
+    background-color: var(--study-even-bg-color, #212529) !important;
+    border-radius: 6px !important;
+    color: var(--bs-body-color, #fff) !important;
+    height: 36px !important;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-filter-column :deep(.dp__input) {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.mobile-filter-column :deep(.form-control) {
+    justify-content: flex-start;
+    padding-left: 8px;
+}
+
+.mobile-filter-column :deep(.form-control::placeholder),
+.mobile-filter-column :deep(.dp__input::placeholder) {
+    color: rgba(255, 255, 255, 0.4) !important;
 }
 </style>

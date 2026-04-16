@@ -1,7 +1,8 @@
-.cut-text { 
+.cut-text {
   text-overflow: ellipsis;
-  overflow: hidden; 
-  white-space: pre; /* preserve double white spaces (https://github.com/orthanc-server/orthanc-explorer-2/issues/30) */ 
+  overflow: hidden;
+  white-space: pre;
+  /* preserve double white spaces (https://github.com/orthanc-server/orthanc-explorer-2/issues/30) */
   max-width: 0;
 }
 
@@ -9,13 +10,17 @@
 .dp__input {
   padding-left: 4px !important;
   padding-right: 25px !important;
+  position: relative !important;
+  z-index: 21 !important;
 }
 
 .dp__preset_ranges {
   width: 300px !important;
 }
 
-.dp__range_end, .dp__range_start, .dp__active_date {
+.dp__range_end,
+.dp__range_start,
+.dp__active_date {
   background: var(--dp-primary-color) !important;
 }
 
@@ -29,13 +34,15 @@
 }
 
 /* for the tag editor */
-.tags-badge.bg-info  {
+.tags-badge.bg-info {
   background-color: var(--label-bg-color) !important;
 }
 
-.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+.form-control::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: var(--form-placeholder-color);
-  opacity: 1; /* Firefox */
+  opacity: 1;
+  /* Firefox */
 }
 
 .job-card {
@@ -84,4 +91,313 @@
 .btn-icon-small {
   height: 2rem;
   font-size: medium;
+}
+
+/*
+   Mobile portrait responsive fixes
+  */
+@media (max-width: 767px) and (orientation: portrait) {
+
+  /* ── 0. Hide column titles ── */
+  tr.study-column-titles {
+    display: none !important;
+  }
+
+  /* Reset thead to block so sticky still works */
+  .study-table>thead {
+    display: block !important;
+    width: 100vw !important;
+  }
+
+  /* ── 1. Filter row: horizontal scroll strip ── */
+  tr.study-table-filters {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    width: 100vw !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    padding: 4px 6px !important;
+    background-color: var(--study-table-filter-bg-color) !important;
+    border-bottom: 1px solid var(--bs-border-color);
+    z-index: 20 !important;
+  }
+
+  /* Clear-filter button: compact */
+  tr.study-table-filters>th:first-child {
+    flex: 0 0 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+  }
+
+  /* All other filter cells: flexible, min 110px */
+  tr.study-table-filters>th {
+    display: block !important;
+    flex: 1 0 110px !important;
+    min-width: 110px !important;
+    max-width: 180px !important;
+    padding: 0 2px !important;
+    background-color: transparent !important;
+  }
+
+  /* ── 2. Actions / Labels row: viewport-sticky flex ── */
+  tr.study-table-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100vw !important;
+    position: sticky !important;
+    left: 0 !important;
+    padding: 2px 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  tr.study-table-actions>th {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    padding: 2px 4px !important;
+  }
+
+  /* ── 3. Study data rows: two-line card layout ── */
+  .study-table>tbody>tr.study-row-collapsed,
+  .study-table>tbody>tr.study-row-expanded {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100vw !important;
+    position: sticky !important;
+    left: 0 !important;
+    padding: 6px 8px 4px !important;
+    box-sizing: border-box !important;
+    gap: 0 8px !important;
+    align-items: baseline !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Checkbox cell: tiny fixed */
+  .study-table>tbody>tr.study-row-collapsed>td:first-child,
+  .study-table>tbody>tr.study-row-expanded>td:first-child {
+    flex: 0 0 24px !important;
+    width: 24px !important;
+    max-width: 24px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Viewer / PDF icon cells */
+  .study-table>tbody>tr td.td-viewer-icon,
+  .study-table>tbody>tr td.td-pdf-icon {
+    flex: 0 0 24px !important;
+    width: 24px !important;
+    padding: 0 !important;
+  }
+
+  /* Data cells: flow to fill two lines */
+  .study-table>tbody>tr.study-row-collapsed>td.cut-text,
+  .study-table>tbody>tr.study-row-expanded>td.cut-text {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 0 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Label row: also flex and viewport-sticky */
+  .study-table>tbody>tr:has(.label-row) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100vw !important;
+    position: sticky !important;
+    left: 0 !important;
+  }
+
+  .study-table>tbody>tr>td.label-row {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    padding: 0 8px 4px !important;
+  }
+
+  /* Details expanded row: viewport-sticky */
+  .study-table>tbody>tr.study-details-expanded {
+    display: block !important;
+    width: 100vw !important;
+    position: sticky !important;
+    left: 0 !important;
+  }
+
+  .study-table>tbody>tr.study-details-expanded>td {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* ── 4. Study / Series / Instance detail tables: vertical stack ── */
+  .study-details-table,
+  .series-details-table,
+  .instance-details-table {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    position: sticky !important;
+    left: 8px !important;
+    margin-left: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .study-details-table>tbody>tr,
+  .series-details-table>tbody>tr,
+  .instance-details-table>tbody>tr {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .study-details-table>tbody>tr>td,
+  .series-details-table>tbody>tr>td,
+  .instance-details-table>tbody>tr>td {
+    display: block !important;
+    width: 89% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Buttons first */
+  .study-details-table>tbody>tr>td.study-button-group,
+  .series-details-table>tbody>tr>td.series-button-group,
+  .instance-details-table>tbody>tr>td.instance-button-group {
+    order: -1 !important;
+    padding-bottom: 10px !important;
+  }
+
+  /* ── 5. Text wrapping in detail panels ── */
+  .study-details-table .cut-text,
+  .series-details-table .cut-text,
+  .instance-details-table .cut-text {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    max-width: 100% !important;
+  }
+
+  /* ── 6. Balanced detail label / value columns ── */
+  .details-label {
+    max-width: 60% !important;
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 0.82rem !important;
+  }
+
+  .details {
+    max-width: 60% !important;
+    flex-shrink: 1 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    text-align: right !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* ── 7. Tighter spacing overall ── */
+  .study-table {
+    font-size: 0.85rem !important;
+  }
+
+  .study-table td {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  /* Compact filter inputs */
+  input.form-control.study-list-filter {
+    font-size: 0.8rem !important;
+    padding: 2px 4px !important;
+    margin: 2px 0 !important;
+  }
+
+  button.form-control.study-list-filter {
+    font-size: 0.8rem !important;
+    padding: 2px 4px !important;
+    margin: 2px 0 !important;
+  }
+
+  /* Compact action buttons */
+  .btn-icon {
+    height: 2rem !important;
+    line-height: 1.5rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .btn-icon-small {
+    height: 1.6rem !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+/* ── 4. Mobile landscape: Ensure filters/dropdowns don't exceed viewport ── */
+@media (max-width: 1300px) and (orientation: landscape) {
+
+  /* Force content to start from the very left and take full width */
+  #app .content,
+  .content {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    left: 0 !important;
+    overflow-x: auto !important;
+    width: 100vw !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure the study table remains legible in landscape table view */
+  .study-table {
+    table-layout: auto !important;
+    min-width: 1000px !important;
+    /* Slightly more width for comfort */
+  }
+
+  /* DatePicker visibility in the narrow landscape table */
+  .dp__main {
+    min-width: 100px !important;
+  }
+
+  .dp__input {
+    min-width: 100px !important;
+    height: 32px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* DatePicker menu wrapper (teleported to body): must not clip the
+     absolutely-positioned calendar panel.  overflow‑y:auto caused the
+     wrapper to collapse to 0 height → calendar invisible.  Keep
+     overflow visible and let the inner .dp__menu handle scrolling. */
+  .dp__outer_menu_wrap {
+    overflow: visible !important;
+    z-index: 99999 !important;
+  }
+
+  /* The inner menu panel itself should constrain its height */
+  .dp__outer_menu_wrap .dp__menu {
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Constrain Modalities dropdown menu height (teleported to body) */
+  #modality-filter-dropdown {
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Narrow the first column header/cell to reclaim x-space */
+  th[scope="col"]:first-child,
+  td:first-child {
+    max-width: 36px !important;
+    width: 36px !important;
+  }
 }

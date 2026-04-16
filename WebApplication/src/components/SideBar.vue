@@ -11,7 +11,7 @@ import SourceType from "../helpers/source-type";
 
 export default {
     props: [],
-    emits: [],
+    emits: ['close-sidebar'],
     data() {
         return {
             // selectedModality: null,
@@ -386,6 +386,8 @@ export default {
     font-weight: 200;
     background-color: var(--nav-side-bg-color);
     color: var(--nav-side-color);
+    position: relative;
+    /* needed so the mobile close button offsets correctly */
 }
 
 .nav-side-content {
@@ -526,5 +528,13 @@ export default {
     width: 15px;
     margin-right: 5px;
     line-height: 28px;
+}
+
+/* Push logo below the fixed hamburger toggle on mobile portrait & landscape */
+@media (max-width: 767px) and (orientation: portrait),
+(max-width: 1300px) and (orientation: landscape) {
+    .nav-side-content {
+        padding-top: 44px;
+    }
 }
 </style>
