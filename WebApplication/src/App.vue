@@ -155,7 +155,7 @@ export default {
 
 /* Animate hamburger → X when open */
 .mobile-sidebar-toggle[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
+    transform: translateY(5px) rotate(45deg);
 }
 
 .mobile-sidebar-toggle[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
