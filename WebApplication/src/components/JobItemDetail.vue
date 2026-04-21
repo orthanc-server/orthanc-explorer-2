@@ -6,7 +6,7 @@ import { mapState, mapGetters } from "vuex"
 
 
 export default {
-    props: ["title", "value", "showIfEmpty"],
+    props: ["title", "value", "showIfEmpty", "isError"],
     setup() {
         return {
         }
@@ -24,16 +24,16 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
         }),
         showValue() {
-            return (this.showIfEmpty != false) || this.hasValue;
+            return (this.showIfEmpty != false) && this.value;
         }
     },
 }
 </script>
 
 <template>
-    <div v-if="showValue" style="display: flex; justify-content: space-between;">
-        <span><strong>{{ title }}:</strong></span>
-        <span>{{ value }}</span>
+    <div v-if="showValue" style="display: flex; justify-content: space-between;" :class="{'text-danger': isError}">
+        <span class="text-start"><strong>{{ title }}:</strong></span>
+        <span class="text-end">{{ value }}</span>
     </div>
 </template>
 

@@ -67,6 +67,21 @@ export default {
         const response = (await axios.get(orthancApiUrl + "jobs?expand"));
         return response.data;
     },
+    async pauseJob(jobId) {
+        return (await axios.post(orthancApiUrl + "jobs/" + jobId + "/pause", "")).data;
+    },
+    async resumeJob(jobId) {
+        return (await axios.post(orthancApiUrl + "jobs/" + jobId + "/resume", "")).data;
+    },
+    async resubmitJob(jobId) {
+        return (await axios.post(orthancApiUrl + "jobs/" + jobId + "/resubmit", "")).data;
+    },
+    async cancelJob(jobId) {
+        return (await axios.post(orthancApiUrl + "jobs/" + jobId + "/cancel", "")).data;
+    },
+    async deleteJob(jobId) {
+        return (await axios.delete(orthancApiUrl + "jobs/" + jobId)).data;
+    },
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },

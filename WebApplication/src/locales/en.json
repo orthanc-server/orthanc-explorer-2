@@ -121,14 +121,20 @@
     "job_success": "Success",
     "job_failure": "Failure",
     "jobs" : {
+        "button_title_cancel": "Cancel",
+        "button_title_delete": "Delete",
+        "button_title_full_details": "Full details",
+        "button_title_pause": "Pause",
+        "button_title_resubmit": "Resubmit",
+        "button_title_resume": "Resume",
         "column_title_id": "ID",
         "column_title_last_update": "Last update",
         "column_title_priority": "Priority",
         "column_title_progress": "Progress",
         "column_title_status": "Status",
         "column_title_type": "Type",
-        "full_details_button_title": "Full details",
-        "side_bar_title": "All jobs"
+        "side_bar_title": "All jobs",
+        "title_resources": "Resources"
     },
     "labels": {
         "add_button": "Add",
