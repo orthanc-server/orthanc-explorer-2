@@ -313,16 +313,7 @@ export default {
             }
         },
         isConfigurationLoaded(newValue, oldValue) {
-            // this is called when opening the page (with a filter or not)
-            // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
-            this.initModalityFilter();
-            for (const tag of this.uiOptions.StudyListColumns) {
-                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
-                    this.filterGenericTags[tag] = '';
-                }
-            }
-            this.updateFilterFromRoute(this.$route.query);
-            setTimeout(() => { this.showMultiLabelsFilter = true }, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
+            this.init();
         },
         filterModalities: {
             handler(newValue, oldValue) {
@@ -404,6 +395,9 @@ export default {
         }
     },
     async mounted() {
+        if (this.isConfigurationLoaded) { // this happens when we open the app e.g. on the #settings page and then, switch to the study list
+            this.init();
+        }
         this.updateSelectAll();
         this._onDocumentClick = this.onDocumentClick.bind(this);
         document.addEventListener('click', this._onDocumentClick, true);
@@ -432,6 +426,19 @@ export default {
         }
     },
     methods: {
+        init() {
+            console.log('Study List init');
+            // this is called when opening the page (with a filter or not)
+            // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
+            this.initModalityFilter();
+            for (const tag of this.uiOptions.StudyListColumns) {
+                if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
+                    this.filterGenericTags[tag] = '';
+                }
+            }
+            this.updateFilterFromRoute(this.$route.query);
+            setTimeout(() => { this.showMultiLabelsFilter = true }, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
+        },
         updateSelectAll() {
             if (this.selectedStudiesIds.length == 0) {
                 this.allSelected = false;

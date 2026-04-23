@@ -101,13 +101,20 @@
     "job_success": "Succès",
     "job_failure": "Échec",
     "jobs" : {
+        "button_title_cancel": "Annuler",
+        "button_title_delete": "Supprimer",
+        "button_title_full_details": "Détails",
+        "button_title_pause": "Interrompre",
+        "button_title_resubmit": "Resoumettre",
+        "button_title_resume": "Reprendre",
         "column_title_id": "ID",
         "column_title_last_update": "Mise à jour",
         "column_title_priority": "Priorité",
         "column_title_progress": "Progression",
         "column_title_status": "Statut",
         "column_title_type": "Type",
-        "side_bar_title": "Tâches"
+        "side_bar_title": "Tâches",
+        "title_resources": "Ressources"
     },
     "labels": {
         "add_button": "Ajouter",

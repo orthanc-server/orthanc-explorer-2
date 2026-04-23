@@ -1,8 +1,9 @@
-Pending changes
-===============
+1.12.0 (2026-04-23)
+==================
 
 Changes:
-- Implemented a job page
+- Implemented a job page.  This can be enabled/disabled via a new configuration `UiOptions.EnableJobsList`.
+  If you have implemented permissions, access to this page requires the `admin-permissions`.
 
 
 1.11.0 (2026-04-13)

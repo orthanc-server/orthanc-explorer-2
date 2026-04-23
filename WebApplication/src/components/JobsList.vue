@@ -2,6 +2,7 @@
 import api from "../orthancApi"
 import { mapState } from "vuex"
 import JobItemDetail from "./JobItemDetail.vue";
+import JobItemResources from "./JobItemResources.vue";
 import dateHelpers from "../helpers/date-helpers"
 
 const sortedStates = {
@@ -18,7 +19,8 @@ export default {
     data() {
         return {
             allJobs: [],
-            allJobsSorted: [],
+            expanded: {},
+            cancelRefreshAllJobs: null,
         };
     },
     computed: {
@@ -33,19 +35,23 @@ export default {
                 this.updateFromRoute(this.$route.query);
             }
         },
-        isConfigurationLoaded(newValue, oldValue) {
-            // this is called when opening the page (with a filter or not)
-            this.updateFromRoute(this.$route.query);
-        }
     },
     async mounted() {
-        this.updateFromRoute(this.$route.query);
+        console.log("mounted");
+        this.refreshAllJobs(true);
+    },
+    async unmounted() {
+        console.log("unmounted");
+        clearTimeout(this.cancelRefreshAllJobs);
+        this.cancelRefreshAllJobs = null;
     },
     methods: {
-        async updateFromRoute(filters) {
+        async refreshAllJobs(autoRefresh) {
             this.allJobs = await api.getAllJobs();
+            this.expanded = {};
 
-            this.allJobs.map(j => j.Expanded = false);
+            this.allJobs.map(j => this.expanded[j.ID] = false);
+
             this.allJobs.sort((a, b) => {
                 // first order by State
                 if (sortedStates[a.State] != sortedStates[b.State]) {
@@ -80,10 +86,21 @@ export default {
                     return (timeA.microsec > timeB.microsec ? -1 : 0);
                 }
                 return 0;
-            })
+            });
+
+            if (autoRefresh) {
+                this.cancelRefreshAllJobs = setTimeout(() => {this.refreshAllJobs(true);}, 3000);
+            }
         },
         isSuccess(job) {
             return (job.State == "Success");
+        },
+        async refreshJob(job) {
+            const updatedJob = await api.getJobStatus(job.ID);
+            const i = this.allJobs.findIndex(j => j.ID === j.ID);
+            if (i !== -1) {
+                this.allJobs[i] = updatedJob;
+            }
         },
         isComplete(job) {
             return (job.State == "Success" || job.State == "Failure");
@@ -92,10 +109,13 @@ export default {
             return (job.State == "Running");
         },
         isExpanded(job) {
-            return job.Expanded;
+            return this.expanded[job.ID];
+        },
+        isInError(job) {
+            return job.ErrorDescription != "Success";
         },
         toggleExpanded(job) {
-            job.Expanded = !job.Expanded;
+            this.expanded[job.ID] = !this.expanded[job.ID];
         },
         getStatusText(job) {
             if (this.isSuccess(job)) {
@@ -103,7 +123,7 @@ export default {
             } else if (this.isComplete(job)) {
                 return this.$t('job_failure');
             }
-            return "";
+            return job.Progress + " %";
         },
         getPctComplete(job) {
             if (this.isComplete(job)) {
@@ -135,10 +155,34 @@ export default {
             }
         },
         getJobTime(job) {
-            return job.CompletionTime || job.CreationTime;
+            if (job.State == 'Running') {
+                return job.Timestamp;
+            } else {
+                return job.CompletionTime || job.CreationTime;
+            }
+        },
+        async pause(jobId) {
+            await api.pauseJob(jobId);
+            await this.refreshAllJobs(false);
+        },
+        async cancel(jobId) {
+            await api.cancelJob(jobId);
+            await this.refreshAllJobs(false);
+        },
+        async resume(jobId) {
+            await api.resumeJob(jobId);
+            await this.refreshAllJobs(false);
+        },
+        async resubmit(jobId) {
+            await api.resubmitJob(jobId);
+            await this.refreshAllJobs(false);
+        },
+        async deleteJob(jobId) {
+            await api.deleteJob(jobId);
+            await this.refreshAllJobs(false);
         }
     },
-    components: { JobItemDetail }
+    components: { JobItemDetail, JobItemResources }
 }
 </script>
 
@@ -177,7 +221,9 @@ export default {
                         <td class="cut-text text-start">{{ job.Priority }}</td>
                         <td class="cut-text">
                             <div class="progress mt-1 mb-1" style="width:90%">
-                                <div class="progress-bar bg-success" role="progressbar"
+                                <div v-if="isRunning(job) || isComplete(job)" class="progress-bar bg-success" role="progressbar"
+                                    v-bind:style="'width: ' + getPctComplete(job) + '%'">{{ getStatusText(job) }}</div>
+                                <div v-if="job.State=='Pending' || job.State=='Paused'" class="progress-bar bg-info" role="progressbar"
                                     v-bind:style="'width: ' + getPctComplete(job) + '%'">{{ getStatusText(job) }}</div>
                                 <div class="progress-bar bg-secondary" role="progressbar"
                                     v-bind:style="'width: ' + getPctRemaining(job) + '%'"></div>
@@ -189,21 +235,51 @@ export default {
                     </tr>
                     <tr class="collapse" :id="'job-collapse-' + job.ID">
                         <td></td>
-                        <td v-if="job.Type == 'DicomModalityStore'" colspan="2" class="text-start job-details">
+                        <td v-if="job.Type == 'DicomModalityStore'" colspan="2" class="job-details">
                             <JobItemDetail title="Remote AET" :value="job.Content.RemoteAet"></JobItemDetail>
                             <JobItemDetail title="Local AET" :value="job.Content.LocalAet"></JobItemDetail>
                             <JobItemDetail title="Instances Count" :value="job.Content.InstancesCount"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
-                        <td v-else-if="job.Type == 'ResourceModifiction'" colspan="2" class="text-start job-details">
+                        <td v-else-if="job.Type == 'OrthancPeerStore'" colspan="2" class="job-details">
+                            <JobItemDetail title="Peer" :value="job.Content.Peer"></JobItemDetail>
+                            <JobItemDetail title="Instances Count" :value="job.Content.InstancesCount"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemResources :resources="job.Content.Resources"></JobItemResources>
+                        </td>
+                        <td v-else-if="job.Type == 'ResourceModification'" colspan="2" class="text-start job-details">
                             <JobItemDetail title="Is Anonymization" :value="job.Content.IsAnonymization"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td v-else colspan="2">
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemResources v-if="job.Content && job.Content.Resources" :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td></td>
                         <td colspan="2" class="text-start job-full-details">
-                            <template v-if="job.ErrorDetails"><strong>Error details:</strong> {{ job.ErrorDetails }}<br/></template>
-                            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" :data-bs-target="'#job-collapse-details-' + job.ID">
-                                {{ $t('jobs.full_details_button_title') }}
+                            <button v-if="job.State=='Failure'" class="btn btn-primary btn-sm mx-1" type="button" @click="resubmit(job.ID)">
+                                {{ $t('jobs.button_title_resubmit') }}
+                            </button>
+                            <button v-if="job.State=='Failure' || job.State=='Success'" class="btn btn-primary btn-sm mx-1" type="button" @click="deleteJob(job.ID)">
+                                {{ $t('jobs.button_title_delete') }}
+                            </button>
+                            <button v-if="job.State=='Running'" class="btn btn-primary btn-sm mx-1" type="button" @click="pause(job.ID)">
+                                {{ $t('jobs.button_title_pause') }}
+                            </button>
+                            <button v-if="job.State=='Running' || job.State=='Pending' || job.State=='Paused'" class="btn btn-primary btn-sm mx-1" type="button" @click="cancel(job.ID)">
+                                {{ $t('jobs.button_title_cancel') }}
+                            </button>
+                            <button v-if="job.State=='Paused'" class="btn btn-primary btn-sm mx-1" type="button" @click="resume(job.ID)">
+                                {{ $t('jobs.button_title_resume') }}
+                            </button>
+                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" :data-bs-target="'#job-collapse-details-' + job.ID">
+                                {{ $t('jobs.button_title_full_details') }}
                             </button>
                             <pre class="collapse job-full-json" :id="'job-collapse-details-' + job.ID">{{ JSON.stringify(job, null, 2) }}
                             </pre>
