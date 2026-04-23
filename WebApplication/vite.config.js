@@ -37,6 +37,12 @@ export default defineConfig(({ command }) => ({
     }
   },
   css: {
+    preprocessorOptions: {
+      scss: {
+        // Optional: Add global SCSS variables or mixins here
+        additionalData: `@use "/src/assets/css/media.scss" as *;`,
+      },
+    },
     postcss: { // to avoid this warning: https://github.com/vitejs/vite/discussions/5079
       plugins: [
         {

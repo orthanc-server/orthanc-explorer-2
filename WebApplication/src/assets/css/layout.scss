@@ -3,8 +3,7 @@
 }
 
 /* On mobile portrait or landscape, the sidebar is hidden (off-canvas), so content takes full width */
-@media (max-width: 767px) and (orientation: portrait),
-(max-width: 1300px) and (orientation: landscape) {
+@include mobile-any {
     .content {
         margin-left: 0;
         padding-top: 12px;

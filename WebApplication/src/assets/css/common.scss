@@ -96,7 +96,7 @@
 /*
    Mobile portrait responsive fixes
   */
-@media (max-width: 767px) and (orientation: portrait) {
+@include mobile-portrait {
 
   /* ── 0. Hide column titles ── */
   tr.study-column-titles {
@@ -342,7 +342,7 @@
 }
 
 /* ── 4. Mobile landscape: Ensure filters/dropdowns don't exceed viewport ── */
-@media (max-width: 1300px) and (orientation: landscape) {
+@include mobile-landscape {
 
   /* Force content to start from the very left and take full width */
   #app .content,

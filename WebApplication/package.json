@@ -26,6 +26,7 @@
     "mime-types": "^2.1.35",
     "mitt": "^3.0.1",
     "native-file-system-adapter": "^3.0.1",
+    "sass": "^1.99.0",
     "sass-embedded": "^1.97.3",
     "uppie": "^4.1.0",
     "uuid": "^9.0.1",

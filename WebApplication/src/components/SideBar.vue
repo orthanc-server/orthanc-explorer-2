@@ -337,7 +337,7 @@ export default {
         </div>
     </div>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .router-link {
     width: 100%;
     text-align: left;
@@ -530,9 +530,8 @@ export default {
     line-height: 28px;
 }
 
-/* Push logo below the fixed hamburger toggle on mobile portrait & landscape */
-@media (max-width: 767px) and (orientation: portrait),
-(max-width: 1300px) and (orientation: landscape) {
+/* Push logo below the fixed burger toggle on mobile portrait & landscape */
+@include mobile-any {
     .nav-side-content {
         padding-top: 44px;
     }

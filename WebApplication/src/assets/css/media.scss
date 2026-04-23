@@ -1,0 +1,20 @@
+/* media.scss */
+@mixin mobile-any {
+  @media (max-width: 767px),
+         (max-width: 1300px) 
+  {
+    @content;
+  }
+}
+
+@mixin mobile-portrait {
+  @media (max-width: 767px) and (orientation: portrait) {
+    @content;
+  }
+}
+
+@mixin mobile-landscape {
+  @media (max-width: 1300px) and (orientation: landscape) {
+    @content;
+  }
+}

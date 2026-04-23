@@ -1674,7 +1674,7 @@ export default {
     </div>
 </template>
 
-<style>
+<style lang="scss">
 :root {
     --filter-margin: 5px;
     --filter-padding: 2px;
@@ -1892,8 +1892,7 @@ button.form-control.study-list-filter {
 }
 
 /* ───── Mobile portrait & landscape breakpoint ───── */
-@media (max-width: 767px) and (orientation: portrait),
-(max-width: 1300px) and (orientation: landscape) {
+@include mobile-any {
     .col-prefix {
         width: 36px !important;
         min-width: 36px !important;
