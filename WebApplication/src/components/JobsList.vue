@@ -89,7 +89,7 @@ export default {
             });
 
             if (autoRefresh) {
-                this.cancelRefreshAllJobs = setTimeout(() => {this.refreshAllJobs(true);}, 5000);
+                this.cancelRefreshAllJobs = setTimeout(() => {this.refreshAllJobs(true);}, 3000);
             }
         },
         isSuccess(job) {
@@ -110,6 +110,9 @@ export default {
         },
         isExpanded(job) {
             return this.expanded[job.ID];
+        },
+        isInError(job) {
+            return job.ErrorDescription != "Success";
         },
         toggleExpanded(job) {
             this.expanded[job.ID] = !this.expanded[job.ID];
@@ -236,22 +239,26 @@ export default {
                             <JobItemDetail title="Remote AET" :value="job.Content.RemoteAet"></JobItemDetail>
                             <JobItemDetail title="Local AET" :value="job.Content.LocalAet"></JobItemDetail>
                             <JobItemDetail title="Instances Count" :value="job.Content.InstancesCount"></JobItemDetail>
-                            <JobItemDetail title="Error details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td v-else-if="job.Type == 'OrthancPeerStore'" colspan="2" class="job-details">
                             <JobItemDetail title="Peer" :value="job.Content.Peer"></JobItemDetail>
                             <JobItemDetail title="Instances Count" :value="job.Content.InstancesCount"></JobItemDetail>
-                            <JobItemDetail title="Error details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td v-else-if="job.Type == 'ResourceModification'" colspan="2" class="text-start job-details">
                             <JobItemDetail title="Is Anonymization" :value="job.Content.IsAnonymization"></JobItemDetail>
-                            <JobItemDetail title="Error details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td v-else colspan="2">
-                            <JobItemDetail title="Error details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources v-if="job.Content && job.Content.Resources" :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td></td>
