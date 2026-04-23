@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.12.0 (2026-04-23)
+==================
 
 Changes:
 - Implemented a job page.  This can be enabled/disabled via a new configuration `UiOptions.EnableJobsList`.
