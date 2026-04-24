@@ -345,8 +345,7 @@
 @include mobile-landscape {
 
   /* Force content to start from the very left and take full width */
-  #app .content,
-  .content {
+  #app .content {
     margin-left: 0 !important;
     padding-left: 0 !important;
     left: 0 !important;

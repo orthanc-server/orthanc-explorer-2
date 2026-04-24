@@ -402,14 +402,14 @@ export default {
         this._onDocumentClick = this.onDocumentClick.bind(this);
         document.addEventListener('click', this._onDocumentClick, true);
 
-        this._mqlMobilePortrait = window.matchMedia('(max-width: 767px) and (orientation: portrait)');
+        this._mqlMobilePortrait = window.matchMedia('(max-width: 767px)');
         this.isMobilePortrait = this._mqlMobilePortrait.matches;
         this._mqlMobilePortraitListener = (e) => {
             this.isMobilePortrait = e.matches;
         };
         this._mqlMobilePortrait.addEventListener('change', this._mqlMobilePortraitListener);
 
-        this._mqlMobileLandscape = window.matchMedia('(max-width: 1300px) and (orientation: landscape)');
+        this._mqlMobileLandscape = window.matchMedia('(min-width: 768px) and (max-width: 1300px)');
         this.isMobileLandscape = this._mqlMobileLandscape.matches;
         this._mqlMobileLandscapeListener = (e) => {
             this.isMobileLandscape = e.matches;

@@ -208,12 +208,6 @@ export default {
     .nav-side-layout--open {
         transform: translateX(0);
     }
-
-    /* On mobile portrait or landscape, the sidebar is hidden (off-canvas), so content takes full width */
-    .content {
-        margin-left: 0;
-        padding-top: 12px;
-    }
 }
 
 </style>
