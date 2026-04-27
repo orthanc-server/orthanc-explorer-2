@@ -638,14 +638,14 @@ export default {
         },
         isStl() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
-                return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.3";
+                return this.instanceHeaders["0002,0002"] && this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.3";
             } else {
                 return false;
             }
         },
         isPdfPreview() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
-                return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
+                return this.instanceHeaders["0002,0002"] && this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
             } else {
                 return false;
             }
