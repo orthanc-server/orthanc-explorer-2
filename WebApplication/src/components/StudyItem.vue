@@ -10,7 +10,11 @@ import resourceHelpers from "../helpers/resource-helpers";
 import TokenLinkButton from "./TokenLinkButton.vue";
 
 export default {
-    props: ["studyId"],
+    props: {
+        studyId: { type: String, required: true },
+        isMobilePortrait: { type: Boolean, default: false },
+        isMobileLandscape: { type: Boolean, default: false }
+    },
     emits: ["deletedStudy"],
     data() {
         return {
@@ -36,27 +40,30 @@ export default {
         this.seriesIds = this.study.Series;
         this.selected = this.selectedStudiesIds.indexOf(this.studyId) != -1;
 
-        if (!this.$refs['study-collapsible-details']) {
-            console.log('no refs: ', studyResponse);
-        }
-        this.$refs['study-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
-            if (e.target == e.currentTarget) {
-                this.expanded = true;
-            }
-        });
-        this.$refs['study-collapsible-details'].addEventListener('hide.bs.collapse', (e) => {
-            if (e.target == e.currentTarget) {
-                this.expanded = false;
-            }
-        });
+        if (!this.isMobilePortrait && !this.isMobileLandscape && this.$refs['study-collapsible-details']) {
+            var el = this.$refs['study-collapsible-details'];
+            this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
 
-        var el = this.$refs['study-collapsible-details'];
-        this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
+            el.addEventListener('show.bs.collapse', (e) => {
+                if (e.target == e.currentTarget) {
+                    this.expanded = true;
+                }
+            });
+            el.addEventListener('hide.bs.collapse', (e) => {
+                if (e.target == e.currentTarget) {
+                    this.expanded = false;
+                }
+            });
+        }
 
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
                 if (v == null || v === 'study' || v === 'series' || v === 'instance') {
-                    this.collapseElement.show();
+                    if (this.collapseElement) {
+                        this.collapseElement.show();
+                    } else {
+                        this.expanded = true;
+                    }
                 }
             }
         }
@@ -205,7 +212,7 @@ export default {
 
 
 <template>
-    <tbody>
+    <tbody v-if="!isMobilePortrait && !isMobileLandscape">
         <tr v-if="loaded"
             :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
@@ -288,6 +295,104 @@ export default {
             </td>
         </tr>
     </tbody>
+    <div v-else-if="loaded && (isMobilePortrait || isMobileLandscape)" class="mobile-study-card"
+        :class="{ 'expanded': expanded, 'selected': selected, 'mobile-landscape-card': isMobileLandscape }">
+        <!-- Landscape: single-row card body -->
+        <div v-if="isMobileLandscape" class="msc-card-body msc-card-body-landscape p-2 d-flex align-items-center gap-2"
+            @click="expanded = !expanded">
+            <input class="form-check-input msc-check-input m-0 me-1" type="checkbox" v-model="selected"
+                @click.stop="clickedSelect">
+            <div v-if="hasPrimaryViewerIcon" class="msc-viewer-icon-container d-flex align-items-center" @click.stop>
+                <TokenLinkButton v-if="primaryViewerUrl" level="study" :linkUrl="primaryViewerUrl"
+                    :resourcesOrthancId="[study.ID]" linkType="icon" iconClass="bi bi-eye-fill"
+                    :tokenType="primaryViewerTokenType" :opensInNewTab="true">
+                </TokenLinkButton>
+            </div>
+            <span class="fw-bold text-uppercase text-white msc-patient-name-landscape">
+                {{ formattedPatientName || study.PatientMainDicomTags.PatientName || 'NO NAME' }}
+            </span>
+            <span class="fw-bold text-white msc-patient-id-landscape">{{
+                study.PatientMainDicomTags.PatientID }}</span>
+            <span class="text-white msc-study-date-landscape">{{
+                formattedStudyDate }}</span>
+            <span class="msc-study-description-landscape">
+                {{ study.MainDicomTags.StudyDescription || '---' }}
+            </span>
+            <span v-if="modalitiesInStudyForDisplay" class="fw-bold text-white text-uppercase msc-modalities-landscape">
+                {{ modalitiesInStudyForDisplay }}
+            </span>
+            <span class="badge border border-secondary text-light rounded-pill msc-count-badge-landscape">
+                {{ seriesAndInstancesCount }} S/I
+            </span>
+            <div v-if="showLabels && hasLabels" class="msc-labels-container-landscape d-flex gap-1">
+                <span v-for="label in study.Labels" :key="label" class="badge msc-label-landscape">{{
+                    label }}</span>
+            </div>
+        </div>
+
+        <!-- Portrait: two-row card body -->
+        <div v-else class="msc-card-body p-2 d-flex flex-column gap-1" @click="expanded = !expanded">
+            <!-- Top Row: Checkbox, Eye, Name ------ ID, Date -->
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center overflow-hidden me-2">
+                    <input class="form-check-input msc-check-input m-0 me-2" type="checkbox" v-model="selected"
+                        @click.stop="clickedSelect">
+                    <div v-if="hasPrimaryViewerIcon" class="me-2 msc-viewer-icon-container d-flex align-items-center"
+                        @click.stop>
+                        <TokenLinkButton v-if="primaryViewerUrl" level="study" :linkUrl="primaryViewerUrl"
+                            :resourcesOrthancId="[study.ID]" linkType="icon" iconClass="bi bi-eye-fill"
+                            :tokenType="primaryViewerTokenType" :opensInNewTab="true">
+                        </TokenLinkButton>
+                    </div>
+                    <span class="fw-bold text-uppercase text-truncate text-white msc-patient-name-portrait">
+                        {{ formattedPatientName || study.PatientMainDicomTags.PatientName || 'NO NAME' }}
+                    </span>
+                </div>
+                <div class="d-flex align-items-center text-white msc-id-date-container-portrait">
+                    <span class="fw-bold me-2 msc-patient-id-portrait">{{ study.PatientMainDicomTags.PatientID
+                    }}</span>
+                    <span class="msc-study-date-portrait">{{ formattedStudyDate }}</span>
+                </div>
+            </div>
+
+            <!-- Bottom Row: StudyDescription ------ Modality, Count -->
+            <div class="d-flex align-items-center justify-content-between mt-1 msc-bottom-row-portrait">
+                <span class="text-truncate me-2 msc-study-description-portrait">
+                    {{ study.MainDicomTags.StudyDescription || '---' }}
+                </span>
+                <div class="d-flex align-items-center gap-2 msc-modality-count-container-portrait">
+                    <span v-if="modalitiesInStudyForDisplay"
+                        class="fw-bold text-white text-uppercase msc-modalities-portrait">
+                        {{ modalitiesInStudyForDisplay }}
+                    </span>
+                    <span class="badge border border-secondary text-light rounded-pill msc-count-badge-portrait">
+                        {{ seriesAndInstancesCount }} S/I
+                    </span>
+                </div>
+            </div>
+
+            <div v-if="hasPdfReportIcon" class="mt-1 msc-pdf-container" @click.stop>
+                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" level="study"
+                    :linkUrl="pdfReport.url" :resourcesOrthancId="[study.ID]" linkType="icon"
+                    iconClass="bi bi-file-earmark-text mb-1 me-2" :tokenType="'download-instant-link'"
+                    :opensInNewTab="true" :title="pdfReport.title" class="msc-pdf-button">
+                </TokenLinkButton>
+            </div>
+
+            <!-- Labels Row -->
+            <div v-if="showLabels && hasLabels" class="mt-1 d-flex gap-1 flex-wrap msc-labels-row-portrait">
+                <span v-for="label in study.Labels" :key="label" class="badge msc-label-portrait">{{ label
+                }}</span>
+            </div>
+        </div>
+
+        <!-- Details collapse (manual Vue binding) -->
+        <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
+            <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
+                :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
+                @deletedStudy="onDeletedStudy"></StudyDetails>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -351,5 +456,168 @@ export default {
 .td-pdf-icon {
     padding: 0;
     /* to maximize click space for the icon */
+}
+
+/* Mobile Portrait Styles */
+.mobile-study-card {
+    background-color: var(--study-odd-bg-color);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-study-card.selected {
+    background-color: var(--study-hover-color);
+    border-color: var(--bs-primary);
+}
+
+.mobile-study-card.expanded {
+    background-color: var(--study-details-bg-color);
+    border-color: var(--bs-primary);
+}
+
+.msc-header {
+    cursor: pointer;
+}
+
+.msc-details {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+/* Landscape card: tighter vertical spacing for single-row layout */
+.mobile-landscape-card {
+    margin-bottom: 4px;
+}
+
+.mobile-landscape-card .msc-card-body {
+    padding: 4px 8px !important;
+}
+
+.msc-card-body-landscape {
+    min-width: 0;
+}
+
+.msc-check-input {
+    flex-shrink: 0;
+}
+
+.msc-viewer-icon-container {
+    flex-shrink: 0;
+}
+
+.msc-patient-name-landscape {
+    font-size: 0.9rem;
+    flex: 0 1 auto;
+    min-width: 60px;
+    max-width: 22%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.msc-patient-id-landscape {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.msc-study-date-landscape {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.msc-study-description-landscape {
+    font-size: 0.8rem;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.msc-modalities-landscape {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.msc-count-badge-landscape {
+    font-size: 0.75rem;
+    padding: 0.2em 0.4em;
+    background-color: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.msc-labels-container-landscape {
+    flex-shrink: 0;
+}
+
+.msc-label-landscape {
+    background-color: var(--label-bg-color, #3b424a);
+    color: var(--bs-body-color, #fff);
+    font-size: 0.7rem;
+}
+
+.msc-patient-name-portrait {
+    font-size: 0.95rem;
+}
+
+.msc-id-date-container-portrait {
+    flex-shrink: 0;
+}
+
+.msc-patient-id-portrait {
+    font-size: 0.85rem;
+}
+
+.msc-study-date-portrait {
+    font-size: 0.85rem;
+}
+
+.msc-bottom-row-portrait {
+    padding-left: 28px;
+}
+
+.msc-study-description-portrait {
+    font-size: 0.85rem;
+}
+
+.msc-modality-count-container-portrait {
+    flex-shrink: 0;
+}
+
+.msc-modalities-portrait {
+    font-size: 0.8rem;
+}
+
+.msc-count-badge-portrait {
+    font-size: 0.8rem;
+    padding: 0.3em 0.5em;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.msc-pdf-container {
+    padding-left: 28px;
+}
+
+.msc-pdf-button {
+    display: inline-block;
+}
+
+.msc-labels-row-portrait {
+    padding-left: 28px;
+}
+
+.msc-label-portrait {
+    background-color: var(--label-bg-color, #3b424a);
+    color: var(--bs-body-color, #fff);
+}
+
+.msc-details-container {
+    background-color: var(--study-details-bg-color);
 }
 </style>

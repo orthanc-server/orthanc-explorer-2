@@ -13,6 +13,11 @@ function applyBootStrapTheme() {
 }
 
 export default {
+    data() {
+        return {
+            sidebarOpen: false,
+        };
+    },
     async created() {
         console.log("Creating App...");
 
@@ -44,14 +49,40 @@ export default {
         await this.$store.dispatch('labels/refresh');
         console.log("App created");
     },
-
+    watch: {
+        $route() {
+            // Auto-close the sidebar on mobile when navigating
+            this.sidebarOpen = false;
+        },
+    },
+    methods: {
+        toggleSidebar() {
+            this.sidebarOpen = !this.sidebarOpen;
+        },
+        closeSidebar() {
+            this.sidebarOpen = false;
+        },
+    },
 }
 </script>
 
 <template>
     <div class="full-page">
-        <div class="nav-side-layout">
-            <router-view name="SideBarView"></router-view>
+        <!-- Mobile hamburger toggle button -->
+        <button id="mobile-sidebar-toggle" class="mobile-sidebar-toggle" @click="toggleSidebar"
+            :aria-expanded="sidebarOpen" aria-label="Toggle navigation menu">
+            <span class="hamburger-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
+        </button>
+
+        <!-- Backdrop overlay for mobile -->
+        <div class="sidebar-overlay" :class="{ 'sidebar-overlay--active': sidebarOpen }" @click="closeSidebar"></div>
+
+        <div class="nav-side-layout" :class="{ 'nav-side-layout--open': sidebarOpen }">
+            <router-view name="SideBarView" @close-sidebar="closeSidebar"></router-view>
         </div>
         <div class="content">
             <router-view name="ContentView"></router-view>
@@ -75,9 +106,115 @@ export default {
     height: 100%;
     background-color: var(--nav-side-bg-color);
     color: var(--nav-side-color);
+    transition: transform 0.3s ease;
+    z-index: 1040;
 }
 
 .nav-side-layout .toggle-btn {
     display: none;
+}
+
+/* ───── Mobile hamburger button ───── */
+.mobile-sidebar-toggle {
+    display: none;
+    /* Hidden on desktop */
+    position: fixed;
+    top: 6px;
+    left: 8px;
+    z-index: 1050;
+    background-color: var(--study-even-bg-color, #212529);
+    border: none;
+    border-radius: 6px;
+    width: 36px;
+    height: 32px;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.2s ease;
+}
+
+.mobile-sidebar-toggle:hover {
+    background-color: var(--nav-side-selected-bg-color, #4f5b69);
+}
+
+.hamburger-icon {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 18px;
+}
+
+.hamburger-icon span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: var(--nav-side-color, #ffffff);
+    border-radius: 2px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* Animate hamburger → X when open */
+.mobile-sidebar-toggle[aria-expanded="true"] .hamburger-icon span:nth-child(1) {
+    transform: translateY(5px) rotate(45deg);
+}
+
+.mobile-sidebar-toggle[aria-expanded="true"] .hamburger-icon span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-sidebar-toggle[aria-expanded="true"] .hamburger-icon span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ───── Overlay backdrop ───── */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1035;
+    opacity: 0;
+    pointer-events: none;
+    /* invisible overlay must NOT intercept touch/clicks */
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay--active {
+    opacity: 1;
+    pointer-events: auto;
+    /* only capture events when the sidebar is actually open */
+}
+
+/* ───── Mobile portrait & landscape breakpoint ───── */
+@media (max-width: 767px) and (orientation: portrait),
+(max-width: 1300px) and (orientation: landscape) {
+
+    /* Show the hamburger button */
+    .mobile-sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Show the overlay (pointer-events still none until --active is added) */
+    .sidebar-overlay {
+        display: block;
+    }
+
+    /* Slide sidebar off-screen by default */
+    .nav-side-layout {
+        transform: translateX(calc(-1 * var(--nav-bar-width, 260px)));
+    }
+
+    /* Slide sidebar in when open */
+    .nav-side-layout--open {
+        transform: translateX(0);
+    }
+
+    /* On mobile portrait or landscape, the sidebar is hidden (off-canvas), so content takes full width */
+    .content {
+        margin-left: 0;
+        padding-top: 12px;
+    }
 }
 </style>

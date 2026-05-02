@@ -1,3 +1,12 @@
 .content {
     margin-left: var(--nav-bar-width);
 }
+
+/* On mobile portrait or landscape, the sidebar is hidden (off-canvas), so content takes full width */
+@media (max-width: 767px) and (orientation: portrait),
+(max-width: 1300px) and (orientation: landscape) {
+    .content {
+        margin-left: 0;
+        padding-top: 12px;
+    }
+}
