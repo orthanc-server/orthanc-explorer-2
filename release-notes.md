@@ -4,6 +4,8 @@ Pending changes
 Fixes:
 - Added support for files without `MediaStorageSOPClassUID` ([issue](https://github.com/orthanc-server/orthanc-builder/issues/35))
 - Fix #108 [Reflected XSS via remote-source URL Parameter](https://github.com/orthanc-server/orthanc-explorer-2/issues/108)
+- Fix [Patient Modification](https://discourse.orthanc-server.org/t/potential-issue-regarding-patient-data-modification/6430/5)
+
 
 1.12.0 (2026-04-23)
 ==================

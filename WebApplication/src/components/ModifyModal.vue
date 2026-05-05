@@ -128,7 +128,7 @@ export default {
         back() {
             if (this.step == 'tags' && !this.isAnonymization) {
                 this.step = 'init';
-            } else if (['warning', 'error', 'select-patients', 'select-studies'].indexOf(this.step) != -1) {
+            } else if (['warning', 'error', 'select-patient', 'select-studies'].indexOf(this.step) != -1) {
                 this.step = 'tags';
             } else {
                 console.error("unknown step for back function ", this.step);
@@ -595,7 +595,7 @@ export default {
         },
         isRemovedTag(tag) {
             if (this.removedTags[tag] === undefined) {
-                console.warn("isRemovedTag: undefined tag");
+                console.warn("isRemovedTag: undefined tag", tag);
             }
             return this.removedTags[tag];
         },

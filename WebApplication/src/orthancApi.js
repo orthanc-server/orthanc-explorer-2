@@ -203,7 +203,7 @@ export default {
             "Expand": expand
         }
         if (expand) {
-            payload["RequestedTags"] = ["PatientID", "PatientName", "PatientBirthDate", "OtherPatientIDs"];
+            payload["RequestedTags"] = ["PatientID", "PatientName", "PatientBirthDate", "OtherPatientIDs", "PatientSex"];
         }
 
         const response = await axios.post(orthancApiUrl + "tools/find", payload);
