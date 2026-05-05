@@ -828,7 +828,7 @@ export default {
                         <div v-if="resourceLevel == 'study' && !isAnonymization && samePatientStudiesCount > 1"
                             class="row border-bottom border-3 py-3">
                             <div class="col-md-9"
-                                v-html="$t('modify.study_step_0_patient_has_other_studies_html', { count: samePatientStudiesCount })">
+                                style="white-space: pre-line" v-html="$t('modify.study_step_0_patient_has_other_studies_html', { count: samePatientStudiesCount })">
                             </div>
                             <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100"

@@ -8,6 +8,7 @@ import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
 import dateHelpers from "../helpers/date-helpers"
+import resourceHelpers from "../helpers/resource-helpers"
 import $ from "jquery"
 import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
 import api from "../orthancApi";
@@ -423,15 +424,15 @@ export default {
         },
         columnTitle(tagName) {
             if (tagName == "seriesCount") {
-                return this.$i18n.t('series_count_header');
+                return this.$t('series_count_header');
             } else if (tagName == "instancesCount") {
-                return this.$i18n.t('instances_count_header');
+                return this.$t('instances_count_header');
             } else if (tagName == "seriesAndInstancesCount") {
-                return this.$i18n.t('series_and_instances_count_header');
+                return this.$t('series_and_instances_count_header');
             } else if (tagName == "modalities") {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, "ModalitiesInStudy");
+                return translateDicomTag("ModalitiesInStudy");
             } else {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+                return translateDicomTag(tagName);
             }
         },
         columnTooltip(tagName) {
@@ -647,7 +648,7 @@ export default {
                 } else if (filters["source-type"].toLowerCase() === "dicom-web") {
                     this.sourceType = SourceType.REMOTE_DICOM_WEB;
                 }
-                this.remoteSource = filters["remote-source"];
+                this.remoteSource = resourceHelpers.sanitizeToAlphanumeric(filters["remote-source"]);
             } else {
                 this.sourceType = SourceType.LOCAL_ORTHANC;
                 this.remoteSource = null;

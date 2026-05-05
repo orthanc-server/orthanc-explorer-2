@@ -24,7 +24,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
         }),
         title() {
-            return translateDicomTag(this.$i18n.t, this.$i18n.te, this.tag);
+            return translateDicomTag(this.tag);
         },
         value() {
             if (this.hasValue) {

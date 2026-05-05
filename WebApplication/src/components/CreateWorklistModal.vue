@@ -311,7 +311,7 @@ export default {
             }
         },
         translate(tagName) {
-            return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+            return translateDicomTag(tagName);
         },
         handleInput(isComputationSource) {
             if (!isComputationSource) {

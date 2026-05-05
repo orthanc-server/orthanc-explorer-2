@@ -29,16 +29,16 @@ export default {
     methods: {
         columnTitle(tagName) {
             if (tagName == "instances_number") {
-                return "# " + this.$i18n.t('instances');
+                return "# " + this.$t('instances');
             } else {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+                return translateDicomTag(tagName);
             }
         },
         columnTooltip(tagName) {
             if (tagName == "instances_number") {
-                return this.$i18n.t("instances_number");
+                return this.$t("instances_number");
             } else {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+                return translateDicomTag(tagName);
             }
         },
         onDeletedSeries(seriesId) {

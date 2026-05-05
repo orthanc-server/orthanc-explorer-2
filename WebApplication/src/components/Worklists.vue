@@ -121,7 +121,7 @@ export default {
             }
         },
         columnTitle(tagName) {
-            return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+            return translateDicomTag(tagName);
         },
         columnTooltip(tagName) {
             return this.columnTitle(tagName);

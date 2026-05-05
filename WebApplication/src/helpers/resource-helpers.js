@@ -212,5 +212,10 @@ export default {
 
     isPatientTag(tagName) {
         return ["PatientID", "PatientBirthDate", "PatientName", "PatientSex", "OtherPatientIDs"].indexOf(tagName) != -1;
+    },
+
+    sanitizeToAlphanumeric(unsafe) {
+        // Keep only alphanumeric, underscores, and hyphens (ex, for a peer name or a remote modality)
+        return unsafe.replace(/[^a-zA-Z0-9_-]/g, '');
     }
 }

@@ -40,16 +40,16 @@ const i18n = createI18n({
 
 document._mustTranslateDicomTags = false;
 
-function translateDicomTag($t, $te, tagName) {
-  if (document._mustTranslateDicomTags) {
-    if ($te('dicom_tags.' + tagName)) {
-      return $t('dicom_tags.' + tagName)
-    } else {
-      return tagName;
-    }
-  } else {
-    return tagName;
+function translateDicomTag(tagName) {
+  const { t, te } = i18n.global
+
+  if (!document._mustTranslateDicomTags) {
+    return tagName
   }
+
+  const key = `dicom_tags.${tagName}`
+
+  return te(key) ? t(key) : tagName
 }
 
 export {
