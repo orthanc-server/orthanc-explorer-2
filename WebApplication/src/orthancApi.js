@@ -818,7 +818,7 @@ export default {
     },
     getWeasisViewerUrl(resourceDicomUid) {
         const dicomWebRootUrl = new URL(orthancApiUrl + "dicom-web", window.location.origin);
-        const parts = ["$dicom:rs", "--url", `"${dicomWebRootUrl.toString()}"`, "-r", `"studyUID=${resourceDicomUid}"`];
+        const parts = ["$dicom:rs", "--url", `"${dicomWebRootUrl.toString()}"`, "-r", `"studyUID=${resourceDicomUid}"`]; // TODO: include credentials (token, no basic auth !), "-H", `"Authorization: Basic dGVzdDp0ZXN0"`];
         const url = "weasis://?" + parts.map(v => encodeURIComponent(v)).join("+");
         return url
     },

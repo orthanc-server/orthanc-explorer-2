@@ -100,7 +100,9 @@
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
             "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
 
-            "EnableOpenInWeasisViewer": false,          // Enables a "open in Weasis viewer" button.  Note that the DICOMWeb plugin must be enabled.
+            "EnableOpenInWeasisViewer": false,          // Enables a "open in Weasis viewer" button.  
+                                                        // Note that the DICOMWeb plugin must be enabled, Weasis must be installed on your PC and must have been configured to open weasis:// URLs.
+                                                        // Also note that Weasis won't be able to retrieve the data if Orthanc requires authentication.
 
             // Defines which icons is used by which enabled viewer.
             // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif", "ohif-vr", "ohif-tmtv"
