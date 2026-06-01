@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.12.1 (2026-06-01)
+==================
 
 Fixes:
 - Added support for files without `MediaStorageSOPClassUID` ([issue](https://github.com/orthanc-server/orthanc-builder/issues/35))
