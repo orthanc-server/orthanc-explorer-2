@@ -1,3 +1,11 @@
+Pending changes
+===============
+
+Fixes:
+- Study list is broken when `UiOptions.StudyListColumns` does not contain any of `Modalities`, `seriesAndInstancesCount`
+  and when `EnableReportQuickButton` is set to false ([report](https://discourse.orthanc-server.org/t/26-6-0-cannot-click-on-any-study/6451))
+
+
 1.12.1 (2026-06-01)
 ==================
 
