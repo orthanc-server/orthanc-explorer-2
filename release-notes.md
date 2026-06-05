@@ -2,6 +2,7 @@ Pending changes
 ===============
 
 Changes:
+- Added a `Settings->Metrics` page.
 - We have changed the router which means that the '#/' in the url has now disappeared.
   Therefore, the URI to open OE2 directly on a specific patient is now:
   `http://localhost:8042/ui/app/filtered-studies?PatientID=134&order-by=DicomTag,StudyDate,ASC` instead of 

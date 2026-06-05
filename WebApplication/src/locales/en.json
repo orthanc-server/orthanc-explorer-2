@@ -274,6 +274,8 @@
         "labels_based_permissions_title": "Labels based permissions",
         "labels_title": "Labels",
         "global_permissions_title": "Global permissions",
+        "metrics": "Metrics",
+        "metrics_refresh": "Refresh",
         "orthanc_name": "Orthanc Name",
         "orthanc_system_info": "Orthanc System Info",
         "orthanc_version": "Orthanc Version",

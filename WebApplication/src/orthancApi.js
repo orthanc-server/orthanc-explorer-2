@@ -748,6 +748,21 @@ export default {
     async updateWorklist(worklistId, wlTags) {
         return (await axios.put(orthancApiUrl + "worklists/" + worklistId, { "Tags": wlTags })).data;
     },
+    async getMetrics() {
+        const rawTextData = (await axios.get(orthancApiUrl + "tools/metrics-prometheus")).data;
+        let metrics = {}
+        for (const line of rawTextData.split('\n')) {
+            const cells = line.split(' ');
+            if (cells.length == 3) {
+                metrics[cells[0]] = {
+                    'value': cells[1],
+                    'timestamp': cells[2]
+                }
+            }
+        }
+        // console.log(metrics);
+        return metrics;
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {

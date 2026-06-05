@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Settings from './components/Settings.vue'
 import SettingsLabels from './components/SettingsLabels.vue'
 import SettingsPermissions from './components/SettingsPermissions.vue'
+import SettingsMetrics from './components/SettingsMetrics.vue'
 import Worklists from './components/Worklists.vue'
 import AuditLogs from './components/AuditLogs.vue'
 import StudyList from './components/StudyList.vue'
@@ -63,6 +64,14 @@ export const router = createRouter({
         ContentView: SettingsPermissions,
       },
       name: 'settings-permissions'
+    },
+    {
+      path: '/settings-metrics',
+      components: {
+        SideBarView: SideBar,
+        ContentView: SettingsMetrics,
+      },
+      name: 'settings-metrics'
     },
     {
       path: '/audit-logs',
