@@ -101,7 +101,7 @@ axios.get('../api/pre-login-configuration').then((config) => {
             }
 
             app.mount('#app');
-            console.log("App mounted with keycloak, current route is ", currentPath);
+            console.log("App mounted with keycloak");
 
             // programm token refresh at regular interval
             setInterval(() => {
