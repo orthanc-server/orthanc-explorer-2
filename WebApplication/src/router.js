@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import Settings from './components/Settings.vue'
 import SettingsLabels from './components/SettingsLabels.vue'
 import SettingsPermissions from './components/SettingsPermissions.vue'
@@ -13,7 +13,7 @@ import { baseOe2Url } from "./globalConfigurations"
 console.log('Base URL for router: ', baseOe2Url);
 
 export const router = createRouter({
-  history: createWebHashHistory(baseOe2Url),
+  history: createWebHistory(baseOe2Url),
   routes: [
     {
       path: '/',
