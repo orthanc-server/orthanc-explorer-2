@@ -37,11 +37,11 @@ export default {
         },
     },
     async mounted() {
-        console.log("mounted");
+        // console.log("jobs list mounted");
         this.refreshAllJobs(true);
     },
     async unmounted() {
-        console.log("unmounted");
+        // console.log("jobs list unmounted");
         clearTimeout(this.cancelRefreshAllJobs);
         this.cancelRefreshAllJobs = null;
     },

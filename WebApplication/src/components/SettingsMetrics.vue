@@ -10,14 +10,62 @@ export default {
     data() {
         return {
             metrics: {},
+            groups: {},
+            cancelRefreshMetrics: null,
         };
     },
     async mounted() {
-        await this.refresh();
+        console.log("metrics list mounted");
+        this.refresh(true);
+    },
+    async unmounted() {
+        console.log("metrics list unmounted");
+        clearTimeout(this.cancelRefreshMetrics);
+        this.cancelRefreshMetrics = null;
     },
     methods: {
-        async refresh() {
+        _pushInGroup(metricName, groupName) {
+            if (!(groupName in this.groups)) {
+                this.groups[groupName] = []
+            }
+            this.groups[groupName].push(metricName);
+        },
+        async refresh(autoRefresh) {
             this.metrics = await api.getMetrics();
+            this.groups = {
+                "Statistics": ["orthanc_count_patients", "orthanc_count_studies", "orthanc_count_series", "orthanc_count_instances", "orthanc_disk_size_mb", "orthanc_uncompressed_size_mb"],
+                "Jobs": ["orthanc_jobs_running", "orthanc_jobs_pending", "orthanc_jobs_completed", "orthanc_jobs_success", "orthanc_jobs_failed"],
+                "Rest API": ["orthanc_available_http_threads_count", "orthanc_rest_api_active_requests", "orthanc_rest_api_duration_ms"],
+                "DICOM Protocol": ["orthanc_available_dicom_threads"],
+                "System": ["orthanc_up_time_s", "orthanc_last_change", "orthanc_logged_errors_count", "orthanc_logged_warnings_count", "orthanc_memory_trimming_duration_ms"],
+            };
+
+            for (const [k, v] of Object.entries(this.metrics)) {
+                if (k.startsWith("orthanc_dicomweb_")) {
+                    this._pushInGroup(k, "DICOMweb plugin");
+                }
+                else if (k.startsWith("orthanc_transfers_")) {
+                    this._pushInGroup(k, "Transfers plugin");
+                }
+            }
+
+            let metricsInGroup = [];
+            for (const [k, v] of Object.entries(this.groups)) {
+                for (const m of v) {
+                    metricsInGroup.push(m);
+                }
+            }
+
+            for (const [k, v] of Object.entries(this.metrics)) {
+                if (metricsInGroup.indexOf(k) == -1) {
+                    this._pushInGroup(k, "Others");
+                    // this.groups["Others"].push(k);
+                }
+            }
+
+            if (autoRefresh) {
+                this.cancelRefreshMetrics = setTimeout(() => {this.refresh(true);}, 5000);
+            }
         },
         getValue(key) {
             if (key == 'orthanc_up_time_s') {
@@ -80,12 +128,22 @@ export default {
             <h5>{{ $t('settings.metrics') }}</h5>
             <button class="btn btn-primary" @click="refresh()">{{ $t('settings.metrics_refresh') }}</button>
             <table class="table table-sm">
-                <tbody>
-                    <tr v-for="(v, k) in metrics" :key="k">
+                <tbody v-for="(groupList, groupName) in groups" :key="groupName">
+<!--                    <tr v-for="(v, k) in metrics" :key="k">
                         <th scope="row" class="w-50 header">{{ k }}</th>
                         <td class="value">{{ getValue(k) }}</td>
                         <td class="w-15 timestamp">{{ elapsed(k) }}</td>
+                    </tr> -->
+                    <tr class="mt-2"><td colspan="3">{{ groupName }}
+                    </td>
                     </tr>
+                    <template v-for="m in groupList" :key="m">
+                        <tr v-if="m in metrics">
+                            <th scope="row" class="w-50 header">{{ m }}</th>
+                            <td class="value">{{ getValue(m) }}</td>
+                            <td class="w-15 timestamp">{{ elapsed(m) }}</td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
             <button class="btn btn-primary" @click="refresh()">{{ $t('settings.metrics_refresh') }}</button>
@@ -108,7 +166,7 @@ h5 {
 }
 
 .header {
-    padding-left: 10px;
+    padding-left: 20px;
     font-weight: 400;
     font-size: small;
 }
