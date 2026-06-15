@@ -14,6 +14,10 @@ Fixes:
   and when `EnableReportQuickButton` is set to false ([report](https://discourse.orthanc-server.org/t/26-6-0-cannot-click-on-any-study/6451))
 - Fix the redirection after chaning your password in Keycloak.
 
+Internals:
+- Updated dependencies.
+- For developers: node.js 20.19+ or 22.12+ is now required to build the project.
+
 
 1.12.1 (2026-06-01)
 ==================
