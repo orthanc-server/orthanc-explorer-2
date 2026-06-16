@@ -2,7 +2,13 @@
 
 import { mapState } from "vuex"
 import api from "../orthancApi"
+import MetricsGraph from "./MetricsGraph.vue";
+import dateHelpers from "../helpers/date-helpers.js";
 
+// global data (not reactive) shared between this component and the MetreicsGraph
+document.metricsHistory = {};
+document.metricsLowerTimestamp = null;
+document.metricsHigherTimestamp = null;
 
 export default {
     props: [],
@@ -12,14 +18,18 @@ export default {
             metrics: {},
             groups: {},
             cancelRefreshMetrics: null,
+            showGraphs: true,
+            autoRefresh: true,
+            historyGraphDurationInSeconds: 180,
+            autoRefreshIntervalInSeconds: 5
         };
     },
     async mounted() {
-        console.log("metrics list mounted");
-        this.refresh(true);
+        // console.log("metrics list mounted");
+        this.refresh(false);
     },
     async unmounted() {
-        console.log("metrics list unmounted");
+        // console.log("metrics list unmounted");
         clearTimeout(this.cancelRefreshMetrics);
         this.cancelRefreshMetrics = null;
     },
@@ -30,8 +40,11 @@ export default {
             }
             this.groups[groupName].push(metricName);
         },
-        async refresh(autoRefresh) {
+        async refresh(isManualRefresh) {
             this.metrics = await api.getMetrics();
+            document.metricsHigherTimestamp = this.metrics['orthanc_up_time_s']['timestamp'];
+            document.metricsLowerTimestamp = document.metricsHigherTimestamp - this.historyGraphDurationInSeconds * 1000;
+
             this.groups = {
                 "Statistics": ["orthanc_count_patients", "orthanc_count_studies", "orthanc_count_series", "orthanc_count_instances", "orthanc_disk_size_mb", "orthanc_uncompressed_size_mb"],
                 "Jobs": ["orthanc_jobs_running", "orthanc_jobs_pending", "orthanc_jobs_completed", "orthanc_jobs_success", "orthanc_jobs_failed"],
@@ -40,6 +53,32 @@ export default {
                 "System": ["orthanc_up_time_s", "orthanc_last_change", "orthanc_logged_errors_count", "orthanc_logged_warnings_count", "orthanc_memory_trimming_duration_ms"],
             };
 
+            for (const [k, v] of Object.entries(this.metrics)) {
+                if (!(k in document.metricsHistory)) {
+                    document.metricsHistory[k] = [];
+                }
+                const timestamp = this.metrics[k]['timestamp'];
+                if (k == 'orthanc_available_dicom_threads') {
+                    console.log("stop");
+                }
+                if (document.metricsHistory[k].length == 0                              // if this is the first measure for the graph
+                  || (timestamp > document.metricsHistory[k].at(-1)['x']))              // or if the value has been updated
+                {
+                    document.metricsHistory[k].push({ x: this.metrics[k]['timestamp'], y: this.metrics[k]['value'] })
+                }
+                else if (document.metricsHistory[k].length > 0 
+                  && ((document.metricsHigherTimestamp - document.metricsHistory[k].at(-1)['x']) > (this.autoRefreshIntervalInSeconds * 1000))) // if the value has not been updated for 5 seconds)
+                {
+                    // add a "fake" point for graph
+                    document.metricsHistory[k].push({ x: document.metricsHigherTimestamp, y: this.metrics[k]['value'] })
+                }
+
+                if (this.showGraphs) {
+                    this.messageBus.emit("refresh-metrics-" + k); // even if there are no new values, the limit timestamps have been updated so we need to refresh the graph
+                }
+            }
+
+            // automatic add in groups (based on prefix)
             for (const [k, v] of Object.entries(this.metrics)) {
                 if (k.startsWith("orthanc_dicomweb_")) {
                     this._pushInGroup(k, "DICOMweb plugin");
@@ -59,94 +98,114 @@ export default {
             for (const [k, v] of Object.entries(this.metrics)) {
                 if (metricsInGroup.indexOf(k) == -1) {
                     this._pushInGroup(k, "Others");
-                    // this.groups["Others"].push(k);
                 }
             }
 
-            if (autoRefresh) {
-                this.cancelRefreshMetrics = setTimeout(() => {this.refresh(true);}, 5000);
+            if (!isManualRefresh && this.autoRefresh) {
+                this.cancelRefreshMetrics = setTimeout(() => { this.refresh(false); }, this.autoRefreshIntervalInSeconds * 1000);
             }
         },
         getValue(key) {
             if (key == 'orthanc_up_time_s') {
-                return this.elapsed_(this.metrics['orthanc_up_time_s']['value'], '')
+                return dateHelpers.getElapsedDurationFromMilliseconds(this.metrics['orthanc_up_time_s']['value'], '')
             } else {
-                return this.metrics[key]['value'];
+                return this.metrics[key]['value'] + this.getReference(key);
             }
         },
         elapsed(key) {
             const elapsed = Math.round((this.metrics['orthanc_up_time_s']['timestamp'] - this.metrics[key]['timestamp']) / 1000);
-            return this.elapsed_(elapsed, ' ago');
+            return dateHelpers.getElapsedDurationFromMilliseconds(elapsed);
         },
-        elapsed_(duration, suffix=' ago') {
-            
-            if (duration <= 1) {
-                return 'now';
-            } 
-            
-            const intervals = [
-                { label: "d", max: 86400 },    
-                { label: "h", max: 3600 },
-                { label: "m", max: 60 },
-                { label: "s", max: -1 },
-            ];
-
-            let remaining = duration;
-            const parts = [];
-
-            for (const interval of intervals) {
-                if (remaining > interval.max) {
-                    const value = Math.abs(Math.floor(remaining / interval.max));
-                    remaining %= interval.max;
-                    parts.push(`${value}${interval.label}`);
-                }
-                
-                if (parts.length >= 2) 
-                    break; // Limit to 2 units (e.g., "1h42m")
+        getReference(key) {
+            const references = {
+                "orthanc_jobs_running": "ConcurrentJobs",
+                "orthanc_available_http_threads_count": "HttpThreadsCount",
+                "orthanc_available_dicom_threads": "DicomThreadsCount",
+                "orthanc_dicom_parser_available_threads": "TODO",
+                "orthanc_dicom_parser_cache_size_mb": "TODO",
+                "orthanc_dicom_parser_memory_usage_mb": "orthanc_dicom_parser_memory_capacity_mb",
+                "orthanc_dicom_parser_memory_max_usage_mb": "orthanc_dicom_parser_memory_capacity_mb",
+                "orthanc_seq_reader_available_threads": "TODO",
+                "orthanc_storage_memory_usage_mb": "orthanc_storage_memory_capacity_mb",
+                "orthanc_storage_memory_max_usage_mb": "orthanc_storage_memory_capacity_mb",
+                "orthanc_transcoder_available_threads": "TODO",
+                "orthanc_transcoder_memory_usage_mb": "orthanc_transcoder_memory_capacity_mb",
+                "orthanc_transcoder_memory_max_usage_mb": "orthanc_transcoder_memory_capacity_mb",
             }
 
-            if (parts.length === 0) 
-                return "now";
-            return `${parts.join("")}${suffix}`;
+            if (key in references) {
+                if (references[key] in this.system) {
+                    return " / " + this.system[references[key]];
+                } else if (references[key] in this.metrics) {
+                    return " / " + this.metrics[references[key]]['value'];
+                }
+            }
+            return "";
         }
     },
     watch: {
-        async isConfigurationLoaded(newValue, oldValue) {
+        autoRefresh(newValue, oldValue) {
+            if (!newValue && this.cancelRefreshMetrics) {
+                clearTimeout(this.cancelRefreshMetrics);
+                this.cancelRefreshMetrics = null;
+            }
+            if (newValue && !this.cancelRefreshMetrics) {
+                this.refresh(false);
+            }
         }
     },
     computed: {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
-            isConfigurationLoaded: state => state.configuration.loaded,
+            system: state => state.configuration.system
         }),
     },
+    components: { MetricsGraph }
 }
 </script>
 <template>
     <div class="settings">
         <div>
             <h5>{{ $t('settings.metrics') }}</h5>
-            <button class="btn btn-primary" @click="refresh()">{{ $t('settings.metrics_refresh') }}</button>
+            <div class="container">
+                <div class="row">
+                    <div class="col-4"><button class="btn btn-primary" @click="refresh(true)">{{
+                        $t('settings.metrics_refresh') }}</button></div>
+                    <div class="col-4">
+                        <div class="form-check form-check-reverse form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="switchAutoRefresh" v-model="autoRefresh">
+                            <label class="form-check-label" for="switchAutoRefresh">auto-refresh</label>
+                        </div>
+
+                    </div>
+                    <div class="col-4">
+                        <div class="form-check form-check-reverse form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="switchShowGraph" v-model="showGraphs">
+                            <label class="form-check-label" for="switchShowGraph">show graphs</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
             <table class="table table-sm">
                 <tbody v-for="(groupList, groupName) in groups" :key="groupName">
-<!--                    <tr v-for="(v, k) in metrics" :key="k">
-                        <th scope="row" class="w-50 header">{{ k }}</th>
-                        <td class="value">{{ getValue(k) }}</td>
-                        <td class="w-15 timestamp">{{ elapsed(k) }}</td>
-                    </tr> -->
-                    <tr class="mt-2"><td colspan="3">{{ groupName }}
-                    </td>
+                    <tr class="mt-2">
+                        <td colspan="4">{{ groupName }}
+                        </td>
                     </tr>
                     <template v-for="m in groupList" :key="m">
                         <tr v-if="m in metrics">
                             <th scope="row" class="w-50 header">{{ m }}</th>
                             <td class="value">{{ getValue(m) }}</td>
-                            <td class="w-15 timestamp">{{ elapsed(m) }}</td>
+                            <td class="w-10 timestamp">{{ elapsed(m) }}</td>
+                            <td v-show="showGraphs" class="w-15 chart">
+                                <MetricsGraph :metricsName="m"></MetricsGraph>
+                            </td>
                         </tr>
                     </template>
                 </tbody>
             </table>
-            <button class="btn btn-primary" @click="refresh()">{{ $t('settings.metrics_refresh') }}</button>
+            <button class="btn btn-primary" @click="refresh(true)">{{ $t('settings.metrics_refresh') }}</button>
         </div>
     </div>
 </template>
@@ -161,8 +220,16 @@ h5 {
     text-align: left;
 }
 
+.w-10 {
+    width: 15%;
+}
+
 .w-15 {
     width: 15%;
+}
+
+.chart {
+    background-color: dimgrey;
 }
 
 .header {
@@ -185,5 +252,4 @@ h5 {
     font-size: smaller;
     opacity: 0.5;
 }
-
 </style>

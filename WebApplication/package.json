@@ -21,6 +21,7 @@
     "bootstrap": "5.3.3",
     "bootstrap-icons": "^1.11.3",
     "bootstrap5-tags": "^1.7.7",
+    "chart.js": "^4.5.1",
     "esbuild": ">=0.28.1",
     "jquery": "^3.7.1",
     "keycloak-js": "^24.0.5",
