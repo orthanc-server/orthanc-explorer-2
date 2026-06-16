@@ -105,11 +105,18 @@ export default {
                 this.cancelRefreshMetrics = setTimeout(() => { this.refresh(false); }, this.autoRefreshIntervalInSeconds * 1000);
             }
         },
+        formatFloatString(str) {
+            const num = parseFloat(str);
+            if (!isNaN(num) && str.includes('.')) {
+                return num.toFixed(1);
+            }
+            return str;
+        },
         getValue(key) {
             if (key == 'orthanc_up_time_s') {
                 return dateHelpers.getElapsedDurationFromMilliseconds(this.metrics['orthanc_up_time_s']['value'], '')
             } else {
-                return this.metrics[key]['value'] + this.getReference(key);
+                return this.formatFloatString(this.metrics[key]['value']) + this.getReference(key);  // non float strings are kept untouched !
             }
         },
         elapsed(key) {
@@ -121,14 +128,17 @@ export default {
                 "orthanc_jobs_running": "ConcurrentJobs",
                 "orthanc_available_http_threads_count": "HttpThreadsCount",
                 "orthanc_available_dicom_threads": "DicomThreadsCount",
-                "orthanc_dicom_parser_available_threads": "TODO",
-                "orthanc_dicom_parser_cache_size_mb": "TODO",
+                "orthanc_dicom_parser_available_threads": "DicomParserThreads",
+                "orthanc_dicom_parser_cache_size_mb": "DicomParserCacheSize",
                 "orthanc_dicom_parser_memory_usage_mb": "orthanc_dicom_parser_memory_capacity_mb",
                 "orthanc_dicom_parser_memory_max_usage_mb": "orthanc_dicom_parser_memory_capacity_mb",
-                "orthanc_seq_reader_available_threads": "TODO",
+                "orthanc_seq_reader_available_threads": "SequentialDicomReaderThreads",
+                "orthanc_storage_available_threads": "StorageLoaderThreads",
+                "orthanc_storage_cache_size_mb": "MaximumStorageCacheSize",
                 "orthanc_storage_memory_usage_mb": "orthanc_storage_memory_capacity_mb",
                 "orthanc_storage_memory_max_usage_mb": "orthanc_storage_memory_capacity_mb",
-                "orthanc_transcoder_available_threads": "TODO",
+                "orthanc_transcoder_available_threads": "TranscoderThreads",
+                "orthanc_transcoder_cache_size_mb": "TranscoderCacheSize",
                 "orthanc_transcoder_memory_usage_mb": "orthanc_transcoder_memory_capacity_mb",
                 "orthanc_transcoder_memory_max_usage_mb": "orthanc_transcoder_memory_capacity_mb",
             }
