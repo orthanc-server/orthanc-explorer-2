@@ -22,7 +22,7 @@
 
 # This command-line script uses the "npm" tool to populate the "dist"
 # folder of Orthanc Explorer 2. It uses Docker to this end, in order
-# to be usable on our CIS.
+# to be usable on the buildbot CIS.
 
 set -ex
 
