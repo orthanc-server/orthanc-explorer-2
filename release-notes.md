@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.13.0 (2026-06-22)
+==================
 
 Changes:
 - Added a `Settings->Metrics` page.
@@ -12,7 +12,7 @@ Changes:
 Fixes:
 - Study list is broken when `UiOptions.StudyListColumns` does not contain any of `Modalities`, `seriesAndInstancesCount`
   and when `EnableReportQuickButton` is set to false ([report](https://discourse.orthanc-server.org/t/26-6-0-cannot-click-on-any-study/6451))
-- Fix the redirection after chaning your password in Keycloak.
+- Fix the redirection after changing your password in Keycloak.
 
 Internals:
 - Updated dependencies.
