@@ -63,7 +63,7 @@ export default {
                     y: {
                         type: 'linear',
                         title: { display: false, text: 'Value' },
-                        min: 0,
+                        // min: 0,
                         display: false
                     },
                 },
