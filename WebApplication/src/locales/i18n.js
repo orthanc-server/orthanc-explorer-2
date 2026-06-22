@@ -14,6 +14,7 @@ import uk from "./uk.json";
 import vi from "./vi.json";
 import zh from "./zh.json";
 import pt from "./pt.json";
+import hu from "./hu.json";
 
 const i18n = createI18n({
   warnHtmlInMessage: 'off',
@@ -34,7 +35,8 @@ const i18n = createI18n({
     uk,
     vi,
     zh,
-	pt,
+	  pt,
+    hu,
   },
 });
 
