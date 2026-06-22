@@ -1,3 +1,10 @@
+Pending changes
+===============
+
+Changes:
+- Added Hungarian translations
+
+
 1.13.0 (2026-06-22)
 ==================
 
