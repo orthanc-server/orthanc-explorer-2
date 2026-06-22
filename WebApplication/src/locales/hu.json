@@ -138,7 +138,7 @@
     },
     "labels": {
         "add_button": "Hozzáadás",
-        "add_labels_message_html": "<strong>Add</strong> these labels to all selected resources",
+        "add_labels_message_html": "Ezeket a címkéket <strong>adja hozzá</strong> az összes kijelölt erőforráshoz",
         "add_labels_placeholder": "Hozzáadandó címkék, nyomja meg az Enter billentyűt új címke létrehozásához vagy hozzáadásához",
         "add_labels_placeholder_no_create": "Hozzáadandó címkék",
         "added_labels_message_part_1_html": "Hozzáadott címkék ",
@@ -208,10 +208,10 @@
         "validate_select_patient": "Ellenőrizze és válassza ki azt a beteget, akhez ezt a vizsgálatot hozzá kívánja rendelni.",
         "warning_create_new_study_from_series_html": "Már létezik egy azonos PatientID-vel rendelkező beteg, de eltérő címkékkel.  Szeretné használni a meglévő PatientName, PatientSex és PatientBirthDate értékeket?"
     },
-    "my_jobs": "Az állásajánlataim",
+    "my_jobs": "Feladataim",
     "no_modalities": "Nincs",
-    "no_result_found": "Nem találtam találatot!",
-    "not_showing_all_results": "Nem jelennek meg az összes találat. Finomítsa a keresési feltételeket",
+    "no_result_found": "Nem található eredmény!",
+    "not_showing_all_results": "Nem jelennek meg az összes találatok. Finomítsa a keresési feltételeket",
     "open": "Megnyitás",
     "page_not_found": "Az oldal nem található!",
     "patients": "Páciensek",
