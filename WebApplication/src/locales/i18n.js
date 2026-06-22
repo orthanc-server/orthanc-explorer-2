@@ -35,7 +35,7 @@ const i18n = createI18n({
     uk,
     vi,
     zh,
-	  pt,
+    pt,
     hu,
   },
 });
