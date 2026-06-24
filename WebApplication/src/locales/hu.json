@@ -123,7 +123,7 @@
     "jobs" : {
         "button_title_cancel": "Mégsem",
         "button_title_delete": "Törlés",
-        "button_title_full_details": "Teljes részletek",
+        "button_title_full_details": "Összes részlet",
         "button_title_pause": "Szünet",
         "button_title_resubmit": "Újraküldés",
         "button_title_resume": "Folytatás",
@@ -211,7 +211,7 @@
     "my_jobs": "Feladataim",
     "no_modalities": "Nincs",
     "no_result_found": "Nem található eredmény!",
-    "not_showing_all_results": "Nem minden találat jelenik meg. Finomítsa a keresési feltételeket",
+    "not_showing_all_results": "Nem minden találat jelenik meg. Módosítsa a keresési feltételeket",
     "open": "Megnyitás",
     "page_not_found": "Az oldal nem található!",
     "patients": "Betegek",
