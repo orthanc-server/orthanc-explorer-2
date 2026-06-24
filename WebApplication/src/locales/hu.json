@@ -51,7 +51,7 @@
         "BodyPartExamined": "Vizsgált testrész",
         "InstanceNumber": "Példányszám",
         "InstitutionName": "Intézmény neve",
-        "ModalitiesInStudy": "A vizsgálatban szereplő modalitások",
+        "ModalitiesInStudy": "Modalitások",
         "Modality": "Modalitás",
         "NumberOfFrames": "Képkockák száma",
         "NumberOfStudyRelatedSeries": "Sorozatok száma",
@@ -163,7 +163,7 @@
     },
     "legacy_ui": "Régi felhasználói felület",
     "loading_most_recent_studies": "A legfrissebb vizsgálatok betöltése",
-    "local_studies": "Minden helyi vizsgálat",
+    "local_studies": "Összes vizsgálat",
     "logout": "Kijelentkezés",
     "modalities_in_study": "A vizsgálatban szereplő módszerek",
     "modify": {
@@ -255,7 +255,7 @@
     "series": "Sorozatok",
     "series_from_study": "Sorozatok a következő vizsgálatból",
     "series_count_header": "# sorozat",
-    "series_and_instances_count_header": "# Sorozat/Instance",
+    "series_and_instances_count_header": "# Sorozat/Példány",
     "series_plural": "Sorozatok",
     "settings": {
         "allow_all_currents_and_futures_labels": "Minden jelenlegi és jövőbeli címke",
