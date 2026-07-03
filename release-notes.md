@@ -2,6 +2,7 @@ Pending changes
 ===============
 
 Changes:
+- OE2 now displays a popup window when trying to leave the page while an upload is in progress.
 - Added Hungarian translations
 
 

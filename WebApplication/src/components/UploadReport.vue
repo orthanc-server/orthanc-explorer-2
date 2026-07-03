@@ -94,7 +94,7 @@ export default {
     <div class="card border-secondary job-card">
         <div class="card-header jobs-header">
             {{ $t('upload') }} {{ report.filesCount }} {{ $t('files') }}
-            <button v-if="!disableCloseReport" type="button" class="btn-close job-card-close" aria-label="Close"
+            <button v-if="!disableCloseReport && !report.inProgress" type="button" class="btn-close job-card-close" aria-label="Close"
                 @click="close(report.id)"></button>
             <div class="progress mt-1 mb-1" style="width:100%">
                 <div class="progress-bar bg-success" role="progressbar"
