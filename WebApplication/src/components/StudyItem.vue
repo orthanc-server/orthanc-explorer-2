@@ -104,7 +104,7 @@ export default {
         },
         async clickedSelect() {
             // console.log(this.studyId, this.selected);
-            await this.$store.dispatch('studies/selectStudy', { studyId: this.studyId, isSelected: !this.selected }); // this.selected is the value before the click
+            await this.$store.dispatch('selection/selectStudy', { studyId: this.studyId, isSelected: !this.selected }); // this.selected is the value before the click
             this.selected = !this.selected;
             // console.log(this.studyId, this.selected);
         }
@@ -114,7 +114,7 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             studies: state => state.studies.studies,
             studiesSourceType: state => state.studies.sourceType,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
+            selectedStudiesIds: state => state.selection.selectedStudiesIds,
             allLabels: state => state.labels.allLabels
         }),
         modalitiesInStudyForDisplay() {

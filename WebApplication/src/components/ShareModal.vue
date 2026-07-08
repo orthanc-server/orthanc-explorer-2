@@ -91,7 +91,7 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             tokens: state => state.configuration.tokens,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
+            selectedStudiesIds: state => state.selection.selectedStudiesIds,
         }),
         isBulkSelection() {
             return !(this.patientMainDicomTags && this.studyMainDicomTags && Object.keys(this.patientMainDicomTags).length > 0 && Object.keys(this.studyMainDicomTags).length > 0);

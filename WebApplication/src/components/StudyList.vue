@@ -154,7 +154,7 @@ export default {
             allLabels: state => state.labels.allLabels,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
+            selectedStudiesIds: state => state.selection.selectedStudiesIds,
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics,
             hasExtendedFind: state => state.configuration.hasExtendedFind,
@@ -410,10 +410,10 @@ export default {
         },
         clickSelectAll() {
             if (this.allSelected == '' || !this.allSelected) { // this is the value before the click
-                this.$store.dispatch('studies/selectAllStudies', { isSelected: true });
+                this.$store.dispatch('selection/selectAllStudies', { isSelected: true });
                 this.messageBus.emit('selected-all');
             } else {
-                this.$store.dispatch('studies/selectAllStudies', { isSelected: false });
+                this.$store.dispatch('selection/selectAllStudies', { isSelected: false });
                 this.messageBus.emit('unselected-all')
             }
         },
