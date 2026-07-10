@@ -6,6 +6,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
 import dateHelpers from "../helpers/date-helpers"
 import SourceType from '../helpers/source-type';
+import SelectionStatus from "../helpers/selection-status.js";
 import resourceHelpers from "../helpers/resource-helpers";
 import TokenLinkButton from "./TokenLinkButton.vue";
 
@@ -18,13 +19,10 @@ export default {
             loaded: false,
             expanded: false,
             collapseElement: null,
-            selected: false,
             pdfReports: []
         };
     },
     created() {
-        this.messageBus.on('selected-all', this.onSelectedStudy);
-        this.messageBus.on('unselected-all', this.onUnselectedStudy);
         this.messageBus.on('added-series-to-study-' + this.studyId, () => { this.reloadStudy(this.studyId) });
         this.messageBus.on('deleted-series-from-study-' + this.studyId, () => { this.reloadStudy(this.studyId) });
         this.messageBus.on('study-updated-' + this.studyId, () => { this.reloadStudy(this.studyId) });
@@ -34,7 +32,6 @@ export default {
         this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
         this.loaded = true;
         this.seriesIds = this.study.Series;
-        this.selected = this.selectedStudiesIds.indexOf(this.studyId) != -1;
 
         if (!this.$refs['study-collapsible-details']) {
             console.log('no refs: ', studyResponse);
@@ -96,17 +93,8 @@ export default {
             this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
             // console.log("StudyItem: study reloaded ", this.study.Labels);
         },
-        onSelectedStudy() {
-            this.selected = true;
-        },
-        onUnselectedStudy() {
-            this.selected = false;
-        },
         async clickedSelect() {
-            // console.log(this.studyId, this.selected);
-            await this.$store.dispatch('selection/selectStudy', { studyId: this.studyId, isSelected: !this.selected }); // this.selected is the value before the click
-            this.selected = !this.selected;
-            // console.log(this.studyId, this.selected);
+            await this.$store.dispatch('selection/selectStudy', { studyId: this.studyId, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
     computed: {
@@ -114,9 +102,14 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             studies: state => state.studies.studies,
             studiesSourceType: state => state.studies.sourceType,
-            selectedStudiesIds: state => state.selection.selectedStudiesIds,
             allLabels: state => state.labels.allLabels
         }),
+        isSelected() {
+            return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) == SelectionStatus.PARTIAL;
+        },
         modalitiesInStudyForDisplay() {
             if (this.study.RequestedTags.ModalitiesInStudy) {
                 return this.study.RequestedTags.ModalitiesInStudy.split('\\').join(',');
@@ -210,7 +203,7 @@ export default {
             :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="selected" @click="clickedSelect">
+                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
                 </div>
             </td>
             <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">

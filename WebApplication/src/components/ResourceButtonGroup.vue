@@ -97,6 +97,7 @@ export default {
         },
         deleteResource(event) {
             if (this.resourceLevel == 'bulk') {
+                console.warn("TODO delete bulk resources");
                 api.deleteResources(this.resourceLevel, this.resourcesOrthancId)
                     .then(() => {
                         window.location.reload();
@@ -137,10 +138,16 @@ export default {
             if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
 
                 if (this.resourceLevel == "bulk") {
-                    let moveQueries = this.selectedStudies.map(s => { return { "StudyInstanceUID": s['ID'], "PatientID": s['PatientMainDicomTags']['PatientID'] } });
+                    let moveQueries = [];
+                    for (const studyId of this.selectedStudiesIds) {
+                        const studyInfo = this.$store.getters['studies/getStudy'](studyId);
+                        if (studyInfo) {
+                            moveQueries.push({ "StudyInstanceUID": studyInfo['ID'], "PatientID": studyInfo['PatientMainDicomTags']['PatientID'] });
+                        }
+                    }
 
                     const jobId = await api.remoteDicomRetrieveResources("Study", this.studiesRemoteSource, moveQueries);
-                    this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.selectedStudies.length + ' studies from (' + this.studiesRemoteSource + ')' });
+                    this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + moveQueries.length + ' studies from (' + this.studiesRemoteSource + ')' });
                 } else {
                     let moveQuery = {
                         "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
@@ -158,9 +165,14 @@ export default {
                     this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.capitalizeFirstLetter(this.resourceLevel) + ' from (' + this.studiesRemoteSource + ')' });
                 }
             } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
-                let resources;
+                let resources = [];
                 if (this.resourceLevel == "bulk") {
-                    resources = this.selectedStudies.map(s => { return { "Study": s['ID'] } });
+                    for (const studyId of this.selectedStudiesIds) {
+                        const studyInfo = this.$store.getters['studies/getStudy'](studyId);
+                        if (studyInfo) {
+                            resources.push({ "Study": studyInfo['ID'] });
+                        }
+                    }
                 } else if (this.resourceLevel == "study") {
                     resources = [{ "Study": this.studyMainDicomTags.StudyInstanceUID }];
                 } else if (this.resourceLevel == "series") {
@@ -236,8 +248,7 @@ export default {
         },
         getOhifViewerUrl(mode) {
             if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getOhifViewerUrlForDicomWebBulkStudies(mode, selectedStudiesDicomIds);
+                const url = api.getOhifViewerUrlForDicomWebBulkStudies(mode, this.selectedStudiesDicomIds);
                 return url;
             } else {
                 if (this.ohifDataSource == 'dicom-web') {
@@ -307,12 +318,21 @@ export default {
             installedPlugins: state => state.configuration.installedPlugins,
             targetDicomWebServers: state => state.configuration.targetDicomWebServers,
             targetDicomModalities: state => state.configuration.targetDicomModalities,
-            selectedStudiesIds: state => state.selection.selectedStudiesIds,
-            selectedStudies: state => state.selection.selectedStudies,
+            hasBulkSelection: state => state.selection.hasBulkSelection,
+            hasStudyOnlyBulkSelection: state => state.selection.hasStudyOnlyBulkSelection,
             orthancPeers: state => state.configuration.orthancPeers,
             tokens: state => state.configuration.tokens,
             system: state => state.configuration.system,
         }),
+        selectedStudiesIds() {
+            return this.$store.getters['selection/selectedResourcesIds'](true); // only the studies
+        },
+        selectedStudiesDicomIds() {
+            return this.$store.getters['selection/selectedResourcesDicomIds'](true); // only the studies
+        },
+        selectedResourcesIds() {
+            return this.$store.getters['selection/selectedResourcesIds'](false); // all resources
+        },
         componentId() {
             if (this.resourceLevel == 'bulk') {
                 return 'bulk-id';
@@ -326,7 +346,7 @@ export default {
         },
         isSendToEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasBulkSelection;
             } else {
                 return true;
             }
@@ -337,7 +357,7 @@ export default {
         },
         isLabelsEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasStudyOnlyBulkSelection;
             } else {
                 return false;
             }
@@ -348,7 +368,7 @@ export default {
         },
         isDeleteEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasStudyOnlyBulkSelection;  // TODO: enable on multi-level selection
             } else {
                 return true;
             }
@@ -359,7 +379,7 @@ export default {
         },
         isShareEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasStudyOnlyBulkSelection;
             } else {
                 return true;
             }
@@ -410,8 +430,7 @@ export default {
         },
         stoneViewerUrl() {
             if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getStoneViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                const url = api.getStoneViewerUrlForBulkStudies(this.selectedStudiesDicomIds);
                 return url;
             } else {
                 return api.getStoneViewerUrl(this.resourceLevel, this.resourceDicomUid);
@@ -422,7 +441,7 @@ export default {
                 this.hasStoneViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isStoneViewerButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
         },
         hasVolView() {
             return this.isPluginEnabled("volview");
@@ -549,21 +568,21 @@ export default {
         },
         isOhifButtonBasicViewerEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return this.resourceLevel == 'study';
             }
         },
         isOhifButtonVrEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
         },
         isOhifButtonTmtvEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
@@ -571,14 +590,14 @@ export default {
         isOhifButtonMicroscopyEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
 
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
         },
         isOhifButtonSegEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
@@ -607,8 +626,7 @@ export default {
         },
         weasisViewerUrl() {
             if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getWeasisViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                const url = api.getWeasisViewerUrlForBulkStudies(this.selectedStudiesDicomIds);
                 return url;
             } else {
                 return api.getWeasisViewerUrl(this.resourceDicomUid);
@@ -619,7 +637,7 @@ export default {
                 this.hasWeasisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isWeasisViewerButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
         },
         weasisViewerIcon() {
             return this.getViewerIcon("weasis");
@@ -631,7 +649,7 @@ export default {
             return this.hasMedDreamViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isMedDreamViewerButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
         },
         medDreamViewerUrl() {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
@@ -742,7 +760,7 @@ export default {
                 "study": "delete_study_title",
                 "series": "delete_series_title",
                 "instance": "delete_instance_title",
-                "bulk": "delete_studies_title"
+                "bulk": "delete_multiple_resources_title"
             }
             return texts[this.resourceLevel];
         },
@@ -751,7 +769,7 @@ export default {
                 "study": "delete_study_body",
                 "series": "delete_series_body",
                 "instance": "delete_instance_body",
-                "bulk": "delete_studies_body"
+                "bulk": "delete_multiple_resources_body"
             }
             return texts[this.resourceLevel];
         },
@@ -766,7 +784,7 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk'
         },
         isBulkDownloadZipEnabled() {
-            return this.selectedStudiesIds.length > 0;
+            return this.hasBulkSelection;
         },
         hasDownloadDicomDirButton() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk';
@@ -779,13 +797,14 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk'
         },
         isBulkDownloadDicomDirEnabled() {
-            return this.selectedStudiesIds.length > 0;
+            return this.hasBulkSelection;
         },
         hasRetrieveButton() {
             return this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB;
         },
         isRetrieveButtonEnabled() {
-            return (this.resourceLevel != 'bulk' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            const selectedResourcesIds = this.$store.getters['selection/selectedResourcesIds'](false);
+            return (this.resourceLevel != 'bulk' || (this.resourceLevel == 'bulk' && selectedResourcesIds.length > 0));
         },
         hasAnonymizationButton() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel != 'bulk';
@@ -812,14 +831,14 @@ export default {
         },
         resourcesOrthancId() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds;
+                return this.$store.getters['selection/selectedResourcesIds'](false);
             } else {
                 return [this.resourceOrthancId];
             }
         },
         resourcesForTransfer() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.map(id => ({ "Level": "Study", "ID": id }));
+                return this.$store.getters['selection/selectedResourcesIdsWithLevel'];
             } else {
                 return [{ "Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId }];
             }
@@ -856,8 +875,7 @@ export default {
         },
         isCustomButtonEnabled() {
             if (this.resourceLevel == 'bulk') {
-                // console.log("isCustomButtonEnabled", this.selectedStudiesIds.length > 0);
-                return this.selectedStudiesIds.length > 0;
+                return this.hasStudyOnlyBulkSelection;
             } else {
                 return true;
             }

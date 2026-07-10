@@ -1,53 +1,280 @@
 import api from "../../orthancApi"
 import SourceType from "../../helpers/source-type";
 import store from "../../store"
-
+import SelectionStatus from "../../helpers/selection-status";
+import { create } from "axios";
 
 ///////////////////////////// STATE
 const state = () => ({
-    selectedStudiesIds: [],
-    selectedStudies: [],
+    hasBulkSelection: false,
+    hasStudyOnlyBulkSelection: false,
+    selectedResources:  {} // a dictionary 
+    //  'studyId1': {
+    //     'allSeriesSelected': true/false, 
+    //     'selectedSeries' : {
+    //       'seriesId1' : {
+    //         'allInstancesSelected: true/false,
+    //         'selectedInstances': [inst1Id, inst2Id]
+    //       }, ...
+    //     }, ...
+    //  }, ...
+    //}}
 })
+
+
 
 ///////////////////////////// GETTERS
 const getters = {
+    getStudySelectionStatus: (state) => (studyId) => {
+        if (studyId in state.selectedResources) {
+            if (state.selectedResources[studyId]['allSeriesSelected']) {
+                return SelectionStatus.FULL;
+            } else {
+                return SelectionStatus.PARTIAL;
+            }
+        }
+        return SelectionStatus.NOT_SELECTED;
+    },
+    selectedResourcesIdsWithLevel: (state) => {
+        let toReturn = [];
+        for (const [studyId, study] of Object.entries(state.selectedResources)) {
+            if (study['allSeriesSelected']) {
+                toReturn.push({"Level": "Study", "ID" : studyId});
+            } else {
+                for (const [seriesId, series] of Object.entries(study['selectedSeries'])) {
+                    if (series['allInstancesSelected']) {
+                        toReturn.push({"Level": "Series", "ID" : seriesId});
+                    } else {
+                        for (const [instanceId, instances] of Object.entries(series['selectedInstances'])) {
+                            toReturn.push({"Level": "Instance", "ID" : instanceId});
+                        }
+                    }
+                }
+            }
+        }
+        return toReturn;
+    },
+    selectedResourcesIds: (state) => (studiesOnly) => {
+        if (studiesOnly) {
+            return Object.keys(state.selectedResources);
+        }
+
+        let toReturn = [];
+        for (const [studyId, study] of Object.entries(state.selectedResources)) {
+            if (study['allSeriesSelected']) {
+                toReturn.push(studyId);
+            } else {
+                for (const [seriesId, series] of Object.entries(study['selectedSeries'])) {
+                    if (series['allInstancesSelected']) {
+                        toReturn.push(seriesId);
+                    } else {
+                        toReturn = toReturn.concat(series['selectedInstances']);
+                    }
+                }
+            }
+        }
+        return toReturn;
+    },
+    selectedResourcesDicomIds: (state) => (studiesOnly) => {
+        if (!studiesOnly) {
+            console.warn("TODO selectedResourcesDicomIds/studiesOnly");
+            return [];
+        }
+
+        let toReturn = [];
+        for (const [studyId, study] of Object.entries(state.selectedResources)) {
+            const studiesInfo = store.state.studies.studies.filter((s) => s['ID'] == studyId);
+            if (studiesInfo.length == 1) {
+                toReturn.push(studiesInfo[0]['MainDicomTags']['StudyInstanceUID']);
+            }
+        }
+        return toReturn;
+    },
+    selectedStudiesCount: (state) => { // studies that are at least partialy selected
+        return Object.keys(state.selectedResources).length;
+    },
+    isStudiesFullSelection: (state) => {
+        if (Object.keys(state.selectedResources).length == 0) {
+            return false;
+        }
+        const allStudiesCount = store.state.studies.studies.length;
+        let fullySelectedStudiesCount = 0;
+        for (const [k, v] of Object.entries(state.selectedResources)) {
+            if (v['allSeriesSelected']) {
+                fullySelectedStudiesCount++;
+            }
+        }
+        return fullySelectedStudiesCount == allStudiesCount;
+    },
+    isStudiesPartialSelection: (state, getters) => {
+        if (Object.keys(state.selectedResources).length == 0) {
+            return false;
+        }
+        return !getters.isStudiesFullSelection;
+    },
+    getSeriesSelectionStatus: (state, getters) => (studyId, seriesId) => {
+        const parentStudySelectionStatus = getters.getStudySelectionStatus(studyId);
+        if (parentStudySelectionStatus == SelectionStatus.FULL) {
+            return SelectionStatus.FULL;
+        } else if (parentStudySelectionStatus == SelectionStatus.NOT_SELECTED) {
+            return SelectionStatus.NOT_SELECTED
+        } else {
+            const series = state.selectedResources[studyId]['selectedSeries'][seriesId];
+            if (series === undefined) {
+                return SelectionStatus.NOT_SELECTED;
+            } else {
+                if (series['allInstancesSelected']) {
+                    return SelectionStatus.FULL
+                } else {
+                    return SelectionStatus.PARTIAL;    
+                }
+            }
+        }
+    },
+    getSelectedSeriesCount: (state, getters) => (studyId, studySeries) => {
+        const selectedStudy = state.selectedResources[studyId];
+        const seriesCount = studySeries.length;
+        if (selectedStudy === undefined) {
+            return 0;
+        } else {
+            if (selectedStudy['allSeriesSelected']) {
+                return studySeries.length;
+            } else {
+                return Object.keys(selectedStudy['selectedSeries']).length;
+            }
+        }
+    }
+
+
 }
 
 ///////////////////////////// MUTATIONS
 
+/// helpers
+
+function _setFullSelectedStudy(context, studyId) {
+    let state = context.state;
+    if (!(studyId in state.selectedResources)) {
+        state.selectedResources[studyId] = {
+            'allSeriesSelected': true
+        }
+    }
+}
+
+function _setPartialySelectedStudy(context, studyId) {
+    let state = context.state;
+    if (!(studyId in state.selectedResources)) {
+        state.selectedResources[studyId] = {
+            'allSeriesSelected': false,
+            'selectedSeries': {}
+        }
+    }
+    if (!('selectedSeries' in state.selectedResources[studyId])) {
+        state.selectedResources[studyId]['allSeriesSelected'] = false;
+        state.selectedResources[studyId]['selectedSeries'] = {}
+    }
+}
+
+function _removeStudy(context, studyId) {
+    let state = context.state;
+    delete state.selectedResources[studyId];
+}
+
+function _setFullSelectedSeries(context, studyId, seriesId) {
+    let state = context.state;
+    _setPartialySelectedStudy(context, studyId);
+    state.selectedResources[studyId]['selectedSeries'][seriesId] = {
+        'allInstancesSelected': true
+    }
+}
+
+function _updateBulkSelection(context) {
+    let state = context.state;
+    state.hasBulkSelection = Object.keys(state.selectedResources).length > 0;
+
+    state.hasStudyOnlyBulkSelection = state.hasBulkSelection;
+    for (const [k, v] of Object.entries(state.selectedResources)) {
+        if (!v['allSeriesSelected']) {
+            state.hasStudyOnlyBulkSelection = false;
+        }
+    }
+}
+
+function _clearSelection(context) {
+    let state = context.state;
+    state.selectedResources = {};
+}
+
 const mutations = {
-    selectStudy(state, { studyId, isSelected }) {
-        if (isSelected && !state.selectedStudiesIds.includes(studyId)) {
-            state.selectedStudiesIds.push(studyId);
-            state.selectedStudies = store.state.studies.studies.filter(s => state.selectedStudiesIds.includes(s["ID"]));
+    selectStudy(state, { studyId, isSelected }) { // completely selects/unselected a study
+        if (isSelected) {
+            _setFullSelectedStudy({state}, studyId);
         } else if (!isSelected) {
-            const pos = state.selectedStudiesIds.indexOf(studyId);
-            if (pos >= 0) {
-                state.selectedStudiesIds.splice(pos, 1);
-                state.selectedStudies = state.selectedStudies.filter(s => s["ID"] != studyId);
-            }
+            _removeStudy({state}, studyId);
         }
+        _updateBulkSelection({state});
     },
-    removeStudy(state, { studyId }) {
-        // also delete from selection
-        const pos2 = state.selectedStudiesIds.indexOf(studyId);
-        if (pos2 >= 0) {
-            state.selectedStudiesIds.splice(pos2, 1);
-        }
+    removeStudy(state, { studyId }) { // when a study has been deleted, we need to remove it from the selection.
+        _removeStudy({state}, studyId);
+        _updateBulkSelection({state});
     },
     selectAllStudies(state, { isSelected }) {
         if (isSelected) {
-            state.selectedStudiesIds = [...store.state.studies.studiesIds];
-            state.selectedStudies = [...store.state.studies.studies];
+            for (const studyId of store.state.studies.studiesIds) {
+                _setFullSelectedStudy({state}, studyId);
+            }
         } else {
-            state.selectedStudiesIds = [];
-            state.selectedStudies = [];
+            _clearSelection({state});
         }
-
+        _updateBulkSelection({state});
     },
     clearSelection(state) {
-        state.selectedStudiesIds = [];
-        state.selectAllStudies = [];
+        _clearSelection({state});
+        _updateBulkSelection({state});
+    },
+    selectSeries(state, { studyId, seriesId, studySeries, isSelected }) { // completely selects/unselected a series (but not necessarily the parent study)
+        const selectedStudy = state.selectedResources[studyId];
+        const seriesCount = studySeries.length;
+
+        if (isSelected) {
+            if (selectedStudy === undefined) { // the study was not yet selected
+                if (seriesCount == 1) { // this is the only series in the study -> full study select
+                    _removeStudy({state}, studyId); // remove it in case it was partialy selected
+                    _setFullSelectedStudy({state}, studyId);
+                } else {
+                    _setFullSelectedSeries({state}, studyId, seriesId);
+                }
+            } else { // the study was already at least partialy selected
+                _setFullSelectedSeries({state}, studyId, seriesId);
+            }
+        } else if (!isSelected && selectedStudy !== undefined) { // we are unselecting a series
+            if (selectedStudy['allSeriesSelected']) {
+                // this is the first series that we remove from a full selection
+                _setPartialySelectedStudy({state}, studyId);
+                for (const s of studySeries) {
+                    if (s['ID'] != seriesId) {
+                        state.selectedResources[studyId]['selectedSeries'][s['ID']] = {
+                            'allInstancesSelected': true
+                        };
+                    }
+                }
+            } else {
+                delete state.selectedResources[studyId]['selectedSeries'][seriesId];
+            }
+        }
+        
+        // simplification
+        if (studyId in state.selectedResources && 'selectedSeries' in state.selectedResources[studyId]) {
+            if (Object.keys(state.selectedResources[studyId]['selectedSeries']).length == seriesCount) { // selecting this series makes the full study selected -> simplify
+                state.selectedResources[studyId] = {
+                    'allSeriesSelected': true
+                }
+            } else if (Object.keys(state.selectedResources[studyId]['selectedSeries']).length == 0) { // we have removed the last series from the study
+                delete state.selectedResources[studyId];
+            }
+        }
+
+        _updateBulkSelection({state});
     }
 }
 
@@ -58,6 +285,13 @@ const actions = {
         const studyId = payload['studyId'];
         const isSelected = payload['isSelected'];
         commit('selectStudy', { studyId: studyId, isSelected: isSelected });
+    },
+    async selectSeries({ commit }, payload) {
+        const studyId = payload['studyId'];
+        const seriesId = payload['seriesId'];
+        const studySeries = payload['studySeries'];
+        const isSelected = payload['isSelected'];
+        commit('selectSeries', { studyId: studyId, seriesId: seriesId, studySeries: studySeries, isSelected: isSelected });
     },
     async selectAllStudies({ commit }, payload) {
         const isSelected = payload['isSelected'];

@@ -161,6 +161,14 @@ const getters = {
 
     isMostRecentOrdering: (state) => {
         return (state.orderByFilters.length == 1 && state.orderByFilters[0].Key == "LastUpdate" && state.orderByFilters[0].Direction == "DESC");
+    },
+
+    getStudy: (state) => (studyId) => {
+        const studiesInfo = state.studies.filter((s) => s['ID'] == studyId);
+        if (studiesInfo.length == 1) {
+            return studiesInfo[0];
+        }
+        return null;
     }
 }
 

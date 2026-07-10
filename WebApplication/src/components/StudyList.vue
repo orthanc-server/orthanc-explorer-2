@@ -135,8 +135,6 @@ export default {
             searchTimerHandler: {},
             columns: document._studyColumns,
             datePickerPresetRanges: document._datePickerPresetRanges,
-            allSelected: false,
-            isPartialSelected: false,
             mostRecentStudiesIds: [],
             shouldStopLoadingMostRecentStudies: false,
             status: Status.UNDEFINED,
@@ -154,7 +152,6 @@ export default {
             allLabels: state => state.labels.allLabels,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
-            selectedStudiesIds: state => state.selection.selectedStudiesIds,
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics,
             hasExtendedFind: state => state.configuration.hasExtendedFind,
@@ -165,6 +162,12 @@ export default {
             'studies/isFilterEmpty',                // -> this['studies/isFilterEmpty']
             'studies/isMostRecentOrdering',         // -> this['studies/isMostRecentOrdering']
         ]),
+        allSelected() {
+            return this.$store.getters['selection/isStudiesFullSelection'];
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/isStudiesPartialSelection'];
+        },
         notShowingAllResults() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC && !this.hasExtendedFind) {
                 if (this.studiesIds.length >= this.statistics.CountStudies) {
@@ -231,8 +234,9 @@ export default {
             return this.sourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableReportQuickButton;
         },
         selectedStudiesCount() {
-            if (this.selectedStudiesIds.length > 0) {
-                return this.selectedStudiesIds.length;
+            const count = this.$store.getters['selection/selectedStudiesCount'];
+            if (count > 0) {
+                return count;
             } else {
                 return "";
             }
@@ -360,12 +364,6 @@ export default {
                 }
             }
         },
-        selectedStudiesIds: {
-            handler(oldValue, newValue) {
-                this.updateSelectAll();
-            },
-            deep: true
-        },
         allLabels(newValue, oldValue) {
             this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
         }
@@ -380,7 +378,6 @@ export default {
         if (this.isConfigurationLoaded) { // this happens when we open the app e.g. on the #settings page and then, switch to the study list
             this.init();
         }
-        this.updateSelectAll();
     },
     methods: {
         init() {
@@ -396,25 +393,11 @@ export default {
             this.updateFilterFromRoute(this.$route.query);
             setTimeout(() => { this.showMultiLabelsFilter = true }, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         },
-        updateSelectAll() {
-            if (this.selectedStudiesIds.length == 0) {
-                this.allSelected = false;
-                this.isPartialSelected = false;
-            } else if (this.selectedStudiesIds.length == this.studiesIds.length) {
-                this.allSelected = true;
-                this.isPartialSelected = false;
-            } else {
-                this.allSelected = '';
-                this.isPartialSelected = true;
-            }
-        },
         clickSelectAll() {
             if (this.allSelected == '' || !this.allSelected) { // this is the value before the click
                 this.$store.dispatch('selection/selectAllStudies', { isSelected: true });
-                this.messageBus.emit('selected-all');
             } else {
                 this.$store.dispatch('selection/selectAllStudies', { isSelected: false });
-                this.messageBus.emit('unselected-all')
             }
         },
         translateDatePicker(languageKey) {
@@ -1153,8 +1136,8 @@ export default {
                 <tr class="study-table-actions">
                     <th width="2%" :colspan="colSpanBeforeMultiLabelsFilter" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
-                            <input class="form-check-input" type="checkbox" v-model="allSelected"
-                                :indeterminate="isPartialSelected" @click="clickSelectAll"><span
+                            <input class="form-check-input" type="checkbox" :checked="allSelected"
+                                :indeterminate="isPartialySelected" @click="clickSelectAll"><span
                                 style="font-weight: 400; font-size: small;">{{ selectedStudiesCount
                                 }}</span>
                         </div>

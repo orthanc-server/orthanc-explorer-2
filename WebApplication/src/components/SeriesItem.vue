@@ -3,10 +3,11 @@ import SeriesDetails from "./SeriesDetails.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import { mapState, mapGetters } from "vuex"
 import SourceType from '../helpers/source-type';
+import SelectionStatus from "../helpers/selection-status";
 
 
 export default {
-    props: ["seriesId", "seriesInfo", 'studyMainDicomTags', 'patientMainDicomTags'],
+    props: ["seriesId", "seriesInfo", "studySeries", 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedSeries'],
     data() {
         return {
@@ -25,7 +26,14 @@ export default {
             } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
                 return this.seriesInfo.MainDicomTags.NumberOfSeriesRelatedInstances;
             }
+        },
+        isSelected() {
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.seriesInfo['ParentStudy'], this.seriesId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.seriesInfo['ParentStudy'], this.seriesId) == SelectionStatus.PARTIAL;
         }
+
     },
     mounted() {
         this.$refs['series-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
@@ -53,6 +61,9 @@ export default {
     methods: {
         onDeletedSeries() {
             this.$emit("deletedSeries", this.seriesId);
+        },
+        async clickedSelect() {
+            await this.$store.dispatch('selection/selectSeries', { studyId: this.seriesInfo['ParentStudy'], seriesId: this.seriesId, studySeries: this.studySeries, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
     components: { SeriesDetails }
@@ -63,7 +74,11 @@ export default {
 <template>
     <tbody>
         <tr :class="{ 'series-row-collapsed': !expanded, 'series-row-expanded': expanded }">
-            <td></td>
+            <td>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
+                </div>
+            </td>
             <td class="cut-text text-center" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.SeriesNumber }}
             </td>
