@@ -1,10 +1,11 @@
 <script>
 import InstanceDetails from "./InstanceDetails.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
+import SelectionStatus from "../helpers/selection-status";
 
 
 export default {
-    props: ["instanceId", "instanceInfo", 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
+    props: ["instanceId", "instanceInfo", 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'studyId', 'seriesId', 'studySeries', 'seriesInstances'],
     emits: ['deletedInstance'],
     data() {
         return {
@@ -37,9 +38,20 @@ export default {
             }
         }
     },
+    computed: {
+        isSelected() {
+            return this.$store.getters['selection/getInstanceSelectionStatus'](this.studyId, this.seriesId, this.instanceId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getInstanceSelectionStatus'](this.studyId, this.seriesId, this.instanceId) == SelectionStatus.PARTIAL;
+        }
+    },
     methods: {
         onDeletedInstance(instanceId) {
             this.$emit('deletedInstance', instanceId);
+        },
+        async clickedSelect() {
+            await this.$store.dispatch('selection/selectInstance', { studyId: this.studyId, seriesId: this.seriesId, studySeries: this.studySeries, instanceId: this.instanceId, seriesInstances: this.seriesInstances, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
     components: { InstanceDetails }
@@ -50,7 +62,11 @@ export default {
 <template>
     <tbody>
         <tr :class="{ 'instance-row-collapsed': !expanded, 'instance-row-expanded': expanded }">
-            <td></td>
+            <td>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
+                </div>
+            </td>
             <td class="cut-text text-center" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
                     instanceInfo.MainDicomTags.InstanceNumber }}</td>

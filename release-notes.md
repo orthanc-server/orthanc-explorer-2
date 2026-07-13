@@ -2,6 +2,7 @@ Pending changes
 ===============
 
 Changes:
+- Added multiple selection at series and instances level.
 - OE2 now displays a popup window when trying to leave the page while an upload is in progress.
 - Added Hungarian translations
 

@@ -133,7 +133,6 @@ const getters = {
     },
     getSelectedSeriesCount: (state, getters) => (studyId, studySeries) => {
         const selectedStudy = state.selectedResources[studyId];
-        const seriesCount = studySeries.length;
         if (selectedStudy === undefined) {
             return 0;
         } else {
@@ -143,7 +142,37 @@ const getters = {
                 return Object.keys(selectedStudy['selectedSeries']).length;
             }
         }
-    }
+    },
+    getSelectedInstancesCount: (state, getters) => (studyId, seriesId, seriesInstances) => {
+        const selectedStudy = state.selectedResources[studyId];
+        if (selectedStudy === undefined) {
+            return 0;
+        } else {
+            if (selectedStudy['allSeriesSelected']) {
+                return seriesInstances.length;
+            } else if (seriesId in selectedStudy['selectedSeries']) {
+                if (selectedStudy['selectedSeries'][seriesId]['allInstancesSelected']) {
+                    return seriesInstances.length;
+                } else {
+                    return Object.keys(selectedStudy['selectedSeries'][seriesId]['selectedInstances']).length;
+                }
+            }
+        }
+    },
+    getInstanceSelectionStatus: (state, getters) => (studyId, seriesId, instanceId) => {
+        const parentSeriesSelectionStatus = getters.getSeriesSelectionStatus(studyId, seriesId);
+        if (parentSeriesSelectionStatus == SelectionStatus.FULL) {
+            return SelectionStatus.FULL;
+        } else if (parentSeriesSelectionStatus == SelectionStatus.NOT_SELECTED) {
+            return SelectionStatus.NOT_SELECTED;
+        } else {
+            if (state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].indexOf(instanceId) == -1) {
+                return SelectionStatus.NOT_SELECTED;
+            } else {
+                SelectionStatus.FULL;
+            }
+        }
+    },
 
 
 }
@@ -180,11 +209,57 @@ function _removeStudy(context, studyId) {
     delete state.selectedResources[studyId];
 }
 
+function _setPartialySelectedSeries(context, studyId, seriesId) {
+    let state = context.state;
+    _setPartialySelectedStudy(context, studyId);
+    state.selectedResources[studyId]['selectedSeries'][seriesId] = {
+        'allInstancesSelected': false,
+        'selectedInstances': []
+    }
+}
+
 function _setFullSelectedSeries(context, studyId, seriesId) {
     let state = context.state;
     _setPartialySelectedStudy(context, studyId);
     state.selectedResources[studyId]['selectedSeries'][seriesId] = {
         'allInstancesSelected': true
+    }
+}
+
+function _simplifyAtSeriesLevel(context, studyId, seriesId, instancesCount) {
+    let state = context.state;
+
+    // simplification at this series level
+    if (studyId in state.selectedResources && 'selectedSeries' in state.selectedResources[studyId] 
+        && seriesId in state.selectedResources[studyId]['selectedSeries'] && 'selectedInstances' in state.selectedResources[studyId]['selectedSeries'][seriesId]) {
+        if (state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].length == 0) {
+            delete state.selectedResources[studyId]['selectedSeries'][seriesId];
+        } else if (state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].length == instancesCount) {
+            state.selectedResources[studyId]['selectedSeries'][seriesId] = {
+                'allInstancesSelected': true
+            }
+        }
+    }
+}
+
+function _simplifyAtStudyLevel(context, studyId, seriesCount) {
+    let state = context.state;
+
+    // simplification at study level
+    if (studyId in state.selectedResources && 'selectedSeries' in state.selectedResources[studyId]) {
+        let fullySelectedSeriesCount = 0;
+        for (const [k, v] of Object.entries(state.selectedResources[studyId]['selectedSeries'])) {
+            if (v['allInstancesSelected']) {
+                fullySelectedSeriesCount++;
+            }
+        }
+        if (fullySelectedSeriesCount == seriesCount) {
+            state.selectedResources[studyId] = {
+                'allSeriesSelected': true
+            }
+        } else if (Object.keys(state.selectedResources[studyId]['selectedSeries']).length == 0) { // we have removed the last series from the study
+            delete state.selectedResources[studyId];
+        }
     }
 }
 
@@ -263,16 +338,63 @@ const mutations = {
             }
         }
         
-        // simplification
-        if (studyId in state.selectedResources && 'selectedSeries' in state.selectedResources[studyId]) {
-            if (Object.keys(state.selectedResources[studyId]['selectedSeries']).length == seriesCount) { // selecting this series makes the full study selected -> simplify
-                state.selectedResources[studyId] = {
-                    'allSeriesSelected': true
+        _simplifyAtStudyLevel({state}, studyId, seriesCount);
+        _updateBulkSelection({state});
+    },
+    selectInstance(state, { studyId, seriesId, studySeries, instanceId, seriesInstances, isSelected }) { // completely selects/unselected a series (but not necessarily the parent study)
+        const selectedStudy = state.selectedResources[studyId];
+        const seriesCount = studySeries.length;
+        const instancesCount = seriesInstances.length;
+
+        if (isSelected) {
+            if (selectedStudy === undefined) { // the study was not yet selected
+                if (seriesCount == 1 && instancesCount == 1) { // this is the only series/instance in the study -> full study select
+                    _removeStudy({state}, studyId); // remove it in case it was partialy selected
+                    _setFullSelectedStudy({state}, studyId);
+                } else {
+                    _setPartialySelectedSeries({state}, studyId, seriesId);
+                    state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].push(instanceId);
                 }
-            } else if (Object.keys(state.selectedResources[studyId]['selectedSeries']).length == 0) { // we have removed the last series from the study
-                delete state.selectedResources[studyId];
+            } else { // the study was already at least partialy selected
+                if (!(seriesId in selectedStudy['selectedSeries'])) {
+                    _setPartialySelectedSeries({state}, studyId, seriesId);
+                }
+                state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].push(instanceId);
+            }
+        } else if (!isSelected && selectedStudy !== undefined) { // we are unselecting an instance
+            if (selectedStudy['allSeriesSelected']) {
+                // this is the first instance that we remove from a fully selected study
+                _setPartialySelectedStudy({state}, studyId);
+                for (const s of studySeries) {
+                    if (s['ID'] != seriesId) {
+                        _setFullSelectedSeries({state}, studyId, s['ID']);
+                    }
+                }
+                if (instancesCount > 1) {
+                    _setPartialySelectedSeries({state}, studyId, seriesId);
+                    for (const i of seriesInstances) {
+                        if (i['ID'] != instanceId) {
+                            state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].push(i['ID']);
+                        }
+                    }
+                }
+            } else if (selectedStudy['selectedSeries'][seriesId]['allInstancesSelected']) {
+                // this is the first instance that we remove from this series
+                _setPartialySelectedSeries({state}, studyId, seriesId);
+                for (const i of seriesInstances) {
+                    if (i['ID'] != instanceId) {
+                        state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].push(i['ID']);
+                    }
+                }
+
+            } else {
+                const index = state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].indexOf(instanceId);
+                state.selectedResources[studyId]['selectedSeries'][seriesId]['selectedInstances'].splice(index, 1);
             }
         }
+        
+        _simplifyAtSeriesLevel({state}, studyId, seriesId, instancesCount);
+        _simplifyAtStudyLevel({state}, studyId, seriesCount);
 
         _updateBulkSelection({state});
     }
@@ -292,6 +414,15 @@ const actions = {
         const studySeries = payload['studySeries'];
         const isSelected = payload['isSelected'];
         commit('selectSeries', { studyId: studyId, seriesId: seriesId, studySeries: studySeries, isSelected: isSelected });
+    },
+    async selectInstance({ commit }, payload) {
+        const studyId = payload['studyId'];
+        const seriesId = payload['seriesId'];
+        const studySeries = payload['studySeries'];
+        const instanceId = payload['instanceId'];
+        const seriesInstances = payload['seriesInstances'];
+        const isSelected = payload['isSelected'];
+        commit('selectInstance', { studyId: studyId, seriesId: seriesId, studySeries: studySeries, seriesInstances: seriesInstances, instanceId: instanceId, isSelected: isSelected });
     },
     async selectAllStudies({ commit }, payload) {
         const isSelected = payload['isSelected'];

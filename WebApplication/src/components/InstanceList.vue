@@ -1,9 +1,11 @@
 <script>
 import InstanceItem from "./InstanceItem.vue"
 import api from "../orthancApi"
+import SelectionStatus from "../helpers/selection-status";
+
 
 export default {
-    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'seriesInstances'],
+    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'seriesInstances', 'studyId', 'studySeries'],
     emits: ['deletedInstance'],
     data() {
         return {
@@ -20,7 +22,21 @@ export default {
             } else {
                 return [];
             }
-        }
+        },
+        selectedInstancesCount() {
+            const count = this.$store.getters['selection/getSelectedInstancesCount'](this.studyId, this.seriesId, this.seriesInstances);
+            if (count == 0) {
+                return "";
+            } else {
+                return count;
+            }
+        },
+        allSelected() {
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.studyId, this.seriesId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.studyId, this.seriesId) == SelectionStatus.PARTIAL;
+        },
     },
     watch: {
         seriesInstances(newValue, oldValue) {
@@ -36,7 +52,14 @@ export default {
         onDeletedInstance(instanceId) {
             delete this.instancesInfo[instanceId];
             this.$emit("deletedInstance", instanceId);
-        }
+        },
+        clickSelectAll() {
+            if (this.allSelected == '' || !this.allSelected) { // this is the value before the click
+                this.$store.dispatch('selection/selectSeries', { studyId: this.studyId, seriesId: this.seriesId, studySeries: this.studySeries, isSelected: true });
+            } else {
+                this.$store.dispatch('selection/selectSeries', { studyId: this.studyId, seriesId: this.seriesId, studySeries: this.studySeries, isSelected: false });
+            }
+        },
     },
     components: { InstanceItem }
 }
@@ -46,7 +69,14 @@ export default {
     <table class="table table-responsive table-sm instance-table">
         <thead>
             <tr>
-                <th width="2%" scope="col" class="instance-table-header"></th>
+                <th width="2%" scope="col" class="instance-table-header">
+                    <div class="form-check" style="margin-left: 0.5rem">
+                        <input class="form-check-input" type="checkbox" :checked="allSelected"
+                            :indeterminate="isPartialySelected" @click="clickSelectAll"><span
+                            style="font-weight: 400; font-size: small;">{{ selectedInstancesCount
+                            }}</span>
+                    </div>
+                </th>
                 <th width="7%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
                     :title="$t('dicom_tags.InstanceNumber')">{{ $t('dicom_tags.InstanceNumber') }}</th>
                 <th width="40%" scope="col" class="instance-table-header cut-text" data-bs-toggle="tooltip"
@@ -58,6 +88,8 @@ export default {
         <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
             :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"
             :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+            :studyId="this.studyId" :studySeries="this.studySeries" :seriesInstances="this.seriesInstances"
+            :seriesId="this.seriesId"
             @deletedInstance="onDeletedInstance"></InstanceItem>
     </table>
 </template>

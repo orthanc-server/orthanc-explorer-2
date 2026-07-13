@@ -9,7 +9,7 @@ import SourceType from '../helpers/source-type';
 
 
 export default {
-    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'instancesIds'],
+    props: ['seriesId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'instancesIds', 'studyId', 'studySeries'],
     emits: ['deletedSeries'],
     setup() {
     },
@@ -114,12 +114,12 @@ export default {
                     <InstanceList v-if="!useExtendedInstanceList" :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
                         :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances"
+                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances" :studySeries="this.studySeries" :studyId="this.studyId"
                         @deletedInstance="onDeletedInstance"></InstanceList>
                     <InstanceListExtended v-if="useExtendedInstanceList" :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
                         :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances"
+                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances" :studySeries="this.studySeries" :studyId="this.studyId"
                         @deletedInstance="onDeletedInstance"></InstanceListExtended>
                 </td>
             </tr>

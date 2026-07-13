@@ -81,12 +81,12 @@ export default {
         <thead>
             <tr>
                 <th width="2%" scope="col" class="series-table-header">
-                        <div class="form-check" style="margin-left: 0.5rem">
-                            <input class="form-check-input" type="checkbox" :checked="allSelected"
-                                :indeterminate="isPartialySelected" @click="clickSelectAll"><span
-                                style="font-weight: 400; font-size: small;">{{ selectedSeriesCount
-                                }}</span>
-                        </div>
+                    <div class="form-check" style="margin-left: 0.5rem">
+                        <input class="form-check-input" type="checkbox" :checked="allSelected"
+                            :indeterminate="isPartialySelected" @click="clickSelectAll"><span
+                            style="font-weight: 400; font-size: small;">{{ selectedSeriesCount
+                            }}</span>
+                    </div>
                 </th> 
                 <th width="7%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
                     :title="columnTooltip('SeriesNumber')">{{ columnTitle('SeriesNumber') }}</th>

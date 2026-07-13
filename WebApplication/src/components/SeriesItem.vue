@@ -95,6 +95,7 @@ export default {
             v-bind:id="'series-details-' + this.seriesId" ref="series-collapsible-details">
             <td colspan="100">
                 <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId" :instancesIds="this.seriesInfo.Instances"
+                    :studySeries="this.studySeries" :studyId="this.seriesInfo['ParentStudy']"
                     :seriesMainDicomTags="this.seriesInfo.MainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                     :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesDetails>
             </td>
