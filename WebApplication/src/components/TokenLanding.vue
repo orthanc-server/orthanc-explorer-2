@@ -221,11 +221,9 @@ export default {
             <div v-if="tokenChecked && showOptions" class="w-100">
                 <div v-if="showStudyDetails" class="w-100">
                     <div class="row w-100 px-3" v-for="tag in tagsToDisplay" :key="tag">
-                        <div class="col-6 tag-label">
-                            <span v-html="titleForTag(tag)"></span>
+                        <div class="col-6 tag-label">{{ titleForTag(tag) }}
                         </div>
-                        <div class="col-6 tag-value">
-                            <span v-html="valueForTag(tag)"></span>
+                        <div class="col-6 tag-value">{{ valueForTag(tag) }}
                         </div>
                     </div>
                 </div>

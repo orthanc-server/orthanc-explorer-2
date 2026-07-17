@@ -6,6 +6,9 @@ Changes:
 - OE2 now displays a popup window when trying to leave the page while an upload is in progress.
 - Added Hungarian translations
 
+Fixes:
+- fixed an XSS vulnerability (many thanks to Samuel Paschuan from Xmartlab)
+
 
 1.13.0 (2026-06-22)
 ==================
