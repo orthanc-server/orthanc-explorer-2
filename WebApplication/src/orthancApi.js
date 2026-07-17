@@ -1,6 +1,7 @@
 import axios from "axios"
 import store from "./store"
 import mime from "mime-types";
+import resourceHelpers from "./helpers/resource-helpers"
 import { showSaveFilePicker } from "native-file-system-adapter";
 
 
@@ -85,11 +86,14 @@ export default {
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },
-    async deleteResources(level, resourcesIds) {
+    async deleteResourcesPre1_13(level, resourcesIds) {
         return axios.post(orthancApiUrl + "tools/bulk-delete", {
             "Resources": resourcesIds,
             "Level": level // not part of the Orthanc API but this helps the auth-plugin
         });
+    },
+    async deleteResources(resources) {
+        return axios.post(orthancApiUrl + "tools/bulk-delete", resources);
     },
     async cancelFindStudies() {
         if (window.axiosFindStudiesAbortController) {
@@ -434,6 +438,7 @@ export default {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/study")).data;
     },
     async getResourceStudy(orthancId, level) {
+        level = level.toLowerCase();
         if (level == "study") {
             return (await this.getStudy(orthancId));
         } else if (level == "series") {
@@ -533,22 +538,23 @@ export default {
         return response.data;
     },
 
-    async addLabel({ studyId, label }) {
-        await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, "");
+    async addLabel({ resourceId, level, label }) {
+        await axios.put(orthancApiUrl + resourceHelpers.levelToUrlSegment(level) + "/" + resourceId + "/labels/" + label, "");
         return label;
     },
 
-    async removeLabel({ studyId, label }) {
-        await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label);
+    async removeLabel({ resourceId, level, label }) {
+        await axios.delete(orthancApiUrl + resourceHelpers.levelToUrlSegment(level) + "/" + resourceId + "/labels/" + label);
         return label;
     },
 
-    async removeAllLabels(studyId) {
+    async removeAllLabels({ resourceId, level} ) {
         const labels = await this.getLabels(studyId);
         let promises = [];
         for (let label of labels) {
             promises.push(this.removeLabel({
-                studyId: studyId,
+                resourceId: resourceId,
+                level: level,
                 label: label
             }));
         }
@@ -556,13 +562,13 @@ export default {
         return labels;
     },
 
-    async getLabels(studyId) {
-        const response = (await axios.get(orthancApiUrl + "studies/" + studyId + "/labels"));
+    async getLabels(resourceId, level) {
+        const response = (await axios.get(orthancApiUrl + resourceHelpers.levelToUrlSegment(level) + "/" + resourceId + "/labels"));
         return response.data;
     },
 
-    async updateLabels({ studyId, labels }) {
-        const currentLabels = await this.getLabels(studyId);
+    async updateLabels({ resourceId, level, labels }) {
+        const currentLabels = await this.getLabels(resourceId, level);
         const labelsToRemove = currentLabels.filter(x => !labels.includes(x));
         const labelsToAdd = labels.filter(x => !currentLabels.includes(x));
         let promises = [];
@@ -571,13 +577,15 @@ export default {
         // console.log("labelsToAdd: ", labelsToAdd);
         for (const label of labelsToRemove) {
             promises.push(this.removeLabel({
-                studyId: studyId,
+                resourceId: resourceId,
+                level: level,
                 label: label
             }));
         }
         for (const label of labelsToAdd) {
             promises.push(this.addLabel({
-                studyId: studyId,
+                resourceId: resourceId,
+                level: level,
                 label: label
             }));
         }
@@ -611,15 +619,15 @@ export default {
         }
     },
 
-    async createToken({ tokenType, resourcesIds, level, validityDuration = null, id = null, expirationDate = null }) {
+    async createToken({ tokenType, resources, validityDuration = null, id = null, expirationDate = null }) {
         let body = {
             "Resources": [],
             "Type": tokenType
         }
 
-        for (let resourceId of resourcesIds) {
+        for (const resource of resources) {
             // the authorization are performed at study level -> get parent study id if needed
-            const study = await this.getResourceStudy(resourceId, level);
+            const study = await this.getResourceStudy(resource['ID'], resource['Level']);
             body["Resources"].push({
                 "OrthancId": study["ID"],
                 "DicomUid": study["MainDicomTags"]["StudyInstanceUID"],

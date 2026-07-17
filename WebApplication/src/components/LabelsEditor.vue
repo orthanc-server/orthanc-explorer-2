@@ -98,7 +98,8 @@ export default {
                 }
                 if (this.studyId) {
                     let changed = await api.updateLabels({
-                        studyId: this.studyId,
+                        resourceId: this.studyId,
+                        level: 'Study',
                         labels: newValue
                     });
                     if (changed) {

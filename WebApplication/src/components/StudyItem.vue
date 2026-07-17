@@ -207,15 +207,15 @@ export default {
                 </div>
             </td>
             <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
-                <TokenLinkButton v-if="primaryViewerUrl" level="study" :linkUrl="primaryViewerUrl"
-                    :resourcesOrthancId="[study.ID]" linkType="icon" iconClass="bi bi-eye-fill"
+                <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
+                    :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon" iconClass="bi bi-eye-fill"
                     :tokenType="primaryViewerTokenType" :opensInNewTab="true">
                 </TokenLinkButton>
             </td>
             <td v-if="hasPrimaryViewerIconPlaceholder"></td>
             <td v-if="hasPdfReportIcon" class="td-pdf-icon">
-                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" level="study"
-                    :linkUrl="pdfReport.url" :resourcesOrthancId="[study.ID]" linkType="icon"
+                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" 
+                    :linkUrl="pdfReport.url" :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon"
                     iconClass="bi bi-file-earmark-text" :tokenType="'download-instant-link'" :opensInNewTab="true"
                     :title="pdfReport.title">
                 </TokenLinkButton>

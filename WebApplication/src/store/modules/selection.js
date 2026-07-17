@@ -45,7 +45,7 @@ const getters = {
                     if (series['allInstancesSelected']) {
                         toReturn.push({"Level": "Series", "ID" : seriesId});
                     } else {
-                        for (const [instanceId, instances] of Object.entries(series['selectedInstances'])) {
+                        for (const instanceId of series['selectedInstances']) {
                             toReturn.push({"Level": "Instance", "ID" : instanceId});
                         }
                     }

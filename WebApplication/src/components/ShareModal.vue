@@ -54,14 +54,13 @@ export default {
             this.sendEmailInProgress = false;
         },
         async share() {
-            let resourcesIds = [this.orthancId];
+            let resources = [{"Level": "Study", "ID": this.orthancId}];
             if (this.isBulkSelection) {
-                resourcesIds = this.selectedStudiesIds;
+                resources = this.$store.getters['selection/selectedResourcesIdsWithLevel'];
             }
             let token = await api.createToken({
                 tokenType: this.tokens.ShareType,  // defined in configuration file
-                resourcesIds: resourcesIds,
-                level: 'study',
+                resources: resources,
                 validityDuration: this.uiOptions.ShareDuration * 24 * 3600
             })
             this.shareLink = token["Url"];
@@ -91,7 +90,6 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             tokens: state => state.configuration.tokens,
-            selectedStudiesIds: state => state.selection.selectedStudiesIds,
         }),
         isBulkSelection() {
             return !(this.patientMainDicomTags && this.studyMainDicomTags && Object.keys(this.patientMainDicomTags).length > 0 && Object.keys(this.studyMainDicomTags).length > 0);
@@ -104,7 +102,7 @@ export default {
             }
         },
         studiesCount() {
-            return this.selectedStudiesIds.length;
+            return this.$store.getters['selection/selectedStudiesCount'];
         },
         enableShareByEmail() {
             return this.uiOptions.EnableSharesByEmail;

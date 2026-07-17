@@ -80,8 +80,7 @@ export default {
                 const tokenType = matchStudyResourceToken[1];
                 const resourceToken = await api.createToken({
                     tokenType: tokenType,
-                    resourcesIds: [resourceId],
-                    level: resourceLevel,
+                    resources: [{"Level": resourceLevel, "ID": resourceId}],
                     validityDuration: store.state.configuration.tokens.InstantLinksValidity
                 });
                 output = output.replace('{study-resource-token/' + tokenType + '}', resourceToken['Token']);
@@ -94,8 +93,7 @@ export default {
                 const tokenType = matchStudyResourcesToken[1];
                 const resourceToken = await api.createToken({
                     tokenType: tokenType,
-                    resourcesIds: selectedResourcesIds,
-                    level: 'study', // right now, bulk actions only work at study level 
+                    resources: selectedResourcesIds.map((r) => {return {"Level": "Study", "ID": r}}), // right now, bulk actions only work at study level 
                     validityDuration: store.state.configuration.tokens.InstantLinksValidity
                 });
                 output = output.replace('{studies-resource-token/' + tokenType + '}', resourceToken['Token']);
@@ -217,5 +215,21 @@ export default {
     sanitizeToAlphanumeric(unsafe) {
         // Keep only alphanumeric, underscores, and hyphens (ex, for a peer name or a remote modality)
         return unsafe.replace(/[^a-zA-Z0-9_-]/g, '');
+    },
+
+    levelToUrlSegment(level) {
+        level = level.toLowerCase();
+        if (level == 'study') {
+            return 'studies';
+        } else if (level == 'series') {
+            return 'series';
+        } else if (level == 'instance') {
+            return 'instances';
+        } else if (level == 'patient') {
+            return 'patients'
+        } else {
+            console.error("Unknown level " + level);
+            return null;
+        }
     }
 }
