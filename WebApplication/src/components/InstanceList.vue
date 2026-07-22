@@ -2,6 +2,8 @@
 import InstanceItem from "./InstanceItem.vue"
 import api from "../orthancApi"
 import SelectionStatus from "../helpers/selection-status";
+import SourceType from '../helpers/source-type';
+import { mapState, mapGetters } from "vuex"
 
 
 export default {
@@ -14,6 +16,12 @@ export default {
         };
     },
     computed: {
+        ...mapState({
+            studiesSourceType: state => state.studies.sourceType,
+        }),
+        isMultipleSelectionEnabled() {
+            return this.studiesSourceType != SourceType.REMOTE_DICOM;
+        },
         sortedInstancesIds() {
             if (this.loaded) {
                 let keys = Object.keys(this.instancesInfo);
@@ -70,7 +78,7 @@ export default {
         <thead>
             <tr>
                 <th width="2%" scope="col" class="instance-table-header">
-                    <div class="form-check" style="margin-left: 0.5rem">
+                    <div v-if="isMultipleSelectionEnabled" class="form-check" style="margin-left: 0.5rem">
                         <input class="form-check-input" type="checkbox" :checked="allSelected"
                             :indeterminate="isPartialySelected" @click="clickSelectAll"><span
                             style="font-weight: 400; font-size: small;">{{ selectedInstancesCount

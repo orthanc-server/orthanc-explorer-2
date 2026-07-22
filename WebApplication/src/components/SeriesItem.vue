@@ -20,6 +20,9 @@ export default {
         ...mapState({
             studiesSourceType: state => state.studies.sourceType,
         }),
+        isMultipleSelectionEnabled() {
+            return this.studiesSourceType != SourceType.REMOTE_DICOM;
+        },
         instancesCount() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
                 return this.seriesInfo.Instances.length;
@@ -82,7 +85,7 @@ export default {
     <tbody>
         <tr :class="{ 'series-row-collapsed': !expanded, 'series-row-expanded': expanded }">
             <td>
-                <div class="form-check">
+                <div v-if="isMultipleSelectionEnabled" class="form-check">
                     <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
                 </div>
             </td>

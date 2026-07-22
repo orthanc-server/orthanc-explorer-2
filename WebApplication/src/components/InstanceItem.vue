@@ -2,6 +2,8 @@
 import InstanceDetails from "./InstanceDetails.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import SelectionStatus from "../helpers/selection-status";
+import SourceType from '../helpers/source-type';
+import { mapState, mapGetters } from "vuex"
 
 
 export default {
@@ -15,7 +17,6 @@ export default {
         };
     },
     mounted() {
-
         this.$refs['instance-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
             if (e.target == e.currentTarget) {
                 this.expanded = true;
@@ -39,6 +40,12 @@ export default {
         }
     },
     computed: {
+        ...mapState({
+            studiesSourceType: state => state.studies.sourceType,
+        }),
+        isMultipleSelectionEnabled() {
+            return this.studiesSourceType != SourceType.REMOTE_DICOM;
+        },
         isSelected() {
             return this.$store.getters['selection/getInstanceSelectionStatus'](this.studyId, this.seriesId, this.instanceId) != SelectionStatus.NOT_SELECTED;
         },
@@ -63,7 +70,7 @@ export default {
     <tbody>
         <tr :class="{ 'instance-row-collapsed': !expanded, 'instance-row-expanded': expanded }">
             <td>
-                <div class="form-check">
+                <div v-if="isMultipleSelectionEnabled" class="form-check">
                     <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
                 </div>
             </td>
