@@ -183,10 +183,8 @@ const getters = {
 
 function _setFullSelectedStudy(context, studyId) {
     let state = context.state;
-    if (!(studyId in state.selectedResources)) {
-        state.selectedResources[studyId] = {
-            'allSeriesSelected': true
-        }
+    state.selectedResources[studyId] = {
+        'allSeriesSelected': true
     }
 }
 

@@ -394,7 +394,7 @@ export default {
             setTimeout(() => { this.showMultiLabelsFilter = true }, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         },
         clickSelectAll() {
-            if (this.allSelected == '' || !this.allSelected) { // this is the value before the click
+            if (!this.allSelected) { // this is the value before the click
                 this.$store.dispatch('selection/selectAllStudies', { isSelected: true });
             } else {
                 this.$store.dispatch('selection/selectAllStudies', { isSelected: false });

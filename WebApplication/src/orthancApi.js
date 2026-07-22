@@ -549,7 +549,7 @@ export default {
     },
 
     async removeAllLabels({ resourceId, level} ) {
-        const labels = await this.getLabels(studyId);
+        const labels = await this.getLabels(resourceId, level);
         let promises = [];
         for (let label of labels) {
             promises.push(this.removeLabel({

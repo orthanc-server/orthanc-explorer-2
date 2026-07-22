@@ -336,7 +336,7 @@ const actions = {
         const studiesIds = payload['studiesIds'];
 
         for (const studyId of studiesIds) {
-            const labels = await api.getLabels(studyId);
+            const labels = await api.getLabels(studyId, "study");
 
             commit('refreshStudyLabels', { studyId: studyId, labels: labels });
         }

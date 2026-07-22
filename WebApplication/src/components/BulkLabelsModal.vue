@@ -67,7 +67,7 @@ export default {
             });
             this.clearAllInProgress = false;
 
-            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.$store.getters['selection/selectedResourcesIds'](true) });
         },
         onLabelsToAddChanged(labelsToAdd) {
             this.labelsToAdd = labelsToAdd;
@@ -100,8 +100,7 @@ export default {
                 part2: this.$t('labels.added_labels_message_part_2_html', { count: this.resources.length })
             });
             this.addInProgress = false;
-
-            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.$store.getters['selection/selectedResourcesIds'](true) });
         },
         isLabelToAdd(label) {
             return this.labelsToAdd.includes(label);
@@ -134,7 +133,7 @@ export default {
             });
             this.removeInProgress = false;
 
-            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.$store.getters['selection/selectedResourcesIds'](true) });
         },
     },
     computed: {
