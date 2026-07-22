@@ -49,7 +49,7 @@ export default {
             }
         },
         hasQueryableDicomWebServers() {
-            return this.queryableDicomWebServers.length > 0;
+            return this.uiOptions.EnableDicomWebServers &&  this.queryableDicomWebServers.length > 0;
         },
         hasQueryableDicomModalities() {
             return this.uiOptions.EnableDicomModalities && Object.keys(this.queryableDicomModalities).length > 0;

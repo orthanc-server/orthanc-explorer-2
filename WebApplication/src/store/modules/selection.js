@@ -54,6 +54,25 @@ const getters = {
         }
         return toReturn;
     },
+    selectedResourcesDicomIdsAllLevels: (state) => {
+        let toReturn = [];
+        for (const [studyId, study] of Object.entries(state.selectedResources)) {
+            if (study['allSeriesSelected']) {
+                toReturn.push({"Study": studyId});
+            } else {
+                for (const [seriesId, series] of Object.entries(study['selectedSeries'])) {
+                    if (series['allInstancesSelected']) {
+                        toReturn.push({"Study": studyId, "Series": seriesId});
+                    } else {
+                        for (const instanceId of series['selectedInstances']) {
+                            toReturn.push({"Study": studyId, "Series": seriesId, "Instance": instanceId});
+                        }
+                    }
+                }
+            }
+        }
+        return toReturn;
+    },
     selectedResourcesIds: (state) => (studiesOnly) => {
         if (studiesOnly) {
             return Object.keys(state.selectedResources);

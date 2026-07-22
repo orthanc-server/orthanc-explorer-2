@@ -176,12 +176,7 @@ export default {
             } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
                 let resources = [];
                 if (this.resourceLevel == "bulk") {
-                    for (const studyId of this.selectedStudiesIds) {
-                        const studyInfo = this.$store.getters['studies/getStudy'](studyId);
-                        if (studyInfo) {
-                            resources.push({ "Study": studyInfo['ID'] });
-                        }
-                    }
+                    resources = this.$store.getters['selection/selectedResourcesDicomIdsAllLevels'];
                 } else if (this.resourceLevel == "study") {
                     resources = [{ "Study": this.studyMainDicomTags.StudyInstanceUID }];
                 } else if (this.resourceLevel == "series") {

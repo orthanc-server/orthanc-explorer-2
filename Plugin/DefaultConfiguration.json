@@ -37,6 +37,7 @@
             "EnableStudyList": true,                    // Enables the access to the study list (TODO)
             "EnableUpload": true,                       // Enables the upload menu/interface
             "EnableDicomModalities": true,              // Enables the 'DICOM Modalities' interface in the side menu
+            "EnableDicomWebServers": true,              // Enables the 'DICOMWeb Servers' interface in the side menu
             "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances
             "EnableDownloadZip": true,                  // Enables the download zip button for Studies/Series
             "EnableDownloadDicomDir": false,            // Enables the download DICOM DIR button for Studies/Series

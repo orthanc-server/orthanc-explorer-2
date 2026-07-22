@@ -745,6 +745,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableAuditLogs"], permissions, "admin-permissions|audit-logs");
         UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
         UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
+        UpdateUiOptions(uiOptions["EnableDicomWebServers"], permissions, "all|q-r-remote-modalities");
         UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
         UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "all|download");
         UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "all|download");

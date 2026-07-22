@@ -27,11 +27,18 @@ export default {
                 return this.seriesInfo.MainDicomTags.NumberOfSeriesRelatedInstances;
             }
         },
+        parentStudyId() {
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+                return this.seriesInfo['ParentStudy'];
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
+                return this.seriesInfo['MainDicomTags']['StudyInstanceUID'];
+            }
+        },
         isSelected() {
-            return this.$store.getters['selection/getSeriesSelectionStatus'](this.seriesInfo['ParentStudy'], this.seriesId) != SelectionStatus.NOT_SELECTED;
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.parentStudyId, this.seriesId) != SelectionStatus.NOT_SELECTED;
         },
         isPartialySelected() {
-            return this.$store.getters['selection/getSeriesSelectionStatus'](this.seriesInfo['ParentStudy'], this.seriesId) == SelectionStatus.PARTIAL;
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.parentStudyId, this.seriesId) == SelectionStatus.PARTIAL;
         }
 
     },
@@ -63,7 +70,7 @@ export default {
             this.$emit("deletedSeries", this.seriesId);
         },
         async clickedSelect() {
-            await this.$store.dispatch('selection/selectSeries', { studyId: this.seriesInfo['ParentStudy'], seriesId: this.seriesId, studySeries: this.studySeries, isSelected: !this.isSelected }); // this.selected is the value before the click
+            await this.$store.dispatch('selection/selectSeries', { studyId: this.parentStudyId, seriesId: this.seriesId, studySeries: this.studySeries, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
     components: { SeriesDetails }
@@ -95,7 +102,7 @@ export default {
             v-bind:id="'series-details-' + this.seriesId" ref="series-collapsible-details">
             <td colspan="100">
                 <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId" :instancesIds="this.seriesInfo.Instances"
-                    :studySeries="this.studySeries" :studyId="this.seriesInfo['ParentStudy']"
+                    :studySeries="this.studySeries" :studyId="this.parentStudyId"
                     :seriesMainDicomTags="this.seriesInfo.MainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                     :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesDetails>
             </td>
