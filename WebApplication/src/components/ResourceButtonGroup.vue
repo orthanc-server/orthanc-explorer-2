@@ -1074,34 +1074,34 @@ export default {
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'"
-                            :linkUrl="getApiUrl('')" :resources="[resources]" :title="'/'"
+                            :linkUrl="getApiUrl('')" :resources="resources" :title="'/'"
                             :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li v-if="this.resourceLevel == 'instance'">
                         <TokenLinkButton :linkType="'dropdown-item'"
-                            :linkUrl="getApiUrl('/tags?simplify')" :resources="[resources]"
+                            :linkUrl="getApiUrl('/tags?simplify')" :resources="resources"
                             :title="'/tags?simplify'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'"
-                            :linkUrl="getApiUrl('/metadata?expand')" :resources="[resources]"
+                            :linkUrl="getApiUrl('/metadata?expand')" :resources="resources"
                             :title="'/metadata?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'"
-                            :linkUrl="getApiUrl('/statistics')" :resources="[resources]"
+                            :linkUrl="getApiUrl('/statistics')" :resources="resources"
                             :title="'/statistics'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
                         <TokenLinkButton :linkType="'dropdown-item'"
-                            :linkUrl="getApiUrl('/attachments?expand')" :resources="[resources]"
+                            :linkUrl="getApiUrl('/attachments?expand')" :resources="resources"
                             :title="'/attachments?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
