@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.14.0 (2026-07-23)
+==================
 
 Changes:
 - Added multiple selection at series and instances level.
