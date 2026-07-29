@@ -69,7 +69,10 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
         window.keycloak = new Keycloak(initOptions);
 
-        window.keycloak.init({ onLoad: initOptions.onLoad }).then(async (auth) => {
+        window.keycloak.init({
+            onLoad: initOptions.onLoad,
+            checkLoginIframe: keycloackConfig['CheckLoginIframe'] || true,
+        }).then(async (auth) => {
 
             if (!auth) {
                 window.location.reload();

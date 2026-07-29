@@ -456,7 +456,8 @@
             "Enable": false,
             "Url": "http://change-me:8080/",
             "Realm": "change-me",
-            "ClientId": "change-me"
+            "ClientId": "change-me",
+            "CheckLoginIframe": true
         },
 
         
