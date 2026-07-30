@@ -7,6 +7,7 @@ import fr from "./fr.json";
 import it from "./it.json";
 import ja from "./ja.json";
 import ka from "./ka.json";
+import pl from "./pl.json";
 import ro from "./ro.json";
 import ru from "./ru.json";
 import si from "./si.json";
@@ -29,6 +30,7 @@ const i18n = createI18n({
     it,
     ja,
     ka,
+    pl,
     ro,
     ru,
     si,
