@@ -1,4 +1,11 @@
-1.14.0 (2026-07-23)
+Pending changes
+===============
+
+Changes:
+- New `Keycloak.CheckLoginIframe` parameter ([reference](https://www.keycloak.org/securing-apps/javascript-adapter#_session_status_iframe)).
+ 
+
+1.14.1 (2026-07-23)
 ==================
 
 Changes:
