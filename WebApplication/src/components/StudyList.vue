@@ -250,6 +250,8 @@ export default {
             if (this.hasPdfReportIcon) {
                 span++;
             }
+
+            span = Math.max(span, this.colSpanClearFilter +1);
             return span;
         },
         colSpanMultiLabelsFilter() {
