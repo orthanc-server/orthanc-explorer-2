@@ -4,6 +4,7 @@ Pending changes
 Changes:
 - New `Keycloak.CheckLoginIframe` parameter ([reference](https://www.keycloak.org/securing-apps/javascript-adapter#_session_status_iframe)).
 - Added Polish translations 
+- Added support for `Inbox-links` (provided you use the auth-service)
 
 
 1.14.1 (2026-07-23)

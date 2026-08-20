@@ -5,6 +5,7 @@ import SettingsPermissions from './components/SettingsPermissions.vue'
 import SettingsMetrics from './components/SettingsMetrics.vue'
 import Worklists from './components/Worklists.vue'
 import AuditLogs from './components/AuditLogs.vue'
+import InboxLinks from './components/InboxLinks.vue'
 import StudyList from './components/StudyList.vue'
 import JobsList from './components/JobsList.vue'
 import SideBar from './components/SideBar.vue'
@@ -88,6 +89,14 @@ export const router = createRouter({
         ContentView: JobsList,
       },
       name: 'jobs'
+    },
+    {
+      path: '/create-inbox-links',
+      components: {
+        SideBarView: SideBar,
+        ContentView: InboxLinks,
+      },
+      name: 'create-inbox-links'
     },
     {
       path: '/:pathMatch(.*)',

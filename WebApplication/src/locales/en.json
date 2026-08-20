@@ -113,6 +113,10 @@
         "fill_form_first": "Fill the form before uploading files",
         "reload_inbox": "Upload a new study"
     },
+    "inbox_links" : {
+        "generate": "Generate",
+        "title" : "Inbox Links"
+    },
     "instance": "Instance",
     "instances": "Instances",
     "instances_from_study": "Instances from",

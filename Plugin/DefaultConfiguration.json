@@ -73,6 +73,18 @@
                                                               // of the external email web-service
             "ShareEmailTitle": "TO BE DEFINED",               // Default title for the email
 
+            "EnableInboxLinks": false,                  // Enables the inbox-links menu/interface (provided that the authorization + service support them)
+            "InboxLinksDuration": 7,                            // The upload links validity duration (in days)
+            "EnableInboxLinksByEmail": false,                   // Enables sending emails when sharing upload links.  
+                                                                // Note that you must have an external web-service configured in the "Emails" section.
+            "InboxLinksEmailContentTemplate": "TO BE DEFINED",  // The name of the HTML template to use when sharing an upload link by email 
+                                                                // (only the content part that is editable in the text editor).  
+                                                                // Your email web-service must provide the HTML template at {Emails.ServerRootUrl}/templates/{UiOptions.InboxLinksEmailContentTemplate}
+            "InboxLinksEmailLayoutTemplate": null,              // The name of the HTML layout template to use when sharing an upload link by email.
+                                                                // This identifier is included in the 'layout-template' field of the payload sent to {Emails.ServerRootUrl}/send 
+                                                                // of the external email web-service
+            "InboxLinksEmailTitle": "TO BE DEFINED",            // Default title for the email
+
             "EnableAddSeries": true,                    // Enables the "Add series" button
             "AddSeriesDefaultTags": {                   // Default tag values when adding a new series of each type ("pdf", "image" or "stl")
                 "pdf" : {

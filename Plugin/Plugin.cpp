@@ -715,7 +715,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
             uiOptions["AvailableLabels"] = rolesConfig["available-labels"];
           }
 
-          LOG(INFO) << rolesConfig.toStyledString();
+          // LOG(INFO) << rolesConfig.toStyledString();
 
           // if the auth-service is not fully configured, disable permissions edition
           if (rolesConfig.isObject() && rolesConfig.isMember("roles") && rolesConfig["roles"].isObject() && rolesConfig["roles"].size() > 0)
@@ -760,6 +760,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
         UpdateUiOptions(uiOptions["EnablePermissionsEdition"], permissions, "admin-permissions");
         UpdateUiOptions(uiOptions["EnableJobsList"], permissions, "admin-permissions");
+        UpdateUiOptions(uiOptions["EnableInboxLinks"], permissions, "all|create-inbox-links");
 
         // the Legacy UI is not available with user profile since it would not refresh the tokens
         uiOptions["EnableLinkToLegacyUi"] = false;

@@ -37,6 +37,16 @@ export default {
         }
 
         const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) { // the page might have been opened with a token with an inbox-link.  In this case, check if the link is still valid and display an error message if not.
+            this.hasToken = true;
+            const decodedToken = await api.parseToken('token', params.get('token'));
+            this.tokenChecked = true;
+            if ('ErrorCode' in decodedToken) {
+                this.errorCode = decodedToken['ErrorCode'];
+            }
+        }
+
     },
     setup() {
         return {
@@ -45,6 +55,9 @@ export default {
 
     data() {
         return {
+            tokenChecked: false,
+            hasToken: false,
+            errorCode: null,
             inboxConfig_: null,
             formValues: {},
             formFieldsValidities: {},
@@ -80,12 +93,14 @@ export default {
         userProfile(newValue, oldValue) {
             // the user profile arrives after the inbox initialization
 
-            for (let formField of this.inboxConfig_['FormFields']) {
-                this.formValues[formField.Id] = null;
+            if (this.hasForm) {
+                for (let formField of this.inboxConfig_['FormFields']) {
+                    this.formValues[formField.Id] = null;
 
-                // set the initial value to the only value
-                if (formField.Type == 'UserGroupsChoice' && !this.hasMultipleUserGroupsChoices(formField)) {
-                    this.formValues[formField.Id] = this.getUserGroupsChoices(formField)[0];
+                    // set the initial value to the only value
+                    if (formField.Type == 'UserGroupsChoice' && !this.hasMultipleUserGroupsChoices(formField)) {
+                        this.formValues[formField.Id] = this.getUserGroupsChoices(formField)[0];
+                    }
                 }
             }
         }
@@ -93,8 +108,12 @@ export default {
     methods: {
         async onUploadCompleted(uploadedStudiesIds) {
             // console.log("upload complete: ", uploadedStudiesIds, this.formValues);
-            this.commitResponse = await api.commitInbox(this.inboxConfig['CommitUrl'], [...uploadedStudiesIds], this.formValues);
-            this.startMonitoringProcessing();
+            if (this.inboxConfig['CommitUrl']) {
+                this.commitResponse = await api.commitInbox(this.inboxConfig['CommitUrl'], [...uploadedStudiesIds], this.formValues);
+                this.startMonitoringProcessing();
+            } else {
+                this.processingIsComplete = true;
+            }
         },
         async updateFormValidity() {
             let allValid = true;
@@ -130,7 +149,6 @@ export default {
                 }
             }
             this.formIsValid = allValid;
-            console.log("canUpload", this.canUpload);
         },
         isFieldValid(formField) {
             return this.formFieldsValidities[formField.Id];
@@ -184,8 +202,6 @@ export default {
             if (!this.processingIsComplete) {
                 this.processingRefreshTimeout = Math.min(this.processingRefreshTimeout + 200, 2000);  // refresh quickly at the beginnning !
                 setTimeout(this.monitorProcessing, this.processingRefreshTimeout);
-            } else {
-
             }
         },
         reload() {
@@ -240,8 +256,12 @@ export default {
         inboxConfig() {
             if (!this.inboxConfig_ && this.$appConfig && 'Inbox' in this.$appConfig && this.$appConfig['Inbox']) {
                 this.inboxConfig_ = this.$appConfig['Inbox'];
-                for (let formField of this.inboxConfig_['FormFields']) {
-                    this.formValues[formField.Id] = null;
+                if ('FormFields' in this.inboxConfig_) {
+                    for (let formField of this.inboxConfig_['FormFields']) {
+                        this.formValues[formField.Id] = null;
+                    }
+                } else {
+                    this.inboxConfig_['FormFields'] = [];
                 }
                 this.isFormValuesInitialized = true;
             }
@@ -273,7 +293,7 @@ export default {
             return this.commitResponse && (!this.processingIsComplete && !this.processingHasFailed);
         },
         processingMessageComputed() {
-            return this.processingMessage || this.commitResponse.Message;
+            return this.processingMessage || (this.commitResponse && this.commitResponse.Message);
         },
         processingProgress() {
             return this.processingPctComplete;
@@ -291,7 +311,7 @@ export default {
 
 <template>
     <div class="d-flex flex-column min-vh-100">
-        <div class="row w-100" v-if="hasLogout">
+        <div class="row w-100" v-if="hasLogout || hasUserProfile">
             <div class="col-10"></div>
             <div class="col-2">
                 <li class="d-flex align-items-center">
@@ -299,12 +319,12 @@ export default {
                         }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
                     <span class="arrow ms-auto"></span>
                 </li>
-                <li v-if="uiOptions.EnableChangePassword" class="d-flex align-items-center profile-menu">
+                <li v-if="hasLogout && uiOptions.EnableChangePassword" class="d-flex align-items-center profile-menu">
                     <a v-bind:href="'#'" @click="changePassword($event)">
                         <i class="fa fa-solid fa-key fa-lg menu-icon"></i>{{ $t('change_password') }}
                     </a><span class="ms-auto"></span>
                 </li>
-                <li class="d-flex align-items-center profile-menu">
+                <li v-if="hasLogout" class="d-flex align-items-center profile-menu">
                     <a v-bind:href="'#'" @click="logout($event)">
                         <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
                     </a><span class="ms-auto"></span>
@@ -334,6 +354,17 @@ export default {
             <div class="row w-75 px-3">
                 <p v-if="hasCustomIntroText" v-html="customIntroText"></p>
                 <p v-else v-html="$t('inbox.generic_intro_text')"></p>
+            </div>
+            <div v-if="hasToken" class="row w-75 px-3 h4 text-center">
+                <span v-if="!tokenChecked">
+                    <p v-html="$t('token.token_being_checked_html')"></p>
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </span>
+                <div class="alert alert-danger" role="alert" v-if="tokenChecked && errorCode == 'invalid'" style="white-space: pre-line" v-html="$t('token.error_token_invalid_html')"></div>
+                <div class="alert alert-danger" role="alert" v-if="tokenChecked && errorCode == 'expired'" style="white-space: pre-line" v-html="$t('token.error_token_expired_html')"></div>
+                <div class="alert alert-danger" role="alert" v-if="tokenChecked && errorCode == 'unknown'" style="white-space: pre-line" v-html="$t('token.error_token_unknown_html')"></div>
             </div>
             <div v-if="hasForm" class="row w-100 px-3">
                 <div class="row w-100 py-1" v-for="formField in formFields" :key="formField.Id">
@@ -371,7 +402,7 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="row w-75 mt-2 px-3 text-center">
+            <div v-if="!errorCode" class="row w-75 mt-2 px-3 text-center">
                 <UploadHandler @uploadCompleted="onUploadCompleted" :showStudyDetails="false"
                     :uploadDisabled="!canUpload" :singleUse="true" :disableCloseReport="true"
                     :uploadDisabledMessage="$t('inbox.fill_form_first')" />

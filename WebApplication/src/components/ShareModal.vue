@@ -3,11 +3,10 @@ import { mapState } from "vuex"
 import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
+import emailHelpers from "../helpers/email-helpers.js";
 import api from "../orthancApi"
 import TextEditor from "./TextEditor.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
-
-
 
 
 export default {
@@ -76,6 +75,7 @@ export default {
             this.sendEmailInProgress = true;
             let response = await api.sendEmail(this.emailDestination, this.emailTitle, this.emailContent, this.uiOptions.ShareEmailLayoutTemplate);
             if (response.success) {
+                this.sendEmailInProgress = false;
                 var modal = bootstrap.Modal.getInstance(this.$refs['modal-main-div']);
                 modal.hide();
                 this.messageBus.emit("show-toast", this.$t('share.email_sent'));
@@ -117,17 +117,7 @@ export default {
             }
         },
         destinationContainsValidEmailAddresses() {
-            if (!this.emailDestination) {
-                return false;
-            }
-            // Regex to validate individual email addresses
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            // Split the string into individual email addresses
-            const emails = this.emailDestination.split(/[;,\s]+/).filter(email => email);
-
-            // Check if all entries are valid email addresses
-            return emails.every(email => emailRegex.test(email));
+            return emailHelpers.isValidEmailDestination(this.emailDestination);
         }
     },
     components: { CopyToClipboardButton, TextEditor }

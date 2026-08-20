@@ -57,6 +57,9 @@ export default {
         hasAccessToSettings() {
             return this.uiOptions.EnableSettings;
         },
+        hasAccessToInboxLinks() {
+            return this.uiOptions.EnableInboxLinks;
+        },
         hasAccessToWorklists() {
             return "orthanc-worklists" in this.installedPlugins && this.installedPlugins["orthanc-worklists"].Enabled && this.uiOptions.EnableWorklists;
         },
@@ -269,6 +272,13 @@ export default {
                             <i class="fa fa-bars-progress fa-lg menu-icon"></i>{{ $t('jobs.side_bar_title') }}
                         </router-link>
                     </li>
+
+                    <li v-if="hasAccessToInboxLinks" class="d-flex align-items-center fix-router-link">
+                        <router-link class="router-link" to="/create-inbox-links">
+                            <i class="fa fa-cloud-arrow-up fa-lg menu-icon"></i>{{ $t('inbox_links.title') }}
+                        </router-link>
+                    </li>
+
                     <li v-if="hasAccessToSettings" class="d-flex align-items-center" data-bs-toggle="collapse"
                         data-bs-target="#settings-list">
                         <i class="fa fa-cogs fa-lg menu-icon"></i>{{ $t('settings.title') }}

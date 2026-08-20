@@ -93,6 +93,10 @@
         "fill_form_first": "Remplissez le formulaire avant de déposer les examens",
         "reload_inbox": "Déposer un autre examen"
     },
+    "inbox_links" : {
+        "generate": "Générer le lien",
+        "title" : "Liens d'envoi"
+    },
     "instance": "Élément",
     "instances": "Instances",
     "instances_from_study": "Instances de",

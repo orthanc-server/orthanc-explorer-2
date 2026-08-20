@@ -619,10 +619,14 @@ export default {
         }
     },
 
-    async createToken({ tokenType, resources, validityDuration = null, id = null, expirationDate = null }) {
+    async createToken({ tokenType, resources, validityDuration = null, id = null, expirationDate = null, username = null }) {
         let body = {
             "Resources": [],
             "Type": tokenType
+        }
+
+        if (username) {
+            body["Username"] = username;
         }
 
         for (const resource of resources) {
