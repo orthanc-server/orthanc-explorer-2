@@ -94,6 +94,7 @@
         "reload_inbox": "Déposer un autre examen"
     },
     "inbox_links" : {
+        "copy": "Copier le lien",
         "generate": "Générer le lien",
         "title" : "Liens d'envoi"
     },

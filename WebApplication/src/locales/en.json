@@ -114,6 +114,7 @@
         "reload_inbox": "Upload a new study"
     },
     "inbox_links" : {
+        "copy": "Copy",
         "generate": "Generate",
         "title" : "Inbox Links"
     },

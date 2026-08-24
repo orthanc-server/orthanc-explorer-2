@@ -118,16 +118,22 @@ export default {
         </div>
         <div v-if="!enableInboxLinksByEmail" class="row border-top pt-3">
             <div class="row">
-                <div class="col-md-1">
-                    {{ $t("share.link") }}
-                </div>
-                <div class="col-md-9">
-                    <textarea id="txt_input" v-model="inboxLink" rows="8" style="min-width: 100% !important; font-family: 'Courier New', Courier, monospace;
-font-size: 0.7em;" />
+                <div class="col-md-10">
+                    <div class="container py-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                {{ $t("share.link") }}
+                            </div>
+                            <div class="col-md-9">
+                                <textarea id="txt_input" v-model="inboxLink" rows="8" style="min-width: 100% !important; font-family: 'Courier New', Courier, monospace;
+            font-size: 0.7em;" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <div class="py-3">
-                        <button v-if="inboxLink != ''" type="button" class="btn btn-primary"
+                        <button v-if="inboxLink != ''" type="button" class="btn btn-primary" :disabled="!canEditOrSendEmail"
                             @click="copy()">{{ $t("inbox_links.copy")
                             }}</button>
                     </div>
