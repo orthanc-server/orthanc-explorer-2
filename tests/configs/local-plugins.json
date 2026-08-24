@@ -1,0 +1,5 @@
+{
+    "Plugins": [
+        "../../../build/oe2/libOrthancExplorer2.so"
+    ]
+}

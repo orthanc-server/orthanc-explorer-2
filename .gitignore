@@ -7,3 +7,7 @@ dist-ssr
 .vscode/
 *~
 build
+tests/.venv/
+tests/__pycache__/
+tests/storages/
+tests/screenshots/

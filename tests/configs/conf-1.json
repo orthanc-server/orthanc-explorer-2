@@ -1,0 +1,7 @@
+{
+    "HttpPort": 8099,
+    "Name": "Conf-1",
+
+    "AuthenticationEnabled": false,
+    "StorageDirectory": "../storages/conf-1"
+}

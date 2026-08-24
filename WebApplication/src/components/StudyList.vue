@@ -566,6 +566,9 @@ export default {
         hasFilter(tagName) {
             return ['seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tagName) == -1;
         },
+        getFilterId(tagName) {
+            return "filter-" + tagName;
+        },
         getFilterPlaceholder(tagName) {
             if (tagName in this.columns && this.columns[tagName].placeholder) {
                 return this.columns[tagName].placeholder;
@@ -1096,7 +1099,8 @@ export default {
                         <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
                             v-model="this.filterGenericTags[columnTag]"
                             v-bind:placeholder="getFilterPlaceholder(columnTag)"
-                            v-bind:class="getFilterClass(columnTag)" />
+                            v-bind:class="getFilterClass(columnTag)" 
+                            v-bind:id="getFilterId(columnTag)"/>
                     </th>
                 </tr>
 
@@ -1192,6 +1196,7 @@ export default {
                                         class="form-control study-list-filter btn filter-button btn-secondary search-button"
                                         data-bs-toggle="tooltip"
                                         :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                        id="search"
                                         title="Search">
                                         <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
                                         <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
