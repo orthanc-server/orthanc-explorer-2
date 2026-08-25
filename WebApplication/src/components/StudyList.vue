@@ -1093,7 +1093,8 @@ export default {
                         <div v-else-if="columnTag == 'PatientBirthDate'">
                             <Datepicker v-model="filterPatientBirthDateForDatePicker" :enable-time-picker="false" range
                                 :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
-                                arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
+                                arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode"
+                                :id="getFilterId(columnTag)">
                             </Datepicker>
                         </div>
                         <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"

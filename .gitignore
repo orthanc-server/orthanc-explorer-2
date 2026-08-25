@@ -11,3 +11,4 @@ tests/.venv/
 tests/__pycache__/
 tests/storages/
 tests/screenshots/
+tests/configs/Conf*.json

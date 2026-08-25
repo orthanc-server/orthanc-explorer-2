@@ -6,20 +6,30 @@ from orthanc_api_client import OrthancApiClient
 import pytest
 from playwright.sync_api import sync_playwright
 import pathlib
+from urllib.parse import urljoin
 
 here = pathlib.Path(__file__).parent.resolve()
 
 
 ORTHANC_EXECUTABLE = here / "../../build/orthanc/Orthanc"
 UI_HOST = "127.0.0.1"
-UI_PORT = 8099
+UI_PORT = 8043   # by using 8043, Orthanc is also accessible behind localhost:3000 if you have started `npm run dev` which is convenient if you are running tests while developing
 
 
-def start_orthanc(config_file):
+def start_orthanc(orthanc_config, config_name):
+
+    orthanc_config["Name"] = config_name
+    orthanc_config["StorageDirectory"] = str(here / f"./storages/{config_name}")
+    orthanc_config["HttpPort"] = UI_PORT
+
+    config_file_path = str(here / f"./configs/{config_name}.json")
+    with open(config_file_path, "w") as f:
+        f.write(json.dumps(orthanc_config))
+
     command = [
         str(ORTHANC_EXECUTABLE),
         "--verbose", 
-        str(here / config_file),
+        config_file_path,
         str(here / "configs/local-plugins.json")
     ]
 
@@ -57,9 +67,10 @@ def start_orthanc(config_file):
 
 @pytest.fixture(scope="module")
 def ui(request):
-    config_file = request.module.UI_CONFIG
+    orthanc_config = request.module.ORTHANC_CONFIG
+    config_name = request.module.CONFIG_NAME
 
-    process = start_orthanc(config_file)
+    process = start_orthanc(orthanc_config, config_name)
 
     yield process
 
@@ -76,30 +87,47 @@ def ui(request):
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--base-url",
+        "--orthanc-url",
         action="store",
-        default=f"http://{UI_HOST}:{UI_PORT}/ui/app",
+        default=f"http://{UI_HOST}:{UI_PORT}",
         help="URL of the app under test",
     )
 
+    parser.addoption(
+        "--orthanc-mode",
+        choices=[
+            "existing-orthanc",
+            "orthanc-native",
+            "orthanc-docker",
+        ],
+        default="existing-orthanc",
+    )
 
-def load_config(test_module):
-    config_file = here / test_module.UI_CONFIG
+    parser.addoption(
+        "--orthanc-exe",
+        action="store",
+        default=str(here / "../../build/orthanc/Orthanc"),
+        help="Path to the Orthanc executable",
+    )
 
-    with open(config_file) as f:
-        return json.load(f)
+# def load_config(test_module):
+#     config_file = here / test_module.UI_CONFIG
 
+#     with open(config_file) as f:
+#         return json.load(f)
+
+
+# @pytest.fixture(scope="module")
+# def config(request):
+#     return load_config(request.module)
 
 @pytest.fixture(scope="module")
-def config(request):
-    return load_config(request.module)
+def orthanc_api(request) -> OrthancApiClient:
+    url = request.config.getoption("--orthanc-url")
+    # api_http_port = config.get('HttpPort') or 8042
+    # uri = f"http://{UI_HOST}:{api_http_port}"
 
-@pytest.fixture(scope="module")
-def orthanc_api(config) -> OrthancApiClient:
-    api_http_port = config.get('HttpPort') or 8042
-    uri = f"http://{UI_HOST}:{api_http_port}"
-
-    return OrthancApiClient(uri)
+    return OrthancApiClient(url)
 
 @pytest.fixture(scope="module")
 def browser(ui):
@@ -111,7 +139,9 @@ def browser(ui):
 
 @pytest.fixture
 def page(browser, request):
-    page = browser.new_page()
+    page = browser.new_page(
+        base_url=urljoin(request.config.getoption("--orthanc-url"), "/ui/app/")
+    )
 
     page.on(
         "requestfailed",
@@ -140,10 +170,10 @@ def page(browser, request):
         lambda exc: print(f"PAGE ERROR: {exc}")
     )
 
-    url = request.config.getoption("--base-url")
-    print(f"\nNavigating to: {url}")
+    # url = urljoin(request.config.getoption("--orthanc-url"), "/ui/app/")
+    # print(f"\nNavigating to: {url}")
 
-    page.goto(url, wait_until="networkidle")
+    page.goto("/", wait_until="networkidle")
 
     print(f"Final URL: {page.url}")
 

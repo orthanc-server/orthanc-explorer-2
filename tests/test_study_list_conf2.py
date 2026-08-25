@@ -6,9 +6,18 @@ import pathlib
 
 here = pathlib.Path(__file__).parent.resolve()
 
+CONFIG_NAME = "Conf2"
 
+ORTHANC_CONFIG = {
+    "AuthenticationEnabled": False,
+    
+    "OrthancExplorer2": {
+        "UiOptions": {
+            "StudyListSearchMode": "search-button"
+        }
+    }
+}
 
-UI_CONFIG = "./configs/conf-2.json"
 
 def test_search_study_list(page: Page, orthanc_api: OrthancApiClient):
     orthanc_api.delete_all_content()
@@ -18,12 +27,14 @@ def test_search_study_list(page: Page, orthanc_api: OrthancApiClient):
 
     expect(page.locator("#filter-PatientName")).to_be_visible()
 
+    # search for a PatientName that exists
     page.locator("#filter-PatientName").fill("Te")
     page.locator('#search').click()
-    expect(get_collapsed_studies(page)).to_have_count(1)
+    expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
+    # search for a PatientName that does not exist
     page.locator("#filter-PatientName").fill("Arn")
     page.locator('#search').click()
     page.screenshot(path=here / "screenshots/debug.png", full_page=True)
-    expect(get_collapsed_studies(page)).to_have_count(0)
+    expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)
 
