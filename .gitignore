@@ -9,6 +9,7 @@ dist-ssr
 build
 tests/.venv/
 tests/__pycache__/
+tests/.pytest_cache/
 tests/storages/
 tests/screenshots/
-tests/configs/Conf*.json
+tests/configs/conf*.json

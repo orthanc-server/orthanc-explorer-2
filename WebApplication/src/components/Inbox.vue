@@ -315,7 +315,7 @@ export default {
             <div class="col-10"></div>
             <div class="col-2">
                 <li class="d-flex align-items-center">
-                    <i class="fa fa-user fa-lg menu-icon"></i><span v-if="hasUserProfile">{{ userProfile.name
+                    <i class="fa fa-user fa-lg menu-icon"></i><span id="inbox-user-name" v-if="hasUserProfile">{{ userProfile.name
                         }}</span><span v-if="!hasUserProfile">{{ $t('profile') }}</span>
                     <span class="arrow ms-auto"></span>
                 </li>
@@ -325,7 +325,7 @@ export default {
                     </a><span class="ms-auto"></span>
                 </li>
                 <li v-if="hasLogout" class="d-flex align-items-center profile-menu">
-                    <a v-bind:href="'#'" @click="logout($event)">
+                    <a v-bind:href="'#'" @click="logout($event)" id="inbox-logout">
                         <i class="fa fa-solid fa-arrow-right-from-bracket fa-lg menu-icon"></i>{{ $t('logout') }}
                     </a><span class="ms-auto"></span>
                 </li>
@@ -431,7 +431,7 @@ export default {
                 </div>
             </div>
             <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
-                <button type="button" class="btn btn-secondary" @click="reload"><i
+                <button type="button" class="btn btn-secondary" @click="reload" id="inbox-reload"><i
                         class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
             </div>
         </div>

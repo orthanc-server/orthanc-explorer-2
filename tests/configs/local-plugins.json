@@ -1,5 +1,6 @@
 {
     "Plugins": [
-        "../../../build/oe2/libOrthancExplorer2.so"
+        "../../../build/oe2/libOrthancExplorer2.so",
+        "../../../build/orthanc-authorization/libOrthancAuthorization.so"
     ]
 }

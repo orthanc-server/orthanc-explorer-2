@@ -4,10 +4,14 @@ from helpers import *
 import pytest
 import pathlib
 import time
+import re
 
 here = pathlib.Path(__file__).parent.resolve()
 
-CONFIG_NAME = "Conf1"
+CONFIG_NAME = "conf1"
+COMPOSE_FILE = "docker-compose.no-auth.yml"
+HAS_KEYCLOAK = False
+HAS_NGINX = False
 
 ORTHANC_CONFIG = {
     "AuthenticationEnabled": False,
@@ -33,20 +37,19 @@ def test_search_study_list(page: Page, orthanc_api: OrthancApiClient):
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
     page.locator("#filter-PatientName").fill("Arn")
-    page.screenshot(path=here / "screenshots/debug.png", full_page=True)
     expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)
 
     # open study list from URL (with PatientName)
-    page.goto('filtered-studies?PatientName=Test&order-by=Metadata,LastUpdate,DESC')
+    page.goto('/ui/app/filtered-studies?PatientName=Test&order-by=Metadata,LastUpdate,DESC')
     expect(page.locator("#filter-PatientName")).to_have_value("Test")
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
     # open study list from URL (with PatientID)
-    page.goto('filtered-studies?PatientID=TEST_1&order-by=Metadata,LastUpdate,DESC')
+    page.goto('/ui/app/filtered-studies?PatientID=TEST_1&order-by=Metadata,LastUpdate,DESC')
     expect(page.locator("#filter-PatientID")).to_have_value("TEST_1")
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
     # open study list from URL (no match)
-    page.goto('filtered-studies?PatientBirthDate=20360203&order-by=Metadata,LastUpdate,DESC')
-    assert get_date_picker_value(page, "#filter-PatientBirthDate").startswith("20360203")
+    page.goto('/ui/app/filtered-studies?PatientBirthDate=20360203&order-by=Metadata,LastUpdate,DESC')
+    expect(get_date_picker(page, "#filter-PatientBirthDate")).to_have_value(re.compile(r"^20360203.*"), timeout=5000)
     expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)

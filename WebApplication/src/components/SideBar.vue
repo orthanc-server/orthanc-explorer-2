@@ -274,7 +274,7 @@ export default {
                     </li>
 
                     <li v-if="hasAccessToInboxLinks" class="d-flex align-items-center fix-router-link">
-                        <router-link class="router-link" to="/create-inbox-links">
+                        <router-link class="router-link" to="/create-inbox-links" id="inbox-links-side-menu">
                             <i class="fa fa-cloud-arrow-up fa-lg menu-icon"></i>{{ $t('inbox_links.title') }}
                         </router-link>
                     </li>

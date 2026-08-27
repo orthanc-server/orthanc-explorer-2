@@ -3,10 +3,15 @@ from orthanc_api_client import OrthancApiClient
 from helpers import *
 import pytest
 import pathlib
+import re
 
 here = pathlib.Path(__file__).parent.resolve()
 
-CONFIG_NAME = "Conf2"
+CONFIG_NAME = "conf2"
+COMPOSE_FILE = "docker-compose.no-auth.yml"
+HAS_KEYCLOAK = False
+HAS_NGINX = False
+
 
 ORTHANC_CONFIG = {
     "AuthenticationEnabled": False,
@@ -35,6 +40,5 @@ def test_search_study_list(page: Page, orthanc_api: OrthancApiClient):
     # search for a PatientName that does not exist
     page.locator("#filter-PatientName").fill("Arn")
     page.locator('#search').click()
-    page.screenshot(path=here / "screenshots/debug.png", full_page=True)
     expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)
 

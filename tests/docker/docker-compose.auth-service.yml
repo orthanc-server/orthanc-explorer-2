@@ -1,0 +1,89 @@
+services:
+
+  nginx:
+    image: orthancteam/orthanc-nginx:26.8.0
+    depends_on: [orthanc, orthanc-auth-service, keycloak]
+    restart: unless-stopped
+    ports: ["80:80"]
+    environment:
+      ENABLE_ORTHANC: "true"
+      ENABLE_KEYCLOAK: "true"
+
+  orthanc:
+    image: orthancteam/orthanc-pre-release:latest-oe2-for-tests
+    volumes:
+      - ../configs/conf-auth-service-no-emails.json:/etc/orthanc/orthanc.json
+    restart: unless-stopped
+    environment:
+      STONE_WEB_VIEWER_PLUGIN_ENABLED: "true"
+      DICOM_WEB_PLUGIN_ENABLED: "true"
+      VERBOSE_ENABLED: "true"
+      VERBOSE_STARTUP: "true"
+
+  orthanc-auth-service:
+    image: orthancteam/orthanc-auth-service:main
+    # expose ports when running a native Orthanc
+    ports: ["8000:8000"]
+    # volumes:
+    #   - ./email-templates/:/email-templates
+    depends_on: [keycloak, smtp-mock]
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: "change-me-I-am-a-secret-key"
+      ENABLE_KEYCLOAK: "true"
+      PUBLIC_ORTHANC_ROOT: "http://localhost/orthanc/"
+      PUBLIC_LANDING_ROOT: "http://localhost/orthanc/ui/app/token-landing.html"
+      PUBLIC_OHIF_ROOT: "http://localhost/ohif/"
+      USERS: |
+        {
+          "share-user": "change-me"
+        }
+      ENABLE_EMAILS: "false"
+      EMAILS_TEMPLATES_ROOT: "/email-templates"
+      EMAILS_SMTP_SERVER_HOSTNAME: "smtp-mock"
+      EMAILS_SMTP_SERVER_USES_TLS: "false"
+      EMAILS_SMTP_SERVER_PORT: "1025"
+      EMAILS_SMTP_SERVER_USER_NAME: "smtp-user"
+      EMAILS_SMTP_SERVER_PWD: "change-me"
+      EMAILS_SENDER_ADDRESS: "My Hospital <info@example.com>"
+      EMAILS_REPLY_TO: "My Hospital <info@example.com>"
+
+
+  keycloak:
+    image: orthancteam/orthanc-keycloak:26.8.0
+    depends_on: [keycloak-db]
+    restart: unless-stopped
+    environment:
+      #KEYCLOAK_ADMIN: "admin"
+      #KEYCLOAK_ADMIN_PASSWORD: "change-me"
+      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "change-me"
+      KC_DB: "postgres"
+      KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/keycloak"
+      KC_DB_USERNAME: "keycloak"
+      KC_DB_PASSWORD: "keycloak"
+      # KC_HOSTNAME: "https://mydomain.com/keycloak"
+    # volumes:
+    #   - /home/bc/tmp:/usr/tmp
+
+  keycloak-db:
+    image: postgres:18
+    restart: unless-stopped
+    volumes: ["keycloak-db:/var/lib/postgresql/18/docker"]
+    environment:
+      POSTGRES_PASSWORD: "keycloak"
+      POSTGRES_USER: "keycloak"
+      POSTGRES_DB: "keycloak"
+
+  # remove in production: this is only simulating an SMTP server
+  smtp-mock:
+    image: maildev/maildev:2.2.1
+    ports: ["1080:1080", "1025:1025"]
+    restart: unless-stopped
+    environment:
+      MAILDEV_INCOMING_USER: "smtp-user"
+      MAILDEV_INCOMING_PASS: "change-me"
+
+
+volumes:
+  keycloak-db:

@@ -63,11 +63,13 @@ export default {
                 validityDuration: this.uiOptions.InboxLinkDuration * 24 * 3600
             })
             this.inboxLink = token["Url"];
-            if (!this.templateEmailContent) {
-                this.templateEmailContent = await api.getEmailTemplate(this.uiOptions.InboxLinksEmailContentTemplate);
-                this.emailTitle = this.uiOptions.InboxLinksEmailTitle;
+            if (this.uiOptions.EnableInboxLinksByEmail) {
+                if (!this.templateEmailContent) {
+                    this.templateEmailContent = await api.getEmailTemplate(this.uiOptions.InboxLinksEmailContentTemplate);
+                    this.emailTitle = this.uiOptions.InboxLinksEmailTitle;
+                }
+                this.emailContent = this.templateEmailContent.replace('{InboxLinkUrl}', this.inboxLink);
             }
-            this.emailContent = this.templateEmailContent.replace('{InboxLinkUrl}', this.inboxLink);
         },
         copy() {
             clipboardHelpers.copyToClipboard(this.inboxLink);
@@ -103,7 +105,7 @@ export default {
                             {{ $t("share.email_recipient") }}
                         </div>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" v-model="emailDestination" />
+                            <input type="text" class="form-control" v-model="emailDestination" id="inbox-links-email"/>
                         </div>
                     </div>
                 </div>
@@ -111,7 +113,7 @@ export default {
             <div class="col-md-2">
                 <div class="py-3">
                     <button v-if="inboxLink == '' || destinationHasChangedWrtGeneratedLink" type="button" class="btn btn-primary"
-                        @click="generateLink()" :disabled="!destinationContainsValidEmailAddresses">{{ $t("inbox_links.generate")
+                        @click="generateLink()" :disabled="!destinationContainsValidEmailAddresses" id="inbox-links-generate">{{ $t("inbox_links.generate")
                         }}</button>
                 </div>
             </div>
@@ -125,7 +127,7 @@ export default {
                                 {{ $t("share.link") }}
                             </div>
                             <div class="col-md-9">
-                                <textarea id="txt_input" v-model="inboxLink" rows="8" style="min-width: 100% !important; font-family: 'Courier New', Courier, monospace;
+                                <textarea disabled id="inbox_link_txt" v-model="inboxLink" rows="8" style="min-width: 100% !important; font-family: 'Courier New', Courier, monospace;
             font-size: 0.7em;" />
                             </div>
                         </div>
@@ -169,7 +171,7 @@ export default {
             <div class="col-md-2">
                 <div class="py-3">
                     <button type="button" class="btn btn-primary" 
-                        @click="sendEmail()" :disabled="!canEditOrSendEmail">
+                        @click="sendEmail()" :disabled="!canEditOrSendEmail" id="inbox-links-send-email">
                     <span v-if="!sendEmailInProgress">{{ $t('share.send_email') }}</span>
                     <span v-if="sendEmailInProgress" class="spinner-border spinner-border-sm alert-icon"
                         role="status" aria-hidden="true"></span>
