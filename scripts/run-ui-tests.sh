@@ -35,6 +35,8 @@ fi
 source .venv/bin/activate
 pip install -r requirements.txt
 
+playwright install
+
 # python . -v -s --orthanc-url=http://localhost/orthanc --orthanc-mode=orthanc-docker --no-header
 pytest test_auth_service_no_emails.py -v -s --orthanc-mode=orthanc-docker --no-header
 
