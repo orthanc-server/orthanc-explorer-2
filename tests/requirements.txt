@@ -1,3 +1,4 @@
 pytest
 playwright
 requests
+orthanc_api_client
