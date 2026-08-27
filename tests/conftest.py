@@ -95,18 +95,22 @@ def start_orthanc(request, orthanc_config, config_name, orthanc_exe = None, comp
         else:
             orthanc_config["HttpPort"] = 8043
         orthanc_config["StorageDirectory"] = "/var/lib/orthanc/db"
-        # if "OrthancExplorer2" in orthanc_config and "Keycloak" in orthanc_config["OrthancExplorer2"]:
-        #     orthanc_config["OrthancExplorer2"]["Keycloak"]["Url"] = "http://"
+
         if "Authorization" in orthanc_config and "WebServiceRootUrl" in orthanc_config["Authorization"]:
             orthanc_config["Authorization"]["WebServiceRootUrl"] = "http://orthanc-auth-service:8000/"
+        if "OrthancExplorer2" in orthanc_config and "Emails" in orthanc_config["OrthancExplorer2"]:
+            orthanc_config["OrthancExplorer2"]["Emails"]["Server"]["Url"] = "http://orthanc-auth-service:8000/emails/"
 
         config_file_path = str(here / f"./configs/conf-for-docker.json")
 
     else:    
         orthanc_config["HttpPort"] = 8043  # by using 8043, Orthanc is also accessible behind localhost:3000 if you have started `npm run dev` which is convenient if you are running tests while developing
         orthanc_config["StorageDirectory"] = str(here / f"./storages/{config_name}")
+
         if "Authorization" in orthanc_config and "WebServiceRootUrl" in orthanc_config["Authorization"]:
             orthanc_config["Authorization"]["WebServiceRootUrl"] = "http://localhost:8000/"
+        if "OrthancExplorer2" in orthanc_config and "Emails" in orthanc_config["OrthancExplorer2"]:
+            orthanc_config["OrthancExplorer2"]["Emails"]["Server"]["Url"] = "http://localhost:8000/emails/"
 
         config_file_path = str(here / f"./configs/{config_name}.json")
 

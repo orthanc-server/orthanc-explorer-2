@@ -24,8 +24,8 @@ services:
     image: orthancteam/orthanc-auth-service:main
     # expose ports when running a native Orthanc
     ports: ["8000:8000"]
-    # volumes:
-    #   - ./email-templates/:/email-templates
+    volumes:
+      - ./email-templates/:/email-templates
     depends_on: [keycloak, smtp-mock]
     restart: unless-stopped
     environment:
@@ -38,7 +38,7 @@ services:
         {
           "share-user": "change-me"
         }
-      ENABLE_EMAILS: "false"
+      ENABLE_EMAILS: "true"
       EMAILS_TEMPLATES_ROOT: "/email-templates"
       EMAILS_SMTP_SERVER_HOSTNAME: "smtp-mock"
       EMAILS_SMTP_SERVER_USES_TLS: "false"

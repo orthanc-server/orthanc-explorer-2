@@ -961,24 +961,25 @@ extern "C"
           OrthancPlugins::RegisterRestCallback<RedirectRoot>("/", true);
         }
 
-        if (pluginJsonConfiguration_.isMember("UiOptions") && pluginJsonConfiguration_["UiOptions"].isMember("EnableSharesByEmail")
-            && pluginJsonConfiguration_["UiOptions"]["EnableSharesByEmail"].asBool())
+        if (pluginJsonConfiguration_.isMember("UiOptions") && 
+            ((pluginJsonConfiguration_["UiOptions"].isMember("EnableSharesByEmail") && pluginJsonConfiguration_["UiOptions"]["EnableSharesByEmail"].asBool())
+            || (pluginJsonConfiguration_["UiOptions"].isMember("EnableInboxLinksByEmail") && pluginJsonConfiguration_["UiOptions"]["EnableInboxLinksByEmail"].asBool())))
         {
           if (!pluginJsonConfiguration_.isMember("Emails") || !pluginJsonConfiguration_["Emails"].isObject())
           {
-            LOG(ERROR) << "OE2: Shares by email are enabled but `OrthancExplorer2.Emails` configuration is not defined or not a JSON object.";
+            LOG(ERROR) << "OE2: Shares or InboxLinks by email are enabled but `OrthancExplorer2.Emails` configuration is not defined or not a JSON object.";
             return -1;
           }
 
           if (!pluginJsonConfiguration_["Emails"].isMember("Server") || !pluginJsonConfiguration_["Emails"]["Server"].isObject())
           {
-            LOG(ERROR) << "OE2: Shares by email are enabled but `OrthancExplorer2.Emails.Server` configuration is not defined or not a JSON object.";
+            LOG(ERROR) << "OE2: Shares or InboxLinks by email are enabled but `OrthancExplorer2.Emails.Server` configuration is not defined or not a JSON object.";
             return -1;
           }
 
           emailServer_.Unserialize(pluginJsonConfiguration_["Emails"]["Server"]);
 
-          LOG(WARNING) << "OE2: Shares by email are enabled";
+          LOG(WARNING) << "OE2: Shares or InboxLinks by email are enabled";
           OrthancPlugins::RegisterRestCallback<GetEmailTemplates>(oe2BaseUrl_ + "api/emails/templates/(.*)", true);
           OrthancPlugins::RegisterRestCallback<SendEmail>(oe2BaseUrl_ + "api/emails/send", true);
         }

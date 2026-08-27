@@ -39,7 +39,7 @@ ORTHANC_CONFIG = {
             "StudyListSearchMode": "search-button",
 
               "EnableInboxLinks": True,
-              "EnableInboxLinksByEmail": False,
+              "EnableInboxLinksByEmail": True,
               "InboxLinksEmailContentTemplate": "inbox-links-content",
               "InboxLinksEmailLayoutTemplate": "share-study-layout",
               "InboxLinksEmailTitle": "My Hospital has shared an inbox link with you",
@@ -59,6 +59,13 @@ ORTHANC_CONFIG = {
             # "ProcessingMonitoringUrl": "plugins/inbox/monitor-processing",
             "FormFields": []
         }, 
+        "Emails": {
+            "Server": {
+                "Url": "http://orthanc-auth-service:8000/emails/",
+                "Username" : "share-user",
+                "Password" : "change-me"
+            }
+        }
     }
 }
 
@@ -72,25 +79,17 @@ def test_inbox_link(page: Page, incognito_page: Page, orthanc_api: OrthancApiCli
 
         # generate an inbox-link
         page.locator('#inbox-links-side-menu').click()
-        page.locator('#inbox-links-email').fill("a@a.be")
+        page.locator('#inbox-links-email').fill("ab@ab.be")
         page.locator('#inbox-links-generate').click()
-        inbox_link_input = page.locator('#inbox_link_txt')
-        expect(inbox_link_input).to_have_value(re.compile(r"^http://.*inbox\.html"), timeout=5000)
-        take_screenshot(page, "inbox-generate-link")
+        page.locator('#inbox-links-send-email').click()
 
-    with TestContext("Upload a file with this inbox-link"):
-        # new isolated/incognito browser with the link
-        incognito_page.goto(inbox_link_input.input_value())
-        expect(incognito_page.locator('#inbox-user-name')).to_have_text("a@a.be")
+        # make sure an "email-sent" toast is displayed
+        expect(page.locator("div.toast-body")).to_contain_text("Email sent")
 
-        upload_file(incognito_page, here / "stimuli/TEST_1/10.dcm")
+        # make sure the mail has been received
+        email = get_first_email_for("ab@ab.be")
+        assert "inbox.html" in email.get('html')
+        assert "token=ey" in email.get('html')
 
-        expect(incognito_page.locator('#inbox-reload')).to_be_visible()
 
-        with TestContext("Reload the page after upload"):
-            incognito_page.locator('#inbox-reload').click()
-            expect(incognito_page.locator('#inbox-user-name')).to_have_text("a@a.be")
-
-def test_inbox_without_login(page: Page, incognito_page: Page, orthanc_api: OrthancApiClient):
-    page.goto("/ui/app/inbox.html")
-    expect_login_screen_displayed(page)
+    # note: testing the inbox link is performed in the test with no-emails

@@ -1,5 +1,8 @@
 from playwright.sync_api import sync_playwright, Page, expect
 import pathlib
+import time
+import json
+import requests
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -50,3 +53,21 @@ def upload_file(page: Page, file_path):
 
 def take_screenshot(page: Page, name):
     page.screenshot(path=here / f"screenshots/{name}.png", full_page=True)
+
+def get_first_email_for(recipient: str, timeout=10):
+    deadline = time.time() + timeout
+
+    while time.time() < deadline:
+        try:
+            response = requests.get("http://localhost:1080/email")
+            emails = response.json()
+            for email in emails:
+                if recipient in email.get("to", "")[0]['address']:
+                    return email
+        except Exception as ex:
+            pass
+        time.sleep(0.2)
+
+    raise AssertionError(
+        f"No email received for {recipient} within {timeout}s"
+    )
