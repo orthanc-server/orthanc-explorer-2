@@ -43,7 +43,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "compiler flags" FORCE)
 include(CheckLibraryExists)
 
 if ((CMAKE_CROSSCOMPILING AND NOT
-      "${CMAKE_SYSTEM_VERSION}" STREQUAL "CrossToolNg") OR    
+      "${CMAKE_SYSTEM_VERSION}" STREQUAL "CrossToolNg") OR
     "${CMAKE_SYSTEM_VERSION}" STREQUAL "LinuxStandardBase")
   # Cross-compilation necessarily implies standalone and static build
   SET(STATIC_BUILD ON)
@@ -70,7 +70,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long")
 
   # --std=c99 makes libcurl not to compile
-  # -pedantic gives a lot of warnings on OpenSSL 
+  # -pedantic gives a lot of warnings on OpenSSL
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -Wno-variadic-macros")
 
   if (CMAKE_CROSSCOMPILING)
@@ -85,12 +85,12 @@ elseif (MSVC)
   foreach(flag_var
     CMAKE_C_FLAGS_DEBUG
     CMAKE_CXX_FLAGS_DEBUG
-    CMAKE_C_FLAGS_RELEASE 
+    CMAKE_C_FLAGS_RELEASE
     CMAKE_CXX_FLAGS_RELEASE
-    CMAKE_C_FLAGS_MINSIZEREL 
-    CMAKE_CXX_FLAGS_MINSIZEREL 
-    CMAKE_C_FLAGS_RELWITHDEBINFO 
-    CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
+    CMAKE_C_FLAGS_MINSIZEREL
+    CMAKE_CXX_FLAGS_MINSIZEREL
+    CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
     string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
     string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
   endforeach(flag_var)
@@ -109,7 +109,7 @@ elseif (MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   endif()
-    
+
   add_definitions(
     -D_CRT_SECURE_NO_WARNINGS=1
     -D_CRT_SECURE_NO_DEPRECATE=1
@@ -188,7 +188,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR
     # for LFS (Large File Support).
     # https://ohse.de/uwe/articles/lfs.html
     add_definitions(
-      -D_LARGEFILE64_SOURCE=1 
+      -D_LARGEFILE64_SOURCE=1
       -D_FILE_OFFSET_BITS=64
       )
   endif()
@@ -254,14 +254,14 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   add_definitions(
     -D_XOPEN_SOURCE=1
     )
-  
+
   # Linking with iconv breaks the Universal builds on modern compilers
   # link_libraries(iconv)
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   message("Building using Emscripten (for WebAssembly or asm.js targets)")
   include(${CMAKE_CURRENT_LIST_DIR}/EmscriptenParameters.cmake)
-  
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
 else()

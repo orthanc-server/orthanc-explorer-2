@@ -59,8 +59,8 @@ endif()
 ##
 
 if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-  find_program(ZIP_EXECUTABLE 7z 
-    PATHS 
+  find_program(ZIP_EXECUTABLE 7z
+    PATHS
     "$ENV{ProgramFiles}/7-Zip"
     "$ENV{ProgramW6432}/7-Zip"
     )
@@ -92,7 +92,7 @@ macro(DownloadFile MD5 Url)
 
   set(TMP_PATH "${CMAKE_SOURCE_DIR}/ThirdPartyDownloads/${TMP_FILENAME}")
   if (NOT EXISTS "${TMP_PATH}")
-    message("Downloading ${Url}")
+    message("Downloading ${Url} since the file was not found in ${TMP_PATH}")
 
     # This fixes issue 6: "I think cmake shouldn't download the
     # packages which are not in the system, it should stop and let
@@ -124,7 +124,7 @@ macro(DownloadFile MD5 Url)
       file(REMOVE ${TMP_PATH})
       message(FATAL_ERROR "Cannot download file: ${Url}")
     endif()
-    
+
   else()
     message("Using local copy of ${Url}")
 
@@ -143,7 +143,7 @@ endmacro()
 macro(DownloadPackage MD5 Url TargetDirectory)
   if (NOT IS_DIRECTORY "${TargetDirectory}")
     DownloadFile("${MD5}" "${Url}")
-    
+
     GetUrlExtension(TMP_EXTENSION "${Url}")
     #message(${TMP_EXTENSION})
     message("Uncompressing ${TMP_FILENAME}")
@@ -152,7 +152,7 @@ macro(DownloadPackage MD5 Url TargetDirectory)
       # How to silently extract files using 7-zip
       # http://superuser.com/questions/331148/7zip-command-line-extract-silently-quietly
 
-      if (("${TMP_EXTENSION}" STREQUAL "gz") OR 
+      if (("${TMP_EXTENSION}" STREQUAL "gz") OR
           ("${TMP_EXTENSION}" STREQUAL "tgz") OR
           ("${TMP_EXTENSION}" STREQUAL "xz"))
         execute_process(
@@ -221,7 +221,7 @@ macro(DownloadPackage MD5 Url TargetDirectory)
         message(FATAL_ERROR "Unsupported package extension: ${TMP_EXTENSION}")
       endif()
     endif()
-   
+
     if (Failure)
       message(FATAL_ERROR "Error while running the uncompression tool")
     endif()
@@ -237,7 +237,7 @@ endmacro()
 macro(DownloadCompressedFile MD5 Url TargetFile)
   if (NOT EXISTS "${TargetFile}")
     DownloadFile("${MD5}" "${Url}")
-    
+
     GetUrlExtension(TMP_EXTENSION "${Url}")
     #message(${TMP_EXTENSION})
     message("Uncompressing ${TMP_FILENAME}")
@@ -275,7 +275,7 @@ macro(DownloadCompressedFile MD5 Url TargetFile)
         message(FATAL_ERROR "Unsupported file extension: ${TMP_EXTENSION}")
       endif()
     endif()
-   
+
     if (Failure)
       message(FATAL_ERROR "Error while running the uncompression tool")
     endif()

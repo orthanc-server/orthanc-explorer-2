@@ -25,7 +25,7 @@ RUN npm run build
 
 WORKDIR /build
 
-RUN cmake -DALLOW_DOWNLOADS=ON -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_ORTHANC_SDK=OFF -DPLUGIN_VERSION=0.0.0 /sources
+RUN cmake -DALLOW_DOWNLOADS=ON -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_ORTHANC_SDK=OFF -DPLUGIN_VERSION=0.0.0 -DTHIRD_PARTY_DOWNLOADS_ROOT_URL=https://public-files.orthanc.team/third-party-downloads -DORTHANC_SOURCES_DOWNLOADS_ROOT_URL=https://public-files.orthanc.team/third-party-downloads/orthanc-framework /sources
 RUN make -j 8
 
 FROM orthancteam/orthanc-pre-release:master-unstable

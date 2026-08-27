@@ -62,7 +62,7 @@ SET(CMAKE_SYSTEM_PROCESSOR ${LSB_TARGET_PROCESSOR})
 # which compilers to use for C and C++
 SET(CMAKE_C_COMPILER ${LSB_PATH}/bin/lsbcc)
 
-if (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
+if (${CMAKE_VERSION} VERSION_LESS "3.6.0")
   CMAKE_FORCE_CXX_COMPILER(${LSB_PATH}/bin/lsbc++ GNU)
 else()
   SET(CMAKE_CXX_COMPILER ${LSB_PATH}/bin/lsbc++)
@@ -72,7 +72,7 @@ endif()
 SET(CMAKE_FIND_ROOT_PATH ${LSB_PATH})
 
 # adjust the default behaviour of the FIND_XXX() commands:
-# search headers and libraries in the target environment, search 
+# search headers and libraries in the target environment, search
 # programs in the host environment
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY NEVER)
