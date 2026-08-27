@@ -12,7 +12,7 @@ services:
   orthanc:
     image: orthancteam/orthanc-pre-release:latest-oe2-for-tests
     volumes:
-      - ../configs/conf-auth-service-no-emails.json:/etc/orthanc/orthanc.json
+      - ../configs/conf-for-docker.json:/etc/orthanc/orthanc.json
     restart: unless-stopped
     environment:
       STONE_WEB_VIEWER_PLUGIN_ENABLED: "true"
