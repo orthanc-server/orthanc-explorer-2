@@ -71,7 +71,7 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
         window.keycloak.init({
             onLoad: initOptions.onLoad,
-            checkLoginIframe: keycloackConfig['CheckLoginIframe'] || true,
+            checkLoginIframe: keycloackConfig['CheckLoginIframe'],
         }).then(async (auth) => {
 
             if (!auth) {
