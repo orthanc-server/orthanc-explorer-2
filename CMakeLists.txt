@@ -29,8 +29,9 @@ endif(APPLE)
 project(OrthancExplorer2)
 
 set(PLUGIN_VERSION "mainline" CACHE STRING "plugin version 'mainline' or '1.2.3'")
+set(FORCE_FRAMEWORK_FROM_WEB OFF CACHE BOOL "For servers not having access to mercurial")
 
-if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
+if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$" OR FORCE_FRAMEWORK_FROM_WEB)
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "c1dcb63cde6f")  # while waiting for 1.13.1 for THIRD_PARTY_DOWNLOADS_ROOT_URL and ORTHANC_SOURCES_DOWNLOADS_ROOT_URL
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
   set(ORTHANC_OE2_VERSION ${PLUGIN_VERSION})
