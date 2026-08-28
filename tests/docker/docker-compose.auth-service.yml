@@ -1,7 +1,7 @@
 services:
 
   nginx:
-    image: orthancteam/orthanc-nginx:26.8.0
+    image: orthancteam/orthanc-nginx:main
     depends_on: [orthanc, orthanc-auth-service, keycloak]
     restart: unless-stopped
     ports: ["80:80"]
@@ -30,6 +30,7 @@ services:
     restart: unless-stopped
     environment:
       SECRET_KEY: "change-me-I-am-a-secret-key"
+      KEYCLOAK_CLIENT_SECRET: "keycloak-client-secret-change-me"
       ENABLE_KEYCLOAK: "true"
       PUBLIC_ORTHANC_ROOT: "http://localhost/orthanc/"
       PUBLIC_LANDING_ROOT: "http://localhost/orthanc/ui/app/token-landing.html"
@@ -50,7 +51,7 @@ services:
 
 
   keycloak:
-    image: orthancteam/orthanc-keycloak:26.8.0
+    image: orthancteam/orthanc-keycloak:main
     depends_on: [keycloak-db]
     restart: unless-stopped
     environment:
@@ -62,6 +63,7 @@ services:
       KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/keycloak"
       KC_DB_USERNAME: "keycloak"
       KC_DB_PASSWORD: "keycloak"
+      SKIP_CLIENT_SECRET_UPDATE_FOR_TESTS: "true"
       # KC_HOSTNAME: "https://mydomain.com/keycloak"
     # volumes:
     #   - /home/bc/tmp:/usr/tmp
