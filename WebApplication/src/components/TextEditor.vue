@@ -49,7 +49,10 @@ export default {
           bulletList: true
         })
       ],
-      editable: !this.disabled
+      editable: !this.disabled,
+      onUpdate: ({ editor }) => {
+        this.$emit('update:modelValue', editor.getHTML())
+      }      
     });
     // console.log("------------", this.editor);
   },

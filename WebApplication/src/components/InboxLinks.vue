@@ -159,11 +159,12 @@ export default {
                             {{ $t("share.email_title") }}
                         </div>
                         <div class="col-md-9">
-                            <input type="text" class="form-control" v-model="emailTitle" :disabled="!canEditOrSendEmail"/>
+                            <input type="text" class="form-control" v-model="emailTitle" :disabled="!canEditOrSendEmail" id="inbox-links-email-title"/>
                         </div>
                     </div>
                     <div class="container w-100 py-1">
                         <TextEditor ref="editor" targetUsage="email" :modelValue="emailContent"
+                            @update:modelValue="emailContent = $event"
                             :insertableTexts="{}" :disabled="!canEditOrSendEmail"/>
                     </div>
                 </div>

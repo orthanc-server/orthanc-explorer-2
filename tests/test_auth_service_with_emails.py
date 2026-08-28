@@ -81,6 +81,14 @@ def test_inbox_link(page: Page, incognito_page: Page, orthanc_api: OrthancApiCli
         page.locator('#inbox-links-side-menu').click()
         page.locator('#inbox-links-email').fill("ab@ab.be")
         page.locator('#inbox-links-generate').click()
+
+        # edit the email text in the TipTap Editor
+        editor = page.locator("div.tiptap.ProseMirror")
+        editor.press('End')
+        editor.type('-appended-text-body-')
+
+        page.locator('#inbox-links-email-title').fill('-modified-email-title-')
+
         page.locator('#inbox-links-send-email').click()
 
         # make sure an "email-sent" toast is displayed
@@ -89,7 +97,9 @@ def test_inbox_link(page: Page, incognito_page: Page, orthanc_api: OrthancApiCli
         # make sure the mail has been received
         email = get_first_email_for("ab@ab.be")
         assert "inbox.html" in email.get('html')
+        assert "-appended-text-body-" in email.get('html')
         assert "token=ey" in email.get('html')
+        assert "-modified-email-title-" in email.get('subject')
 
 
-    # note: testing the inbox link is performed in the test with no-emails
+    # note: testing the inbox link itself is performed in the test with no-emails

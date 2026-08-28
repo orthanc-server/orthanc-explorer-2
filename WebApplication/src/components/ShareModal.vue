@@ -198,6 +198,7 @@ export default {
                                     </div>
                                     <div class="container w-100 py-1">
                                         <TextEditor ref="editor" targetUsage="email" :modelValue="emailContent"
+                                            @update:modelValue="emailContent = $event"
                                             :insertableTexts="insertableTags" />
                                     </div>
                                 </div>
