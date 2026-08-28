@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.15.0 (2026-08-28)
+==================
 
 Changes:
 - Added support for `Inbox-links` (provided you use the auth-service)

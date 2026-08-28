@@ -107,7 +107,7 @@ jobs:
             artifactPath: "libOrthancExplorer2.dylib",
             triplet: x64-osx,
             os: macos-latest,
-            extraCMakeFlags: "-DUSE_LEGACY_BOOST=ON"
+            # extraCMakeFlags: "-DUSE_LEGACY_BOOST=ON"
           }
 
     steps:
@@ -144,7 +144,7 @@ jobs:
     - name: Setup tmate session
       if: ${{ failure() }}
       uses: mxschmitt/action-tmate@v3
-      timeout-minutes: 20
+      timeout-minutes: 200
       with:
         limit-access-to-actor: true
 
