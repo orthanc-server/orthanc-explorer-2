@@ -107,7 +107,7 @@ jobs:
             artifactPath: "libOrthancExplorer2.dylib",
             triplet: x64-osx,
             os: macos-latest,
-            # extraCMakeFlags: "-DUSE_LEGACY_BOOST=ON"
+            extraCMakeFlags: '-DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_C_FLAGS="-Wno-implicit-function-declaration"'
           }
 
     steps:
