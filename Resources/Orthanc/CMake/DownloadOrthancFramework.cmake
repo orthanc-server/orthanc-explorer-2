@@ -34,6 +34,14 @@ if (NOT DEFINED ORTHANC_FRAMEWORK_SOURCE OR
   message(FATAL_ERROR "The variable ORTHANC_FRAMEWORK_SOURCE must be set to \"system\", \"hg\", \"web\", \"archive\" or \"path\"")
 endif()
 
+# make sure these variables are defined (this happens when called from a plugin of from the UnitTests project)
+if(NOT DEFINED THIRD_PARTY_DOWNLOADS_ROOT_URL)
+  set(THIRD_PARTY_DOWNLOADS_ROOT_URL "https://orthanc.uclouvain.be/downloads/third-party-downloads")
+endif()
+if(NOT DEFINED ORTHANC_SOURCES_DOWNLOADS_ROOT_URL)
+  set(ORTHANC_SOURCES_DOWNLOADS_ROOT_URL "https://orthanc.uclouvain.be/downloads/sources/orthanc")
+endif()
+
 
 ##
 ## Detection of the requested version
@@ -380,16 +388,7 @@ endif()
 ##
 
 if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "web")
-
-  # make sure these variables are defined (this happens when called from a plugin)
-  if(NOT DEFINED THIRD_PARTY_DOWNLOADS_ROOT_URL)
-    set(THIRD_PARTY_DOWNLOADS_ROOT_URL "https://orthanc.uclouvain.be/downloads/third-party-downloads")
-  endif()
-  if(NOT DEFINED ORTHANC_SOURCES_DOWNLOADS_ROOT_URL)
-    set(ORTHANC_SOURCES_DOWNLOADS_ROOT_URL "https://orthanc.uclouvain.be/downloads/sources/orthanc")
-  endif()
-
-if (DEFINED ORTHANC_FRAMEWORK_URL)
+  if (DEFINED ORTHANC_FRAMEWORK_URL)
     string(REGEX REPLACE "^.*/" "" ORTHANC_FRAMEMORK_FILENAME "${ORTHANC_FRAMEWORK_URL}")
   else()
     # Default case: Download from the official Web site
