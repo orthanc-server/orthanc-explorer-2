@@ -7,6 +7,19 @@ import { showSaveFilePicker } from "native-file-system-adapter";
 
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
 
+// When a modification introduces non-ASCII characters (e.g. Thai, Chinese,
+// accented names...), make sure the resulting instances are labelled as UTF-8.
+// Otherwise, instances without (0008,0005) are encoded with Orthanc's
+// "DefaultEncoding" (Latin1 by default) and the characters are silently lost.
+function withUtf8CharsetIfNeeded(replaceTags) {
+    if ("SpecificCharacterSet" in replaceTags) {
+        return replaceTags;
+    }
+    const hasNonAscii = Object.values(replaceTags).some(
+        (value) => typeof value === "string" && /[^\x00-\x7F]/.test(value));
+    return hasNonAscii ? { ...replaceTags, "SpecificCharacterSet": "ISO_IR 192" } : replaceTags;
+}
+
 export default {
     updateAuthHeader(headerKey = null) {
         axios.defaults.headers.common[headerKey ?? "token"] = localStorage.getItem(headerKey ?? "vue-token")
@@ -504,7 +517,7 @@ export default {
 
     async modifyResource({ resourceLevel, orthancId, replaceTags = {}, removeTags = [], keepTags = [], keepSource }) {
         const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/modify", {
-            "Replace": replaceTags,
+            "Replace": withUtf8CharsetIfNeeded(replaceTags),
             "Remove": removeTags,
             "Keep": keepTags,
             "KeepSource": keepSource,
@@ -520,7 +533,7 @@ export default {
         const response = (await axios.post(orthancApiUrl + "tools/bulk-modify", {
             "Resources": orthancIds,
             "Level": resourceLevel,
-            "Replace": replaceTags,
+            "Replace": withUtf8CharsetIfNeeded(replaceTags),
             "Remove": removeTags,
             "Keep": keepTags,
             "KeepSource": keepSource,
