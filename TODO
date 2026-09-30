@@ -36,6 +36,7 @@ UI improvements:
 
 - show attachments
 
+- when there are a lot of modalities, group them: https://discourse.orthanc-server.org/t/to-group-modalities/6483
 
 - TagsTree: allow click on "null" tags to open /instances/../content/group,element in new window
 
