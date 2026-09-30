@@ -9,6 +9,7 @@ let allLanguages = [
     { name: "日本語", key: "ja" },
     { name: "ქართული", key: "ka" },
     { name: "Polski", key: "pl" },
+    { name: "Кыргызча", key: "ky" },
     { name: "Portugues", key: "pt" },
     { name: "Română", key: "ro" },
     { name: "Русский", key: "ru" },

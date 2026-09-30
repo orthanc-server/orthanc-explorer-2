@@ -9,6 +9,7 @@ import it from "./it.json";
 import ja from "./ja.json";
 import ka from "./ka.json";
 import pl from "./pl.json";
+import ky from "./ky.json";
 import ro from "./ro.json";
 import ru from "./ru.json";
 import si from "./si.json";
@@ -21,7 +22,7 @@ import hu from "./hu.json";
 const i18n = createI18n({
   warnHtmlInMessage: 'off',
   locale: 'en',    // when the list of availableLanguages is loaded, this value is updated in LanguagePicker.isConfigurationLoaded
-  fallbackLocale: 'en',  
+  fallbackLocale: 'en',
   messages: {
     en,
     ar,
@@ -33,6 +34,7 @@ const i18n = createI18n({
     ja,
     ka,
     pl,
+    ky,
     ro,
     ru,
     si,
