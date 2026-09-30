@@ -1,6 +1,7 @@
 let allLanguages = [
     { name: "English", key: "en" },
     { name: "العربية", key: "ar" },
+    { name: "Čeština", key: "cs" },
     { name: "Deutsch", key: "de" },
     { name: "Español", key: "es" },
     { name: "Français", key: "fr" },

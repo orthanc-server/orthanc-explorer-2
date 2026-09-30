@@ -1,3 +1,11 @@
+Pending changes
+===============
+
+Changes:
+- Added Czech translations
+- Added Kyrgyz translations
+
+
 1.15.0 (2026-08-28)
 ==================
 
