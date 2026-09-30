@@ -1028,7 +1028,7 @@ export default {
         <div v-if="hasModificationButton" class="custom-button-group">
             <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId"
-                :class="buttonClasses">
+                :class="buttonClasses" :id="'modify-button-'+this.resourceOrthancId">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
             </button>
             <ModifyModal v-if="isModificationEnabled" :id="'modify-modal-' + this.resourceOrthancId"

@@ -844,7 +844,8 @@ export default {
                             <div class="col-md-3">
                                 <button type="button" class="btn btn-primary w-100"
                                     v-html="$t('modify.study_step_0_modify_study_button_title_html')"
-                                    @click="goToNextStep(step, 'modify-any-tags-in-one-study')"></button>
+                                    @click="goToNextStep(step, 'modify-any-tags-in-one-study')"
+                                    id="modify-button-any-tags-in-one-study"></button>
                             </div>
                         </div>
                         <div v-if="resourceLevel == 'series' && !isAnonymization" class="row border-bottom pb-3">
@@ -897,7 +898,7 @@ export default {
                                     :class="{ 'striked-through': !isDicomUid(key) }" v-model="originalTags[key]" />
                             </div>
                             <div v-if="isEditableTag(key) && !isDateTag(key)" class="col-md-6">
-                                <input v-if="true" type="text" class="form-control" v-model="tags[key]" />
+                                <input v-if="true" type="text" class="form-control" v-model="tags[key]" :id="'modify-input-' + key"/>
                             </div>
 
                             <div v-if="isEditableTag(key) && isDateTag(key)" class="col-md-6">
@@ -973,7 +974,7 @@ export default {
                         $t("modify.back_button_title")
                     }}</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("cancel") }}</button>
-                    <button type="button" class="btn btn-primary" :disabled="!modifyButtonEnabled" @click="modify()">{{
+                    <button type="button" class="btn btn-primary" :disabled="!modifyButtonEnabled" @click="modify()" id="modify-footer-button-modify">{{
                         $t(modifyButtonTitle)
                     }}</button>
                 </div>
@@ -1116,7 +1117,7 @@ export default {
                 <div v-if="step == 'progress' || step == 'done'" class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("close") }}</button>
                     <button type="button" class="btn btn-primary" :disabled="step != 'done'" data-bs-dismiss="modal"
-                        @click="showModifiedResources()">{{ $t("modify.show_modified_resources") }}</button>
+                        @click="showModifiedResources()" id="modify-button-show-modified-resources">{{ $t("modify.show_modified_resources") }}</button>
                 </div>
 
             </div>

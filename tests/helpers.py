@@ -71,3 +71,13 @@ def get_first_email_for(recipient: str, timeout=10):
     raise AssertionError(
         f"No email received for {recipient} within {timeout}s"
     )
+
+def wait_study_list_visible(page: Page):
+    expect(page.locator("#filter-PatientName")).to_be_visible()
+
+
+def expand_first_study(page: Page):
+    page.locator("tr.study-row-collapsed").first.click()
+
+def get_texts_from_first_collapsed_study(page: Page):
+    return page.locator("tr.study-row-collapsed").first.locator("td").all_text_contents()
