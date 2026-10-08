@@ -8,6 +8,7 @@ Changes:
 Fixes:
 - The modify dialog is now able to change the encoding of the DICOM file to UTF-8 when
   one of the modified field introduces non Latin1 characters.
+- Fix #122 [ViewersIcons.weasis is ignored](https://github.com/orthanc-server/orthanc-explorer-2/issues/122)
 
 Internals:
 - Updated many JS dependencies.

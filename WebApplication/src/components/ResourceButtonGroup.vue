@@ -234,6 +234,10 @@ export default {
                     if (this.hasStlViewer && forViewer == "stl") {
                         return viewersIcons[viewer];
                     }
+
+                    if (this.hasWeasisViewer && forViewer == "weasis") {
+                        return viewersIcons[viewer];
+                    }
                 }
             }
             return "bi bi-eye";
