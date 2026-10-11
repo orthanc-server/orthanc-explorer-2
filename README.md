@@ -109,6 +109,8 @@ make -j4
 
 Pre-compiled LSB binaries can be found at: https://orthanc.uclouvain.be/downloads/linux-standard-base/orthanc-explorer-2/index.html
 
+These LSB binaries are known to work on Ubuntu 26.04 LTS (tested with OE2 1.15.0, Orthanc 1.12.11, DICOMweb and OHIF plugins).
+
 ### Linking against system-wide Orthanc Framework
 
 Here are the build instructions to dynamic link against the
