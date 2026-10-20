@@ -395,7 +395,6 @@ export default {
 }
 
 .nav-side-menu {
-    font-family: verdana;
     font-size: 12px;
     font-weight: 200;
     background-color: var(--nav-side-bg-color);
