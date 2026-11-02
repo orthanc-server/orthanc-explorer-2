@@ -4,6 +4,7 @@ Pending changes
 Changes:
 - Added Czech translations
 - Added Kyrgyz translations
+- Added Greek translations
 
 Fixes:
 - The modify dialog is now able to change the encoding of the DICOM file to UTF-8 when
