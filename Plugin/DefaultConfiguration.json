@@ -469,7 +469,8 @@
             "Url": "http://change-me:8080/",
             "Realm": "change-me",
             "ClientId": "change-me",
-            "CheckLoginIframe": true
+            "CheckLoginIframe": true,
+            "OidcProvider": ""                          // issuer URL (without /.well-known/openid-configuration) of a generic OIDC provider (e.g. Authentik). When set, Url, Realm and CheckLoginIframe are ignored. An empty string keeps the Keycloak mode.
         },
 
         

@@ -60,7 +60,11 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
                 keycloackConfig = config.data['Keycloak']
 
-                let initOptions = {
+                let initOptions = keycloackConfig['OidcProvider'] ? {
+                    clientId: keycloackConfig['ClientId'],
+                    oidcProvider: keycloackConfig['OidcProvider'],
+                    onLoad: 'login-required'
+                } : {
                     url: keycloackConfig['Url'],
                     realm: keycloackConfig['Realm'],
                     clientId: keycloackConfig['ClientId'],
@@ -69,7 +73,13 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
                 window.keycloak = new Keycloak(initOptions);
 
-                window.keycloak.init({ onLoad: initOptions.onLoad }).then(async (auth) => {
+                window.keycloak.init({
+                    onLoad: initOptions.onLoad,
+                    // keycloak-js 24 generic mode crashes with the login iframe (and e.g. Authentik has no check_session_iframe)
+                    ...(keycloackConfig['OidcProvider'] && { checkLoginIframe: false }),
+                    // no offline_access: keycloak-js decodes the refresh token as a JWT, opaque ones (e.g. Authentik) break init; profile gives the groups claim
+                    scope: keycloackConfig['OidcProvider'] ? 'openid profile' : undefined,
+                }).then(async (auth) => {
 
                     if (!auth) {
                         window.location.reload();
