@@ -3,6 +3,7 @@ import en from "./en.json";
 import ar from "./ar.json";
 import cs from "./cs.json";
 import de from "./de.json";
+import el from "./el.json";
 import es from "./es.json";
 import fr from "./fr.json";
 import it from "./it.json";
@@ -28,6 +29,7 @@ const i18n = createI18n({
     ar,
     cs,
     de,
+    el,
     es,
     fr,
     it,

@@ -3,6 +3,7 @@ let allLanguages = [
     { name: "العربية", key: "ar" },
     { name: "Čeština", key: "cs" },
     { name: "Deutsch", key: "de" },
+    { name: "Ελληνικά", key: "el" },
     { name: "Español", key: "es" },
     { name: "Français", key: "fr" },
     { name: "Magyar", key: "hu" },

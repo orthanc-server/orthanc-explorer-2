@@ -5,6 +5,7 @@ Changes:
 - Added Czech translations
 - Added Kyrgyz translations
 - New `Keycloak.OidcProvider` parameter to authenticate with a generic OpenID Connect provider (e.g. Authentik) instead of Keycloak.  `Url`, `Realm` and `CheckLoginIframe` are ignored when `OidcProvider` is set.  The `openid profile` scopes are requested.
+- Added Greek translations
 
 Fixes:
 - The modify dialog is now able to change the encoding of the DICOM file to UTF-8 when
