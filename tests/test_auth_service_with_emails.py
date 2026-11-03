@@ -85,11 +85,12 @@ def test_inbox_link(page: Page, incognito_page: Page, orthanc_api: OrthancApiCli
         # edit the email text in the TipTap Editor
         editor = page.locator("div.tiptap.ProseMirror")
         expect(editor).to_have_attribute("contenteditable", "true")
+        expect(editor).to_contain_text("My Hospital")
         editor.press("End")
         editor.press_sequentially('modified-email-body')
         time.sleep(0.2)
         expect(editor).to_contain_text("modified-email-body")
-        title= page.locator('#inbox-links-email-title')
+        title = page.locator('#inbox-links-email-title')
         title.fill('modified-email-title')
         time.sleep(0.2)
         expect(title).to_have_value("modified-email-title")

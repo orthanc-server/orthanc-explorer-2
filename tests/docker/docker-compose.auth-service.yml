@@ -44,6 +44,7 @@ services:
       EMAILS_SMTP_SERVER_HOSTNAME: "smtp-mock"
       EMAILS_SMTP_SERVER_USES_TLS: "false"
       EMAILS_SMTP_SERVER_PORT: "1025"
+      EMAILS_SMTP_SERVER_USES_AUTH: "true"
       EMAILS_SMTP_SERVER_USER_NAME: "smtp-user"
       EMAILS_SMTP_SERVER_PWD: "change-me"
       EMAILS_SENDER_ADDRESS: "My Hospital <info@example.com>"
