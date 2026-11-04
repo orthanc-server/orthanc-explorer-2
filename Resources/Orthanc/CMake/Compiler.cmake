@@ -29,7 +29,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   # require the C++ standard to be explicitly set to C++11. Do *not*
   # do this on GNU/Linux, as third-party system libraries could have
   # been compiled with higher versions of the C++ standard.
-  set(CMAKE_CXX_STANDARD 11)
+  # For compatibility with boost 1.89.0, boost/math/tools/type_traits.hpp uses std::is_null_pointer unconditionally — and in libc++ (Apple Clang), std::is_null_pointer only exists from C++14 onward
+  set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
