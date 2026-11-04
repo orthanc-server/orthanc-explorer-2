@@ -257,6 +257,10 @@ if (ORTHANC_FRAMEWORK_SOURCE STREQUAL "hg" OR
         # framework post-1.13.0 for THIRD_PARTY_DOWNLOADS_ROOT_URL and ORTHANC_SOURCES_DOWNLOADS_ROOT_URL
         set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
         set(ORTHANC_FRAMEWORK_MD5 "6fcb0ceac5006a5e3a6e3efcf6aaba26")
+      elseif (ORTHANC_FRAMEWORK_VERSION STREQUAL "1339e4ed9f7f")
+        # framework post-1.13.0 for Boost 1.92
+        set(ORTHANC_FRAMEWORK_PRE_RELEASE ON)
+        set(ORTHANC_FRAMEWORK_MD5 "5d05b769d01ceeacb9e8b31fdb175e3e")
       endif()
     endif()
   endif()
