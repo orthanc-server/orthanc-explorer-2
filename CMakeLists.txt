@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.5)
 
 if (APPLE)
   set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 14)
 endif(APPLE)
 
 project(OrthancExplorer2)

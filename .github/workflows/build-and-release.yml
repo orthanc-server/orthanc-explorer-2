@@ -141,12 +141,12 @@ jobs:
         name: ${{matrix.config.artifact}}
         if-no-files-found: error
 
-    - name: Setup tmate session
+    - name: Setup upterm session
       if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-      timeout-minutes: 200
+      uses: owenthereal/action-upterm@v2
+      timeout-minutes: 90
       with:
-        limit-access-to-actor: true
+        limit-access-to-actor: true # Restrict to the user who triggered the workflow
 
 
   check-translations:
