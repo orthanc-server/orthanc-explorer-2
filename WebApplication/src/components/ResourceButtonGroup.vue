@@ -972,7 +972,7 @@ export default {
                 </TokenLinkButton>
             </span>
             <TokenLinkButton v-if="hasInstancePreviewButton" :iconClass="'bi bi-binoculars'"
-                :linkUrl="instancePreviewUrl" :resources="resourceOrthancId" :title="$t('preview')"
+                :linkUrl="instancePreviewUrl" :resources="resources" :title="$t('preview')"
                 :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasWsiButton" :hidden="!isWsiButtonEnabled" :iconClass="wsiViewerIcon"
@@ -991,7 +991,7 @@ export default {
                 :tokenType="'download-instant-link'" :disabled="!isBulkDownloadZipEnabled" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasDownloadDicomDirButton" :iconClass="'bi bi-box-arrow-down'"
-                :linkUrl="downloadDicomDirUrl" :resources="[resources]"
+                :linkUrl="downloadDicomDirUrl" :resources="resources"
                 :title="$t('download_dicomdir')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasBulkDownloadDicomDirButton" :iconClass="'bi bi-box-arrow-down'"
@@ -1000,11 +1000,11 @@ export default {
                 :disabled="!isBulkDownloadDicomDirEnabled" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasInstanceDownloadButton" :iconClass="'bi bi-download'"
-                :linkUrl="instanceDownloadUrl" :resources="[resources]"
+                :linkUrl="instanceDownloadUrl" :resources="resources"
                 :title="$t('download_dicom_file')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasExportToNifti" :iconClass="'fa-solid fa-brain'"
-                :linkUrl="exportToNiftiUrl" :resources="[resources]" :title="$t('export_to_nifti')"
+                :linkUrl="exportToNiftiUrl" :resources="resources" :title="$t('export_to_nifti')"
                 :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
