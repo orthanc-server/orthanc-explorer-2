@@ -108,11 +108,12 @@ export default {
     methods: {
         async onUploadCompleted(uploadedStudiesIds) {
             // console.log("upload complete: ", uploadedStudiesIds, this.formValues);
-            if (this.inboxConfig['CommitUrl']) {
+            if (uploadedStudiesIds.size > 0 && this.inboxConfig['CommitUrl']) {
                 this.commitResponse = await api.commitInbox(this.inboxConfig['CommitUrl'], [...uploadedStudiesIds], this.formValues);
                 this.startMonitoringProcessing();
             } else {
                 this.processingIsComplete = true;
+                this.processingHasFailed = uploadedStudiesIds.size == 0;
             }
         },
         async updateFormValidity() {
@@ -423,14 +424,14 @@ export default {
                 </div>
             </div>
             <div v-if="processingIsComplete" class="row w-75 mt-2 px-3 text-center my-2">
-                <div v-if="!processingHasFailed" class="alert alert-success" role="alert">
+                <div v-if="!processingHasFailed && processingMessageComputed" class="alert alert-success" role="alert">
                     {{ processingMessageComputed }}
                 </div>
-                <div v-if="processingHasFailed" class="alert alert-danger" role="alert">
+                <div v-if="processingHasFailed && processingMessageComputed" class="alert alert-danger" role="alert">
                     {{ processingMessageComputed }}
                 </div>
             </div>
-            <div v-if="processingIsComplete" class="row mt-2 px-3 text-center my-2">
+            <div v-if="processingIsComplete || processingHasFailed" class="row mt-2 px-3 text-center my-2">
                 <button type="button" class="btn btn-secondary" @click="reload" id="inbox-reload"><i
                         class="bi bi-arrow-clockwise mx-1"></i>{{ $t('inbox.reload_inbox') }}</button>
             </div>

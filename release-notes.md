@@ -15,6 +15,7 @@ Fixes:
 - Fix #122 [ViewersIcons.weasis is ignored](https://github.com/orthanc-server/orthanc-explorer-2/issues/122)
 - Changed the font of the SideBar such that it now also works on Linux.
 - Fix instance preview/download when Keycloak is enabled.
+- Inbox: show a "upload a new study" button when the upload fails.
 
 Internals:
 - Updated many JS dependencies.
