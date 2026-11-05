@@ -759,7 +759,8 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
         UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
         UpdateUiOptions(uiOptions["EnablePermissionsEdition"], permissions, "admin-permissions");
-        UpdateUiOptions(uiOptions["EnableJobsList"], permissions, "admin-permissions");
+        UpdateUiOptions(uiOptions["EnableJobsList"], permissions, "admin-permissions|view-jobs");
+        UpdateUiOptions(uiOptions["EnableJobsActions"], permissions, "admin-permissions");
         UpdateUiOptions(uiOptions["EnableInboxLinks"], permissions, "all|create-inbox-links");
 
         // the Legacy UI is not available with user profile since it would not refresh the tokens

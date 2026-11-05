@@ -28,6 +28,9 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             isConfigurationLoaded: state => state.configuration.loaded,
         }),
+        canPerformActionOnJobs() {
+            return this.uiOptions.EnableJobsActions;
+        },
     },
     watch: {
         '$route': async function () { // the watch is used when, e.g, clicking on the back button
@@ -240,42 +243,48 @@ export default {
                             <JobItemDetail title="Local AET" :value="job.Content.LocalAet"></JobItemDetail>
                             <JobItemDetail title="Instances Count" :value="job.Content.InstancesCount"></JobItemDetail>
                             <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
-                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td v-else-if="job.Type == 'OrthancPeerStore'" colspan="2" class="job-details">
                             <JobItemDetail title="Peer" :value="job.Content.Peer"></JobItemDetail>
                             <JobItemDetail title="Instances Count" :value="job.Content.InstancesCount"></JobItemDetail>
                             <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
-                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td v-else-if="job.Type == 'ResourceModification'" colspan="2" class="text-start job-details">
                             <JobItemDetail title="Is Anonymization" :value="job.Content.IsAnonymization"></JobItemDetail>
                             <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
-                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources :resources="job.Content.Resources"></JobItemResources>
+                        </td>
+                        <td v-else-if="job.Type == 'DicomWebStowClient'" colspan="2" class="text-start job-details">
+                            <JobItemDetail title="Target server" :value="job.Content.Server"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Error" :value="job.Content.FunctionErrorDescription" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Details" :value="job.Content.FunctionErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemResources :resources="job.Content.Resources.Studies" :resourcesType="'Study'"></JobItemResources>
                         </td>
                         <td v-else colspan="2">
                             <JobItemDetail v-if="isInError(job)" title="Error" :value="job.ErrorDescription" isError="true"></JobItemDetail>
-                            <JobItemDetail v-if="isInError(job)"title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
+                            <JobItemDetail v-if="isInError(job)" title="Details" :value="job.ErrorDetails" isError="true"></JobItemDetail>
                             <JobItemResources v-if="job.Content && job.Content.Resources" :resources="job.Content.Resources"></JobItemResources>
                         </td>
                         <td></td>
                         <td colspan="2" class="text-start job-full-details">
-                            <button v-if="job.State=='Failure'" class="btn btn-primary btn-sm mx-1" type="button" @click="resubmit(job.ID)">
+                            <button v-if="job.State=='Failure' && canPerformActionOnJobs" class="btn btn-primary btn-sm mx-1" type="button" @click="resubmit(job.ID)">
                                 {{ $t('jobs.button_title_resubmit') }}
                             </button>
-                            <button v-if="job.State=='Failure' || job.State=='Success'" class="btn btn-primary btn-sm mx-1" type="button" @click="deleteJob(job.ID)">
+                            <button v-if="(job.State=='Failure' || job.State=='Success') && canPerformActionOnJobs" class="btn btn-primary btn-sm mx-1" type="button" @click="deleteJob(job.ID)">
                                 {{ $t('jobs.button_title_delete') }}
                             </button>
-                            <button v-if="job.State=='Running'" class="btn btn-primary btn-sm mx-1" type="button" @click="pause(job.ID)">
+                            <button v-if="job.State=='Running' && canPerformActionOnJobs" class="btn btn-primary btn-sm mx-1" type="button" @click="pause(job.ID)">
                                 {{ $t('jobs.button_title_pause') }}
                             </button>
-                            <button v-if="job.State=='Running' || job.State=='Pending' || job.State=='Paused'" class="btn btn-primary btn-sm mx-1" type="button" @click="cancel(job.ID)">
+                            <button v-if="(job.State=='Running' || job.State=='Pending' || job.State=='Paused') && canPerformActionOnJobs" class="btn btn-primary btn-sm mx-1" type="button" @click="cancel(job.ID)">
                                 {{ $t('jobs.button_title_cancel') }}
                             </button>
-                            <button v-if="job.State=='Paused'" class="btn btn-primary btn-sm mx-1" type="button" @click="resume(job.ID)">
+                            <button v-if="job.State=='Paused' && canPerformActionOnJobs" class="btn btn-primary btn-sm mx-1" type="button" @click="resume(job.ID)">
                                 {{ $t('jobs.button_title_resume') }}
                             </button>
                             <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="collapse" :data-bs-target="'#job-collapse-details-' + job.ID">

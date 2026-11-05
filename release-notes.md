@@ -6,10 +6,12 @@ Changes:
 - Added Kyrgyz translations
 - Added Greek translations
 - New `Keycloak.OidcProvider` parameter to authenticate with a generic OpenID Connect provider (e.g. Authentik) instead of Keycloak.  `Url`, `Realm` and `CheckLoginIframe` are ignored when `OidcProvider` is set.  The `openid profile` scopes are requested.
+- Improved jobs details for `DicomWebStowClient` jobs.
+- Added support for permission `view-jobs`
 
 Fixes:
 - The modify dialog is now able to change the encoding of the DICOM file to UTF-8 when
-  one of the modified field introduces non Latin1 characters.
+  one of the modified field introduces non Latin1 characters.  Note: it will work best with upcoming Orthanc 1.13.1.
 - Fix #122 [ViewersIcons.weasis is ignored](https://github.com/orthanc-server/orthanc-explorer-2/issues/122)
 - Changed the font of the SideBar such that it now also works on Linux.
 

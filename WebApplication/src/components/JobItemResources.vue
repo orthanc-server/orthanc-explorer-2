@@ -8,7 +8,7 @@ import resourceHelpers from "../helpers/resource-helpers";
 
 
 export default {
-    props: ["resources"],
+    props: ["resources", "resourcesType"],
     setup() {
         return {
         }
@@ -21,12 +21,23 @@ export default {
     async mounted() {
         this.resources_ = [];
         for (let r of this.resources) {
-            let rr = {
-                Type: r.Type,
-                ID: r.ID,
-                StudyInstanceUID: null,
-                Display: r.Type + ' ' + r.ID
+            let rr = null;
+            if (typeof r === "object") {
+                rr = {
+                    Type: r.Type,
+                    ID: r.ID,
+                    StudyInstanceUID: null,
+                    Display: r.Type + ' ' + r.ID
+                };
+            } else {
+                rr = {
+                    Type: this.resourcesType,
+                    ID: r,
+                    StudyInstanceUID: null,
+                    Display: this.resourcesType + ' ' + r
+                };
             }
+
             if (rr.Type == 'Study') {
                 try {
                     let study = await orthancApi.getStudy(rr.ID);
