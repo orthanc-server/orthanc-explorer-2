@@ -1,5 +1,5 @@
-Pending changes
-===============
+1.15.1 (2026-11-05)
+==================
 
 Changes:
 - Added Czech translations
