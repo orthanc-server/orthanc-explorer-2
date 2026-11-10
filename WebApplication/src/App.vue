@@ -82,7 +82,7 @@ export default {
         <div class="sidebar-overlay" :class="{ 'sidebar-overlay--active': sidebarOpen }" @click="closeSidebar"></div>
 
         <div class="nav-side-layout" :class="{ 'nav-side-layout--open': sidebarOpen }">
-            <router-view name="SideBarView" @close-sidebar="closeSidebar"></router-view>
+            <router-view name="SideBarView"></router-view>
         </div>
         <div class="content">
             <router-view name="ContentView"></router-view>

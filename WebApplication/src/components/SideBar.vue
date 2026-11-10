@@ -351,7 +351,7 @@ export default {
         </div>
     </div>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .router-link {
     width: 100%;
     text-align: left;
