@@ -87,5 +87,36 @@ export default {
     },
     isDateTag(tagName) {
         return ["StudyDate", "PatientBirthDate", "SeriesDate", "AcquisitionDate", "ContentDate", "ScheduledProcedureStepStartDate"].indexOf(tagName) != -1;
+    },
+    getElapsedDurationFromMilliseconds(duration, suffix=' ago') {
+        if (duration <= 1) {
+            return 'now';
+        } 
+        
+        const intervals = [
+            { label: "d", max: 86400 },    
+            { label: "h", max: 3600 },
+            { label: "m", max: 60 },
+            { label: "s", max: -1 },
+        ];
+
+        let remaining = duration;
+        const parts = [];
+
+        for (const interval of intervals) {
+            if (remaining > interval.max) {
+                const value = Math.abs(Math.floor(remaining / interval.max));
+                remaining %= interval.max;
+                parts.push(`${value}${interval.label}`);
+            }
+            
+            if (parts.length >= 2) 
+                break; // Limit to 2 units (e.g., "1h42m")
+        }
+
+        if (parts.length === 0) 
+            return "now";
+        return `${parts.join("")}${suffix}`;
     }
+
 }

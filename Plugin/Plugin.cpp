@@ -715,7 +715,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
             uiOptions["AvailableLabels"] = rolesConfig["available-labels"];
           }
 
-          LOG(INFO) << rolesConfig.toStyledString();
+          // LOG(INFO) << rolesConfig.toStyledString();
 
           // if the auth-service is not fully configured, disable permissions edition
           if (rolesConfig.isObject() && rolesConfig.isMember("roles") && rolesConfig["roles"].isObject() && rolesConfig["roles"].size() > 0)
@@ -745,6 +745,7 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableAuditLogs"], permissions, "admin-permissions|audit-logs");
         UpdateUiOptions(uiOptions["EnableAddSeries"], permissions, "all|upload");
         UpdateUiOptions(uiOptions["EnableDicomModalities"], permissions, "all|q-r-remote-modalities");
+        UpdateUiOptions(uiOptions["EnableDicomWebServers"], permissions, "all|q-r-remote-modalities");
         UpdateUiOptions(uiOptions["EnableDeleteResources"], permissions, "all|delete");
         UpdateUiOptions(uiOptions["EnableDownloadZip"], permissions, "all|download");
         UpdateUiOptions(uiOptions["EnableDownloadDicomDir"], permissions, "all|download");
@@ -758,7 +759,9 @@ void GetOE2Configuration(OrthancPluginRestOutput* output,
         UpdateUiOptions(uiOptions["EnableShares"], permissions, "all|share");
         UpdateUiOptions(uiOptions["EnableEditLabels"], permissions, "all|edit-labels");
         UpdateUiOptions(uiOptions["EnablePermissionsEdition"], permissions, "admin-permissions");
-        UpdateUiOptions(uiOptions["EnableJobsList"], permissions, "admin-permissions");
+        UpdateUiOptions(uiOptions["EnableJobsList"], permissions, "admin-permissions|view-jobs");
+        UpdateUiOptions(uiOptions["EnableJobsActions"], permissions, "admin-permissions");
+        UpdateUiOptions(uiOptions["EnableInboxLinks"], permissions, "all|create-inbox-links");
 
         // the Legacy UI is not available with user profile since it would not refresh the tokens
         uiOptions["EnableLinkToLegacyUi"] = false;
@@ -959,24 +962,25 @@ extern "C"
           OrthancPlugins::RegisterRestCallback<RedirectRoot>("/", true);
         }
 
-        if (pluginJsonConfiguration_.isMember("UiOptions") && pluginJsonConfiguration_["UiOptions"].isMember("EnableSharesByEmail")
-            && pluginJsonConfiguration_["UiOptions"]["EnableSharesByEmail"].asBool())
+        if (pluginJsonConfiguration_.isMember("UiOptions") && 
+            ((pluginJsonConfiguration_["UiOptions"].isMember("EnableSharesByEmail") && pluginJsonConfiguration_["UiOptions"]["EnableSharesByEmail"].asBool())
+            || (pluginJsonConfiguration_["UiOptions"].isMember("EnableInboxLinksByEmail") && pluginJsonConfiguration_["UiOptions"]["EnableInboxLinksByEmail"].asBool())))
         {
           if (!pluginJsonConfiguration_.isMember("Emails") || !pluginJsonConfiguration_["Emails"].isObject())
           {
-            LOG(ERROR) << "OE2: Shares by email are enabled but `OrthancExplorer2.Emails` configuration is not defined or not a JSON object.";
+            LOG(ERROR) << "OE2: Shares or InboxLinks by email are enabled but `OrthancExplorer2.Emails` configuration is not defined or not a JSON object.";
             return -1;
           }
 
           if (!pluginJsonConfiguration_["Emails"].isMember("Server") || !pluginJsonConfiguration_["Emails"]["Server"].isObject())
           {
-            LOG(ERROR) << "OE2: Shares by email are enabled but `OrthancExplorer2.Emails.Server` configuration is not defined or not a JSON object.";
+            LOG(ERROR) << "OE2: Shares or InboxLinks by email are enabled but `OrthancExplorer2.Emails.Server` configuration is not defined or not a JSON object.";
             return -1;
           }
 
           emailServer_.Unserialize(pluginJsonConfiguration_["Emails"]["Server"]);
 
-          LOG(WARNING) << "OE2: Shares by email are enabled";
+          LOG(WARNING) << "OE2: Shares or InboxLinks by email are enabled";
           OrthancPlugins::RegisterRestCallback<GetEmailTemplates>(oe2BaseUrl_ + "api/emails/templates/(.*)", true);
           OrthancPlugins::RegisterRestCallback<SendEmail>(oe2BaseUrl_ + "api/emails/send", true);
         }

@@ -90,7 +90,7 @@ while i < len(SOURCES):
 
     if resourceName in resources:
         raise Exception("Twice the same resource: " + resourceName)
-    
+
     if os.path.isdir(pathName):
         # The resource is a directory: Recursively explore its files
         content = {}
@@ -165,7 +165,7 @@ header.write("""
 
 for ns in NAMESPACE.split('.'):
     header.write('namespace %s {\n' % ns)
-    
+
 
 header.write("""
     enum FileResourceId
@@ -177,7 +177,7 @@ for name in resources:
     if resources[name]['Type'] == 'File':
         if isFirst:
             isFirst = False
-        else:    
+        else:
             header.write(',\n')
         header.write('      %s' % name)
 
@@ -193,7 +193,7 @@ for name in resources:
     if resources[name]['Type'] == 'Directory':
         if isFirst:
             isFirst = False
-        else:    
+        else:
             header.write(',\n')
         header.write('      %s' % name)
 
@@ -235,8 +235,8 @@ def WriteResource(cpp, item):
 
     # http://stackoverflow.com/a/1035360
     pos = 0
-    buffer = []  # instead of appending a few bytes at a time to the cpp file, 
-                 # we first append each chunk to a list, join it and write it 
+    buffer = []  # instead of appending a few bytes at a time to the cpp file,
+                 # we first append each chunk to a list, join it and write it
                  # to the file.  We've measured that it was 2-3 times faster in python3.
                  # Note that speed is important since if generation is too slow,
                  # cmake might try to compile the EmbeddedResources.cpp file while it is

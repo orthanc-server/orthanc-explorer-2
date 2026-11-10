@@ -82,7 +82,7 @@ export default {
     },
     methods: {
         titleForTag(tag) {
-            return translateDicomTag(this.$i18n.t, this.$i18n.te, tag);
+            return translateDicomTag(tag);
         },
         valueForTag(tag) {
             if (tag in this.studyMainDicomTags) {
@@ -214,18 +214,16 @@ export default {
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </span>
-                <p v-if="tokenChecked && errorCode == 'invalid'" v-html="$t('token.error_token_invalid_html')"></p>
-                <p v-if="tokenChecked && errorCode == 'expired'" v-html="$t('token.error_token_expired_html')"></p>
-                <p v-if="tokenChecked && errorCode == 'unknown'" v-html="$t('token.error_token_unknown_html')"></p>
+                <p v-if="tokenChecked && errorCode == 'invalid'" style="white-space: pre-line" v-html="$t('token.error_token_invalid_html')"></p>
+                <p v-if="tokenChecked && errorCode == 'expired'" style="white-space: pre-line" v-html="$t('token.error_token_expired_html')"></p>
+                <p v-if="tokenChecked && errorCode == 'unknown'" style="white-space: pre-line" v-html="$t('token.error_token_unknown_html')"></p>
             </div>
             <div v-if="tokenChecked && showOptions" class="w-100">
                 <div v-if="showStudyDetails" class="w-100">
                     <div class="row w-100 px-3" v-for="tag in tagsToDisplay" :key="tag">
-                        <div class="col-6 tag-label">
-                            <span v-html="titleForTag(tag)"></span>
+                        <div class="col-6 tag-label">{{ titleForTag(tag) }}
                         </div>
-                        <div class="col-6 tag-value">
-                            <span v-html="valueForTag(tag)"></span>
+                        <div class="col-6 tag-value">{{ valueForTag(tag) }}
                         </div>
                     </div>
                 </div>

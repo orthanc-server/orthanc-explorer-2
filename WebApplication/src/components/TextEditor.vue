@@ -20,6 +20,10 @@ export default {
     insertableTexts: {
       type: Object,
       default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['update:modelValue'],
@@ -45,6 +49,10 @@ export default {
           bulletList: true
         })
       ],
+      editable: !this.disabled,
+      onUpdate: ({ editor }) => {
+        this.$emit('update:modelValue', editor.getHTML())
+      }      
     });
     // console.log("------------", this.editor);
   },
@@ -95,35 +103,38 @@ export default {
         this.editor.commands.setContent(value, false)
       }
     },
+    disabled(newValue, oldValue) {
+      this.editor.setEditable(!newValue);
+    }
   },
   components: { EditorContent }
 };
 </script>
 
 <template>
-  <div v-if="editor" class="container-editor">
+  <div v-if="editor" class="container-editor pt-2">
     <div class="control-group">
-      <div class="btn-group" v-if="hasHeadingButtons">
+      <div class="btn-group px-1" v-if="hasHeadingButtons">
         <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-          :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-type-h1"></i>
         </button>
         <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-          :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-type-h2"></i>
         </button>
         <button @click="editor.chain().focus().setParagraph().run()"
-          :class="{ 'is-active': editor.isActive('paragraph') }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive('paragraph') }" class="btn btn-light"  :disabled="disabled">
           <i class="bi bi-paragraph"></i>
         </button>
       </div>
-      <div class="btn-group">
+      <div class="btn-group px-1">
         <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }"
-          class="btn btn-light">
+          class="btn btn-light" :disabled="disabled">
           <i class="bi bi-type-bold"></i>
         </button>
         <button @click="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }"
-          class="btn btn-light">
+          class="btn btn-light"  :disabled="disabled">
           <i class="bi bi-type-italic"></i>
         </button>
         <!-- <button @click="editor.chain().focus().toggleStrike().run()"
@@ -131,34 +142,34 @@ export default {
           <i class="bi bi-type-strikethrough"></i>
         </button> -->
       </div>
-      <div class="btn-group">
-        <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }" class="btn btn-light">
+      <div class="btn-group px-1">
+        <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-link"></i>
         </button>
       </div>
-      <div class="btn-group" v-if="hasAlignButtons">
+      <div class="btn-group px-1" v-if="hasAlignButtons">
         <button @click="editor.chain().focus().setTextAlign('left').run()"
-          :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-text-left"></i>
         </button>
         <button @click="editor.chain().focus().setTextAlign('center').run()"
-          :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-text-center"></i>
         </button>
         <button @click="editor.chain().focus().setTextAlign('right').run()"
-          :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-text-right"></i>
         </button>
       </div>
-      <div class="btn-group" v-if="hasListButtons">
+      <div class="btn-group px-1" v-if="hasListButtons">
         <button @click="editor.chain().focus().toggleBulletList().run()"
-          :class="{ 'is-active': editor.isActive('bulletList') }" class="btn btn-light">
+          :class="{ 'is-active': editor.isActive('bulletList') }" class="btn btn-light" :disabled="disabled">
           <i class="bi bi-list-ul"></i>
         </button>
       </div>
-      <div class="btn-group" v-if="hasInsertButtons">
+      <div class="btn-group px-1" v-if="hasInsertButtons">
         <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" :disabled="disabled">
             Insert
           </button>
           <ul class="dropdown-menu">
@@ -168,8 +179,8 @@ export default {
         </div>
       </div>
     </div>
-    <div class="editor-content">
-      <editor-content v-if="editor" :editor="editor" />
+    <div class="editor-content pt-2">
+      <editor-content v-if="editor" :editor="editor"  :disabled="disabled"/>
       <p v-else>Editor is loading...</p>
     </div>
   </div>

@@ -6,6 +6,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
 import dateHelpers from "../helpers/date-helpers"
 import SourceType from '../helpers/source-type';
+import SelectionStatus from "../helpers/selection-status.js";
 import resourceHelpers from "../helpers/resource-helpers";
 import TokenLinkButton from "./TokenLinkButton.vue";
 
@@ -22,13 +23,10 @@ export default {
             loaded: false,
             expanded: false,
             collapseElement: null,
-            selected: false,
             pdfReports: []
         };
     },
     created() {
-        this.messageBus.on('selected-all', this.onSelectedStudy);
-        this.messageBus.on('unselected-all', this.onUnselectedStudy);
         this.messageBus.on('added-series-to-study-' + this.studyId, () => { this.reloadStudy(this.studyId) });
         this.messageBus.on('deleted-series-from-study-' + this.studyId, () => { this.reloadStudy(this.studyId) });
         this.messageBus.on('study-updated-' + this.studyId, () => { this.reloadStudy(this.studyId) });
@@ -38,7 +36,6 @@ export default {
         this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
         this.loaded = true;
         this.seriesIds = this.study.Series;
-        this.selected = this.selectedStudiesIds.indexOf(this.studyId) != -1;
 
         if (!this.isMobilePortrait && !this.isMobileLandscape && this.$refs['study-collapsible-details']) {
             var el = this.$refs['study-collapsible-details'];
@@ -103,17 +100,8 @@ export default {
             this.study = this.studies.filter(s => s["ID"] == this.studyId)[0];
             // console.log("StudyItem: study reloaded ", this.study.Labels);
         },
-        onSelectedStudy() {
-            this.selected = true;
-        },
-        onUnselectedStudy() {
-            this.selected = false;
-        },
         async clickedSelect() {
-            // console.log(this.studyId, this.selected);
-            await this.$store.dispatch('studies/selectStudy', { studyId: this.studyId, isSelected: !this.selected }); // this.selected is the value before the click
-            this.selected = !this.selected;
-            // console.log(this.studyId, this.selected);
+            await this.$store.dispatch('selection/selectStudy', { studyId: this.studyId, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
     computed: {
@@ -121,9 +109,14 @@ export default {
             uiOptions: state => state.configuration.uiOptions,
             studies: state => state.studies.studies,
             studiesSourceType: state => state.studies.sourceType,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
             allLabels: state => state.labels.allLabels
         }),
+        isSelected() {
+            return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) == SelectionStatus.PARTIAL;
+        },
         modalitiesInStudyForDisplay() {
             if (this.study.RequestedTags.ModalitiesInStudy) {
                 return this.study.RequestedTags.ModalitiesInStudy.split('\\').join(',');
@@ -178,7 +171,7 @@ export default {
             return this.hasPdfReportIconColumn && !this.hasPdfReportIcon;
         },
         hasPdfReportIcon() {
-            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1 && this.uiOptions.EnableReportQuickButton;
+            return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableReportQuickButton && this.study.RequestedTags && this.study.RequestedTags.SOPClassesInStudy && this.study.RequestedTags.SOPClassesInStudy.indexOf("1.2.840.10008.5.1.4.1.1.104.1") != -1;
         },
         hasPrimaryViewerColumn() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableViewerQuickButton;
@@ -217,19 +210,19 @@ export default {
             :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="selected" @click="clickedSelect">
+                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
                 </div>
             </td>
             <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
-                <TokenLinkButton v-if="primaryViewerUrl" level="study" :linkUrl="primaryViewerUrl"
-                    :resourcesOrthancId="[study.ID]" linkType="icon" iconClass="bi bi-eye-fill"
+                <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
+                    :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon" iconClass="bi bi-eye-fill"
                     :tokenType="primaryViewerTokenType" :opensInNewTab="true">
                 </TokenLinkButton>
             </td>
             <td v-if="hasPrimaryViewerIconPlaceholder"></td>
             <td v-if="hasPdfReportIcon" class="td-pdf-icon">
-                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" level="study"
-                    :linkUrl="pdfReport.url" :resourcesOrthancId="[study.ID]" linkType="icon"
+                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" 
+                    :linkUrl="pdfReport.url" :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon"
                     iconClass="bi bi-file-earmark-text" :tokenType="'download-instant-link'" :opensInNewTab="true"
                     :title="pdfReport.title">
                 </TokenLinkButton>

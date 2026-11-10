@@ -37,6 +37,7 @@
             "EnableStudyList": true,                    // Enables the access to the study list (TODO)
             "EnableUpload": true,                       // Enables the upload menu/interface
             "EnableDicomModalities": true,              // Enables the 'DICOM Modalities' interface in the side menu
+            "EnableDicomWebServers": true,              // Enables the 'DICOMWeb Servers' interface in the side menu
             "EnableDeleteResources": true,              // Enables the delete button for Studies/Series/Instances
             "EnableDownloadZip": true,                  // Enables the download zip button for Studies/Series
             "EnableDownloadDicomDir": false,            // Enables the download DICOM DIR button for Studies/Series
@@ -72,6 +73,18 @@
                                                               // of the external email web-service
             "ShareEmailTitle": "TO BE DEFINED",               // Default title for the email
 
+            "EnableInboxLinks": false,                  // Enables the inbox-links menu/interface (provided that the authorization + service support them)
+            "InboxLinksDuration": 7,                            // The upload links validity duration (in days)
+            "EnableInboxLinksByEmail": false,                   // Enables sending emails when sharing upload links.  
+                                                                // Note that you must have an external web-service configured in the "Emails" section.
+            "InboxLinksEmailContentTemplate": "TO BE DEFINED",  // The name of the HTML template to use when sharing an upload link by email 
+                                                                // (only the content part that is editable in the text editor).  
+                                                                // Your email web-service must provide the HTML template at {Emails.ServerRootUrl}/templates/{UiOptions.InboxLinksEmailContentTemplate}
+            "InboxLinksEmailLayoutTemplate": null,              // The name of the HTML layout template to use when sharing an upload link by email.
+                                                                // This identifier is included in the 'layout-template' field of the payload sent to {Emails.ServerRootUrl}/send 
+                                                                // of the external email web-service
+            "InboxLinksEmailTitle": "TO BE DEFINED",            // Default title for the email
+
             "EnableAddSeries": true,                    // Enables the "Add series" button
             "AddSeriesDefaultTags": {                   // Default tag values when adding a new series of each type ("pdf", "image" or "stl")
                 "pdf" : {
@@ -100,7 +113,9 @@
             "EnableOpenInMedDreamViewer": false,        // Enables a "open in MedDream viewer" button
             "MedDreamViewerPublicRoot" : "http://to-be-defined/",  // must end with a '/'.  e.g: "http://meddream.my.site/Viewer/" means that link to MedDream will look like http://meddream.my.site/?study=1.2.3.444.5555....
 
-            "EnableOpenInWeasisViewer": false,          // Enables a "open in Weasis viewer" button.  Note that the DICOMWeb plugin must be enabled.
+            "EnableOpenInWeasisViewer": false,          // Enables a "open in Weasis viewer" button.  
+                                                        // Note that the DICOMWeb plugin must be enabled, Weasis must be installed on your PC and must have been configured to open weasis:// URLs.
+                                                        // Also note that Weasis won't be able to retrieve the data if Orthanc requires authentication.
 
             // Defines which icons is used by which enabled viewer.
             // Allowed keys: "meddream", "osimis-web-viewer", "stone-webviewer", "ohif", "ohif-vr", "ohif-tmtv"
@@ -336,7 +351,7 @@
             // Defines the list of languages available in the language picker
             // ex: "AvailableLanguages" : ["en", "fr"],
             // ex: "AvailableLanguages" : []  -> this won't show the language picker at all and force usage of the DefaultLanguage
-            "AvailableLanguages": ["en", "ar", "de", "es", "fr", "it", "ja", "ka", "ro", "ru", "si", "uk", "vi", "zh", "pt"],
+            "AvailableLanguages": ["en", "ar", "cs", "de", "el", "es", "fr", "hu", "it", "ja", "ka", "pt", "ro", "ru", "si", "uk", "vi", "zh"],
             
             // Force the default language.  If null (default), the language is the language from the visitor's browser.
             // ex: "DefaultLanguage" : "en"
@@ -453,7 +468,9 @@
             "Enable": false,
             "Url": "http://change-me:8080/",
             "Realm": "change-me",
-            "ClientId": "change-me"
+            "ClientId": "change-me",
+            "CheckLoginIframe": true,
+            "OidcProvider": ""                          // issuer URL (without /.well-known/openid-configuration) of a generic OIDC provider (e.g. Authentik). When set, Url, Realm and CheckLoginIframe are ignored. An empty string keeps the Keycloak mode.
         },
 
         

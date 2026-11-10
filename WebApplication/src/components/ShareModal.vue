@@ -3,11 +3,10 @@ import { mapState } from "vuex"
 import CopyToClipboardButton from "./CopyToClipboardButton.vue";
 import resourceHelpers from "../helpers/resource-helpers"
 import clipboardHelpers from "../helpers/clipboard-helpers"
+import emailHelpers from "../helpers/email-helpers.js";
 import api from "../orthancApi"
 import TextEditor from "./TextEditor.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
-
-
 
 
 export default {
@@ -54,14 +53,13 @@ export default {
             this.sendEmailInProgress = false;
         },
         async share() {
-            let resourcesIds = [this.orthancId];
+            let resources = [{"Level": "Study", "ID": this.orthancId}];
             if (this.isBulkSelection) {
-                resourcesIds = this.selectedStudiesIds;
+                resources = this.$store.getters['selection/selectedResourcesIdsWithLevel'];
             }
             let token = await api.createToken({
                 tokenType: this.tokens.ShareType,  // defined in configuration file
-                resourcesIds: resourcesIds,
-                level: 'study',
+                resources: resources,
                 validityDuration: this.uiOptions.ShareDuration * 24 * 3600
             })
             this.shareLink = token["Url"];
@@ -77,6 +75,7 @@ export default {
             this.sendEmailInProgress = true;
             let response = await api.sendEmail(this.emailDestination, this.emailTitle, this.emailContent, this.uiOptions.ShareEmailLayoutTemplate);
             if (response.success) {
+                this.sendEmailInProgress = false;
                 var modal = bootstrap.Modal.getInstance(this.$refs['modal-main-div']);
                 modal.hide();
                 this.messageBus.emit("show-toast", this.$t('share.email_sent'));
@@ -91,7 +90,6 @@ export default {
         ...mapState({
             uiOptions: state => state.configuration.uiOptions,
             tokens: state => state.configuration.tokens,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
         }),
         isBulkSelection() {
             return !(this.patientMainDicomTags && this.studyMainDicomTags && Object.keys(this.patientMainDicomTags).length > 0 && Object.keys(this.studyMainDicomTags).length > 0);
@@ -104,7 +102,7 @@ export default {
             }
         },
         studiesCount() {
-            return this.selectedStudiesIds.length;
+            return this.$store.getters['selection/selectedStudiesCount'];
         },
         enableShareByEmail() {
             return this.uiOptions.EnableSharesByEmail;
@@ -119,17 +117,7 @@ export default {
             }
         },
         destinationContainsValidEmailAddresses() {
-            if (!this.emailDestination) {
-                return false;
-            }
-            // Regex to validate individual email addresses
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            // Split the string into individual email addresses
-            const emails = this.emailDestination.split(/[;,\s]+/).filter(email => email);
-
-            // Check if all entries are valid email addresses
-            return emails.every(email => emailRegex.test(email));
+            return emailHelpers.isValidEmailDestination(this.emailDestination);
         }
     },
     components: { CopyToClipboardButton, TextEditor }
@@ -210,6 +198,7 @@ export default {
                                     </div>
                                     <div class="container w-100 py-1">
                                         <TextEditor ref="editor" targetUsage="email" :modelValue="emailContent"
+                                            @update:modelValue="emailContent = $event"
                                             :insertableTexts="insertableTags" />
                                     </div>
                                 </div>

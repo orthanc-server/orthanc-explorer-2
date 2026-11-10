@@ -7,3 +7,9 @@ dist-ssr
 .vscode/
 *~
 build
+tests/.venv/
+tests/__pycache__/
+tests/.pytest_cache/
+tests/storages/
+tests/screenshots/
+tests/configs/conf*.json

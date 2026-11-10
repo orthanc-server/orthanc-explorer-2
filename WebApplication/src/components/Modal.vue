@@ -29,7 +29,8 @@ export default {
         <div class="modal-body">
           <slot name="modalBody">
             <span
-              v-html="bodyText"></span><!-- Safe to use v-html here since the bodyText only contains translated messages -->
+              style="white-space: pre-line" 
+              v-html="bodyText"></span><!-- Safe to use v-html here since the bodyText only contains translated messages + preserve \n -->
           </slot>
         </div>
         <div class="modal-footer">

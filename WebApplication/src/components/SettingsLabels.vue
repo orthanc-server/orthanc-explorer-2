@@ -110,7 +110,7 @@ export default {
                     </label>
                 </div>
                 <div class="mt-1">
-                    <p class="instructions-text" v-html="$t('settings.available_labels_global_instructions_html')"
+                    <p class="instructions-text" style="white-space: pre-line" v-html="$t('settings.available_labels_global_instructions_html')"
                         :class="{ 'instructions-text-disabled': !limitAvailableLabels }"></p>
                 </div>
                 <div class="form-check" style="height: 3rem"><label for="new-label-input" class="form-label"><span

@@ -2,6 +2,7 @@
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import { nextTick } from 'vue'
 
+document.toastCounter = 0;
 
 export default {
     props: [],
@@ -10,14 +11,16 @@ export default {
     },
     data() {
         return {
-            toasts: [],
-            counter: 0,
+            toasts: []
         };
     },
     async created() {
-        this.messageBus.on('show-toast', this.showToast);
     },
     async mounted() {
+        this.messageBus.on('show-toast', this.showToast);
+    },
+    async beforeUnmount() {
+        this.messageBus.off('show-toast', this.showToast);
     },
     computed: {
     },
@@ -26,7 +29,7 @@ export default {
     components: {},
     methods: {
         async showToast(toastMessage) {
-            this.counter += 1;
+            document.toastCounter += 1;
             
             if (typeof(toastMessage) === 'string') {
                 toastMessage = { 
@@ -34,14 +37,15 @@ export default {
                     'type': 'success'    // success, warning, info, danger/error
                 }
             }
-            toastMessage['id'] = this.counter;
+            toastMessage['id'] = document.toastCounter;
 
             // console.log(this.counter, toastMessage);
             this.toasts.push(toastMessage);
 
             await nextTick();
+            await this.$nextTick();
 
-            const toast = new bootstrap.Toast(document.getElementById('toast-' + this.counter));
+            const toast = new bootstrap.Toast(document.getElementById('toast-' + document.toastCounter));
             toast.show();
         },
         classes(toast) {
@@ -64,7 +68,7 @@ export default {
 <template>
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11;">
         <div v-for="toast in toasts" :id="'toast-' + toast.id" role="alert" aria-live="polite" aria-atomic="true"
-            class="toast p-2" :class="classes(toast)" data-bs-autohide="true">
+            class="toast p-2" :class="classes(toast)" :data-bs-autohide="true">
             <div class="d-flex">
                 <div class="toast-body">{{ toast.message }}
                 </div>

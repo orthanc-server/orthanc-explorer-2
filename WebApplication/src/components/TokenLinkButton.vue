@@ -8,7 +8,7 @@ import api from "../orthancApi"
 
 
 export default {
-    props: ["resourcesOrthancId", "linkUrl", "level", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType", "disabled", "smallIcons"],
+    props: ["resources", "linkUrl", "tokenType", "validityDuration", "title", "iconClass", "opensInNewTab", "linkType", "disabled", "smallIcons"],
     setup() {
         return {
         }
@@ -45,12 +45,8 @@ export default {
                 if (validityDuration == null || validityDuration === undefined) {
                     validityDuration = this.tokens.InstantLinksValidity;
                 }
-                let level = this.level;
-                if (level == "bulk-study") {
-                    level = "study";
-                }
 
-                token = await api.createToken({ tokenType: this.tokenType, resourcesIds: this.resourcesOrthancId, level: level, validityDuration: validityDuration });
+                token = await api.createToken({ tokenType: this.tokenType, resources: this.resources, validityDuration: validityDuration });
             }
 
             let finalUrl = this.linkUrl;

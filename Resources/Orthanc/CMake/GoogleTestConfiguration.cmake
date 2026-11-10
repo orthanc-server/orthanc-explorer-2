@@ -51,7 +51,7 @@ if (USE_GOOGLE_TEST_DEBIAN_PACKAGE)
 
 elseif (STATIC_BUILD OR NOT USE_SYSTEM_GOOGLE_TEST)
   set(GOOGLE_TEST_SOURCES_DIR ${CMAKE_BINARY_DIR}/googletest-release-1.8.1)
-  set(GOOGLE_TEST_URL "https://orthanc.uclouvain.be/downloads/third-party-downloads/gtest-1.8.1.tar.gz")
+  set(GOOGLE_TEST_URL "${THIRD_PARTY_DOWNLOADS_ROOT_URL}/gtest-1.8.1.tar.gz")
   set(GOOGLE_TEST_MD5 "2e6fbeb6a91310a16efe181886c59596")
 
   DownloadPackage(${GOOGLE_TEST_MD5} ${GOOGLE_TEST_URL} "${GOOGLE_TEST_SOURCES_DIR}")
@@ -70,11 +70,11 @@ elseif (STATIC_BUILD OR NOT USE_SYSTEM_GOOGLE_TEST)
   if (MSVC) # VS2012 does not support tuples correctly yet
     add_definitions(/D _VARIADIC_MAX=10)
   endif()
-  
+
   if ("${CMAKE_SYSTEM_VERSION}" STREQUAL "LinuxStandardBase")
     add_definitions(-DGTEST_HAS_CLONE=0)
   endif()
-  
+
   source_group(ThirdParty\\GoogleTest REGULAR_EXPRESSION ${GOOGLE_TEST_SOURCES_DIR}/.*)
 
 else()

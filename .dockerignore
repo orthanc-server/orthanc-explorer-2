@@ -1,0 +1,9 @@
+Dockerfile
+scripts/
+tests/
+ThirdPartyDownloads/
+.vscode/
+.github/
+TODO
+.gitignore
+release-notes.md

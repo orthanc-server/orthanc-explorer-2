@@ -16,6 +16,7 @@ import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import mitt from "mitt"
 import VueObserveVisibility from 'vue3-observe-visibility'
+import { baseOe2Url } from './globalConfigurations.js'
 
 // Names of the params that can contain an authorization token
 // If one of these params contain a token, it will be passed as a header
@@ -59,7 +60,11 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
         keycloackConfig = config.data['Keycloak']
 
-        let initOptions = {
+        let initOptions = keycloackConfig['OidcProvider'] ? {
+            clientId: keycloackConfig['ClientId'],
+            oidcProvider: keycloackConfig['OidcProvider'],
+            onLoad: 'login-required'
+        } : {
             url: keycloackConfig['Url'],
             realm: keycloackConfig['Realm'],
             clientId: keycloackConfig['ClientId'],
@@ -68,7 +73,13 @@ axios.get('../api/pre-login-configuration').then((config) => {
 
         window.keycloak = new Keycloak(initOptions);
 
-        window.keycloak.init({ onLoad: initOptions.onLoad }).then(async (auth) => {
+        window.keycloak.init({
+            onLoad: initOptions.onLoad,
+            // keycloak-js 24 generic mode crashes with the login iframe (and e.g. Authentik has no check_session_iframe)
+            checkLoginIframe: keycloackConfig['OidcProvider'] ? false : keycloackConfig['CheckLoginIframe'],
+            // no offline_access: keycloak-js decodes the refresh token as a JWT, opaque ones (e.g. Authentik) break init; profile gives the groups claim
+            scope: keycloackConfig['OidcProvider'] ? 'openid profile' : undefined,
+        }).then(async (auth) => {
 
             if (!auth) {
                 window.location.reload();
@@ -80,18 +91,27 @@ axios.get('../api/pre-login-configuration').then((config) => {
             localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
             orthancApi.updateAuthHeader();
 
-            app.mount('#app');
-            console.log("App mounted with keycloak, current route is ", router.currentRoute.value.fullPath);
+            { // remove the keycloak uri arguments that are passed after a hash (ex: #state=1234&iss=...)
+                let fullLocation = window.location.href;
+                // since we have removed the hash router in 1.13.0, remove the '#/' in case someone is still using an old link like ../ui/app/#/filtered-studies?PatientID=1234
+                fullLocation = fullLocation.replace('/ui/app/#/', '/ui/app/');
 
-            // keycloak includes state, code and session_state -> the router does not like them -> remove them
-            const params = new URLSearchParams(router.currentRoute.value.fullPath);
-            params.delete('session_state');
-            params.delete('state');
-            params.delete('code');
-            params.delete('iss');
-            const cleanedRoute = decodeURIComponent(params.toString()).replace(/=$/, ''); // remove trailing '='
-            console.log("App mounted, moving to cleaned route ", cleanedRoute);
-            await router.push(cleanedRoute);
+                const actualUrl = new URL(fullLocation);
+                const actualPathAndQuery = `${actualUrl.pathname}${actualUrl.search}`;
+                const currentFullPath = router.currentRoute.value.fullPath;
+                
+                // If the fullPath includes a hash with Keycloak parameters, remove it
+                const cleanedFullPath = currentFullPath.split('#')[0];
+
+                // If the cleanedFullPath does not match the actual URL, update the route
+                if (cleanedFullPath !== actualPathAndQuery) {
+                    // Replace the current route with the actual URL path and query
+                    await router.replace(actualPathAndQuery.replace(baseOe2Url, ""));
+                }            
+            }
+
+            app.mount('#app');
+            console.log("App mounted with keycloak");
 
             // programm token refresh at regular interval
             setInterval(() => {

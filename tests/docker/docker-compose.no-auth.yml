@@ -1,0 +1,14 @@
+services:
+
+  orthanc:
+    image: orthancteam/orthanc-pre-release:latest-oe2-for-tests
+    ports:
+      - 8043:8043
+    volumes:
+      - ../configs/conf-for-docker.json:/etc/orthanc/orthanc.json
+    restart: unless-stopped
+    environment:
+      STONE_WEB_VIEWER_PLUGIN_ENABLED: "true"
+      DICOM_WEB_PLUGIN_ENABLED: "true"
+      VERBOSE_ENABLED: "true"
+      VERBOSE_STARTUP: "true"

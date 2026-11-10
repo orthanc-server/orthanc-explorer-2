@@ -8,6 +8,7 @@ import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
 import dateHelpers from "../helpers/date-helpers"
+import resourceHelpers from "../helpers/resource-helpers"
 import $ from "jquery"
 import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
 import api from "../orthancApi";
@@ -134,8 +135,6 @@ export default {
             searchTimerHandler: {},
             columns: document._studyColumns,
             datePickerPresetRanges: document._datePickerPresetRanges,
-            allSelected: false,
-            isPartialSelected: false,
             mostRecentStudiesIds: [],
             shouldStopLoadingMostRecentStudies: false,
             status: Status.UNDEFINED,
@@ -159,7 +158,6 @@ export default {
             allLabels: state => state.labels.allLabels,
             isConfigurationLoaded: state => state.configuration.loaded,
             studiesIds: state => state.studies.studiesIds,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
             isSearching: state => state.studies.isSearching,
             statistics: state => state.studies.statistics,
             hasExtendedFind: state => state.configuration.hasExtendedFind,
@@ -172,6 +170,12 @@ export default {
         ]),
         isMobile() {
             return this.isMobilePortrait || this.isMobileLandscape;
+        },
+        allSelected() {
+            return this.$store.getters['selection/isStudiesFullSelection'];
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/isStudiesPartialSelection'];
         },
         notShowingAllResults() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC && !this.hasExtendedFind) {
@@ -249,8 +253,9 @@ export default {
             return this.sourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableReportQuickButton;
         },
         selectedStudiesCount() {
-            if (this.selectedStudiesIds.length > 0) {
-                return this.selectedStudiesIds.length;
+            const count = this.$store.getters['selection/selectedStudiesCount'];
+            if (count > 0) {
+                return count;
             } else {
                 return "";
             }
@@ -264,6 +269,8 @@ export default {
             if (this.hasPdfReportIcon) {
                 span++;
             }
+
+            span = Math.max(span, this.colSpanClearFilter +1);
             return span;
         },
         colSpanMultiLabelsFilter() {
@@ -378,12 +385,6 @@ export default {
                 }
             }
         },
-        selectedStudiesIds: {
-            handler(oldValue, newValue) {
-                this.updateSelectAll();
-            },
-            deep: true
-        },
         allLabels(newValue, oldValue) {
             this.multiLabelsComponentKey++; // force refresh the multi-labels filter component
         }
@@ -439,25 +440,11 @@ export default {
             this.updateFilterFromRoute(this.$route.query);
             setTimeout(() => { this.showMultiLabelsFilter = true }, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         },
-        updateSelectAll() {
-            if (this.selectedStudiesIds.length == 0) {
-                this.allSelected = false;
-                this.isPartialSelected = false;
-            } else if (this.selectedStudiesIds.length == this.studiesIds.length) {
-                this.allSelected = true;
-                this.isPartialSelected = false;
-            } else {
-                this.allSelected = '';
-                this.isPartialSelected = true;
-            }
-        },
         clickSelectAll() {
-            if (this.allSelected == '' || !this.allSelected) { // this is the value before the click
-                this.$store.dispatch('studies/selectAllStudies', { isSelected: true });
-                this.messageBus.emit('selected-all');
+            if (!this.allSelected) { // this is the value before the click
+                this.$store.dispatch('selection/selectAllStudies', { isSelected: true });
             } else {
-                this.$store.dispatch('studies/selectAllStudies', { isSelected: false });
-                this.messageBus.emit('unselected-all')
+                this.$store.dispatch('selection/selectAllStudies', { isSelected: false });
             }
         },
         translateDatePicker(languageKey) {
@@ -467,15 +454,15 @@ export default {
         },
         columnTitle(tagName) {
             if (tagName == "seriesCount") {
-                return this.$i18n.t('series_count_header');
+                return this.$t('series_count_header');
             } else if (tagName == "instancesCount") {
-                return this.$i18n.t('instances_count_header');
+                return this.$t('instances_count_header');
             } else if (tagName == "seriesAndInstancesCount") {
-                return this.$i18n.t('series_and_instances_count_header');
+                return this.$t('series_and_instances_count_header');
             } else if (tagName == "modalities") {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, "ModalitiesInStudy");
+                return translateDicomTag("ModalitiesInStudy");
             } else {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+                return translateDicomTag(tagName);
             }
         },
         columnTooltip(tagName) {
@@ -624,6 +611,9 @@ export default {
         hasFilter(tagName) {
             return ['seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tagName) == -1;
         },
+        getFilterId(tagName) {
+            return "filter-" + tagName;
+        },
         getFilterPlaceholder(tagName) {
             if (tagName in this.columns && this.columns[tagName].placeholder) {
                 return this.columns[tagName].placeholder;
@@ -691,7 +681,7 @@ export default {
                 } else if (filters["source-type"].toLowerCase() === "dicom-web") {
                     this.sourceType = SourceType.REMOTE_DICOM_WEB;
                 }
-                this.remoteSource = filters["remote-source"];
+                this.remoteSource = resourceHelpers.sanitizeToAlphanumeric(filters["remote-source"]);
             } else {
                 this.sourceType = SourceType.LOCAL_ORTHANC;
                 this.remoteSource = null;
@@ -1189,15 +1179,16 @@ export default {
                         </div>
                         <div v-else-if="columnTag == 'PatientBirthDate'">
                             <Datepicker v-model="filterPatientBirthDateForDatePicker" :enable-time-picker="false" range
-                                :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat"
+                                :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
                                 arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode" :mobile="isMobile"
-                                :teleport="true">
+                                :teleport="true" :id="getFilterId(columnTag)">
                             </Datepicker>
                         </div>
                         <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
                             v-model="this.filterGenericTags[columnTag]"
                             v-bind:placeholder="getFilterPlaceholder(columnTag)"
-                            v-bind:class="getFilterClass(columnTag)" />
+                            v-bind:class="getFilterClass(columnTag)" 
+                            v-bind:id="getFilterId(columnTag)"/>
                     </th>
                 </tr>
 
@@ -1239,8 +1230,8 @@ export default {
                 <tr class="study-table-actions">
                     <th width="2%" :colspan="colSpanBeforeMultiLabelsFilter" scope="col">
                         <div class="form-check" style="margin-left: 0.5rem">
-                            <input class="form-check-input" type="checkbox" v-model="allSelected"
-                                :indeterminate="isPartialSelected" @click="clickSelectAll"><span
+                            <input class="form-check-input" type="checkbox" :checked="allSelected"
+                                :indeterminate="isPartialySelected" @click="clickSelectAll"><span
                                 style="font-weight: 400; font-size: small;">{{ selectedStudiesCount
                                 }}</span>
                         </div>
@@ -1293,6 +1284,7 @@ export default {
                                         class="form-control study-list-filter btn filter-button btn-secondary search-button"
                                         data-bs-toggle="tooltip"
                                         :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                        id="search"
                                         title="Search">
                                         <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
                                         <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"

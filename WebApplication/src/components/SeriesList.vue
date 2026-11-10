@@ -1,8 +1,12 @@
 <script>
 import axios from "axios"
 import api from "../orthancApi"
+import { mapState, mapGetters } from "vuex"
 import SeriesItem from "./SeriesItem.vue"
+import SelectionStatus from "../helpers/selection-status.js"
 import { translateDicomTag } from "../locales/i18n"
+import SourceType from '../helpers/source-type';
+
 
 export default {
     props: ['studyId', 'patientMainDicomTags', 'studyMainDicomTags', 'studySeries'],
@@ -13,11 +17,31 @@ export default {
         };
     },
     computed: {
+        ...mapState({
+            studiesSourceType: state => state.studies.sourceType,
+        }),
+        isMultipleSelectionEnabled() {
+            return this.studiesSourceType != SourceType.REMOTE_DICOM;
+        },
         sortedSeriesIds() {
             let keys = Object.keys(this.seriesInfo);
             keys.sort((a, b) => (parseInt(this.seriesInfo[a].MainDicomTags.SeriesNumber) > parseInt(this.seriesInfo[b].MainDicomTags.SeriesNumber) ? 1 : -1))
             return keys;
-        }
+        },
+        selectedSeriesCount() {
+            const count = this.$store.getters['selection/getSelectedSeriesCount'](this.studyId, this.studySeries);
+            if (count == 0) {
+                return "";
+            } else {
+                return count;
+            }
+        },
+        allSelected() {
+            return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) == SelectionStatus.PARTIAL;
+        },
     },
     watch: {
         studySeries(newValue, oldValue) {
@@ -29,16 +53,16 @@ export default {
     methods: {
         columnTitle(tagName) {
             if (tagName == "instances_number") {
-                return "# " + this.$i18n.t('instances');
+                return "# " + this.$t('instances');
             } else {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+                return translateDicomTag(tagName);
             }
         },
         columnTooltip(tagName) {
             if (tagName == "instances_number") {
-                return this.$i18n.t("instances_number");
+                return this.$t("instances_number");
             } else {
-                return translateDicomTag(this.$i18n.t, this.$i18n.te, tagName);
+                return translateDicomTag(tagName);
             }
         },
         onDeletedSeries(seriesId) {
@@ -48,7 +72,14 @@ export default {
             } else {
                 this.messageBus.emit('deleted-series-from-study-' + this.studyId);
             }
-        }
+        },
+        clickSelectAll() {
+            if (this.allSelected == '' || !this.allSelected) { // this is the value before the click
+                this.$store.dispatch('selection/selectStudy', { studyId: this.studyId, isSelected: true });
+            } else {
+                this.$store.dispatch('selection/selectStudy', { studyId: this.studyId, isSelected: false });
+            }
+        },
     },
     components: { SeriesItem }
 }
@@ -58,7 +89,14 @@ export default {
     <table class="table table-responsive table-sm series-table">
         <thead>
             <tr>
-                <th width="2%" scope="col" class="series-table-header"></th>
+                <th width="2%" scope="col" class="series-table-header">
+                    <div v-if="isMultipleSelectionEnabled" class="form-check" style="margin-left: 0.5rem">
+                        <input class="form-check-input" type="checkbox" :checked="allSelected"
+                            :indeterminate="isPartialySelected" @click="clickSelectAll"><span
+                            style="font-weight: 400; font-size: small;">{{ selectedSeriesCount
+                            }}</span>
+                    </div>
+                </th> 
                 <th width="7%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
                     :title="columnTooltip('SeriesNumber')">{{ columnTitle('SeriesNumber') }}</th>
                 <th width="40%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
@@ -70,7 +108,7 @@ export default {
             </tr>
         </thead>
         <SeriesItem v-for="seriesId in sortedSeriesIds" :key="seriesId" :seriesId="seriesId"
-            :seriesInfo="seriesInfo[seriesId]" :studyMainDicomTags="this.studyMainDicomTags"
+            :seriesInfo="seriesInfo[seriesId]" :studySeries="studySeries" :studyMainDicomTags="this.studyMainDicomTags"
             :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesItem>
     </table>
 </template>

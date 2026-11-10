@@ -1,0 +1,4 @@
+pytest
+playwright
+requests
+orthanc-api-client

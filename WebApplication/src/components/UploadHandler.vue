@@ -85,15 +85,29 @@ export default {
     data() {
         return {
             uploadCounter: 0,
+            uploadsInProgressCounter: 0,
             lastUploadReports: {},
             disabledAfterUpload: false
         };
     },
     mounted() {
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
         uppie(document.querySelector("#filesUpload"), this.uppieUploadHandler);
         uppie(document.querySelector("#foldersUpload"), this.uppieUploadHandler);
     },
+    unmounted() {
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+    },
     methods: {
+        handleBeforeUnload(ev) {
+            if (this.uploadsInProgressCounter > 0) {
+                console.log("--- handleBeforeUnload ---");
+                this.isLeavingSiteWithPendingUploads = true;
+                ev.preventDefault();
+                ev.returnValue = ''; //  We can not customize the message !
+                return ''; //  We can not customize the message !
+            }
+        },
         onDrop(ev) {
             // console.log("on drop", ev);
             ev.preventDefault();
@@ -123,6 +137,7 @@ export default {
         async uploadFiles(files) {
             files = Array.from(files); // make a copy (https://github.com/orthanc-server/orthanc-explorer-2/issues/98)
             let uploadId = this.uploadCounter++;
+            this.uploadsInProgressCounter++;
             if (this.singleUse) {
                 this.disabledAfterUpload = true;
             }
@@ -133,6 +148,7 @@ export default {
                 successFilesCount: 0,
                 failedFilesCount: 0,
                 skippedFilesCount: 0,
+                inProgress: true,
                 uploadedStudiesIds: new Set(),
                 uploadedStudies: {},  // studies as returned by tools/find
                 errorMessages: {}
@@ -173,9 +189,11 @@ export default {
                     }
                     this.lastUploadReports[uploadId].failedFilesCount++;
                     this.lastUploadReports[uploadId].errorMessages[filename] = errorMessage;
+                    this.lastUploadReports[uploadId].inProgress = false;
                 }
             }
-
+            this.uploadsInProgressCounter--;
+            this.lastUploadReports[uploadId].inProgress = false;
             this.$emit("uploadCompleted", this.lastUploadReports[uploadId].uploadedStudiesIds);
         },
         async uppieUploadHandler(event, formData, files) {

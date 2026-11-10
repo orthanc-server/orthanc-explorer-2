@@ -16,6 +16,7 @@ import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import mitt from "mitt"
 import VueObserveVisibility from 'vue3-observe-visibility'
+import { baseOe2Url } from './globalConfigurations.js'
 
 // before initialization, we must load part of the configuration to know if we need to enable Keycloak or not
 axios.get('../api/pre-login-configuration').then((config) => {
@@ -32,77 +33,111 @@ axios.get('../api/pre-login-configuration').then((config) => {
         return;
     }
 
-    let keycloackConfig = null;
+    // check if a token is passed in the query args (in case we open the inbox with an inbox-link)
+    const params = new URLSearchParams(window.location.search);
+    const tokenValue = params.get("token");
+    if (tokenValue)
+    {
+        localStorage.setItem("token", tokenValue);
+        orthancApi.updateAuthHeader("token");
 
-    if (config.data['Keycloak'] && config.data['Keycloak'] != null && config.data['Keycloak']['Enable']) {
-        if (configData['Inbox']['EnableAnonymousAccess']) {
-
-            console.log("Keycloak is enabled but AnonymousAccess to Inbox is enabled -> all users are considered as anonymous");
-            app.mount('#app-inbox');
-
-        } else {
-            console.log("Keycloak is enabled");
-
-            keycloackConfig = config.data['Keycloak']
-
-            let initOptions = {
-                url: keycloackConfig['Url'],
-                realm: keycloackConfig['Realm'],
-                clientId: keycloackConfig['ClientId'],
-                onLoad: 'login-required'
-            }
-
-            window.keycloak = new Keycloak(initOptions);
-
-            window.keycloak.init({ onLoad: initOptions.onLoad }).then(async (auth) => {
-
-                if (!auth) {
-                    window.location.reload();
-                } else {
-                    console.log("Authenticated");
-                }
-
-                localStorage.setItem("vue-token", window.keycloak.token);
-                localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
-                orthancApi.updateAuthHeader();
-
-                app.mount('#app-inbox');
-                console.log("App mounted with keycloak, current route is ", router.currentRoute.value.fullPath);
-
-                // keycloak includes state, code and session_state -> the router does not like them -> remove them
-                const params = new URLSearchParams(router.currentRoute.value.fullPath);
-                params.delete('state');
-                params.delete('code');
-                params.delete('session_state');
-                const cleanedRoute = decodeURIComponent(params.toString()).replace('/=', '/');
-                console.log("App mounted, moving to cleaned route ", cleanedRoute);
-                await router.push(cleanedRoute);
-
-                // programm token refresh at regular interval
-                setInterval(() => {
-                    window.keycloak.updateToken(70).then((refreshed) => {
-                        if (refreshed) {
-                            console.log('Token refreshed');
-                            localStorage.setItem("vue-token", window.keycloak.token);
-                            localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
-                            orthancApi.updateAuthHeader();
-                        } else {
-                            console.log('Token not refreshed, still valid for '
-                                + Math.round(window.keycloak.tokenParsed.exp + window.keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
-                        }
-                    }).catch(() => {
-                        console.log('Failed to refresh token');
-                    });
-
-                }, 60000)
-
-            }).catch(() => {
-                console.log("Could not connect to Keycloak");
-            });
-        }
-    } else {
-        console.log("Keycloak is disabled");
+        console.log("Opening the inbox with an inbox-link");
 
         app.mount('#app-inbox')
+    }
+    else
+    {
+        let keycloackConfig = null;
+
+        if (config.data['Keycloak'] && config.data['Keycloak'] != null && config.data['Keycloak']['Enable']) {
+            if (configData['Inbox']['EnableAnonymousAccess']) {
+
+                console.log("Keycloak is enabled but AnonymousAccess to Inbox is enabled -> all users are considered as anonymous");
+                app.mount('#app-inbox');
+
+            } else {
+                console.log("Keycloak is enabled");
+
+                keycloackConfig = config.data['Keycloak']
+
+                let initOptions = keycloackConfig['OidcProvider'] ? {
+                    clientId: keycloackConfig['ClientId'],
+                    oidcProvider: keycloackConfig['OidcProvider'],
+                    onLoad: 'login-required'
+                } : {
+                    url: keycloackConfig['Url'],
+                    realm: keycloackConfig['Realm'],
+                    clientId: keycloackConfig['ClientId'],
+                    onLoad: 'login-required'
+                }
+
+                window.keycloak = new Keycloak(initOptions);
+
+                window.keycloak.init({
+                    onLoad: initOptions.onLoad,
+                    // keycloak-js 24 generic mode crashes with the login iframe (and e.g. Authentik has no check_session_iframe)
+                    ...(keycloackConfig['OidcProvider'] && { checkLoginIframe: false }),
+                    // no offline_access: keycloak-js decodes the refresh token as a JWT, opaque ones (e.g. Authentik) break init; profile gives the groups claim
+                    scope: keycloackConfig['OidcProvider'] ? 'openid profile' : undefined,
+                }).then(async (auth) => {
+
+                    if (!auth) {
+                        window.location.reload();
+                    } else {
+                        console.log("Authenticated");
+                    }
+
+                    localStorage.setItem("vue-token", window.keycloak.token);
+                    localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
+                    orthancApi.updateAuthHeader();
+
+                    { // remove the keycloak uri arguments that are passed after a hash (ex: #state=1234&iss=...)
+                        let fullLocation = window.location.href;
+                        // since we have removed the hash router in 1.13.0, remove the '#/' in case someone is still using an old link like ../ui/app/#/filtered-studies?PatientID=1234
+                        fullLocation = fullLocation.replace('/ui/app/#/', '/ui/app/');
+
+                        const actualUrl = new URL(fullLocation);
+                        const actualPathAndQuery = `${actualUrl.pathname}${actualUrl.search}`;
+                        const currentFullPath = router.currentRoute.value.fullPath;
+                        
+                        // If the fullPath includes a hash with Keycloak parameters, remove it
+                        const cleanedFullPath = currentFullPath.split('#')[0];
+
+                        // If the cleanedFullPath does not match the actual URL, update the route
+                        if (cleanedFullPath !== actualPathAndQuery) {
+                            // Replace the current route with the actual URL path and query
+                            await router.replace(actualPathAndQuery.replace(baseOe2Url, ""));
+                        }            
+                    }
+
+                    app.mount('#app-inbox');
+
+                    // programm token refresh at regular interval
+                    setInterval(() => {
+                        window.keycloak.updateToken(70).then((refreshed) => {
+                            if (refreshed) {
+                                console.log('Token refreshed');
+                                localStorage.setItem("vue-token", window.keycloak.token);
+                                localStorage.setItem("vue-refresh-token", window.keycloak.refreshToken);
+                                orthancApi.updateAuthHeader();
+                            } else {
+                                console.log('Token not refreshed, still valid for '
+                                    + Math.round(window.keycloak.tokenParsed.exp + window.keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
+                            }
+                        }).catch(() => {
+                            console.log('Failed to refresh token');
+                        });
+
+                    }, 60000)
+
+                }).catch(() => {
+                    console.log("Could not connect to Keycloak");
+                });
+            }
+        } else {
+            console.log("Keycloak is disabled");
+
+            app.mount('#app-inbox')
+        }
     }
 });

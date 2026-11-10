@@ -97,13 +97,23 @@ export default {
         },
         deleteResource(event) {
             if (this.resourceLevel == 'bulk') {
-                api.deleteResources(this.resourceLevel, this.resourcesOrthancId)
+                if (this.system.ApiVersion < 33) {// a new syntax has been introduced in 1.13.0
+                    api.deleteResourcesPre1_13('Study', this.resourcesOrthancId)
                     .then(() => {
                         window.location.reload();
                     })
                     .catch((reason) => {
-                        console.error("failed to delete resources : ", this.resourceOrthancId, reason);
+                        console.error("failed to delete resources : ", this.resourcesOrthancId, reason);
                     });
+                } else {
+                    api.deleteResources({'Resources': this.resources})
+                    .then(() => {
+                        window.location.reload();
+                    })
+                    .catch((reason) => {
+                        console.error("failed to delete resources : ", this.resources, reason);
+                    });
+                }
             } else {
                 api.deleteResource(this.resourceLevel, this.resourceOrthancId)
                     .then(() => {
@@ -126,7 +136,7 @@ export default {
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Send to Peer (' + peer + ')' });
         },
         async sendToOrthancPeerWithTransfers(peer) {
-            const jobId = await api.sendToOrthancPeerWithTransfers(this.resourcesForTransfer, peer);
+            const jobId = await api.sendToOrthancPeerWithTransfers(this.resources, peer);
             this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Transfer to Peer (' + peer + ')' });
         },
         async sendToDicomModality(modality) {
@@ -137,10 +147,16 @@ export default {
             if (this.studiesSourceType == SourceType.REMOTE_DICOM) {
 
                 if (this.resourceLevel == "bulk") {
-                    let moveQueries = this.selectedStudies.map(s => { return { "StudyInstanceUID": s['ID'], "PatientID": s['PatientMainDicomTags']['PatientID'] } });
+                    let moveQueries = [];
+                    for (const studyId of this.selectedStudiesIds) {
+                        const studyInfo = this.$store.getters['studies/getStudy'](studyId);
+                        if (studyInfo) {
+                            moveQueries.push({ "StudyInstanceUID": studyInfo['ID'], "PatientID": studyInfo['PatientMainDicomTags']['PatientID'] });
+                        }
+                    }
 
                     const jobId = await api.remoteDicomRetrieveResources("Study", this.studiesRemoteSource, moveQueries);
-                    this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.selectedStudies.length + ' studies from (' + this.studiesRemoteSource + ')' });
+                    this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + moveQueries.length + ' studies from (' + this.studiesRemoteSource + ')' });
                 } else {
                     let moveQuery = {
                         "StudyInstanceUID": this.studyMainDicomTags.StudyInstanceUID,
@@ -158,9 +174,9 @@ export default {
                     this.$store.dispatch('jobs/addJob', { jobId: jobId, name: 'Retrieve ' + this.capitalizeFirstLetter(this.resourceLevel) + ' from (' + this.studiesRemoteSource + ')' });
                 }
             } else if (this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
-                let resources;
+                let resources = [];
                 if (this.resourceLevel == "bulk") {
-                    resources = this.selectedStudies.map(s => { return { "Study": s['ID'] } });
+                    resources = this.$store.getters['selection/selectedResourcesDicomIdsAllLevels'];
                 } else if (this.resourceLevel == "study") {
                     resources = [{ "Study": this.studyMainDicomTags.StudyInstanceUID }];
                 } else if (this.resourceLevel == "series") {
@@ -218,6 +234,10 @@ export default {
                     if (this.hasStlViewer && forViewer == "stl") {
                         return viewersIcons[viewer];
                     }
+
+                    if (this.hasWeasisViewer && forViewer == "weasis") {
+                        return viewersIcons[viewer];
+                    }
                 }
             }
             return "bi bi-eye";
@@ -236,8 +256,7 @@ export default {
         },
         getOhifViewerUrl(mode) {
             if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getOhifViewerUrlForDicomWebBulkStudies(mode, selectedStudiesDicomIds);
+                const url = api.getOhifViewerUrlForDicomWebBulkStudies(mode, this.selectedStudiesDicomIds);
                 return url;
             } else {
                 if (this.ohifDataSource == 'dicom-web') {
@@ -307,12 +326,21 @@ export default {
             installedPlugins: state => state.configuration.installedPlugins,
             targetDicomWebServers: state => state.configuration.targetDicomWebServers,
             targetDicomModalities: state => state.configuration.targetDicomModalities,
-            selectedStudiesIds: state => state.studies.selectedStudiesIds,
-            selectedStudies: state => state.studies.selectedStudies,
+            hasBulkSelection: state => state.selection.hasBulkSelection,
+            hasStudyOnlyBulkSelection: state => state.selection.hasStudyOnlyBulkSelection,
             orthancPeers: state => state.configuration.orthancPeers,
             tokens: state => state.configuration.tokens,
             system: state => state.configuration.system,
         }),
+        selectedStudiesIds() {
+            return this.$store.getters['selection/selectedResourcesIds'](true); // only the studies
+        },
+        selectedStudiesDicomIds() {
+            return this.$store.getters['selection/selectedResourcesDicomIds'](true); // only the studies
+        },
+        selectedResourcesIds() {
+            return this.$store.getters['selection/selectedResourcesIds'](false); // all resources
+        },
         componentId() {
             if (this.resourceLevel == 'bulk') {
                 return 'bulk-id';
@@ -326,7 +354,7 @@ export default {
         },
         isSendToEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasBulkSelection;
             } else {
                 return true;
             }
@@ -337,7 +365,7 @@ export default {
         },
         isLabelsEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasStudyOnlyBulkSelection;
             } else {
                 return false;
             }
@@ -348,7 +376,15 @@ export default {
         },
         isDeleteEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                if (!this.hasBulkSelection) {
+                    return false;
+                }
+
+                if (this.system.ApiVersion < 33) {// a new syntax has been introduced in 1.13.0
+                    return this.hasStudyOnlyBulkSelection;
+                } else {
+                    return true;
+                }
             } else {
                 return true;
             }
@@ -359,7 +395,7 @@ export default {
         },
         isShareEnabled() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.length > 0
+                return this.hasStudyOnlyBulkSelection;
             } else {
                 return true;
             }
@@ -410,8 +446,7 @@ export default {
         },
         stoneViewerUrl() {
             if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getStoneViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                const url = api.getStoneViewerUrlForBulkStudies(this.selectedStudiesDicomIds);
                 return url;
             } else {
                 return api.getStoneViewerUrl(this.resourceLevel, this.resourceDicomUid);
@@ -422,7 +457,7 @@ export default {
                 this.hasStoneViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isStoneViewerButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
         },
         hasVolView() {
             return this.isPluginEnabled("volview");
@@ -549,21 +584,21 @@ export default {
         },
         isOhifButtonBasicViewerEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return this.resourceLevel == 'study';
             }
         },
         isOhifButtonVrEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
         },
         isOhifButtonTmtvEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
@@ -571,14 +606,14 @@ export default {
         isOhifButtonMicroscopyEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
 
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
         },
         isOhifButtonSegEnabled() {
             if (this.uiOptions.EnableOpenInOhifViewer3) { // OHIF V3
-                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+                return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
             } else { // OHIF V2
                 return false;
             }
@@ -607,8 +642,7 @@ export default {
         },
         weasisViewerUrl() {
             if (this.resourceLevel == 'bulk') {
-                const selectedStudiesDicomIds = this.selectedStudies.map(s => s['MainDicomTags']['StudyInstanceUID']);
-                const url = api.getWeasisViewerUrlForBulkStudies(selectedStudiesDicomIds);
+                const url = api.getWeasisViewerUrlForBulkStudies(this.selectedStudiesDicomIds);
                 return url;
             } else {
                 return api.getWeasisViewerUrl(this.resourceDicomUid);
@@ -619,7 +653,7 @@ export default {
                 this.hasWeasisViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isWeasisViewerButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
         },
         weasisViewerIcon() {
             return this.getViewerIcon("weasis");
@@ -631,21 +665,21 @@ export default {
             return this.hasMedDreamViewer && (this.resourceLevel == 'study' || this.resourceLevel == 'bulk');
         },
         isMedDreamViewerButtonEnabled() {
-            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            return (this.resourceLevel == 'study' || (this.resourceLevel == 'bulk' && this.hasStudyOnlyBulkSelection));
         },
         medDreamViewerUrl() {
             return this.uiOptions.MedDreamViewerPublicRoot + "?study=" + this.resourceDicomUid;
         },
         isStl() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
-                return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.3";
+                return this.instanceHeaders["0002,0002"] && this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.3";
             } else {
                 return false;
             }
         },
         isPdfPreview() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel == 'instance') {
-                return this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
+                return this.instanceHeaders["0002,0002"] && this.instanceHeaders["0002,0002"]["Value"] == "1.2.840.10008.5.1.4.1.1.104.1";
             } else {
                 return false;
             }
@@ -742,7 +776,7 @@ export default {
                 "study": "delete_study_title",
                 "series": "delete_series_title",
                 "instance": "delete_instance_title",
-                "bulk": "delete_studies_title"
+                "bulk": "delete_multiple_resources_title"
             }
             return texts[this.resourceLevel];
         },
@@ -751,7 +785,7 @@ export default {
                 "study": "delete_study_body",
                 "series": "delete_series_body",
                 "instance": "delete_instance_body",
-                "bulk": "delete_studies_body"
+                "bulk": "delete_multiple_resources_body"
             }
             return texts[this.resourceLevel];
         },
@@ -766,7 +800,7 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadZip && this.resourceLevel == 'bulk'
         },
         isBulkDownloadZipEnabled() {
-            return this.selectedStudiesIds.length > 0;
+            return this.hasBulkSelection;
         },
         hasDownloadDicomDirButton() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadDicomDir && this.resourceLevel != 'instance' && this.resourceLevel != 'bulk';
@@ -779,13 +813,14 @@ export default {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableDownloadDicomDir && this.resourceLevel == 'bulk'
         },
         isBulkDownloadDicomDirEnabled() {
-            return this.selectedStudiesIds.length > 0;
+            return this.hasBulkSelection;
         },
         hasRetrieveButton() {
             return this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB;
         },
         isRetrieveButtonEnabled() {
-            return (this.resourceLevel != 'bulk' || (this.resourceLevel == 'bulk' && this.selectedStudiesIds.length > 0));
+            const selectedResourcesIds = this.$store.getters['selection/selectedResourcesIds'](false);
+            return (this.resourceLevel != 'bulk' || (this.resourceLevel == 'bulk' && selectedResourcesIds.length > 0));
         },
         hasAnonymizationButton() {
             return this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.resourceLevel != 'bulk';
@@ -810,26 +845,15 @@ export default {
         hasApiViewButton() {
             return this.resourceLevel != 'bulk' && this.studiesSourceType == SourceType.LOCAL_ORTHANC && this.uiOptions.EnableApiViewMenu;
         },
-        resourcesOrthancId() {
+        resources() {
             if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds;
-            } else {
-                return [this.resourceOrthancId];
-            }
-        },
-        resourcesForTransfer() {
-            if (this.resourceLevel == 'bulk') {
-                return this.selectedStudiesIds.map(id => ({ "Level": "Study", "ID": id }));
+                return this.$store.getters['selection/selectedResourcesIdsWithLevel'];
             } else {
                 return [{ "Level": this.capitalizeFirstLetter(this.resourceLevel), "ID": this.resourceOrthancId }];
             }
         },
-        computedResourceLevel() {
-            if (this.resourceLevel == 'bulk') {
-                return "study";
-            } else {
-                return this.resourceLevel;
-            }
+        resourcesOrthancId() {
+            return this.resources.map((r) => {return r["ID"]});
         },
         resourceLevelForCustomButtons() {
             if (this.resourceLevel == 'bulk') {
@@ -856,8 +880,7 @@ export default {
         },
         isCustomButtonEnabled() {
             if (this.resourceLevel == 'bulk') {
-                // console.log("isCustomButtonEnabled", this.selectedStudiesIds.length > 0);
-                return this.selectedStudiesIds.length > 0;
+                return this.hasStudyOnlyBulkSelection;
             } else {
                 return true;
             }
@@ -880,108 +903,108 @@ export default {
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
                 <TokenLinkButton v-if="viewer == 'meddream' && hasMedDreamViewerButton"
                     :disabled="!isMedDreamViewerButtonEnabled" :iconClass="medDreamViewerIcon"
-                    :level="computedResourceLevel" :linkUrl="medDreamViewerUrl" :resourcesOrthancId="resourcesOrthancId"
+                    :linkUrl="medDreamViewerUrl" :resources="resources"
                     :title="$t('view_in_meddream')" :tokenType="'meddream-instant-link'" :opensInNewTab="true"
                     :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton
                     v-if="hasOsimisViewer && viewer == 'osimis-web-viewer' && (this.resourceLevel == 'study' || this.resourceLevel == 'series')"
-                    :iconClass="osimisViewerIcon" :level="this.resourceLevel" :linkUrl="osimisViewerUrl"
-                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_osimis')"
+                    :iconClass="osimisViewerIcon" :linkUrl="osimisViewerUrl"
+                    :resources="resources" :title="$t('view_in_osimis')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'stone-webviewer' && hasStoneViewerButton"
-                    :disabled="!isStoneViewerButtonEnabled" :iconClass="stoneViewerIcon" :level="computedResourceLevel"
-                    :linkUrl="stoneViewerUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stone')"
+                    :disabled="!isStoneViewerButtonEnabled" :iconClass="stoneViewerIcon"
+                    :linkUrl="stoneViewerUrl" :resources="resources" :title="$t('view_in_stone')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'volview' && hasVolViewButton" :disabled="!isVolViewButtonEnabled"
-                    :iconClass="volViewIcon" :level="computedResourceLevel" :linkUrl="volViewUrl"
-                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_volview')"
+                    :iconClass="volViewIcon" :linkUrl="volViewUrl"
+                    :resources="resources" :title="$t('view_in_volview')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif' && hasOhifViewerButton"
                     :disabled="!isOhifButtonBasicViewerEnabled" :iconClass="ohifViewerIcon"
-                    :level="computedResourceLevel" :linkUrl="ohifViewerUrl" :resourcesOrthancId="resourcesOrthancId"
+                    :linkUrl="ohifViewerUrl" :resources="resources"
                     :title="$t('view_in_ohif')" :tokenType="'viewer-instant-link'" :opensInNewTab="true"
                     :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-vr' && hasOhifViewerButtonVr" :disabled="!isOhifButtonVrEnabled"
-                    :iconClass="ohifViewerIconVr" :level="computedResourceLevel" :linkUrl="ohifViewerUrlVr"
-                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_vr')"
+                    :iconClass="ohifViewerIconVr" :linkUrl="ohifViewerUrlVr"
+                    :resources="resources" :title="$t('view_in_ohif_vr')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-tmtv' && hasOhifViewerButtonTmtv"
-                    :disabled="!isOhifButtonTmtvEnabled" :iconClass="ohifViewerIconTmtv" :level="computedResourceLevel"
-                    :linkUrl="ohifViewerUrlTmtv" :resourcesOrthancId="resourcesOrthancId"
+                    :disabled="!isOhifButtonTmtvEnabled" :iconClass="ohifViewerIconTmtv"
+                    :linkUrl="ohifViewerUrlTmtv" :resources="resources"
                     :title="$t('view_in_ohif_tmtv')" :tokenType="'viewer-instant-link'" :opensInNewTab="true"
                     :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-seg' && hasOhifViewerButtonSeg"
-                    :disabled="!isOhifButtonSegEnabled" :iconClass="ohifViewerIconSeg" :level="computedResourceLevel"
-                    :linkUrl="ohifViewerUrlSeg" :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_seg')"
+                    :disabled="!isOhifButtonSegEnabled" :iconClass="ohifViewerIconSeg"
+                    :linkUrl="ohifViewerUrlSeg" :resources="resources" :title="$t('view_in_ohif_seg')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
 
                 <TokenLinkButton v-if="viewer == 'ohif-micro' && hasOhifViewerButtonMicroscopy"
                     :disabled="!isOhifButtonMicroscopyEnabled" :iconClass="ohifViewerIconMicro"
-                    :level="computedResourceLevel" :linkUrl="ohifViewerUrlMicro"
-                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_ohif_microscopy')"
+                    :linkUrl="ohifViewerUrlMicro"
+                    :resources="resources" :title="$t('view_in_ohif_microscopy')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
                 <TokenLinkButton v-if="viewer == 'stl' && hasStlViewerButton" :disabled="!isStlViewerButtonEnabled"
-                    :iconClass="stlViewerIcon" :level="computedResourceLevel" :linkUrl="stlViewerUrl"
-                    :resourcesOrthancId="resourcesOrthancId" :title="$t('view_in_stl_viewer')"
+                    :iconClass="stlViewerIcon" :linkUrl="stlViewerUrl"
+                    :resources="resources" :title="$t('view_in_stl_viewer')"
                     :tokenType="'viewer-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                 </TokenLinkButton>
                 <TokenLinkButton v-if="viewer == 'weasis' && hasWeasisViewerButton"
                     :disabled="!isWeasisViewerButtonEnabled" :iconClass="weasisViewerIcon"
-                    :level="computedResourceLevel" :linkUrl="weasisViewerUrl" :resourcesOrthancId="resourcesOrthancId"
+                    :linkUrl="weasisViewerUrl" :resources="resources"
                     :title="$t('view_in_weasis')" :tokenType="'viewer-instant-link'" :opensInNewTab="true"
                     :smallIcons="smallIcons">
                 </TokenLinkButton>
             </span>
-            <TokenLinkButton v-if="hasInstancePreviewButton" :iconClass="'bi bi-binoculars'" :level="this.resourceLevel"
-                :linkUrl="instancePreviewUrl" :resourcesOrthancId="[resourceOrthancId]" :title="$t('preview')"
+            <TokenLinkButton v-if="hasInstancePreviewButton" :iconClass="'bi bi-binoculars'"
+                :linkUrl="instancePreviewUrl" :resources="resources" :title="$t('preview')"
                 :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasWsiButton" :hidden="!isWsiButtonEnabled" :iconClass="wsiViewerIcon"
-                :level="this.resourceLevel" :linkUrl="wsiViewerUrl" :resourcesOrthancId="resourcesOrthancId"
+                :linkUrl="wsiViewerUrl" :resources="resources"
                 :title="$t('view_in_wsi_viewer')" :tokenType="'viewer-instant-link'" :opensInNewTab="true"
                 :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
         <div class="custom-button-group">
-            <TokenLinkButton v-if="hasDownloadZipButton" :iconClass="'bi bi-download'" :level="this.resourceLevel"
-                :linkUrl="downloadZipUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')"
+            <TokenLinkButton v-if="hasDownloadZipButton" :iconClass="'bi bi-download'"
+                :linkUrl="downloadZipUrl" :resources="resources" :title="$t('download_zip')"
                 :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
-            <TokenLinkButton v-if="hasBulkDownloadZipButton" :iconClass="'bi bi-download'" :level="'bulk-study'"
-                :linkUrl="downloadBulkZipUrl" :resourcesOrthancId="resourcesOrthancId" :title="$t('download_zip')"
+            <TokenLinkButton v-if="hasBulkDownloadZipButton" :iconClass="'bi bi-download'"
+                :linkUrl="downloadBulkZipUrl" :resources="resources" :title="$t('download_zip')"
                 :tokenType="'download-instant-link'" :disabled="!isBulkDownloadZipEnabled" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasDownloadDicomDirButton" :iconClass="'bi bi-box-arrow-down'"
-                :level="this.resourceLevel" :linkUrl="downloadDicomDirUrl" :resourcesOrthancId="[resourceOrthancId]"
+                :linkUrl="downloadDicomDirUrl" :resources="resources"
                 :title="$t('download_dicomdir')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
             <TokenLinkButton v-if="hasBulkDownloadDicomDirButton" :iconClass="'bi bi-box-arrow-down'"
-                :level="'bulk-study'" :linkUrl="downloadBulkDicomDirUrl" :resourcesOrthancId="resourcesOrthancId"
+                :linkUrl="downloadBulkDicomDirUrl" :resources="resources"
                 :title="$t('download_dicomdir')" :tokenType="'download-instant-link'"
                 :disabled="!isBulkDownloadDicomDirEnabled" :smallIcons="smallIcons">
             </TokenLinkButton>
-            <TokenLinkButton v-if="hasInstanceDownloadButton" :iconClass="'bi bi-download'" :level="this.resourceLevel"
-                :linkUrl="instanceDownloadUrl" :resourcesOrthancId="[resourceOrthancId]"
+            <TokenLinkButton v-if="hasInstanceDownloadButton" :iconClass="'bi bi-download'"
+                :linkUrl="instanceDownloadUrl" :resources="resources"
                 :title="$t('download_dicom_file')" :tokenType="'download-instant-link'" :smallIcons="smallIcons">
             </TokenLinkButton>
-            <TokenLinkButton v-if="hasExportToNifti" :iconClass="'fa-solid fa-brain'" :level="this.resourceLevel"
-                :linkUrl="exportToNiftiUrl" :resourcesOrthancId="[resourceOrthancId]" :title="$t('export_to_nifti')"
+            <TokenLinkButton v-if="hasExportToNifti" :iconClass="'fa-solid fa-brain'"
+                :linkUrl="exportToNiftiUrl" :resources="resources" :title="$t('export_to_nifti')"
                 :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
             </TokenLinkButton>
         </div>
@@ -1009,7 +1032,7 @@ export default {
         <div v-if="hasModificationButton" class="custom-button-group">
             <button v-if="isModificationEnabled" class="btn btn-sm btn-secondary m-1" type="button"
                 data-bs-toggle="modal" v-bind:data-bs-target="'#modify-modal-' + this.resourceOrthancId"
-                :class="buttonClasses">
+                :class="buttonClasses" :id="'modify-button-'+this.resourceOrthancId">
                 <i class="bi bi-pencil" data-bs-toggle="tooltip" :title="$t('modify.modify_button_title')"></i>
             </button>
             <ModifyModal v-if="isModificationEnabled" :id="'modify-modal-' + this.resourceOrthancId"
@@ -1054,35 +1077,35 @@ export default {
                             }}</button>
                     </li>
                     <li>
-                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
-                            :linkUrl="getApiUrl('')" :resourcesOrthancId="[resourceOrthancId]" :title="'/'"
+                        <TokenLinkButton :linkType="'dropdown-item'"
+                            :linkUrl="getApiUrl('')" :resources="resources" :title="'/'"
                             :tokenType="'download-instant-link'" :opensInNewTab="true" :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li v-if="this.resourceLevel == 'instance'">
-                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
-                            :linkUrl="getApiUrl('/tags?simplify')" :resourcesOrthancId="[resourceOrthancId]"
+                        <TokenLinkButton :linkType="'dropdown-item'"
+                            :linkUrl="getApiUrl('/tags?simplify')" :resources="resources"
                             :title="'/tags?simplify'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
-                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
-                            :linkUrl="getApiUrl('/metadata?expand')" :resourcesOrthancId="[resourceOrthancId]"
+                        <TokenLinkButton :linkType="'dropdown-item'"
+                            :linkUrl="getApiUrl('/metadata?expand')" :resources="resources"
                             :title="'/metadata?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
-                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
-                            :linkUrl="getApiUrl('/statistics')" :resourcesOrthancId="[resourceOrthancId]"
+                        <TokenLinkButton :linkType="'dropdown-item'"
+                            :linkUrl="getApiUrl('/statistics')" :resources="resources"
                             :title="'/statistics'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
                     </li>
                     <li>
-                        <TokenLinkButton :linkType="'dropdown-item'" :level="this.resourceLevel"
-                            :linkUrl="getApiUrl('/attachments?expand')" :resourcesOrthancId="[resourceOrthancId]"
+                        <TokenLinkButton :linkType="'dropdown-item'"
+                            :linkUrl="getApiUrl('/attachments?expand')" :resources="resources"
                             :title="'/attachments?expand'" :tokenType="'download-instant-link'" :opensInNewTab="true"
                             :smallIcons="smallIcons">
                         </TokenLinkButton>
@@ -1100,8 +1123,8 @@ export default {
                 <i class="bi bi-tag" data-bs-toggle="tooltip" :title="$t('labels.edit_labels_button')"></i>
             </button>
             <BulkLabelsModal v-if="uiOptions.EnableEditLabels && isBulkLabelModalVisible"
-                :id="'labels2-modal2-' + this.componentId" ref="bulk-label-modal" :resourceLevel="this.resourceLevel"
-                :resourcesOrthancId="selectedStudiesIds" @bulkModalClosed="onBulkModalClosed">
+                :id="'labels2-modal2-' + this.componentId" ref="bulk-label-modal"
+                :resources="resources" @bulkModalClosed="onBulkModalClosed">
 
             </BulkLabelsModal>
         </div>

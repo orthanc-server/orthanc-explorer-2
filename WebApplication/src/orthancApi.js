@@ -1,10 +1,24 @@
 import axios from "axios"
 import store from "./store"
 import mime from "mime-types";
+import resourceHelpers from "./helpers/resource-helpers"
 import { showSaveFilePicker } from "native-file-system-adapter";
 
 
 import { orthancApiUrl, oe2ApiUrl } from "./globalConfigurations";
+
+// When a modification introduces non-ASCII characters (e.g. Thai, Chinese,
+// accented names...), make sure the resulting instances are labelled as UTF-8.
+// Otherwise, instances without (0008,0005) are encoded with Orthanc's
+// "DefaultEncoding" (Latin1 by default) and the characters are silently lost.
+function withUtf8CharsetIfNeeded(replaceTags) {
+    if ("SpecificCharacterSet" in replaceTags) {
+        return replaceTags;
+    }
+    const hasNonAscii = Object.values(replaceTags).some(
+        (value) => typeof value === "string" && /[^\x00-\x7F]/.test(value));
+    return hasNonAscii ? { ...replaceTags, "SpecificCharacterSet": "ISO_IR 192" } : replaceTags;
+}
 
 export default {
     updateAuthHeader(headerKey = null) {
@@ -85,11 +99,14 @@ export default {
     async deleteResource(level, orthancId) {
         return axios.delete(orthancApiUrl + this.pluralizeResourceLevel(level) + "/" + orthancId);
     },
-    async deleteResources(level, resourcesIds) {
+    async deleteResourcesPre1_13(level, resourcesIds) {
         return axios.post(orthancApiUrl + "tools/bulk-delete", {
             "Resources": resourcesIds,
             "Level": level // not part of the Orthanc API but this helps the auth-plugin
         });
+    },
+    async deleteResources(resources) {
+        return axios.post(orthancApiUrl + "tools/bulk-delete", resources);
     },
     async cancelFindStudies() {
         if (window.axiosFindStudiesAbortController) {
@@ -203,7 +220,7 @@ export default {
             "Expand": expand
         }
         if (expand) {
-            payload["RequestedTags"] = ["PatientID", "PatientName", "PatientBirthDate", "OtherPatientIDs"];
+            payload["RequestedTags"] = ["PatientID", "PatientName", "PatientBirthDate", "OtherPatientIDs", "PatientSex"];
         }
 
         const response = await axios.post(orthancApiUrl + "tools/find", payload);
@@ -434,6 +451,7 @@ export default {
         return (await axios.get(orthancApiUrl + "instances/" + orthancId + "/study")).data;
     },
     async getResourceStudy(orthancId, level) {
+        level = level.toLowerCase();
         if (level == "study") {
             return (await this.getStudy(orthancId));
         } else if (level == "series") {
@@ -499,7 +517,7 @@ export default {
 
     async modifyResource({ resourceLevel, orthancId, replaceTags = {}, removeTags = [], keepTags = [], keepSource }) {
         const response = (await axios.post(orthancApiUrl + this.pluralizeResourceLevel(resourceLevel) + "/" + orthancId + "/modify", {
-            "Replace": replaceTags,
+            "Replace": withUtf8CharsetIfNeeded(replaceTags),
             "Remove": removeTags,
             "Keep": keepTags,
             "KeepSource": keepSource,
@@ -515,7 +533,7 @@ export default {
         const response = (await axios.post(orthancApiUrl + "tools/bulk-modify", {
             "Resources": orthancIds,
             "Level": resourceLevel,
-            "Replace": replaceTags,
+            "Replace": withUtf8CharsetIfNeeded(replaceTags),
             "Remove": removeTags,
             "Keep": keepTags,
             "KeepSource": keepSource,
@@ -533,22 +551,23 @@ export default {
         return response.data;
     },
 
-    async addLabel({ studyId, label }) {
-        await axios.put(orthancApiUrl + "studies/" + studyId + "/labels/" + label, "");
+    async addLabel({ resourceId, level, label }) {
+        await axios.put(orthancApiUrl + resourceHelpers.levelToUrlSegment(level) + "/" + resourceId + "/labels/" + label, "");
         return label;
     },
 
-    async removeLabel({ studyId, label }) {
-        await axios.delete(orthancApiUrl + "studies/" + studyId + "/labels/" + label);
+    async removeLabel({ resourceId, level, label }) {
+        await axios.delete(orthancApiUrl + resourceHelpers.levelToUrlSegment(level) + "/" + resourceId + "/labels/" + label);
         return label;
     },
 
-    async removeAllLabels(studyId) {
-        const labels = await this.getLabels(studyId);
+    async removeAllLabels({ resourceId, level} ) {
+        const labels = await this.getLabels(resourceId, level);
         let promises = [];
         for (let label of labels) {
             promises.push(this.removeLabel({
-                studyId: studyId,
+                resourceId: resourceId,
+                level: level,
                 label: label
             }));
         }
@@ -556,13 +575,13 @@ export default {
         return labels;
     },
 
-    async getLabels(studyId) {
-        const response = (await axios.get(orthancApiUrl + "studies/" + studyId + "/labels"));
+    async getLabels(resourceId, level) {
+        const response = (await axios.get(orthancApiUrl + resourceHelpers.levelToUrlSegment(level) + "/" + resourceId + "/labels"));
         return response.data;
     },
 
-    async updateLabels({ studyId, labels }) {
-        const currentLabels = await this.getLabels(studyId);
+    async updateLabels({ resourceId, level, labels }) {
+        const currentLabels = await this.getLabels(resourceId, level);
         const labelsToRemove = currentLabels.filter(x => !labels.includes(x));
         const labelsToAdd = labels.filter(x => !currentLabels.includes(x));
         let promises = [];
@@ -571,13 +590,15 @@ export default {
         // console.log("labelsToAdd: ", labelsToAdd);
         for (const label of labelsToRemove) {
             promises.push(this.removeLabel({
-                studyId: studyId,
+                resourceId: resourceId,
+                level: level,
                 label: label
             }));
         }
         for (const label of labelsToAdd) {
             promises.push(this.addLabel({
-                studyId: studyId,
+                resourceId: resourceId,
+                level: level,
                 label: label
             }));
         }
@@ -611,15 +632,19 @@ export default {
         }
     },
 
-    async createToken({ tokenType, resourcesIds, level, validityDuration = null, id = null, expirationDate = null }) {
+    async createToken({ tokenType, resources, validityDuration = null, id = null, expirationDate = null, username = null }) {
         let body = {
             "Resources": [],
             "Type": tokenType
         }
 
-        for (let resourceId of resourcesIds) {
+        if (username) {
+            body["Username"] = username;
+        }
+
+        for (const resource of resources) {
             // the authorization are performed at study level -> get parent study id if needed
-            const study = await this.getResourceStudy(resourceId, level);
+            const study = await this.getResourceStudy(resource['ID'], resource['Level']);
             body["Resources"].push({
                 "OrthancId": study["ID"],
                 "DicomUid": study["MainDicomTags"]["StudyInstanceUID"],
@@ -748,6 +773,21 @@ export default {
     async updateWorklist(worklistId, wlTags) {
         return (await axios.put(orthancApiUrl + "worklists/" + worklistId, { "Tags": wlTags })).data;
     },
+    async getMetrics() {
+        const rawTextData = (await axios.get(orthancApiUrl + "tools/metrics-prometheus")).data;
+        let metrics = {}
+        for (const line of rawTextData.split('\n')) {
+            const cells = line.split(' ');
+            if (cells.length == 3) {
+                metrics[cells[0]] = {
+                    'value': cells[1],
+                    'timestamp': cells[2]
+                }
+            }
+        }
+        // console.log(metrics);
+        return metrics;
+    },
 
     ////////////////////////////////////////// HELPERS
     getOsimisViewerUrl(level, resourceOrthancId) {
@@ -818,7 +858,7 @@ export default {
     },
     getWeasisViewerUrl(resourceDicomUid) {
         const dicomWebRootUrl = new URL(orthancApiUrl + "dicom-web", window.location.origin);
-        const parts = ["$dicom:rs", "--url", `"${dicomWebRootUrl.toString()}"`, "-r", `"studyUID=${resourceDicomUid}"`];
+        const parts = ["$dicom:rs", "--url", `"${dicomWebRootUrl.toString()}"`, "-r", `"studyUID=${resourceDicomUid}"`]; // TODO: include credentials (token, no basic auth !), "-H", `"Authorization: Basic dGVzdDp0ZXN0"`];
         const url = "weasis://?" + parts.map(v => encodeURIComponent(v)).join("+");
         return url
     },

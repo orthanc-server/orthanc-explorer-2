@@ -21,19 +21,19 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-if (APPLE)
-  set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
-  set(CMAKE_CXX_STANDARD 11)
-endif(APPLE)
-
 project(OrthancExplorer2)
 
 set(PLUGIN_VERSION "mainline" CACHE STRING "plugin version 'mainline' or '1.2.3'")
+set(FORCE_FRAMEWORK_FROM_WEB OFF CACHE BOOL "For servers not having access to mercurial")
 
-if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
-  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1.12.11")
+if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$" OR FORCE_FRAMEWORK_FROM_WEB)
+  set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "1339e4ed9f7f")  # while waiting for 1.13.1 for THIRD_PARTY_DOWNLOADS_ROOT_URL and ORTHANC_SOURCES_DOWNLOADS_ROOT_URL + boost 1.92
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "web")
-  set(ORTHANC_OE2_VERSION ${PLUGIN_VERSION})
+  if (PLUGIN_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
+    set(ORTHANC_OE2_VERSION ${PLUGIN_VERSION})
+  else()
+    set(ORTHANC_OE2_VERSION "mainline")
+  endif()
 else()
   set(ORTHANC_FRAMEWORK_DEFAULT_VERSION "mainline")
   set(ORTHANC_FRAMEWORK_DEFAULT_SOURCE "hg")
@@ -142,9 +142,12 @@ endif()
 
 
 if (APPLE)
+  set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+  set(CMAKE_CXX_STANDARD 14)  # this must happen after the OrthancFrameworkConfiguration.cmake that might set the C++ standard to 11
   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework CoreFoundation")
   SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework CoreFoundation")
 endif()
+
 
 if (${WEBAPP_DIST_SOURCE} STREQUAL "WEB")
   SET(WEBAPP_DIST_PATH "${CMAKE_BINARY_DIR}/dist")  # downloading the WEB version -> don't modify source folder

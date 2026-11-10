@@ -1,3 +1,80 @@
+1.15.1 (2026-11-05)
+==================
+
+Changes:
+- Added Czech translations
+- Added Kyrgyz translations
+- Added Greek translations
+- New `Keycloak.OidcProvider` parameter to authenticate with a generic OpenID Connect provider (e.g. Authentik) instead of Keycloak.  `Url`, `Realm` and `CheckLoginIframe` are ignored when `OidcProvider` is set.  The `openid profile` scopes are requested.
+- Improved jobs details for `DicomWebStowClient` jobs.
+- Added support for permission `view-jobs`
+
+Fixes:
+- The modify dialog is now able to change the encoding of the DICOM file to UTF-8 when
+  one of the modified field introduces non Latin1 characters.  Note: it will work best with upcoming Orthanc 1.13.1.
+- Fix #122 [ViewersIcons.weasis is ignored](https://github.com/orthanc-server/orthanc-explorer-2/issues/122)
+- Changed the font of the SideBar such that it now also works on Linux.
+- Fix instance preview/download when Keycloak is enabled.
+- Inbox: show a "upload a new study" button when the upload fails.
+
+Internals:
+- Updated many JS dependencies.
+
+
+1.15.0 (2026-08-28)
+==================
+
+Changes:
+- Added support for `Inbox-links` (provided you use the auth-service)
+- Added Polish translations 
+- New `Keycloak.CheckLoginIframe` parameter ([reference](https://www.keycloak.org/securing-apps/javascript-adapter#_session_status_iframe)).
+
+Internals:
+- Introduced automated UI tests
+
+
+1.14.1 (2026-07-23)
+==================
+
+Changes:
+- Added multiple selection at series and instances level.
+- OE2 now displays a popup window when trying to leave the page while an upload is in progress.
+- Added Hungarian translations
+
+Fixes:
+- fixed an XSS vulnerability (many thanks to Samuel Paschuan from Xmartlab)
+
+
+1.13.0 (2026-06-22)
+==================
+
+Changes:
+- Added a `Settings->Metrics` page.
+- We have changed the router which means that the '#/' in the url has now disappeared.
+  Therefore, the URI to open OE2 directly on a specific patient is now:
+  `http://localhost:8042/ui/app/filtered-studies?PatientID=134&order-by=DicomTag,StudyDate,ASC` instead of 
+  `http://localhost:8042/ui/app/#/filtered-studies?PatientID=134&order-by=DicomTag,StudyDate,ASC`.
+  However, old URIs shall still be valid.
+
+Fixes:
+- Study list is broken when `UiOptions.StudyListColumns` does not contain any of `Modalities`, `seriesAndInstancesCount`
+  and when `EnableReportQuickButton` is set to false ([report](https://discourse.orthanc-server.org/t/26-6-0-cannot-click-on-any-study/6451))
+- Fix the redirection after changing your password in Keycloak.
+
+Internals:
+- Updated dependencies.
+- For developers: node.js 20.19+ or 22.12+ is now required to build the project.
+
+
+1.12.1 (2026-06-01)
+==================
+
+Fixes:
+- Added support for files without `MediaStorageSOPClassUID` ([issue](https://github.com/orthanc-server/orthanc-builder/issues/35))
+- Fix #108 [Reflected XSS via remote-source URL Parameter](https://github.com/orthanc-server/orthanc-explorer-2/issues/108)
+- Fix [Patient Modification](https://discourse.orthanc-server.org/t/potential-issue-regarding-patient-data-modification/6430/5)
+
+
 1.12.0 (2026-04-23)
 ==================
 

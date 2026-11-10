@@ -10,7 +10,7 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
@@ -41,13 +41,45 @@
 #endif
 
 
-#define ORTHANC_PLUGINS_THROW_PLUGIN_ERROR_CODE(code)                   \
+#if HAS_ORTHANC_EXCEPTION == 1 && defined(__ORTHANC_FILE__)   // the OrthancException class accepts a "details" argument -> add the file and line number
+
+#  include <boost/lexical_cast.hpp>
+
+#  define ORTHANC_PLUGINS_EXCEPTION_STRINGIFY_LINE_HELPER(line) #line
+#  define ORTHANC_PLUGINS_EXCEPTION_STRINGIFY_LINE(line) ORTHANC_PLUGINS_EXCEPTION_STRINGIFY_LINE_HELPER(line)
+#  define ORTHANC_PLUGINS_THROW_WITH_FILE_AND_LINE_INFO_HELPER(errorCode, errorCodeStr) \
+  throw ::Orthanc::OrthancException(                                    \
+    errorCode, "Plugin error code " + errorCodeStr + " triggered from " __ORTHANC_FILE__ ":" \
+    ORTHANC_PLUGINS_EXCEPTION_STRINGIFY_LINE(__LINE__))
+
+#  define ORTHANC_PLUGINS_THROW_WITH_FILE_AND_LINE_INFO(errorCode)      \
+  throw ::Orthanc::OrthancException(                                    \
+    errorCode, #errorCode " triggered from " __ORTHANC_FILE__ ":"       \
+    ORTHANC_PLUGINS_EXCEPTION_STRINGIFY_LINE(__LINE__))
+
+#  define ORTHANC_PLUGINS_THROW_ERROR_CODE(code)                        \
+  ORTHANC_PLUGINS_THROW_WITH_FILE_AND_LINE_INFO_HELPER(                 \
+    static_cast<ORTHANC_PLUGINS_ERROR_ENUMERATION>(code),               \
+    boost::lexical_cast<std::string>(code))
+
+#  define ORTHANC_PLUGINS_THROW_EXCEPTION(code)                         \
+  ORTHANC_PLUGINS_THROW_WITH_FILE_AND_LINE_INFO_HELPER(                 \
+    ORTHANC_PLUGINS_GET_ERROR_CODE(code),                               \
+    boost::lexical_cast<std::string>(ORTHANC_PLUGINS_GET_ERROR_CODE(code)))
+
+#else // the PluginException does not accept a "details" argument
+
+#  define ORTHANC_PLUGINS_THROW_ERROR_CODE(code)                        \
   throw ORTHANC_PLUGINS_EXCEPTION_CLASS(static_cast<ORTHANC_PLUGINS_ERROR_ENUMERATION>(code));
 
+#  define ORTHANC_PLUGINS_THROW_WITH_FILE_AND_LINE_INFO(errorCode)      \
+  ORTHANC_PLUGINS_THROW_ERROR_CODE(errorCode)
 
-#define ORTHANC_PLUGINS_THROW_EXCEPTION(code)                           \
+#  define ORTHANC_PLUGINS_THROW_EXCEPTION(code)                         \
   throw ORTHANC_PLUGINS_EXCEPTION_CLASS(ORTHANC_PLUGINS_GET_ERROR_CODE(code));
-                                                  
+
+#endif
+
 
 #define ORTHANC_PLUGINS_CHECK_ERROR(code)                           \
   if (code != ORTHANC_PLUGINS_GET_ERROR_CODE(Success))              \

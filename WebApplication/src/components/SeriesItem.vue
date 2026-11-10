@@ -3,10 +3,11 @@ import SeriesDetails from "./SeriesDetails.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import { mapState, mapGetters } from "vuex"
 import SourceType from '../helpers/source-type';
+import SelectionStatus from "../helpers/selection-status";
 
 
 export default {
-    props: ["seriesId", "seriesInfo", 'studyMainDicomTags', 'patientMainDicomTags'],
+    props: ["seriesId", "seriesInfo", "studySeries", 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedSeries'],
     data() {
         return {
@@ -19,13 +20,30 @@ export default {
         ...mapState({
             studiesSourceType: state => state.studies.sourceType,
         }),
+        isMultipleSelectionEnabled() {
+            return this.studiesSourceType != SourceType.REMOTE_DICOM;
+        },
         instancesCount() {
             if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
                 return this.seriesInfo.Instances.length;
             } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
                 return this.seriesInfo.MainDicomTags.NumberOfSeriesRelatedInstances;
             }
+        },
+        parentStudyId() {
+            if (this.studiesSourceType == SourceType.LOCAL_ORTHANC) {
+                return this.seriesInfo['ParentStudy'];
+            } else if (this.studiesSourceType == SourceType.REMOTE_DICOM || this.studiesSourceType == SourceType.REMOTE_DICOM_WEB) {
+                return this.seriesInfo['MainDicomTags']['StudyInstanceUID'];
+            }
+        },
+        isSelected() {
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.parentStudyId, this.seriesId) != SelectionStatus.NOT_SELECTED;
+        },
+        isPartialySelected() {
+            return this.$store.getters['selection/getSeriesSelectionStatus'](this.parentStudyId, this.seriesId) == SelectionStatus.PARTIAL;
         }
+
     },
     mounted() {
         this.$refs['series-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
@@ -53,6 +71,9 @@ export default {
     methods: {
         onDeletedSeries() {
             this.$emit("deletedSeries", this.seriesId);
+        },
+        async clickedSelect() {
+            await this.$store.dispatch('selection/selectSeries', { studyId: this.parentStudyId, seriesId: this.seriesId, studySeries: this.studySeries, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
     components: { SeriesDetails }
@@ -63,7 +84,11 @@ export default {
 <template>
     <tbody>
         <tr :class="{ 'series-row-collapsed': !expanded, 'series-row-expanded': expanded }">
-            <td></td>
+            <td>
+                <div v-if="isMultipleSelectionEnabled" class="form-check">
+                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
+                </div>
+            </td>
             <td class="cut-text text-center" data-bs-toggle="collapse"
                 v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.SeriesNumber }}
             </td>
@@ -80,6 +105,7 @@ export default {
             v-bind:id="'series-details-' + this.seriesId" ref="series-collapsible-details">
             <td colspan="100">
                 <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId" :instancesIds="this.seriesInfo.Instances"
+                    :studySeries="this.studySeries" :studyId="this.parentStudyId"
                     :seriesMainDicomTags="this.seriesInfo.MainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
                     :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesDetails>
             </td>

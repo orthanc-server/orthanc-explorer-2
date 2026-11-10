@@ -7,7 +7,7 @@ import LabelsEditor from "./LabelsEditor.vue";
 
 
 export default {
-    props: ["resourcesOrthancId", "resourceLevel"],
+    props: ["resources"],
     emits: ["bulkModalClosed"],
     data() {
         return {
@@ -50,8 +50,8 @@ export default {
             this.clearAllInProgress = true;
             let promises = [];
 
-            for (const studyId of this.resourcesOrthancId) {
-                promises.push(await api.removeAllLabels(studyId));
+            for (const resource of this.resources) {
+                promises.push(await api.removeAllLabels({resourceId: resource['ID'], level: resource['Level']}));
             }
             const promisesResults = await Promise.all(promises);
             let removedLabels = new Set();
@@ -62,12 +62,12 @@ export default {
             }
             this.messages.push({
                 labels: removedLabels,
-                part1: this.$t('labels.cleared_labels_message_part_1_html', { count: this.resourcesOrthancId.length }),
-                part2: this.$t('labels.cleared_labels_message_part_2_html', { count: this.resourcesOrthancId.length })
+                part1: this.$t('labels.cleared_labels_message_part_1_html', { count: this.resources.length }),
+                part2: this.$t('labels.cleared_labels_message_part_2_html', { count: this.resources.length })
             });
             this.clearAllInProgress = false;
 
-            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.$store.getters['selection/selectedResourcesIds'](true) });
         },
         onLabelsToAddChanged(labelsToAdd) {
             this.labelsToAdd = labelsToAdd;
@@ -80,9 +80,10 @@ export default {
             let promises = [];
 
             for (const label of this.labelsToAdd) {
-                for (const studyId of this.resourcesOrthancId) {
+                for (const resource of this.resources) {
                     promises.push(api.addLabel({
-                        studyId: studyId,
+                        resourceId: resource['ID'],
+                        level: resource['Level'],
                         label: label
                     }))
                 }
@@ -95,12 +96,11 @@ export default {
             }
             this.messages.push({
                 labels: processedLabels,
-                part1: this.$t('labels.added_labels_message_part_1_html', { count: this.resourcesOrthancId.length }),
-                part2: this.$t('labels.added_labels_message_part_2_html', { count: this.resourcesOrthancId.length })
+                part1: this.$t('labels.added_labels_message_part_1_html', { count: this.resources.length }),
+                part2: this.$t('labels.added_labels_message_part_2_html', { count: this.resources.length })
             });
             this.addInProgress = false;
-
-            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.$store.getters['selection/selectedResourcesIds'](true) });
         },
         isLabelToAdd(label) {
             return this.labelsToAdd.includes(label);
@@ -113,9 +113,10 @@ export default {
             let promises = [];
 
             for (const label of this.labelsToRemove) {
-                for (const studyId of this.resourcesOrthancId) {
+                for (const resource of this.resources) {
                     promises.push(api.removeLabel({
-                        studyId: studyId,
+                        resourceId: resource['ID'],
+                        level: resource['Level'],
                         label: label
                     }));
                 }
@@ -127,12 +128,12 @@ export default {
             }
             this.messages.push({
                 labels: processedLabels,
-                part1: this.$t('labels.removed_labels_message_part_1_html', { count: this.resourcesOrthancId.length }),
-                part2: this.$t('labels.removed_labels_message_part_2_html', { count: this.resourcesOrthancId.length })
+                part1: this.$t('labels.removed_labels_message_part_1_html', { count: this.resources.length }),
+                part2: this.$t('labels.removed_labels_message_part_2_html', { count: this.resources.length })
             });
             this.removeInProgress = false;
 
-            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.resourcesOrthancId });
+            this.$store.dispatch('studies/refreshStudiesLabels', { studiesIds: this.$store.getters['selection/selectedResourcesIds'](true) });
         },
     },
     computed: {

@@ -1,18 +1,23 @@
 let allLanguages = [
     { name: "English", key: "en" },
     { name: "العربية", key: "ar" },
+    { name: "Čeština", key: "cs" },
     { name: "Deutsch", key: "de" },
+    { name: "Ελληνικά", key: "el" },
     { name: "Español", key: "es" },
     { name: "Français", key: "fr" },
+    { name: "Magyar", key: "hu" },
     { name: "Italiano", key: "it" },
     { name: "日本語", key: "ja" },
     { name: "ქართული", key: "ka" },
+    { name: "Polski", key: "pl" },
+    { name: "Кыргызча", key: "ky" },
+    { name: "Portugues", key: "pt" },
     { name: "Română", key: "ro" },
     { name: "Русский", key: "ru" },
     { name: "Slovensko", key: "si" },
     { name: "Українська", key: "uk" },
     { name: "Tiếng Việt", key: "vi" },
-    { name: '中文', key: 'zh' },
-    { name: "Portugues", key: "pt" }
+    { name: '中文', key: 'zh' }
 ]
 export default allLanguages;

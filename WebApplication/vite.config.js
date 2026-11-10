@@ -29,10 +29,10 @@ export default defineConfig(({ command }) => ({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        landing: resolve(__dirname, 'token-landing.html'),
-        retrieve: resolve(__dirname, 'retrieve-and-view.html'),
-        inbox: resolve(__dirname, 'inbox.html')
+        main: resolve(import.meta.dirname, 'index.html'),
+        landing: resolve(import.meta.dirname, 'token-landing.html'),
+        retrieve: resolve(import.meta.dirname, 'retrieve-and-view.html'),
+        inbox: resolve(import.meta.dirname, 'inbox.html')
       },
     }
   },

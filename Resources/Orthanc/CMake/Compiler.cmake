@@ -43,7 +43,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "compiler flags" FORCE)
 include(CheckLibraryExists)
 
 if ((CMAKE_CROSSCOMPILING AND NOT
-      "${CMAKE_SYSTEM_VERSION}" STREQUAL "CrossToolNg") OR    
+      "${CMAKE_SYSTEM_VERSION}" STREQUAL "CrossToolNg") OR
     "${CMAKE_SYSTEM_VERSION}" STREQUAL "LinuxStandardBase")
   # Cross-compilation necessarily implies standalone and static build
   SET(STATIC_BUILD ON)
@@ -70,7 +70,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long")
 
   # --std=c99 makes libcurl not to compile
-  # -pedantic gives a lot of warnings on OpenSSL 
+  # -pedantic gives a lot of warnings on OpenSSL
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -Wno-variadic-macros")
 
   if (CMAKE_CROSSCOMPILING)
@@ -79,21 +79,29 @@ if (CMAKE_COMPILER_IS_GNUCXX)
   endif()
 
 elseif (MSVC)
-  # Use static runtime under Visual Studio
+  # Use static runtime under Visual Studio (i.e., inject the "/MT"
+  # compiler flag to get the "MultiThreaded" static CRT)
   # http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace
   # http://stackoverflow.com/a/6510446
-  foreach(flag_var
-    CMAKE_C_FLAGS_DEBUG
-    CMAKE_CXX_FLAGS_DEBUG
-    CMAKE_C_FLAGS_RELEASE 
-    CMAKE_CXX_FLAGS_RELEASE
-    CMAKE_C_FLAGS_MINSIZEREL 
-    CMAKE_CXX_FLAGS_MINSIZEREL 
-    CMAKE_C_FLAGS_RELWITHDEBINFO 
-    CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
-    string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-    string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
-  endforeach(flag_var)
+  if(CMAKE_VERSION VERSION_LESS "3.15")
+    # Legacy approach: mangle the flags directly (pre-CMP0091)
+    foreach(flag_var
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS_MINSIZEREL
+        CMAKE_CXX_FLAGS_MINSIZEREL
+        CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+      string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
+    endforeach(flag_var)
+  else()
+    # Modern approach: CMP0091 + CMAKE_MSVC_RUNTIME_LIBRARY (new in Orthanc 1.13.1)
+    cmake_policy(SET CMP0091 NEW)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
 
   # Add /Zm256 compiler option to Visual Studio to fix PCH errors
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm256")
@@ -109,7 +117,7 @@ elseif (MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   endif()
-    
+
   add_definitions(
     -D_CRT_SECURE_NO_WARNINGS=1
     -D_CRT_SECURE_NO_DEPRECATE=1
@@ -188,7 +196,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR
     # for LFS (Large File Support).
     # https://ohse.de/uwe/articles/lfs.html
     add_definitions(
-      -D_LARGEFILE64_SOURCE=1 
+      -D_LARGEFILE64_SOURCE=1
       -D_FILE_OFFSET_BITS=64
       )
   endif()
@@ -254,14 +262,14 @@ elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   add_definitions(
     -D_XOPEN_SOURCE=1
     )
-  
+
   # Linking with iconv breaks the Universal builds on modern compilers
   # link_libraries(iconv)
 
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   message("Building using Emscripten (for WebAssembly or asm.js targets)")
   include(${CMAKE_CURRENT_LIST_DIR}/EmscriptenParameters.cmake)
-  
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
 else()
