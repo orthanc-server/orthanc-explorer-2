@@ -41,6 +41,7 @@ therefore, it overrides all other definitions */
     --nav-side-hover-bg-color: #3e454d;
     --nav-side-submenu-color: rgb(255, 255, 255);
     --nav-side-active-border-color: #d19b3d;
+    --nav-side-toggle-burger-bg-color: orange;
 
     --label-bg-color: rgb(61, 116, 141);
 

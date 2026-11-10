@@ -1,3 +1,11 @@
 .content {
     margin-left: var(--nav-bar-width);
 }
+
+/* On mobile portrait or landscape, the sidebar is hidden (off-canvas), so content takes full width */
+@include mobile-any {
+    .content {
+        margin-left: 0;
+        padding-top: 12px;
+    }
+}

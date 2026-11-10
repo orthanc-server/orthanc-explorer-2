@@ -42,6 +42,7 @@ a CustomCssPath, the custom file will be loaded after this one*/
     --nav-side-hover-bg-color: #3e454d;
     --nav-side-submenu-color: rgb(255, 255, 255);
     --nav-side-active-border-color: #d19b3d;
+    --nav-side-toggle-burger-bg-color: orange;
 
     --label-bg-color: rgb(10, 200, 240);
 
