@@ -7,10 +7,11 @@ import Toasts from "./Toasts.vue"
 import { mapState, mapGetters } from "vuex"
 import { baseOe2Url } from "../globalConfigurations"
 import { translateDicomTag } from "../locales/i18n"
-import dateHelpers from "../helpers/date-helpers"
 import resourceHelpers from "../helpers/resource-helpers"
+import StudyFilterCell from "./StudyFilterCell.vue"
+
+import { useIsMobileNarrow, useIsMobileWide, useIsMobileAny} from "../helpers/media-helpers.js"
 import $ from "jquery"
-import { endOfMonth, endOfYear, startOfMonth, startOfYear, subMonths, subDays, startOfWeek, endOfWeek, subYears } from 'date-fns';
 import api from "../orthancApi";
 import { ref } from 'vue';
 import SourceType from "../helpers/source-type";
@@ -117,24 +118,18 @@ export default {
     data() {
         return {
             filterStudyDate: '',
-            filterStudyDateForDatePicker: '',
             filterPatientBirthDate: '',
-            filterPatientBirthDateForDatePicker: '',
-            filterModalities: {},
             filterGenericTags: {},
             oldFilterGenericTags: {},
             filterLabels: [],
             currentOrderByTag: null,
             currentOrderDirection: 'ASC',
             filterOrderBy: [{ 'Type': 'Metadata', 'Key': 'LastUpdate', 'Direction': 'DESC' }],
-            allModalities: true,
-            noneModalities: false,
             updatingFilterUi: false,
             updatingRouteWithoutReload: false,
             initializingModalityFilter: false,
             searchTimerHandler: {},
             columns: document._studyColumns,
-            datePickerPresetRanges: document._datePickerPresetRanges,
             mostRecentStudiesIds: [],
             shouldStopLoadingMostRecentStudies: false,
             status: Status.UNDEFINED,
@@ -144,6 +139,9 @@ export default {
             multiLabelsFilterLabelsConstraint: "All",
             showStudiesWithoutLabels: false,
             multiLabelsComponentKey: 0, // to force refresh the multi-labels filter component
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     computed: {
@@ -184,13 +182,6 @@ export default {
         isLoadingMostRecentStudies() {
             return this.status == Status.LOADING_MOST_RECENT_STUDIES;
         },
-        isDarkMode() {
-            // hack to switch the theme: get the value from our custom css
-            let bootstrapTheme = document.documentElement.getAttribute("data-bs-theme"); // for production
-            bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');  // for dev
-            // console.log("DatePicker color mode is ", bootstrapTheme);
-            return bootstrapTheme == "dark";
-        },
         isRemoteDicom() {
             return this.sourceType == SourceType.REMOTE_DICOM;
         },
@@ -199,6 +190,28 @@ export default {
         },
         isMultiLabelsFilterVisible() {
             return this.sourceType == SourceType.LOCAL_ORTHANC && this.showMultiLabelsFilter && this.uiOptions.EnableMultiLabelsSearch;
+        },
+        mobileFilters() {
+            if (this.uiOptions.StudyListColumns) {
+                return this.uiOptions.StudyListColumns.filter(n => ['seriesAndInstancesCount', 'instancesCount', 'seriesCount'].indexOf(n) == -1);
+            } else {
+                return [];
+            }
+        },
+        // mobileFiltersIn2Rows() {
+        //     const cols = this.mobileFilters || [];
+        //     const half = Math.ceil(cols.length / 2);
+        //     return [cols.slice(0, half), cols.slice(half)];
+        // },
+        mobileFilterRow1() {
+            const cols = this.mobileFilters || [];
+            const half = Math.ceil(cols.length / 2);
+            return cols.slice(0, half);
+        },
+        mobileFilterRow2() {
+            const cols = this.mobileFilters || [];
+            const half = Math.ceil(cols.length / 2);
+            return cols.slice(half);
         },
         isSearchAsYouTypeEnabled() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
@@ -224,7 +237,7 @@ export default {
         isStudyListEmpty() {
             return this.studiesIds.length == 0;
         },
-        datePickerFormat() {
+        datePickerFormat() {  // TO REMOVE
             return this.uiOptions.DateFormat;
         },
         hasPrimaryViewerIcon() {
@@ -303,19 +316,6 @@ export default {
         isConfigurationLoaded(newValue, oldValue) {
             this.init();
         },
-        filterModalities: {
-            handler(newValue, oldValue) {
-                if (!this.updatingFilterUi && !this.initializingModalityFilter) {
-                    if (this.isSearchAsYouTypeEnabled) {
-                        //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
-                        this.updateFilter('ModalitiesInStudy', this.getModalityFilter(), null);
-                    } else {
-                        this.getModalityFilter(); // to update all/none status
-                    }
-                }
-            },
-            deep: true
-        },
         filterGenericTags: {
             handler(newValue, oldValue) {
                 // oldValue is the same as newValue for deep watchers
@@ -329,29 +329,6 @@ export default {
                 }
             },
             deep: true
-        },
-        filterStudyDate(newValue, oldValue) {
-            // console.log("watch filterStudyDate", newValue);
-            this.updateFilter('StudyDate', newValue, oldValue);
-        },
-        filterStudyDateForDatePicker(newValue, oldValue) {
-            let dicomNewValue = dateHelpers.dicomDateFromDatePicker(newValue);
-            if (dicomNewValue == null) {
-                dicomNewValue = "";
-            }
-            // console.log("watch filterStudyDateForDatePicker", newValue, dicomNewValue);
-            this.filterStudyDate = dicomNewValue;
-        },
-        filterPatientBirthDate(newValue, oldValue) {
-            this.updateFilter('PatientBirthDate', newValue, oldValue);
-        },
-        filterPatientBirthDateForDatePicker(newValue, oldValue) {
-            let dicomNewValue = dateHelpers.dicomDateFromDatePicker(newValue);
-            if (dicomNewValue == null) {
-                dicomNewValue = "";
-            }
-            // console.log("watch filterPatientBirthDateForDatePicker", newValue, dicomNewValue);
-            this.filterPatientBirthDate = dicomNewValue;
         },
         async multiLabelsFilterLabelsConstraint(newValue, oldValue) {
             if (!this.updatingFilterUi) {
@@ -371,7 +348,10 @@ export default {
         }
     },
     async created() {
-        this.messageBus.on('language-changed', this.translateDatePicker);
+        this.messageBus.on('modalities-filter-updated', this.modalitiesFilterUpdated);
+        this.messageBus.on('date-picked', this.datePicked);
+        this.messageBus.on('text-filter-updated', this.textFilterUpdated);
+
         if (this.isConfigurationLoaded) {
             setTimeout(() => { this.showMultiLabelsFilter = true }, 300);  // this is a Hack to prevent this kind of error https://github.com/vuejs/core/issues/5657
         }
@@ -380,13 +360,18 @@ export default {
         if (this.isConfigurationLoaded) { // this happens when we open the app e.g. on the #settings page and then, switch to the study list
             this.init();
         }
+        // this.updateSelectAll();
+        // this._onDocumentClick = this.onDocumentClick.bind(this);
+        // document.addEventListener('click', this._onDocumentClick, true);
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this._onDocumentClick, true);
     },
     methods: {
         init() {
             console.log('Study List init');
             // this is called when opening the page (with a filter or not)
             // console.log("StudyList: Configuration has been loaded, updating study filter: ", this.$route.params.filters);
-            this.initModalityFilter();
             for (const tag of this.uiOptions.StudyListColumns) {
                 if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                     this.filterGenericTags[tag] = '';
@@ -400,11 +385,6 @@ export default {
                 this.$store.dispatch('selection/selectAllStudies', { isSelected: true });
             } else {
                 this.$store.dispatch('selection/selectAllStudies', { isSelected: false });
-            }
-        },
-        translateDatePicker(languageKey) {
-            for (let i in document._datePickerPresetRanges) {
-                document._datePickerPresetRanges[i].label = this.$t(document._datePickerPresetRanges[i].tLabel);
             }
         },
         columnTitle(tagName) {
@@ -464,52 +444,28 @@ export default {
 
             this._updateOrderBy(true);
         },
-        clearModalityFilter() {
-            // console.log("StudyList: clearModalityFilter", this.updatingFilterUi);
-            if (this.uiOptions.StudyListColumns) {
-                for (const modality of this.uiOptions.ModalitiesFilter) {
-                    this.filterModalities[modality] = true;
+        modalitiesFilterUpdated(modalitiesFilter) {
+            this.modalitiesFilter = modalitiesFilter;
+
+            if (!this.updatingFilterUi && !this.initializingModalityFilter) {
+                if (this.isSearchAsYouTypeEnabled) {
+                    //    console.log("StudyList: filterModalities watcher", newValue, oldValue);
+                    this.updateFilter('ModalitiesInStudy', this.modalitiesFilter, null);
                 }
             }
-        },
-        initModalityFilter() {
-            // console.log("StudyList: initModalityFilter", this.updatingFilterUi);
-            this.initializingModalityFilter = true;
-            this.filterModalities = {};
-            for (const modality of this.uiOptions.ModalitiesFilter) {
-                this.filterModalities[modality] = true;
-            }
-            this.initializingModalityFilter = false;
-        },
-        getModalityFilter() {
-            if (this.filterModalities === undefined) {
-                return "";
-            }
 
-            let modalityFilter = "";
-            let allSelected = true;
-            let selected = [];
-
-            // console.log("getModalityFilter", this.filterModalities);
-            for (const [key, value] of Object.entries(this.filterModalities)) {
-                allSelected &= value;
-                if (value) {
-                    selected.push(key);
-                }
+        },
+        textFilterUpdated(message) {
+            this.filterGenericTags[message.textTag] = message.textValue;
+            this.updateFilter(message.textTag, message.textValue, null);
+        },
+        datePicked(message) {
+            if (message.dateTag == "StudyDate") {
+                this.filterStudyDate = message.dateValue;
+            } else if (message.dateTag == "PatientBirthDate") {
+                this.filterPatientBirthDate = message.dateValue;
             }
-            if (allSelected) {
-                this.allModalities = true;
-                this.noneModalities = false;
-                return "";
-            } else if (selected.length == 0) {
-                this.allModalities = false;
-                this.noneModalities = true;
-                return "NONE"; // something that will not match !
-            } else {
-                this.allModalities = false;
-                this.noneModalities = false;
-                return selected.join('\\');
-            }
+            this.updateFilter(message.dateTag, message.dateValue, null);
         },
         updateFilter(dicomTagName, newValue, oldValue) {
 
@@ -704,48 +660,39 @@ export default {
                     }
                 } else if (key == "StudyDate") {
                     this.filterStudyDate = value;
-                    this.filterStudyDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
+                    this.messageBus.emit('set-date-picker', { dateTag: 'StudyDate', dateValue: value});
                 } else if (key == "PatientBirthDate") {
                     this.filterPatientBirthDate = value;
-                    this.filterPatientBirthDateForDatePicker = dateHelpers.parseDateForDatePicker(value);
+                    this.messageBus.emit('set-date-picker', { dateTag: 'PatientBirthDate', dateValue: value});
                 } else if (key == "ModalitiesInStudy") {
-                    const modalities = value.split('\\');
-                    if (modalities.length > 0) {
-                        let allModalitiesInFilter = true;
-                        let noneModalitiesInFilter = true;
-                        for (const modality of this.uiOptions.ModalitiesFilter) {
-                            const isInFilter = modalities.indexOf(modality) != -1
-                            this.filterModalities[modality] = isInFilter;
-                            allModalitiesInFilter &= isInFilter;
-                            noneModalitiesInFilter &= !isInFilter;
-                        }
-                        this.allModalities = allModalitiesInFilter;
-                        this.noneModalities = noneModalitiesInFilter;
-                    }
+                    this.messageBus.emit('update-modalities-filter', value);
                 } else {
                     this.filterGenericTags[key] = value;
+                    this.messageBus.emit('set-text-filter', { textTag: key, textValue: value});
                 }
             }
         },
         emptyFilterForm() {
             // console.log("StudyList: emptyFilterForm", this.updatingFilterUi);
             this.filterStudyDate = '';
-            this.filterStudyDateForDatePicker = null;
             this.filterPatientBirthDate = '';
             this.multiLabelsFilterLabelsConstraint = 'All';
             this.showStudiesWithoutLabels = false;
 
-            this.filterPatientBirthDateForDatePicker = null;
             this.filterGenericTags = {};
             if (this.uiOptions.StudyListColumns) {
                 for (const tag of this.uiOptions.StudyListColumns) {
                     if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                         this.filterGenericTags[tag] = '';
+                        this.messageBus.emit("clear-text-filter", {textTag: tag});
                     }
                 }
             }
             this.filterLabels = [];
-            this.clearModalityFilter();
+            this.messageBus.emit("clear-modalities-filter");
+            this.messageBus.emit("clear-date-picker", {dateTag: "StudyDate"});
+            this.messageBus.emit("clear-date-picker", {dateTag: "PatientBirthDate"});
+            
         },
         isFilteringOnlyOnLabels() {
             let hasGenericTagFilter = false;
@@ -770,7 +717,7 @@ export default {
                             await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: tag, value: this.getFilterValue(tag) });
                         }
                     }
-                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.getModalityFilter() });
+                    await this.$store.dispatch('studies/updateFilterNoReload', { dicomTagName: "ModalitiesInStudy", value: this.modalitiesFilter });
                     if (this.showStudiesWithoutLabels) {
                         await this.$store.dispatch('studies/updateLabelFilterNoReload', { labels: [], constraint: 'None' });
                     } else {
@@ -801,31 +748,18 @@ export default {
             this.updatingFilterUi = false;
             // console.log("StudyList: clearFiltersUi OUT");
         },
-        async toggleModalityFilter(ev) {
-            // only for all/none, other values are binded with v-model !
-            const modality = ev.srcElement.getAttribute("data-value");
-            let newValue = true;
-            if (modality == "all") {
-                newValue = true;
-            } else if (modality == "none") {
-                newValue = false;
-            }
+        // onDocumentClick(ev) {
+        //     if (!this.showModalityDropdown) return;
+        //     const dropdown = document.getElementById('modality-filter-dropdown');
+        //     let btn = document.getElementById('dropdown-modalities-button');
+        //     if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile');
+        //     if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-row2');
+        //     if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-landscape');
 
-            for (const [key, value] of Object.entries(this.filterModalities)) {
-                this.filterModalities[key] = newValue;
-            }
-
-            this.getModalityFilter(); // to update the state of "all"/"none"
-        },
-        modalityFilterClicked(ev) {  // prevent closing the drop-down at every click
-            ev.stopPropagation();
-        },
-        closeModalityFilter(ev) {
-            // simulate a click on the dropdown toggle (TODO: fix error in console)
-            $("#dropdown-modalities-button").click();
-            ev.preventDefault();
-            ev.stopPropagation();
-        },
+        //     if (dropdown && dropdown.contains(ev.target)) return;
+        //     if (btn && btn.contains(ev.target)) return;
+        //     this.showModalityDropdown = false;
+        // },
         async updateUrlNoReload() {
             this.updatingRouteWithoutReload = true;
             await this.updateUrl();
@@ -849,8 +783,8 @@ export default {
             if (this.clipFilter("PatientBirthDate", this.filterPatientBirthDate)) {
                 query['PatientBirthDate'] = this.filterPatientBirthDate;
             }
-            if (this.getModalityFilter()) {
-                query['ModalitiesInStudy'] = this.getModalityFilter();
+            if (this.modalitiesFilter) {
+                query['ModalitiesInStudy'] = this.modalitiesFilter;
             }
             for (const [k, v] of Object.entries(this.filterGenericTags)) {
                 if (this.clipFilter(k, v)) {
@@ -1016,7 +950,7 @@ export default {
             }
         }
     },
-    components: { StudyItem, ResourceButtonGroup, LabelsEditor, Toasts }
+    components: { StudyItem, ResourceButtonGroup, LabelsEditor, Toasts, StudyFilterCell }
 }
 </script>
 
@@ -1029,12 +963,12 @@ export default {
                 <p v-if="isRemoteDicomWeb" v-html="$t('remote_dicom_web_browsing', { source: remoteSource })"></p>
             </div>
         </div>
-        <table class="table table-sm study-table table-borderless">
+        <table v-if="!isMobileAny || isMobileWide" class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th :width="widthColum1" max-width="40px" scope="col"></th>
-                    <th v-if="hasPrimaryViewerIcon" width="2%" max-width="30px" scope="col"></th>
-                    <th v-if="hasPdfReportIcon" width="2%" max-width="30px" scope="col"></th>
+                    <th :width="widthColum1" class="col-prefix col-checkbox" scope="col"></th>
+                    <th v-if="hasPrimaryViewerIcon" width="2%" class="col-prefix col-viewer" scope="col"></th>
+                    <th v-if="hasPdfReportIcon" width="2%" class="col-prefix col-pdf" scope="col"></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
@@ -1057,51 +991,12 @@ export default {
                         </button>
                     </th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                        <div v-if="columnTag == 'StudyDate'">
-                            <Datepicker v-if="columnTag == 'StudyDate'" v-model="filterStudyDateForDatePicker"
-                                :enable-time-picker="false" range :preset-dates="datePickerPresetRanges"
-                                :format="datePickerFormat" :preview-format="datePickerFormat" text-input
-                                arrow-navigation hide-input-icon :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode">
-                                <template #yearly="{ label, range, presetDate }">
-                                    <span @click="presetDate(range)">{{ label }}</span>
-                                </template>
-                            </Datepicker>
+                        <div class="dropdown">
+                            <StudyFilterCell :columnTag="columnTag" idPrefix="desktop" 
+                                :placeholder="getFilterPlaceholder(columnTag)" 
+                                :filterClass="getFilterClass(columnTag)"
+                                />
                         </div>
-                        <div v-else-if="columnTag == 'modalities'" class="dropdown">
-                            <button type="button" class="btn btn-default btn-sm filter-button dropdown-toggle"
-                                data-bs-toggle="dropdown" id="dropdown-modalities-button" aria-expanded="false"><span
-                                    class="fa fa-list"></span>&nbsp;<span class="caret"></span></button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdown-modalities-button"
-                                @click="modalityFilterClicked" id="modality-filter-dropdown">
-                                <li><label class="dropdown-item"><input type="checkbox" data-value="all"
-                                            @click="toggleModalityFilter" v-model="allModalities" />&nbsp;{{
-                                                $t('all_modalities') }}</label></li>
-                                <li><label class="dropdown-item"><input type="checkbox" data-value="none"
-                                            @click="toggleModalityFilter" v-model="noneModalities" />&nbsp;{{
-                                                $t('no_modalities') }}</label></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li v-for="modality in uiOptions.ModalitiesFilter" :key="modality">
-                                    <label class="dropdown-item"><input type="checkbox" v-bind:data-value="modality"
-                                            v-model="filterModalities[modality]" />&nbsp;{{ modality }}</label>
-                                </li>
-                                <li><button class="btn btn-primary mx-5" @click="closeModalityFilter">{{ $t('close')
-                                        }}</button></li>
-                            </ul>
-                        </div>
-                        <div v-else-if="columnTag == 'PatientBirthDate'">
-                            <Datepicker v-model="filterPatientBirthDateForDatePicker" :enable-time-picker="false" range
-                                :format="datePickerFormat" hide-input-icon :preview-format="datePickerFormat" text-input
-                                arrow-navigation :highlight="{ weekdays: [6, 0] }" :dark="isDarkMode"
-                                :id="getFilterId(columnTag)">
-                            </Datepicker>
-                        </div>
-                        <input v-else-if="hasFilter(columnTag)" type="text" class="form-control study-list-filter"
-                            v-model="this.filterGenericTags[columnTag]"
-                            v-bind:placeholder="getFilterPlaceholder(columnTag)"
-                            v-bind:class="getFilterClass(columnTag)" 
-                            v-bind:id="getFilterId(columnTag)"/>
                     </th>
                 </tr>
 
@@ -1172,7 +1067,7 @@ export default {
                                     <div v-else-if="!isSearching && notShowingAllResults"
                                         class="alert alert-danger study-list-alert" role="alert">
                                         <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{
-                                        $t('not_showing_all_results') }} !
+                                            $t('not_showing_all_results') }} !
                                         !
                                     </div>
                                     <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
@@ -1183,7 +1078,7 @@ export default {
                                     <div v-else-if="!isSearching && isStudyListEmpty"
                                         class="alert alert-warning study-list-alert" role="alert">
                                         <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{
-                                        $t('no_result_found') }}
+                                            $t('no_result_found') }}
                                     </div>
                                     <div v-else-if="isSearching" class="alert alert-secondary study-list-alert"
                                         role="alert">
@@ -1210,14 +1105,178 @@ export default {
                 </tr>
             </thead>
             <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId"
-                v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
+                v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy"
+                :isMobileNarrow="false" :isMobileWide="false">
             </StudyItem>
         </table>
+        <div v-else class="mobile-study-list" :class="{ 'mobile-landscape': isMobileWide }">
+            <!-- Filter Strip (two-row grid) -->
+            <div class="mobile-filter-strip" v-on:keyup.enter="search">
+                <!-- Portrait: two rows / Landscape: single row -->
+                <!-- Portrait: two rows -->
+                <div class="mobile-filter-row">
+                    <div class="mobile-filter-column mobile-clear-col">
+                        <div class="mobile-filter-title">&nbsp;</div>
+                        <div class="mobile-filter-input">
+                            <button @click="clearFilters" type="button"
+                                class="btn filter-button btn-sm mobile-clear-filter" title="Clear filter">
+                                <i class="fa-regular fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div v-for="columnTag in mobileFilterRow1" :key="columnTag" class="mobile-filter-column">
+                        <div class="mobile-filter-title"
+                            @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
+                            :class="{ 'is-orderable': isOrderable(columnTag) }">
+                            {{ columnTitle(columnTag) }}
+                            <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
+                            </div>
+                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
+                                    class="bi bi-arrow-down"></i>
+                            </div>
+                        </div>
+                        <div class="mobile-filter-input">
+                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile" 
+                                :placeholder="getFilterPlaceholder(columnTag)" 
+                                :filterClass="getFilterClass(columnTag)"
+                                />
+                        </div>
+                    </div>
+                </div>
+                <!-- Row 2: remaining columns + search button -->
+                <div class="mobile-filter-row">
+                    <div v-for="(columnTag, index) in mobileFilterRow2" :key="columnTag"
+                        class="mobile-filter-column" :class="{
+                            'mobile-filter-column-estudio': index === 0,
+                            'mobile-filter-column-acceso': index === mobileFilterRow2.length - 1
+                        }">
+                        <div class="mobile-filter-title"
+                            @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
+                            :class="{ 'is-orderable': isOrderable(columnTag) }">
+                            {{ columnTitle(columnTag) }}
+                            <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
+                            </div>
+                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
+                                    class="bi bi-arrow-down"></i>
+                            </div>
+                        </div>
+                        <div class="mobile-filter-input">
+                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile" 
+                                :placeholder="getFilterPlaceholder(columnTag)" 
+                                :filterClass="getFilterClass(columnTag)"
+                                />
+                        </div>
+                    </div>
+                    <!-- Search Button -->
+                    <div class="mobile-filter-column mobile-search-col" v-if="isSearchButtonEnabled">
+                        <div class="mobile-filter-title">&nbsp;</div>
+                        <div class="mobile-filter-input">
+                            <button @click="search" type="submit"
+                                class="form-control study-list-filter btn filter-button btn-secondary search-button"
+                                :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                title="Search">
+                                <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+                                <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                                    aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Labels Bar (if enabled) -->
+            <div v-if="isMultiLabelsFilterVisible"
+                class="mobile-labels-filter d-flex align-items-center justify-content-between my-2 p-2 rounded">
+                <!-- Left side: Title and Radios -->
+                <div class="d-flex flex-column me-3" style="min-width: 80px;">
+                    <div class="text-light mb-1 text-center" style="font-size: 1rem;">{{
+                        $t('labels.study_details_title') ||
+                        'Labels' }}</div>
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="form-check form-check-inline m-0 p-0 me-3 d-flex align-items-center">
+                            <input class="form-check-input m-0 me-1" type="radio" name="mobileMultiLabelsFilter"
+                                value="All" v-model="multiLabelsFilterLabelsConstraint"
+                                style="width: 14px; height: 14px;">
+                            <label class="form-check-label text-light m-0" style="font-size: 0.9rem;">{{
+                                $t('labels.filter_labels_constraint_all') || 'All' }}</label>
+                        </div>
+                        <div class="form-check form-check-inline m-0 p-0 d-flex align-items-center">
+                            <input class="form-check-input m-0 me-1" type="radio" name="mobileMultiLabelsFilter"
+                                value="Any" v-model="multiLabelsFilterLabelsConstraint"
+                                style="width: 14px; height: 14px;">
+                            <label class="form-check-label text-light m-0" style="font-size: 0.9rem;">{{
+                                $t('labels.filter_labels_constraint_any') || 'Any' }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side: Dropdown -->
+                <div class="flex-grow-1 mobile-labels-dropdown">
+                    <LabelsEditor id="multiLabelsFilterMobile" :labels="filterLabels" :key="multiLabelsComponentKey"
+                        :studyId="null" @labelsUpdated="onMultiLabelsFilterChanged" :showTitle="false" :isFilter="true">
+                    </LabelsEditor>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="mobile-action-bar sticky-top py-2"
+                style="background-color: var(--study-table-actions-bg-color); z-index: 10;">
+                <div class="d-flex align-items-center">
+                    <div class="form-check mx-2">
+                        <input class="form-check-input" type="checkbox" v-model="allSelected"
+                            :indeterminate="isPartialySelected" @click="clickSelectAll">
+                        <span style="font-weight: 500; font-size: 0.9rem;">{{ selectedStudiesCount }}</span>
+                    </div>
+
+                    <div v-if="!isSearching && isLoadingMostRecentStudies"
+                        class="alert alert-secondary m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <span v-if="isLoadingMostRecentStudies" class="spinner-border spinner-border-sm alert-icon"
+                            role="status" aria-hidden="true"></span>{{ $t('loading_most_recent_studies') }}
+                    </div>
+                    <div v-else-if="!isSearching && isDisplayingMostRecentStudies"
+                        class="alert alert-info m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-info-circle-fill alert-icon"></i>{{ $t('displaying_most_recent_studies') }}
+                    </div>
+                    <div v-else-if="!isSearching && notShowingAllResults"
+                        class="alert alert-danger m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('not_showing_all_results') }} !
+                        !
+                    </div>
+                    <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
+                        class="alert alert-warning m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('enter_search') }}
+                    </div>
+                    <div v-else-if="!isSearching && isStudyListEmpty"
+                        class="alert alert-warning m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
+                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('no_result_found') }}
+                    </div>
+                    <div v-else-if="isSearching" class="alert alert-secondary m-0 px-2 py-1 flex-grow-1" role="alert"
+                        style="font-size: 0.8rem">
+                        <span class="spinner-border spinner-border-sm alert-icon" role="status"
+                            aria-hidden="true"></span>{{
+                                $t('searching') }}
+                    </div>
+                </div>
+
+                <!-- Conditional Bulk Actions -->
+                <div v-if="selectedStudiesCount > 0" class="mobile-bulk-actions mt-2 px-2">
+                    <ResourceButtonGroup :resourceLevel="'bulk'" smallIcons="true"></ResourceButtonGroup>
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div class="mobile-cards-container mt-2">
+                <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId"
+                    :isMobileNarrow="isMobileNarrow" :isMobileWide="isMobileWide"
+                    v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
+                </StudyItem>
+            </div>
+        </div>
         <Toasts />
     </div>
 </template>
 
-<style>
+<style lang="scss">
 :root {
     --filter-margin: 5px;
     --filter-padding: 2px;
@@ -1432,5 +1491,207 @@ button.form-control.study-list-filter {
     bottom: 0;
     right: 0;
     padding-right: 5px;
+}
+
+/* ───── Mobile portrait & landscape breakpoint ───── */
+@include mobile-any {
+    .col-prefix {
+        width: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        padding: 0 4px !important;
+    }
+
+    /* Ensure DatePicker in table cell is visible and clickable */
+    :deep(.dp__main),
+    :deep(.dp__input) {
+        width: 100% !important;
+        min-width: 100px !important;
+        height: 36px !important;
+        background-color: var(--study-even-bg-color, #212529) !important;
+        border: 1px solid #4caf50 !important;
+        cursor: pointer !important;
+    }
+}
+</style>
+
+<style scoped>
+/* Mobile Portrait Specific Styles */
+.mobile-study-list {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
+.mobile-filter-strip {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 8px;
+    background-color: var(--study-table-filter-bg-color);
+    border-bottom: 2px solid var(--bs-border-color);
+    min-height: 150px;
+}
+
+/* Landscape: single-row filter strip */
+.mobile-landscape .mobile-filter-strip {
+    min-height: auto;
+}
+
+.mobile-landscape .mobile-filter-row {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+.mobile-landscape .mobile-filter-column {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.mobile-landscape .mobile-clear-col {
+    flex: 0 0 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+}
+
+.mobile-landscape .mobile-search-col {
+    flex: 0 0 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+}
+
+.mobile-filter-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+    gap: 8px;
+    flex: 1;
+    width: 100%;
+}
+
+.mobile-filter-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.mobile-filter-column-estudio {
+    flex: 0 0 47%;
+    max-width: 50%;
+}
+
+.mobile-filter-column-acceso {
+    flex: 0 0 calc((100% - 66px) / 3);
+    max-width: calc((100% - 66px) / 3);
+}
+
+
+.mobile-clear-col {
+    flex: 0 0 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    justify-content: flex-start;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: var(--study-table-filter-bg-color);
+}
+
+.mobile-search-col {
+    flex: 0 0 45px !important;
+    min-width: 45px !important;
+    max-width: 45px !important;
+    justify-content: flex-end;
+}
+
+.mobile-filter-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--bs-body-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    height: 28px;
+    line-height: 28px;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-filter-input {
+    height: 36px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-filter-title.is-orderable {
+    cursor: pointer;
+    text-decoration: underline dotted;
+}
+
+.title-arrow {
+    margin-left: 4px;
+}
+
+.mobile-action-bar {
+    border-bottom: 1px solid var(--bs-border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-labels-filter {
+    background-color: var(--study-odd-bg-color, #2b3035);
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Deep selector to force the bootstrap5-tags dropdown to have the green border */
+.mobile-labels-dropdown :deep(.form-select),
+.mobile-labels-dropdown :deep(.dropdown.tags) {
+    border: 1px solid #4caf50 !important;
+    background-color: var(--study-even-bg-color, #212529) !important;
+    border-radius: 6px;
+}
+
+
+.mobile-clear-col .btn,
+.mobile-search-col .btn {
+    border: 1px solid #4caf50 !important;
+    background-color: var(--study-even-bg-color, #212529) !important;
+    border-radius: 6px;
+    color: var(--bs-body-color, #fff) !important;
+    width: 100%;
+    height: 36px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.mobile-filter-column :deep(.form-control),
+.mobile-filter-column :deep(.dp__input),
+.mobile-filter-column .btn.dropdown-toggle {
+    border: 1px solid #4caf50 !important;
+    background-color: var(--study-even-bg-color, #212529) !important;
+    border-radius: 6px !important;
+    color: var(--bs-body-color, #fff) !important;
+    height: 36px !important;
+    display: flex;
+    align-items: center;
+}
+
+.mobile-filter-column :deep(.dp__input) {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.mobile-filter-column :deep(.form-control) {
+    justify-content: flex-start;
+    padding-left: 8px;
+}
+
+.mobile-filter-column :deep(.form-control::placeholder),
+.mobile-filter-column :deep(.dp__input::placeholder) {
+    color: rgba(255, 255, 255, 0.4) !important;
 }
 </style>

@@ -1,19 +1,19 @@
 /* media.scss */
 @mixin mobile-any {
-  @media (max-width: 1300px) 
+  @media (max-width: 1300px)
   {
     @content;
   }
 }
 
-@mixin mobile-portrait {
-  @media (max-width: 767px) {
+@mixin mobile-narrow {
+  @media (max-width: 767px), (orientation: portrait) and (max-width: 1300px) {
     @content;
   }
 }
 
-@mixin mobile-landscape {
-  @media (min-width: 768px), (max-width: 1300px) {
+@mixin mobile-wide {
+  @media (min-width: 768px) and (max-width: 1300px) and (orientation:landscape) {
     @content;
   }
 }
