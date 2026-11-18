@@ -320,20 +320,20 @@ export default {
 
                         <!-- line 1: Patient info -->
                         <div class="study-card-line-patient">
-                            <div class="w-50">{{ formattedPatientName }}</div>
-                            <div class="w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
-                            <div class="w-25 text-end">{{ formattedPatientBirthDate }}</div>
+                            <div class="field-w-50">{{ formattedPatientName }}</div>
+                            <div class="field-w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
+                            <div class="field-w-25 text-end">{{ formattedPatientBirthDate }}</div>
                         </div>
                         <div v-if="showLabels" class="study-card-line-study">
                             <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
                             <span v-if="!hasLabels" class="text-muted small">&nbsp;</span>
                         </div>
                         <div class="study-card-line-study">
-                            <div class="w-20">{{ formattedStudyDate }}</div>
-                            <div class="w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
-                            <div class="w-35">{{ study.MainDicomTags.StudyDescription }}</div>
-                            <div class="w-10">{{ modalitiesInStudyForDisplay }}</div>
-                            <div class="w-10 text-end">{{ seriesAndInstancesCount }}</div>
+                            <div class="field-w-20">{{ formattedStudyDate }}</div>
+                            <div class="field-w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
+                            <div class="field-w-35">{{ study.MainDicomTags.StudyDescription }}</div>
+                            <div class="field-w-10">{{ modalitiesInStudyForDisplay }}</div>
+                            <div class="field-w-10 text-end">{{ seriesAndInstancesCount }}</div>
                         </div>
                     </div>
                 </div>
@@ -444,6 +444,27 @@ export default {
         display: flex;
         flex-wrap: wrap;
         margin: 4px;
+    }
+
+    .field-w-50 { 
+        flex: 0 0 50%; 
+        min-width: 250px;
+    }
+    .field-w-25 { 
+        flex: 0 0 25%; 
+        min-width: 125px;
+    }
+    .field-w-20 { 
+        flex: 0 0 20%; 
+        min-width: 100px;
+    }
+    .field-w-35 { 
+        flex: 0 0 35%; 
+        min-width: 175px;
+    }
+    .field-w-10 { 
+        flex: 0 0 10%; 
+        min-width: 30px;
     }
 
     .study-card-field {
