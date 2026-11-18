@@ -40,27 +40,29 @@ export default {
         this.loaded = true;
         this.seriesIds = this.study.Series;
 
-        if (!this.$refs['study-collapsible-details']) {
-            console.log('no refs: ', studyResponse);
-        }
-        this.$refs['study-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
-            if (e.target == e.currentTarget) {
-                this.expanded = true;
+        if (!this.isMobileAny || this.isMobileWide) {
+            if (!this.$refs['study-collapsible-details']) {
+                console.log('no refs: ', studyResponse);
             }
-        });
-        this.$refs['study-collapsible-details'].addEventListener('hide.bs.collapse', (e) => {
-            if (e.target == e.currentTarget) {
-                this.expanded = false;
-            }
-        });
+            this.$refs['study-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
+                if (e.target == e.currentTarget) {
+                    this.expanded = true;
+                }
+            });
+            this.$refs['study-collapsible-details'].addEventListener('hide.bs.collapse', (e) => {
+                if (e.target == e.currentTarget) {
+                    this.expanded = false;
+                }
+            });
 
-        var el = this.$refs['study-collapsible-details'];
-        this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
+            var el = this.$refs['study-collapsible-details'];
+            this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
 
-        for (const [k, v] of Object.entries(this.$route.query)) {
-            if (k === 'expand') {
-                if (v == null || v === 'study' || v === 'series' || v === 'instance') {
-                    this.collapseElement.show();
+            for (const [k, v] of Object.entries(this.$route.query)) {
+                if (k === 'expand') {
+                    if (v == null || v === 'study' || v === 'series' || v === 'instance') {
+                        this.collapseElement.show();
+                    }
                 }
             }
         }
@@ -291,7 +293,7 @@ export default {
     </tbody>
     <div v-else-if="loaded && isMobileNarrow" class="mobile-study-card d-flex flex-column gap-1"
         :class="{ 'expanded': expanded, 'selected': isSelected  }">
-        <div class="study-card card mb-2">
+        <div class="study-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
             <div class="card-body p-0">
                 <div class="d-flex">
 
@@ -338,12 +340,12 @@ export default {
                 </div>
             </div>
         </div>
-        </div>
         <!-- Details collapse (manual Vue binding) -->
         <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
             <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
                 :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
                 @deletedStudy="onDeletedStudy"></StudyDetails>
+        </div>
         </div>
     </div>
 </template>
