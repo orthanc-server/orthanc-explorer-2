@@ -324,7 +324,7 @@ export default {
                             <div class="field-w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
                             <div class="field-w-25 text-end">{{ formattedPatientBirthDate }}</div>
                         </div>
-                        <div v-if="showLabels" class="study-card-line-study">
+                        <div v-if="showLabels" class="study-card-line-labels">
                             <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
                             <span v-if="!hasLabels" class="text-muted small">&nbsp;</span>
                         </div>
@@ -443,6 +443,7 @@ export default {
     .study-card-line-study {
         display: flex;
         flex-wrap: wrap;
+        // font-size: small;
         margin: 4px;
     }
 

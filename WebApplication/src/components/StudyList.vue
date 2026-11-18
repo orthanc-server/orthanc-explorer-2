@@ -1226,40 +1226,9 @@ export default {
                             :indeterminate="isPartialySelected" @click="clickSelectAll">
                         <span style="font-weight: 500; font-size: 0.9rem;">{{ selectedStudiesCount }}</span>
                     </div>
-
-                    <div v-if="!isSearching && isLoadingMostRecentStudies"
-                        class="alert alert-secondary m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
-                        <span v-if="isLoadingMostRecentStudies" class="spinner-border spinner-border-sm alert-icon"
-                            role="status" aria-hidden="true"></span>{{ $t('loading_most_recent_studies') }}
+                    <div class="mobile-bulk-actions mt-2 px-2">
+                        <ResourceButtonGroup :resourceLevel="'bulk'" smallIcons="true"></ResourceButtonGroup>
                     </div>
-                    <div v-else-if="!isSearching && isDisplayingMostRecentStudies"
-                        class="alert alert-info m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
-                        <i class="bi bi-info-circle-fill alert-icon"></i>{{ $t('displaying_most_recent_studies') }}
-                    </div>
-                    <div v-else-if="!isSearching && notShowingAllResults"
-                        class="alert alert-danger m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
-                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('not_showing_all_results') }} !
-                        !
-                    </div>
-                    <div v-else-if="!isSearching && showEmptyStudyListIfNoSearch && this['studies/isFilterEmpty']"
-                        class="alert alert-warning m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
-                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('enter_search') }}
-                    </div>
-                    <div v-else-if="!isSearching && isStudyListEmpty"
-                        class="alert alert-warning m-0 px-2 py-1 flex-grow-1" role="alert" style="font-size: 0.8rem">
-                        <i class="bi bi-exclamation-triangle-fill alert-icon"></i> {{ $t('no_result_found') }}
-                    </div>
-                    <div v-else-if="isSearching" class="alert alert-secondary m-0 px-2 py-1 flex-grow-1" role="alert"
-                        style="font-size: 0.8rem">
-                        <span class="spinner-border spinner-border-sm alert-icon" role="status"
-                            aria-hidden="true"></span>{{
-                                $t('searching') }}
-                    </div>
-                </div>
-
-                <!-- Conditional Bulk Actions -->
-                <div v-if="selectedStudiesCount > 0" class="mobile-bulk-actions mt-2 px-2">
-                    <ResourceButtonGroup :resourceLevel="'bulk'" smallIcons="true"></ResourceButtonGroup>
                 </div>
             </div>
 
