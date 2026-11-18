@@ -324,6 +324,10 @@ export default {
                             <div class="w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
                             <div class="w-25 text-end">{{ formattedPatientBirthDate }}</div>
                         </div>
+                        <div v-if="showLabels" class="study-card-line-study">
+                            <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
+                            <span v-if="!hasLabels" class="text-muted small">&nbsp;</span>
+                        </div>
                         <div class="study-card-line-study">
                             <div class="w-20">{{ formattedStudyDate }}</div>
                             <div class="w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
@@ -331,11 +335,6 @@ export default {
                             <div class="w-10">{{ modalitiesInStudyForDisplay }}</div>
                             <div class="w-10 text-end">{{ seriesAndInstancesCount }}</div>
                         </div>
-                    </div>
-                    <!-- Labels Row -->
-                    <div v-if="showLabels && hasLabels" class="mt-1 d-flex gap-1 flex-wrap msc-labels-row-portrait">
-                        <span v-for="label in study.Labels" :key="label" class="badge msc-label-portrait">{{ label
-                        }}</span>
                     </div>
                 </div>
             </div>
