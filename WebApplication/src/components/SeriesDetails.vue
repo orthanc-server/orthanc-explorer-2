@@ -95,18 +95,22 @@ export default {
     <table class="table table-responsive table-sm series-details-table">
         <tbody>
             <tr>
-                <td width="70%" class="cut-text">
-                    <ul>
-                        <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag"
-                            :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
-                    </ul>
-                </td>
-                <td width="30%" class="series-button-group">
-                    <ResourceButtonGroup :resourceOrthancId="this.seriesId" :resourceLevel="'series'"
-                        :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
-                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
-                        :patientMainDicomTags="this.patientMainDicomTags" :seriesInstances="this.seriesInstances"
-                        :customClass="'instance-button-group'" @deletedResource="onDeletedSeries"></ResourceButtonGroup>
+                <td colspan="100%">
+                    <div class="responsive-row-73">
+                        <div>
+                            <ul class="resource-details">
+                                <ResourceDetailText v-for="tag in uiOptions.SeriesMainTags" :key="tag"
+                                    :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
+                            </ul>
+                        </div>
+                        <div class="study-button-group">
+                            <ResourceButtonGroup :resourceOrthancId="this.seriesId" :resourceLevel="'series'"
+                                :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
+                                :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                                :patientMainDicomTags="this.patientMainDicomTags" :seriesInstances="this.seriesInstances"
+                                :customClass="'instance-button-group'" @deletedResource="onDeletedSeries"></ResourceButtonGroup>
+                        </div>
+                    </div>
                 </td>
             </tr>
             <tr>

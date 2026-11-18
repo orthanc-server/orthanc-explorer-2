@@ -93,11 +93,22 @@
 
 .responsive-row-442 {
     display: grid;
-    grid-template-columns: 40% 40% 20%; /* or: 4fr 4fr 2fr */
+    grid-template-columns: 40% 40% 20%;
     gap: 0rem;
 }
 @media (max-width: 767px) {
   .responsive-row-442 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.responsive-row-73 {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    gap: 0rem;
+}
+@media (max-width: 767px) {
+  .responsive-row-73 {
     grid-template-columns: 1fr;
   }
 }
