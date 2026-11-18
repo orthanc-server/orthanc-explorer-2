@@ -9,9 +9,13 @@ import SourceType from '../helpers/source-type';
 import SelectionStatus from "../helpers/selection-status.js";
 import resourceHelpers from "../helpers/resource-helpers";
 import TokenLinkButton from "./TokenLinkButton.vue";
+import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
+
 
 export default {
-    props: ["studyId"],
+    props: {
+        "studyId": String
+    },
     emits: ["deletedStudy"],
     data() {
         return {
@@ -19,7 +23,10 @@ export default {
             loaded: false,
             expanded: false,
             collapseElement: null,
-            pdfReports: []
+            pdfReports: [],
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     created() {
@@ -198,7 +205,7 @@ export default {
 
 
 <template>
-    <tbody>
+    <tbody v-if="!isMobileAny || isMobileWide">
         <tr v-if="loaded"
             :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
@@ -281,9 +288,65 @@ export default {
             </td>
         </tr>
     </tbody>
+    <div v-else-if="loaded && isMobileNarrow" class="mobile-study-card d-flex flex-column gap-1"
+        :class="{ 'expanded': expanded, 'selected': isSelected  }">
+        <div class="study-card card mb-2">
+            <div class="card-body p-0">
+                <div class="d-flex">
+
+                    <!-- left 20%: 2 icons, full height -->
+                    <div class="study-card-icons d-flex flex-row justify-content-around align-items-center py-2">
+                        <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click.stop="clickedSelect">
+                        <span v-if="hasPrimaryViewerIcon">
+                            <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
+                                :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon" iconClass="bi bi-eye-fill"
+                                :tokenType="primaryViewerTokenType" :opensInNewTab="true">
+                            </TokenLinkButton>                            
+                        </span>
+                        <span v-if="hasPdfReportIcon">
+                            <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" 
+                                :linkUrl="pdfReport.url" :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon"
+                                iconClass="bi bi-file-earmark-text" :tokenType="'download-instant-link'" :opensInNewTab="true"
+                                :title="pdfReport.title">
+                            </TokenLinkButton>                          
+                        </span>
+                    </div>
+
+                    <!-- right 80%: 2 info lines -->
+                    <div class="study-card-info flex-grow-1">
+
+                        <!-- line 1: Patient info -->
+                        <div class="study-card-line-patient">
+                            <div class="w-50">{{ formattedPatientName }}</div>
+                            <div class="w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
+                            <div class="w-25 text-end">{{ formattedPatientBirthDate }}</div>
+                        </div>
+                        <div class="study-card-line-study">
+                            <div class="w-20">{{ formattedStudyDate }}</div>
+                            <div class="w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
+                            <div class="w-35">{{ study.MainDicomTags.StudyDescription }}</div>
+                            <div class="w-10">{{ modalitiesInStudyForDisplay }}</div>
+                            <div class="w-10 text-end">{{ seriesAndInstancesCount }}</div>
+                        </div>
+                    </div>
+                    <!-- Labels Row -->
+                    <div v-if="showLabels && hasLabels" class="mt-1 d-flex gap-1 flex-wrap msc-labels-row-portrait">
+                        <span v-for="label in study.Labels" :key="label" class="badge msc-label-portrait">{{ label
+                        }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- Details collapse (manual Vue binding) -->
+        <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
+            <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
+                :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
+                @deletedStudy="onDeletedStudy"></StudyDetails>
+        </div>
 </template>
 
-<style scoped>
+<style lang="scss">
 .study-row-collapsed {
     border-top-width: 1px;
     border-color: #ddd;
@@ -344,5 +407,44 @@ export default {
 .td-pdf-icon {
     padding: 0;
     /* to maximize click space for the icon */
+}
+
+
+
+/* keep in sync with media.scss breakpoints */
+.study-card {
+    text-align: left;
+
+    .study-card-icons {
+        width: 20%;                      // the requested 20%
+        min-width: 20%;
+        font-size: 1.25rem;
+        color: var(--bs-secondary-color);
+        background: var(--bs-tertiary-bg);
+        border-right: 1px solid var(--bs-border-color);
+
+        // tappable targets on mobile
+        span {
+            padding: 1rem;
+            cursor: pointer;
+        }
+    }
+
+    .study-card-line-patient {
+        display: flex;
+        flex-wrap: wrap;
+        font-weight: bold;
+        margin: 4px;
+    }
+
+    .study-card-line-study {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 4px;
+    }
+
+    .study-card-field {
+        min-width: 0;                     // required for text-truncate in flex
+    }
 }
 </style>

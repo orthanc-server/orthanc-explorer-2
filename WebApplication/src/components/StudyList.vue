@@ -1104,9 +1104,8 @@ export default {
                     </th>
                 </tr>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId"
-                v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy"
-                :isMobileNarrow="false" :isMobileWide="false">
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-'+studyId" :studyId="studyId"
+                v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
         <div v-else class="mobile-study-list" :class="{ 'mobile-landscape': isMobileWide }">
@@ -1266,8 +1265,7 @@ export default {
 
             <!-- Cards -->
             <div class="mobile-cards-container mt-2">
-                <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="studyId" :studyId="studyId"
-                    :isMobileNarrow="isMobileNarrow" :isMobileWide="isMobileWide"
+                <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-'+studyId" :studyId="studyId"
                     v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
                 </StudyItem>
             </div>
@@ -1693,5 +1691,11 @@ button.form-control.study-list-filter {
 .mobile-filter-column :deep(.form-control::placeholder),
 .mobile-filter-column :deep(.dp__input::placeholder) {
     color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.mobile-cards-container {
+    display: block;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 </style>
