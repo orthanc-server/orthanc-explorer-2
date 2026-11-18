@@ -205,7 +205,8 @@ export default {
 
 
 <template>
-    <tbody v-if="!isMobileAny || isMobileWide">
+    <div style="display: contents">
+        <tbody v-if="!isMobileAny || isMobileWide">
         <tr v-if="loaded"
             :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
             <td>
@@ -344,6 +345,7 @@ export default {
                 :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
                 @deletedStudy="onDeletedStudy"></StudyDetails>
         </div>
+    </div>
 </template>
 
 <style lang="scss">
