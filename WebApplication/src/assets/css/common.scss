@@ -86,14 +86,18 @@
   font-size: medium;
 }
 
-.w-10 {
-  width: 10%;
+.resource-details {
+  padding-left: 1rem;
 }
 
-.w-20 {
-  width: 20%;
-}
 
-.w-35 {
-  width: 35%;
+.responsive-row-442 {
+    display: grid;
+    grid-template-columns: 40% 40% 20%; /* or: 4fr 4fr 2fr */
+    gap: 0rem;
+}
+@media (max-width: 767px) {
+  .responsive-row-442 {
+    grid-template-columns: 1fr;
+  }
 }

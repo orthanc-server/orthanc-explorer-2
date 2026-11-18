@@ -1069,7 +1069,7 @@ export default {
                     <span data-bs-toggle="tooltip" title="API">
                         <i class="bi bi-code-slash"></i>
                     </span>
-                </button>
+            </button>
                 <ul class="dropdown-menu" aria-labelledby="apiDropdownMenuId">
                     <li>
                         <button class="dropdown-item" href="#" @click="copyIdToClipboard" :class="buttonClasses">{{
@@ -1222,7 +1222,12 @@ export default {
 .custom-button-group {
     position: relative;
     display: inline-flex;
+    flex-wrap: wrap;
     vertical-align: middle;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 1;
 }
 
 .dropdown-submenu {

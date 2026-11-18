@@ -66,6 +66,7 @@ export default {
     max-width: 50%;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: pre;
 }
 
 .details {
