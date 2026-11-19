@@ -153,8 +153,6 @@ export default {
 </template>
 
 <style scoped>
-.series-row-collapsed {}
-
 .series-row-expanded {
     background-color: var(--series-selected-color);
     font-weight: 700;

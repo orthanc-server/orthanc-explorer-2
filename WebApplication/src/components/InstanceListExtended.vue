@@ -113,8 +113,6 @@ export default {
 </template>
 
 <style>
-.instance-table {}
-
 .instance-table> :not(:first-child) {
     border-top: 0px !important;
 }

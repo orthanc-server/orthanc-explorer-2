@@ -98,8 +98,6 @@ export default {
 </template>
 
 <style scoped>
-.instance-row-collapsed {}
-
 .instance-row-expanded {
     background-color: var(--instance-details-bg-color);
     font-weight: 700;

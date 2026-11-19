@@ -136,8 +136,6 @@ export default {
     border-color: black !important;
 }
 
-.series-table {}
-
 .series-table>:nth-child(odd)>*>* {
     background-color: var(--series-odd-bg-color);
 }
