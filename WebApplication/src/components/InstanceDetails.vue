@@ -5,6 +5,7 @@ import TagsTree from "./TagsTree.vue";
 import { mapState, mapGetters } from "vuex"
 import SourceType from '../helpers/source-type';
 
+
 export default {
     props: ['instanceId', 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags'],
     emits: ['deletedInstance'],
@@ -51,19 +52,23 @@ export default {
     <table v-if="loaded" class="table table-responsive table-sm instance-details-table">
         <tbody>
             <tr>
-                <td width="80%" class="cut-text">
-                    <TagsTree :tags="headers">
-                    </TagsTree>
-                </td>
-                <td width="20%" class="instance-button-group">
-                    <ResourceButtonGroup :resourceOrthancId="this.instanceId" :resourceLevel="'instance'"
-                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
-                        :patientMainDicomTags="this.patientMainDicomTags" :instanceTags="this.tags"
-                        :instanceHeaders="this.headers" @deletedResource="onDeletedInstance"></ResourceButtonGroup>
+                <td colspan="100%">
+                    <div class="responsive-row-73">
+                        <div>
+                            <TagsTree :tags="headers">
+                            </TagsTree>
+                        </div>
+                        <div class="instance-button-group">
+                            <ResourceButtonGroup :resourceOrthancId="this.instanceId" :resourceLevel="'instance'"
+                                :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                                :patientMainDicomTags="this.patientMainDicomTags" :instanceTags="this.tags"
+                                :instanceHeaders="this.headers" @deletedResource="onDeletedInstance"></ResourceButtonGroup>
+                        </div>
+                    </div>
                 </td>
             </tr>
             <tr>
-                <td width="80%" class="cut-text">
+                <td colspan="100%">
                     <TagsTree :tags="tags">
                     </TagsTree>
                 </td>
@@ -109,8 +114,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-</style>
-<style>
+
 .instance-button-group i {
     font-size: 1.2rem !important;
 }

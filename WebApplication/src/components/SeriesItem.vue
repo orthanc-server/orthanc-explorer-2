@@ -143,10 +143,12 @@ export default {
                 </div>
             </div>
             <!-- Details collapse (manual Vue binding) -->
-            <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
-                <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
-                    :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
-                    @deletedStudy="onDeletedStudy"></StudyDetails>
+            <div v-if="expanded" class="border-top p-2">
+                <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId"
+                    :instancesIds="this.seriesInfo.Instances" :studySeries="this.studySeries"
+                    :studyId="this.parentStudyId" :seriesMainDicomTags="this.seriesInfo.MainDicomTags"
+                    :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+                    @deletedSeries="onDeletedSeries"></SeriesDetails>
             </div>
         </div>
     </div>

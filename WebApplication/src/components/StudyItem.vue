@@ -344,7 +344,7 @@ export default {
                 </div>
             </div>
             <!-- Details collapse (manual Vue binding) -->
-            <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
+            <div v-if="expanded" class="border-top p-2">
                 <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
                     :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
                     @deletedStudy="onDeletedStudy"></StudyDetails>

@@ -4,6 +4,7 @@ import api from "../orthancApi"
 import SelectionStatus from "../helpers/selection-status";
 import SourceType from '../helpers/source-type';
 import { mapState, mapGetters } from "vuex"
+import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
 
 
 export default {
@@ -12,7 +13,10 @@ export default {
     data() {
         return {
             loaded: false,
-            instancesInfo: {}
+            instancesInfo: {},
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     computed: {
@@ -74,7 +78,7 @@ export default {
 </script>
 
 <template>
-    <table class="table table-responsive table-sm instance-table">
+    <table v-if="!isMobileAny || isMobileWide" class="table table-responsive table-sm instance-table">
         <thead>
             <tr>
                 <th width="2%" scope="col" class="instance-table-header">
@@ -99,6 +103,15 @@ export default {
             :studyId="this.studyId" :studySeries="this.studySeries" :seriesInstances="this.seriesInstances"
             :seriesId="this.seriesId" @deletedInstance="onDeletedInstance"></InstanceItem>
     </table>
+    <div v-else>
+        <div class="resource-cards-container mt-2">
+            <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
+                :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"
+                :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+                :studyId="this.studyId" :studySeries="this.studySeries" :seriesInstances="this.seriesInstances"
+                :seriesId="this.seriesId" @deletedInstance="onDeletedInstance"></InstanceItem>
+        </div>
+    </div>
 </template>
 
 <style>

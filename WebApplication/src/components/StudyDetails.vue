@@ -232,12 +232,6 @@ export default {
 </template>
 
 <style>
-.study-button-group {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
 
 .study-button-group i {
     font-size: 1.4rem;

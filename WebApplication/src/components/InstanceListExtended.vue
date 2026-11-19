@@ -3,6 +3,7 @@ import InstanceItem from "./InstanceItem.vue"
 import api from "../orthancApi"
 import { ObserveVisibility as vObserveVisibility } from 'vue3-observe-visibility'
 import SelectionStatus from "../helpers/selection-status";
+import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
 
 
 export default {
@@ -11,7 +12,10 @@ export default {
     data() {
         return {
             loaded: false,
-            instancesInfo: {}
+            instancesInfo: {},
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     computed: {
@@ -83,7 +87,7 @@ export default {
 </script>
 
 <template>
-    <table class="table table-responsive table-sm instance-table">
+    <table v-if="!isMobileAny || isMobileWide" class="table table-responsive table-sm instance-table">
         <thead>
             <tr>
                 <th width="2%" scope="col" class="instance-table-header">
@@ -110,6 +114,15 @@ export default {
             :seriesId="this.seriesId" v-observe-visibility="{ callback: visibilityChanged, once: true }">
         </InstanceItem>
     </table>
+    <div v-else>
+        <div class="resource-cards-container mt-2">
+            <InstanceItem v-for="instanceId in sortedInstancesIds" :key="instanceId" :instanceId="instanceId"
+                :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"
+                :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+                :studyId="this.studyId" :studySeries="this.studySeries" :seriesInstances="this.seriesInstances"
+                :seriesId="this.seriesId" @deletedInstance="onDeletedInstance"></InstanceItem>
+        </div>
+    </div>
 </template>
 
 <style>

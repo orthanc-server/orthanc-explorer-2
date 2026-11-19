@@ -4,6 +4,12 @@ mobile-ui branch:
 - use one 2 level arrays for mobileFilterRow1 & mobileFilterRow2
 
 
+Internals:
+---------
+
+- join InstanceList.vue & InstanceListExtended.vue
+
+
 "Easy" stuffs - requested by community:
 --------------------------------------
 

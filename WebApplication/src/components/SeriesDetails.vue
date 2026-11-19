@@ -103,7 +103,7 @@ export default {
                                     :tags="seriesMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                             </ul>
                         </div>
-                        <div class="study-button-group">
+                        <div class="series-button-group">
                             <ResourceButtonGroup :resourceOrthancId="this.seriesId" :resourceLevel="'series'"
                                 :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
                                 :studyMainDicomTags="this.studyMainDicomTags"

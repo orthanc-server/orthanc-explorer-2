@@ -4,6 +4,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import SelectionStatus from "../helpers/selection-status";
 import SourceType from '../helpers/source-type';
 import { mapState, mapGetters } from "vuex"
+import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
 
 
 export default {
@@ -13,7 +14,10 @@ export default {
         return {
             loaded: false,
             expanded: false,
-            collapseElement: null
+            collapseElement: null,
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     mounted() {
@@ -67,34 +71,64 @@ export default {
 
 
 <template>
-    <tbody>
-        <tr :class="{ 'instance-row-collapsed': !expanded, 'instance-row-expanded': expanded }">
-            <td>
-                <div v-if="isMultipleSelectionEnabled" class="form-check">
-                    <input class="form-check-input" type="checkbox" :checked="isSelected"
-                        :indeterminate="isPartialySelected" @click="clickedSelect">
+    <div style="display: contents">
+        <tbody v-if="!isMobileAny || isMobileWide">
+            <tr :class="{ 'instance-row-collapsed': !expanded, 'instance-row-expanded': expanded }">
+                <td>
+                    <div v-if="isMultipleSelectionEnabled" class="form-check">
+                        <input class="form-check-input" type="checkbox" :checked="isSelected"
+                            :indeterminate="isPartialySelected" @click="clickedSelect">
+                    </div>
+                </td>
+                <td class="cut-text text-center" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
+                        instanceInfo.MainDicomTags.InstanceNumber }}</td>
+                <td class="cut-text" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
+                        instanceInfo.MainDicomTags.SOPInstanceUID }}</td>
+                <td class="cut-text text-center" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
+                        instanceInfo.MainDicomTags.NumberOfFrames }}</td>
+            </tr>
+            <tr class="collapse" :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded': expanded }"
+                v-bind:id="'instance-details-' + this.instanceId" ref="instance-collapsible-details">
+                <td colspan="100">
+                    <InstanceDetails v-if="this.expanded" :instanceId="this.instanceId"
+                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags" @deletedInstance="onDeletedInstance">
+                    </InstanceDetails>
+                </td>
+            </tr>
+        </tbody>
+        <div v-else-if="isMobileNarrow" class="mobile-instances-card d-flex flex-column gap-1"
+            :class="{ 'expanded': expanded, 'selected': isSelected }">
+            <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
+                <div class="card-body p-0">
+                    <div class="d-flex">
+                        <div
+                            class="resource-card-icons-small d-flex flex-row justify-content-around align-items-center py-2">
+                            <input class="form-check-input" type="checkbox" :checked="isSelected"
+                                :indeterminate="isPartialySelected" @click.stop="clickedSelect">
+                        </div>
+                        <div class="resource-card-info flex-grow-1">
+                            <div class="resource-card-line-1">
+                                <div class="field-w-20">{{ instanceInfo.MainDicomTags.InstanceNumber }}</div>
+                                <div class="field-w-70">{{ instanceInfo.MainDicomTags.SOPInstanceUID }}</div>
+                                <div class="field-w-10">{{ instanceInfo.MainDicomTags.NumberOfFrames }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </td>
-            <td class="cut-text text-center" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
-                    instanceInfo.MainDicomTags.InstanceNumber }}</td>
-            <td class="cut-text" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
-                    instanceInfo.MainDicomTags.SOPInstanceUID }}</td>
-            <td class="cut-text text-center" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
-                    instanceInfo.MainDicomTags.NumberOfFrames }}</td>
-        </tr>
-        <tr class="collapse" :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded': expanded }"
-            v-bind:id="'instance-details-' + this.instanceId" ref="instance-collapsible-details">
-            <td colspan="100">
-                <InstanceDetails v-if="this.expanded" :instanceId="this.instanceId"
-                    :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags" @deletedInstance="onDeletedInstance">
-                </InstanceDetails>
-            </td>
-        </tr>
-    </tbody>
+            </div>
+            <!-- Details collapse (manual Vue binding) -->
+            <div v-if="expanded" class="border-top p-2">
+                    <InstanceDetails v-if="this.expanded" :instanceId="this.instanceId"
+                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                        :patientMainDicomTags="this.patientMainDicomTags" @deletedInstance="onDeletedInstance">
+                    </InstanceDetails>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
