@@ -2,7 +2,6 @@
 import SeriesList from "./SeriesList.vue"
 import StudyDetails from "./StudyDetails.vue";
 import { mapState } from "vuex"
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import api from "../orthancApi";
 import dateHelpers from "../helpers/date-helpers"
 import SourceType from '../helpers/source-type';
@@ -10,6 +9,11 @@ import SelectionStatus from "../helpers/selection-status.js";
 import resourceHelpers from "../helpers/resource-helpers";
 import TokenLinkButton from "./TokenLinkButton.vue";
 import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
+
+// expanded state must survive a view-mode switch: the table view (desktop / mobile-wide)
+// and the card view (mobile-narrow) are rendered by two different v-for loops in StudyList,
+// so crossing the breakpoint unmounts these components and creates new ones.
+const expandedStudies = new Set();
 
 
 export default {
@@ -21,8 +25,7 @@ export default {
         return {
             study: {},
             loaded: false,
-            expanded: false,
-            collapseElement: null,
+            expanded: expandedStudies.has(this.studyId),
             pdfReports: [],
             isMobileAny: useIsMobileAny(),
             isMobileNarrow: useIsMobileNarrow(),
@@ -40,29 +43,10 @@ export default {
         this.loaded = true;
         this.seriesIds = this.study.Series;
 
-        if (!this.isMobileAny || this.isMobileWide) {
-            if (!this.$refs['study-collapsible-details']) {
-                console.log('no refs: ', studyResponse);
-            }
-            this.$refs['study-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
-                if (e.target == e.currentTarget) {
+        for (const [k, v] of Object.entries(this.$route.query)) {
+            if (k === 'expand') {
+                if (['study', 'series', 'instance'].indexOf(v) != -1) {
                     this.expanded = true;
-                }
-            });
-            this.$refs['study-collapsible-details'].addEventListener('hide.bs.collapse', (e) => {
-                if (e.target == e.currentTarget) {
-                    this.expanded = false;
-                }
-            });
-
-            var el = this.$refs['study-collapsible-details'];
-            this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
-
-            for (const [k, v] of Object.entries(this.$route.query)) {
-                if (k === 'expand') {
-                    if (v == null || v === 'study' || v === 'series' || v === 'instance') {
-                        this.collapseElement.show();
-                    }
                 }
             }
         }
@@ -113,6 +97,9 @@ export default {
             studiesSourceType: state => state.studies.sourceType,
             allLabels: state => state.labels.allLabels
         }),
+        isTableMode() {
+            return !this.isMobileAny || this.isMobileWide;
+        },
         isSelected() {
             return this.$store.getters['selection/getStudySelectionStatus'](this.studyId) != SelectionStatus.NOT_SELECTED;
         },
@@ -201,6 +188,17 @@ export default {
             return span;
         }
     },
+    watch: {
+        // keep the expanded state in a module-level set so it survives
+        // the unmount/remount that happens when switching view mode
+        expanded(value) {
+            if (value) {
+                expandedStudies.add(this.studyId);
+            } else {
+                expandedStudies.delete(this.studyId);
+            }
+        }
+    },
     components: { SeriesList, StudyDetails, TokenLinkButton }
 }
 </script>
@@ -208,7 +206,7 @@ export default {
 
 <template>
     <div style="display: contents">
-        <tbody v-if="!isMobileAny || isMobileWide">
+        <tbody v-if="isTableMode">
             <tr v-if="loaded"
                 :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
                 <td>
@@ -235,7 +233,7 @@ export default {
 
                 <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text"
                     :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }"
-                    data-bs-toggle="collapse" v-bind:data-bs-target="'#study-details-' + this.studyId">
+                    @click="expanded = !expanded">
                     <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip" v-bind:title="formattedStudyDate">{{
                         formattedStudyDate }}
                     </span>
@@ -283,8 +281,9 @@ export default {
                     <span v-if="!hasLabels">&nbsp;</span>
                 </td>
             </tr>
-            <tr v-show="loaded" class="collapse" :class="{ 'study-details-expanded': expanded }"
-                v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
+            <tr v-if="expanded" v-show="loaded" 
+                :class="{ 'study-details-expanded': expanded }"
+                v-bind:id="'study-details-' + this.studyId">
                 <td v-if="loaded && expanded" :colspan="colSpanStudyDetails">
                     <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.study.MainDicomTags"
                         :patientMainDicomTags="this.study.PatientMainDicomTags" :labels="this.study.Labels"
@@ -297,8 +296,6 @@ export default {
             <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
                 <div class="card-body p-0">
                     <div class="d-flex">
-
-                        <!-- left 20%: 2 icons, full height -->
                         <div
                             class="resource-card-icons-large d-flex flex-row justify-content-around align-items-center py-2">
                             <input class="form-check-input" type="checkbox" :checked="isSelected"
@@ -318,11 +315,7 @@ export default {
                                 </TokenLinkButton>
                             </span>
                         </div>
-
-                        <!-- right 80%: 2 info lines -->
                         <div class="resource-card-info flex-grow-1">
-
-                            <!-- line 1: Patient info -->
                             <div class="resource-card-line-1">
                                 <div class="field-w-50">{{ formattedPatientName }}</div>
                                 <div class="field-w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
@@ -343,7 +336,6 @@ export default {
                     </div>
                 </div>
             </div>
-            <!-- Details collapse (manual Vue binding) -->
             <div v-if="expanded" class="border-top p-2">
                 <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
                     :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"

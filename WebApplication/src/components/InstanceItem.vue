@@ -6,6 +6,8 @@ import SourceType from '../helpers/source-type';
 import { mapState, mapGetters } from "vuex"
 import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
 
+const expandedInstances = new Set();
+
 
 export default {
     props: ["instanceId", "instanceInfo", 'seriesMainDicomTags', 'studyMainDicomTags', 'patientMainDicomTags', 'studyId', 'seriesId', 'studySeries', 'seriesInstances'],
@@ -13,32 +15,17 @@ export default {
     data() {
         return {
             loaded: false,
-            expanded: false,
-            collapseElement: null,
+            expanded: expandedInstances.has(this.instanceId),
             isMobileAny: useIsMobileAny(),
             isMobileNarrow: useIsMobileNarrow(),
             isMobileWide: useIsMobileWide(),
         };
     },
     mounted() {
-        this.$refs['instance-collapsible-details'].addEventListener('show.bs.collapse', (e) => {
-            if (e.target == e.currentTarget) {
-                this.expanded = true;
-            }
-        });
-        this.$refs['instance-collapsible-details'].addEventListener('hide.bs.collapse', (e) => {
-            if (e.target == e.currentTarget) {
-                this.expanded = false;
-            }
-        });
-
-        var el = this.$refs['instance-collapsible-details'];
-        this.collapseElement = new bootstrap.Collapse(el, { toggle: false });
-
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
                 if (v === 'instance') {
-                    this.collapseElement.show();
+                    this.expanded = true;
                 }
             }
         }
@@ -47,6 +34,9 @@ export default {
         ...mapState({
             studiesSourceType: state => state.studies.sourceType,
         }),
+        isTableMode() {
+            return !this.isMobileAny || this.isMobileWide;
+        },
         isMultipleSelectionEnabled() {
             return this.studiesSourceType != SourceType.REMOTE_DICOM;
         },
@@ -65,6 +55,17 @@ export default {
             await this.$store.dispatch('selection/selectInstance', { studyId: this.studyId, seriesId: this.seriesId, studySeries: this.studySeries, instanceId: this.instanceId, seriesInstances: this.seriesInstances, isSelected: !this.isSelected }); // this.selected is the value before the click
         }
     },
+    watch: {
+        // keep the expanded state in a module-level set so it survives
+        // the unmount/remount that happens when switching view mode
+        expanded(value) {
+            if (value) {
+                expandedInstances.add(this.instanceId);
+            } else {
+                expandedInstances.delete(this.instanceId);
+            }
+        }
+    },
     components: { InstanceDetails }
 }
 </script>
@@ -72,26 +73,22 @@ export default {
 
 <template>
     <div style="display: contents">
-        <tbody v-if="!isMobileAny || isMobileWide">
-            <tr :class="{ 'instance-row-collapsed': !expanded, 'instance-row-expanded': expanded }">
+        <tbody v-if="isTableMode">
+            <tr :class="{ 'instance-row-expanded': expanded }">
                 <td>
                     <div v-if="isMultipleSelectionEnabled" class="form-check">
                         <input class="form-check-input" type="checkbox" :checked="isSelected"
                             :indeterminate="isPartialySelected" @click="clickedSelect">
                     </div>
                 </td>
-                <td class="cut-text text-center" data-bs-toggle="collapse"
-                    v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
+                <td class="cut-text text-center" @click="expanded = !expanded">{{
                         instanceInfo.MainDicomTags.InstanceNumber }}</td>
-                <td class="cut-text" data-bs-toggle="collapse"
-                    v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
+                <td class="cut-text" @click="expanded = !expanded">{{
                         instanceInfo.MainDicomTags.SOPInstanceUID }}</td>
-                <td class="cut-text text-center" data-bs-toggle="collapse"
-                    v-bind:data-bs-target="'#instance-details-' + this.instanceId">{{
+                <td class="cut-text text-center" @click="expanded = !expanded">{{
                         instanceInfo.MainDicomTags.NumberOfFrames }}</td>
             </tr>
-            <tr class="collapse" :class="{ 'instance-details-collapsed': !expanded, 'instance-details-expanded': expanded }"
-                v-bind:id="'instance-details-' + this.instanceId" ref="instance-collapsible-details">
+            <tr v-if="expanded" class="instance-details-expanded">
                 <td colspan="100">
                     <InstanceDetails v-if="this.expanded" :instanceId="this.instanceId"
                         :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
@@ -120,12 +117,11 @@ export default {
                     </div>
                 </div>
             </div>
-            <!-- Details collapse (manual Vue binding) -->
             <div v-if="expanded" class="border-top p-2">
-                    <InstanceDetails v-if="this.expanded" :instanceId="this.instanceId"
-                        :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
-                        :patientMainDicomTags="this.patientMainDicomTags" @deletedInstance="onDeletedInstance">
-                    </InstanceDetails>
+                <InstanceDetails v-if="this.expanded" :instanceId="this.instanceId"
+                    :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
+                    :patientMainDicomTags="this.patientMainDicomTags" @deletedInstance="onDeletedInstance">
+                </InstanceDetails>
             </div>
         </div>
     </div>
