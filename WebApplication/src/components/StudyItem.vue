@@ -291,14 +291,14 @@ export default {
             </td>
         </tr>
     </tbody>
-    <div v-else-if="loaded && isMobileNarrow" class="mobile-study-card d-flex flex-column gap-1"
+    <div v-else-if="loaded && isMobileNarrow" class="mobile-resource-card d-flex flex-column gap-1"
         :class="{ 'expanded': expanded, 'selected': isSelected  }">
-        <div class="study-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
+        <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
             <div class="card-body p-0">
                 <div class="d-flex">
 
                     <!-- left 20%: 2 icons, full height -->
-                    <div class="study-card-icons d-flex flex-row justify-content-around align-items-center py-2">
+                    <div class="resource-card-icons-large d-flex flex-row justify-content-around align-items-center py-2">
                         <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click.stop="clickedSelect">
                         <span v-if="hasPrimaryViewerIcon">
                             <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
@@ -316,19 +316,19 @@ export default {
                     </div>
 
                     <!-- right 80%: 2 info lines -->
-                    <div class="study-card-info flex-grow-1">
+                    <div class="resource-card-info flex-grow-1">
 
                         <!-- line 1: Patient info -->
-                        <div class="study-card-line-patient">
+                        <div class="resource-card-line-1">
                             <div class="field-w-50">{{ formattedPatientName }}</div>
                             <div class="field-w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
                             <div class="field-w-25 text-end">{{ formattedPatientBirthDate }}</div>
                         </div>
-                        <div v-if="showLabels" class="study-card-line-labels">
+                        <div v-if="showLabels" class="resource-card-line-labels">
                             <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
                             <span v-if="!hasLabels" class="text-muted small">&nbsp;</span>
                         </div>
-                        <div class="study-card-line-study">
+                        <div class="resource-card-line-2">
                             <div class="field-w-20">{{ formattedStudyDate }}</div>
                             <div class="field-w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
                             <div class="field-w-35">{{ study.MainDicomTags.StudyDescription }}</div>
@@ -412,64 +412,4 @@ export default {
     /* to maximize click space for the icon */
 }
 
-
-
-/* keep in sync with media.scss breakpoints */
-.study-card {
-    text-align: left;
-
-    .study-card-icons {
-        width: 20%;                      // the requested 20%
-        min-width: 20%;
-        font-size: 1.25rem;
-        color: var(--bs-secondary-color);
-        background: var(--bs-tertiary-bg);
-        border-right: 1px solid var(--bs-border-color);
-
-        // tappable targets on mobile
-        span {
-            padding: 1rem;
-            cursor: pointer;
-        }
-    }
-
-    .study-card-line-patient {
-        display: flex;
-        flex-wrap: wrap;
-        font-weight: bold;
-        margin: 4px;
-    }
-
-    .study-card-line-study {
-        display: flex;
-        flex-wrap: wrap;
-        // font-size: small;
-        margin: 4px;
-    }
-
-    .field-w-50 { 
-        flex: 0 0 50%; 
-        min-width: 250px;
-    }
-    .field-w-25 { 
-        flex: 0 0 25%; 
-        min-width: 125px;
-    }
-    .field-w-20 { 
-        flex: 0 0 20%; 
-        min-width: 100px;
-    }
-    .field-w-35 { 
-        flex: 0 0 35%; 
-        min-width: 175px;
-    }
-    .field-w-10 { 
-        flex: 0 0 10%; 
-        min-width: 30px;
-    }
-
-    .study-card-field {
-        min-width: 0;                     // required for text-truncate in flex
-    }
-}
 </style>

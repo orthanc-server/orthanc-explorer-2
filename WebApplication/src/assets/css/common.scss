@@ -91,6 +91,88 @@
 }
 
 
+.resource-cards-container {
+    display: block;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+/* keep in sync with media.scss breakpoints */
+.resource-card {
+    text-align: left;
+
+    .resource-card-icons-large {
+        width: 15%;                      // the requested 20%
+        min-width: 15%;
+        font-size: 1.25rem;
+        color: var(--bs-secondary-color);
+        background: var(--bs-tertiary-bg);
+        border-right: 1px solid var(--bs-border-color);
+
+        // tappable targets on mobile
+        span {
+            padding: 1rem;
+            cursor: pointer;
+        }
+    }
+
+    .resource-card-icons-small {
+        width: 10%;                      // the requested 20%
+        min-width: 10%;
+        font-size: 1.15rem;
+        color: var(--bs-secondary-color);
+        background: var(--bs-tertiary-bg);
+        border-right: 1px solid var(--bs-border-color);
+
+        // tappable targets on mobile
+        span {
+            padding: 1rem;
+            cursor: pointer;
+        }
+    }
+
+    .resource-card-line-1 {
+        display: flex;
+        flex-wrap: wrap;
+        font-weight: bold;
+        margin: 4px;
+    }
+
+    .resource-card-line-2 {
+        display: flex;
+        flex-wrap: wrap;
+        // font-size: small;
+        margin: 4px;
+    }
+
+    .field-w-50 { 
+        flex: 0 0 50%; 
+        min-width: 250px;
+    }
+    .field-w-25 { 
+        flex: 0 0 25%; 
+        min-width: 125px;
+    }
+    .field-w-20 { 
+        flex: 0 0 20%; 
+        min-width: 100px;
+    }
+    .field-w-35 { 
+        flex: 0 0 35%; 
+        min-width: 175px;
+    }
+    .field-w-10 { 
+        flex: 0 0 10%; 
+        min-width: 30px;
+    }
+
+    .resource-card-field {
+        min-width: 0;                     // required for text-truncate in flex
+    }
+}
+
+
 .responsive-row-442 {
     display: grid;
     grid-template-columns: 40% 40% 20%;
@@ -98,7 +180,7 @@
 }
 @media (max-width: 767px) {
   .responsive-row-442 {
-    grid-template-columns: 1fr;
+    grid-template-columns: 100%;
   }
 }
 
@@ -109,6 +191,6 @@
 }
 @media (max-width: 767px) {
   .responsive-row-73 {
-    grid-template-columns: 1fr;
+    grid-template-columns: 100%;
   }
 }

@@ -1111,8 +1111,6 @@ export default {
         <div v-else class="mobile-study-list" :class="{ 'mobile-landscape': isMobileWide }">
             <!-- Filter Strip (two-row grid) -->
             <div class="mobile-filter-strip" v-on:keyup.enter="search">
-                <!-- Portrait: two rows / Landscape: single row -->
-                <!-- Portrait: two rows -->
                 <div class="mobile-filter-row">
                     <div class="mobile-filter-column mobile-clear-col">
                         <div class="mobile-filter-title">&nbsp;</div>
@@ -1233,7 +1231,7 @@ export default {
             </div>
 
             <!-- Cards -->
-            <div class="mobile-cards-container mt-2">
+            <div class="resource-cards-container mt-2">
                 <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-'+studyId" :studyId="studyId"
                     v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
                 </StudyItem>
@@ -1401,6 +1399,7 @@ button.form-control.study-list-filter {
     margin-left: 5%;
     width: 95% !important;
     font-size: 0.9rem;
+    table-layout: fixed;
 }
 
 .study-details-table>:not(caption)>*>* {
@@ -1483,7 +1482,6 @@ button.form-control.study-list-filter {
 </style>
 
 <style scoped>
-/* Mobile Portrait Specific Styles */
 .mobile-study-list {
     width: 100vw;
     overflow-x: hidden;
@@ -1660,11 +1658,5 @@ button.form-control.study-list-filter {
 .mobile-filter-column :deep(.form-control::placeholder),
 .mobile-filter-column :deep(.dp__input::placeholder) {
     color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.mobile-cards-container {
-    display: block;
-    padding-left: 5px;
-    padding-right: 5px;
 }
 </style>

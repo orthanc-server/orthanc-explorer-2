@@ -6,6 +6,7 @@ import SeriesItem from "./SeriesItem.vue"
 import SelectionStatus from "../helpers/selection-status.js"
 import { translateDicomTag } from "../locales/i18n"
 import SourceType from '../helpers/source-type';
+import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
 
 
 export default {
@@ -14,6 +15,9 @@ export default {
     data() {
         return {
             seriesInfo: {},
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     computed: {
@@ -86,7 +90,7 @@ export default {
 </script>
 
 <template>
-    <table class="table table-responsive table-sm series-table">
+    <table v-if="!isMobileAny || isMobileWide" class="table table-responsive table-sm series-table">
         <thead>
             <tr>
                 <th width="2%" scope="col" class="series-table-header">
@@ -111,6 +115,13 @@ export default {
             :seriesInfo="seriesInfo[seriesId]" :studySeries="studySeries" :studyMainDicomTags="this.studyMainDicomTags"
             :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesItem>
     </table>
+    <div v-else>
+        <div class="resource-cards-container mt-2">
+            <SeriesItem v-for="seriesId in sortedSeriesIds" :key="seriesId" :seriesId="seriesId"
+                :seriesInfo="seriesInfo[seriesId]" :studySeries="studySeries" :studyMainDicomTags="this.studyMainDicomTags"
+                :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesItem>
+        </div>
+    </div>
 </template>
 
 <style>

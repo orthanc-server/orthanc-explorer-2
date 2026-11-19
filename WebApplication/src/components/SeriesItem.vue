@@ -4,6 +4,7 @@ import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import { mapState, mapGetters } from "vuex"
 import SourceType from '../helpers/source-type';
 import SelectionStatus from "../helpers/selection-status";
+import { useIsMobileAny, useIsMobileNarrow, useIsMobileWide } from "../helpers/media-helpers";
 
 
 export default {
@@ -13,7 +14,10 @@ export default {
         return {
             loaded: false,
             expanded: false,
-            collapseElement: null
+            collapseElement: null,
+            isMobileAny: useIsMobileAny(),
+            isMobileNarrow: useIsMobileNarrow(),
+            isMobileWide: useIsMobileWide(),
         };
     },
     computed: {
@@ -82,35 +86,69 @@ export default {
 
 
 <template>
-    <tbody>
-        <tr :class="{ 'series-row-collapsed': !expanded, 'series-row-expanded': expanded }">
-            <td>
-                <div v-if="isMultipleSelectionEnabled" class="form-check">
-                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
+    <div style="display: contents">
+        <tbody v-if="!isMobileAny || isMobileWide">
+            <tr :class="{ 'series-row-collapsed': !expanded, 'series-row-expanded': expanded }">
+                <td>
+                    <div v-if="isMultipleSelectionEnabled" class="form-check">
+                        <input class="form-check-input" type="checkbox" :checked="isSelected"
+                            :indeterminate="isPartialySelected" @click="clickedSelect">
+                    </div>
+                </td>
+                <td class="cut-text text-center" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.SeriesNumber
+                    }}
+                </td>
+                <td class="cut-text" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#series-details-' + this.seriesId">
+                    <span data-bs-toggle="tooltip" v-bind:title="seriesInfo.MainDicomTags.SeriesDescription">{{
+                        seriesInfo.MainDicomTags.SeriesDescription }}</span>
+                </td>
+                <td class="cut-text text-center" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.Modality }}
+                </td>
+                <td class="cut-text text-center" data-bs-toggle="collapse"
+                    v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ instancesCount }}</td>
+            </tr>
+            <tr class="collapse" :class="{ 'series-details-collapsed': !expanded, 'series-details-expanded': expanded }"
+                v-bind:id="'series-details-' + this.seriesId" ref="series-collapsible-details">
+                <td colspan="100">
+                    <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId"
+                        :instancesIds="this.seriesInfo.Instances" :studySeries="this.studySeries"
+                        :studyId="this.parentStudyId" :seriesMainDicomTags="this.seriesInfo.MainDicomTags"
+                        :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+                        @deletedSeries="onDeletedSeries"></SeriesDetails>
+                </td>
+            </tr>
+        </tbody>
+        <div v-else-if="isMobileNarrow" class="mobile-series-card d-flex flex-column gap-1"
+            :class="{ 'expanded': expanded, 'selected': isSelected }">
+            <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
+                <div class="card-body p-0">
+                    <div class="d-flex">
+                        <div class="resource-card-icons-small d-flex flex-row justify-content-around align-items-center py-2">
+                            <input class="form-check-input" type="checkbox" :checked="isSelected"
+                                :indeterminate="isPartialySelected" @click.stop="clickedSelect">
+                        </div>
+                        <div class="resource-card-info flex-grow-1">
+                            <div class="resource-card-line-1">
+                                <div class="field-w-20">{{ seriesInfo.MainDicomTags.SeriesNumber }}</div>
+                                <div class="field-w-50">{{ seriesInfo.MainDicomTags.SeriesDescription }}</div>
+                                <div class="field-w-20">{{ seriesInfo.MainDicomTags.Modality }}</div>
+                                <div class="field-w-10 text-end">{{ instancesCount }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </td>
-            <td class="cut-text text-center" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.SeriesNumber }}
-            </td>
-            <td class="cut-text" data-bs-toggle="collapse" v-bind:data-bs-target="'#series-details-' + this.seriesId">
-                <span data-bs-toggle="tooltip" v-bind:title="seriesInfo.MainDicomTags.SeriesDescription">{{
-                    seriesInfo.MainDicomTags.SeriesDescription }}</span>
-            </td>
-            <td class="cut-text text-center" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ seriesInfo.MainDicomTags.Modality }}</td>
-            <td class="cut-text text-center" data-bs-toggle="collapse"
-                v-bind:data-bs-target="'#series-details-' + this.seriesId">{{ instancesCount }}</td>
-        </tr>
-        <tr class="collapse" :class="{ 'series-details-collapsed': !expanded, 'series-details-expanded': expanded }"
-            v-bind:id="'series-details-' + this.seriesId" ref="series-collapsible-details">
-            <td colspan="100">
-                <SeriesDetails v-if="this.expanded" :seriesId="this.seriesId" :instancesIds="this.seriesInfo.Instances"
-                    :studySeries="this.studySeries" :studyId="this.parentStudyId"
-                    :seriesMainDicomTags="this.seriesInfo.MainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                    :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesDetails>
-            </td>
-        </tr>
-    </tbody>
+            </div>
+            <!-- Details collapse (manual Vue binding) -->
+            <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
+                <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
+                    :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
+                    @deletedStudy="onDeletedStudy"></StudyDetails>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>

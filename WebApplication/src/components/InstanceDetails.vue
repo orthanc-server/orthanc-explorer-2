@@ -79,6 +79,7 @@ export default {
     width: 95% !important;
     background-color: var(--instance-details-bg-color) !important;
     font-size: 0.8rem;
+    table-layout: fixed;
 }
 
 .instance-details-table td {

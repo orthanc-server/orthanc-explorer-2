@@ -138,6 +138,7 @@ export default {
     width: 95% !important;
     background-color: var(--series-details-bg-color);
     font-size: 0.8rem;
+    table-layout: fixed;
 }
 
 .series-details-table td {

@@ -898,7 +898,7 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="resource-button-group">
         <div class="custom-button-group">
             <span v-for="viewer in uiOptions.ViewersOrdering" :key="viewer">
                 <TokenLinkButton v-if="viewer == 'meddream' && hasMedDreamViewerButton"
@@ -1213,6 +1213,10 @@ export default {
 </template>
 
 <style>
+.resource-button-group {
+    text-align: left;
+}
+
 .custom-button:disabled {
     pointer-events: none;
     background-color: #6c757d;
