@@ -107,8 +107,7 @@ export default {
             :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
             :patientMainDicomTags="this.patientMainDicomTags" @deletedInstance="onDeletedInstance"
             :studyId="this.studyId" :studySeries="this.studySeries" :seriesInstances="this.seriesInstances"
-            :seriesId="this.seriesId"
-            v-observe-visibility="{ callback: visibilityChanged, once: true }">
+            :seriesId="this.seriesId" v-observe-visibility="{ callback: visibilityChanged, once: true }">
         </InstanceItem>
     </table>
 </template>

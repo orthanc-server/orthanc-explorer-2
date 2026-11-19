@@ -10,7 +10,7 @@ import { translateDicomTag } from "../locales/i18n"
 import resourceHelpers from "../helpers/resource-helpers"
 import StudyFilterCell from "./StudyFilterCell.vue"
 
-import { useIsMobileNarrow, useIsMobileWide, useIsMobileAny} from "../helpers/media-helpers.js"
+import { useIsMobileNarrow, useIsMobileWide, useIsMobileAny } from "../helpers/media-helpers.js"
 import $ from "jquery"
 import api from "../orthancApi";
 import { ref } from 'vue';
@@ -264,7 +264,7 @@ export default {
                 span++;
             }
 
-            span = Math.max(span, this.colSpanClearFilter +1);
+            span = Math.max(span, this.colSpanClearFilter + 1);
             return span;
         },
         colSpanMultiLabelsFilter() {
@@ -660,15 +660,15 @@ export default {
                     }
                 } else if (key == "StudyDate") {
                     this.filterStudyDate = value;
-                    this.messageBus.emit('set-date-picker', { dateTag: 'StudyDate', dateValue: value});
+                    this.messageBus.emit('set-date-picker', { dateTag: 'StudyDate', dateValue: value });
                 } else if (key == "PatientBirthDate") {
                     this.filterPatientBirthDate = value;
-                    this.messageBus.emit('set-date-picker', { dateTag: 'PatientBirthDate', dateValue: value});
+                    this.messageBus.emit('set-date-picker', { dateTag: 'PatientBirthDate', dateValue: value });
                 } else if (key == "ModalitiesInStudy") {
                     this.messageBus.emit('update-modalities-filter', value);
                 } else {
                     this.filterGenericTags[key] = value;
-                    this.messageBus.emit('set-text-filter', { textTag: key, textValue: value});
+                    this.messageBus.emit('set-text-filter', { textTag: key, textValue: value });
                 }
             }
         },
@@ -684,15 +684,15 @@ export default {
                 for (const tag of this.uiOptions.StudyListColumns) {
                     if (['StudyDate', 'PatientBirthDate', 'modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tag) == -1) {
                         this.filterGenericTags[tag] = '';
-                        this.messageBus.emit("clear-text-filter", {textTag: tag});
+                        this.messageBus.emit("clear-text-filter", { textTag: tag });
                     }
                 }
             }
             this.filterLabels = [];
             this.messageBus.emit("clear-modalities-filter");
-            this.messageBus.emit("clear-date-picker", {dateTag: "StudyDate"});
-            this.messageBus.emit("clear-date-picker", {dateTag: "PatientBirthDate"});
-            
+            this.messageBus.emit("clear-date-picker", { dateTag: "StudyDate" });
+            this.messageBus.emit("clear-date-picker", { dateTag: "PatientBirthDate" });
+
         },
         isFilteringOnlyOnLabels() {
             let hasGenericTagFilter = false;
@@ -992,10 +992,9 @@ export default {
                     </th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
                         <div class="dropdown">
-                            <StudyFilterCell :columnTag="columnTag" idPrefix="desktop" 
-                                :placeholder="getFilterPlaceholder(columnTag)" 
-                                :filterClass="getFilterClass(columnTag)"
-                                />
+                            <StudyFilterCell :columnTag="columnTag" idPrefix="desktop"
+                                :placeholder="getFilterPlaceholder(columnTag)"
+                                :filterClass="getFilterClass(columnTag)" />
                         </div>
                     </th>
                 </tr>
@@ -1092,8 +1091,7 @@ export default {
                                         class="form-control study-list-filter btn filter-button btn-secondary search-button"
                                         data-bs-toggle="tooltip"
                                         :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
-                                        id="search"
-                                        title="Search">
+                                        id="search" title="Search">
                                         <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
                                         <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
                                             aria-hidden="true"></span>
@@ -1104,7 +1102,7 @@ export default {
                     </th>
                 </tr>
             </thead>
-            <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-'+studyId" :studyId="studyId"
+            <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-' + studyId" :studyId="studyId"
                 v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
             </StudyItem>
         </table>
@@ -1128,22 +1126,20 @@ export default {
                             {{ columnTitle(columnTag) }}
                             <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
                             </div>
-                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
-                                    class="bi bi-arrow-down"></i>
+                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i class="bi bi-arrow-down"></i>
                             </div>
                         </div>
                         <div class="mobile-filter-input">
-                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile" 
-                                :placeholder="getFilterPlaceholder(columnTag)" 
-                                :filterClass="getFilterClass(columnTag)"
-                                />
+                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile"
+                                :placeholder="getFilterPlaceholder(columnTag)"
+                                :filterClass="getFilterClass(columnTag)" />
                         </div>
                     </div>
                 </div>
                 <!-- Row 2: remaining columns + search button -->
                 <div class="mobile-filter-row">
-                    <div v-for="(columnTag, index) in mobileFilterRow2" :key="columnTag"
-                        class="mobile-filter-column" :class="{
+                    <div v-for="(columnTag, index) in mobileFilterRow2" :key="columnTag" class="mobile-filter-column"
+                        :class="{
                             'mobile-filter-column-estudio': index === 0,
                             'mobile-filter-column-acceso': index === mobileFilterRow2.length - 1
                         }">
@@ -1153,15 +1149,13 @@ export default {
                             {{ columnTitle(columnTag) }}
                             <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
                             </div>
-                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i
-                                    class="bi bi-arrow-down"></i>
+                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i class="bi bi-arrow-down"></i>
                             </div>
                         </div>
                         <div class="mobile-filter-input">
-                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile" 
-                                :placeholder="getFilterPlaceholder(columnTag)" 
-                                :filterClass="getFilterClass(columnTag)"
-                                />
+                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile"
+                                :placeholder="getFilterPlaceholder(columnTag)"
+                                :filterClass="getFilterClass(columnTag)" />
                         </div>
                     </div>
                     <!-- Search Button -->
@@ -1232,7 +1226,7 @@ export default {
 
             <!-- Cards -->
             <div class="resource-cards-container mt-2">
-                <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-'+studyId" :studyId="studyId"
+                <StudyItem v-for="studyId in studiesIds" :key="studyId" :id="'studyItem-' + studyId" :studyId="studyId"
                     v-observe-visibility="{ callback: visibilityChanged, once: true }" @deletedStudy="onDeletedStudy">
                 </StudyItem>
             </div>

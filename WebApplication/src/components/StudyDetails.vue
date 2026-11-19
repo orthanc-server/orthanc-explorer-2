@@ -169,15 +169,16 @@ export default {
                         <div>
                             <ul class="resource-details">
                                 <ResourceDetailText v-for="tag in uiOptions.StudyMainTags" :key="tag"
-                                    :tags="studyMainDicomTagsLocalCopy" :tag="tag" :showIfEmpty="true" ></ResourceDetailText>
-                            </ul> 
+                                    :tags="studyMainDicomTagsLocalCopy" :tag="tag" :showIfEmpty="true">
+                                </ResourceDetailText>
+                            </ul>
                         </div>
                         <div>
                             <ul class="resource-details">
                                 <ResourceDetailText v-for="tag in uiOptions.PatientMainTags" :key="tag"
                                     :tags="patientMainDicomTags" :tag="tag" :showIfEmpty="true"></ResourceDetailText>
                             </ul>
-                            <p v-if="isLocalOrthanc && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1" 
+                            <p v-if="isLocalOrthanc && hasLoadedSamePatientsStudiesCount && samePatientStudiesCount > 1"
                                 class="info-text">
                                 {{ $t('this_patient_has_other_studies', { count: samePatientStudiesCount }) }}.
                                 <router-link :to='samePatientStudiesLink'>
@@ -237,6 +238,7 @@ export default {
     min-width: 0;
     box-sizing: border-box;
 }
+
 .study-button-group i {
     font-size: 1.4rem;
 }
@@ -245,5 +247,4 @@ export default {
     text-wrap: wrap;
     padding-left: 1rem;
 }
-
 </style>

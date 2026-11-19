@@ -106,9 +106,11 @@ export default {
                         <div class="study-button-group">
                             <ResourceButtonGroup :resourceOrthancId="this.seriesId" :resourceLevel="'series'"
                                 :resourceDicomUid="this.seriesMainDicomTags.SeriesInstanceUID"
-                                :studyMainDicomTags="this.studyMainDicomTags" :seriesMainDicomTags="this.seriesMainDicomTags"
-                                :patientMainDicomTags="this.patientMainDicomTags" :seriesInstances="this.seriesInstances"
-                                :customClass="'instance-button-group'" @deletedResource="onDeletedSeries"></ResourceButtonGroup>
+                                :studyMainDicomTags="this.studyMainDicomTags"
+                                :seriesMainDicomTags="this.seriesMainDicomTags"
+                                :patientMainDicomTags="this.patientMainDicomTags"
+                                :seriesInstances="this.seriesInstances" :customClass="'instance-button-group'"
+                                @deletedResource="onDeletedSeries"></ResourceButtonGroup>
                         </div>
                     </div>
                 </td>
@@ -118,13 +120,15 @@ export default {
                     <InstanceList v-if="!useExtendedInstanceList" :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
                         :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances" :studySeries="this.studySeries" :studyId="this.studyId"
-                        @deletedInstance="onDeletedInstance"></InstanceList>
+                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances"
+                        :studySeries="this.studySeries" :studyId="this.studyId" @deletedInstance="onDeletedInstance">
+                    </InstanceList>
                     <InstanceListExtended v-if="useExtendedInstanceList" :seriesId="this.seriesId"
                         :seriesMainDicomTags="this.seriesMainDicomTags"
                         :patientMainDicomTags="this.patientMainDicomTags" :studyMainDicomTags="this.studyMainDicomTags"
-                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances" :studySeries="this.studySeries" :studyId="this.studyId"
-                        @deletedInstance="onDeletedInstance"></InstanceListExtended>
+                        :instancesIds="this.instancesIds" :seriesInstances="this.seriesInstances"
+                        :studySeries="this.studySeries" :studyId="this.studyId" @deletedInstance="onDeletedInstance">
+                    </InstanceListExtended>
                 </td>
             </tr>
         </tbody>

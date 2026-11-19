@@ -97,8 +97,7 @@ export default {
             :instanceInfo="instancesInfo[instanceId]" :studyMainDicomTags="this.studyMainDicomTags"
             :seriesMainDicomTags="this.seriesMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
             :studyId="this.studyId" :studySeries="this.studySeries" :seriesInstances="this.seriesInstances"
-            :seriesId="this.seriesId"
-            @deletedInstance="onDeletedInstance"></InstanceItem>
+            :seriesId="this.seriesId" @deletedInstance="onDeletedInstance"></InstanceItem>
     </table>
 </template>
 

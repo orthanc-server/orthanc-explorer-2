@@ -209,142 +209,146 @@ export default {
 <template>
     <div style="display: contents">
         <tbody v-if="!isMobileAny || isMobileWide">
-        <tr v-if="loaded"
-            :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
-            <td>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
-                </div>
-            </td>
-            <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
-                <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
-                    :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon" iconClass="bi bi-eye-fill"
-                    :tokenType="primaryViewerTokenType" :opensInNewTab="true">
-                </TokenLinkButton>
-            </td>
-            <td v-if="hasPrimaryViewerIconPlaceholder"></td>
-            <td v-if="hasPdfReportIcon" class="td-pdf-icon">
-                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" 
-                    :linkUrl="pdfReport.url" :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon"
-                    iconClass="bi bi-file-earmark-text" :tokenType="'download-instant-link'" :opensInNewTab="true"
-                    :title="pdfReport.title">
-                </TokenLinkButton>
-            </td>
-            <td v-if="hasPdfReportIconPlaceholder"></td>
-
-            <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text"
-                :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }"
-                data-bs-toggle="collapse" v-bind:data-bs-target="'#study-details-' + this.studyId">
-                <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip" v-bind:title="formattedStudyDate">{{
-                    formattedStudyDate }}
-                </span>
-                <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
-                    v-bind:title="study.MainDicomTags.AccessionNumber">{{ study.MainDicomTags.AccessionNumber }}
-                </span>
-                <span v-else-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
-                    v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
-                </span>
-                <span v-else-if="columnTag == 'PatientSex'" data-bs-toggle="tooltip"
-                    v-bind:title="study.PatientMainDicomTags.PatientSex">{{ study.PatientMainDicomTags.PatientSex }}
-                </span>
-                <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
-                    v-bind:title="formattedPatientName">{{ formattedPatientName }}
-                </span>
-                <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
-                    v-bind:title="formattedPatientBirthDate">{{ formattedPatientBirthDate }}
-                </span>
-                <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
-                    v-bind:title="study.MainDicomTags.StudyDescription">{{ study.MainDicomTags.StudyDescription }}
-                </span>
-                <span v-else-if="columnTag == 'modalities'" data-bs-toggle="tooltip"
-                    v-bind:title="modalitiesInStudyForDisplay">{{
-                        modalitiesInStudyForDisplay }}
-                </span>
-                <span v-else-if="columnTag == 'seriesCount'" data-bs-toggle="tooltip" v-bind:title="seriesCount">{{
-                    seriesCount }}
-                </span>
-                <span v-else-if="columnTag == 'instancesCount'" data-bs-toggle="tooltip"
-                    v-bind:title="instancesCount">{{ instancesCount }}
-                </span>
-                <span v-else-if="columnTag == 'seriesAndInstancesCount'" data-bs-toggle="tooltip"
-                    v-bind:title="seriesAndInstancesCount">{{ seriesAndInstancesCount }}
-                </span>
-                <span v-else>{{ study.MainDicomTags[columnTag] }}
-                </span>
-            </td>
-        </tr>
-        <tr v-show="showLabels">
-            <td></td>
-            <td v-if="hasPrimaryViewerColumn"></td>
-            <td v-if="hasPdfReportIconColumn"></td>
-            <td :colspan="uiOptions.StudyListColumns.length" class="label-row">
-                <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
-                <span v-if="!hasLabels">&nbsp;</span>
-            </td>
-        </tr>
-        <tr v-show="loaded" class="collapse" :class="{ 'study-details-expanded': expanded }"
-            v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
-            <td v-if="loaded && expanded" :colspan="colSpanStudyDetails">
-                <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.study.MainDicomTags"
-                    :patientMainDicomTags="this.study.PatientMainDicomTags" :labels="this.study.Labels"
-                    @deletedStudy="onDeletedStudy"></StudyDetails>
-            </td>
-        </tr>
-    </tbody>
-    <div v-else-if="loaded && isMobileNarrow" class="mobile-resource-card d-flex flex-column gap-1"
-        :class="{ 'expanded': expanded, 'selected': isSelected  }">
-        <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
-            <div class="card-body p-0">
-                <div class="d-flex">
-
-                    <!-- left 20%: 2 icons, full height -->
-                    <div class="resource-card-icons-large d-flex flex-row justify-content-around align-items-center py-2">
-                        <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click.stop="clickedSelect">
-                        <span v-if="hasPrimaryViewerIcon">
-                            <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
-                                :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon" iconClass="bi bi-eye-fill"
-                                :tokenType="primaryViewerTokenType" :opensInNewTab="true">
-                            </TokenLinkButton>                            
-                        </span>
-                        <span v-if="hasPdfReportIcon">
-                            <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" 
-                                :linkUrl="pdfReport.url" :resources='[{"Level": "Study", "ID": [study.ID]}]' linkType="icon"
-                                iconClass="bi bi-file-earmark-text" :tokenType="'download-instant-link'" :opensInNewTab="true"
-                                :title="pdfReport.title">
-                            </TokenLinkButton>                          
-                        </span>
+            <tr v-if="loaded"
+                :class="{ 'study-row-collapsed': !expanded, 'study-row-expanded': expanded, 'study-row-show-labels': showLabels }">
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" :checked="isSelected"
+                            :indeterminate="isPartialySelected" @click="clickedSelect">
                     </div>
+                </td>
+                <td v-if="hasPrimaryViewerIcon" class="td-viewer-icon">
+                    <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
+                        :resources='[{ "Level": "Study", "ID": [study.ID] }]' linkType="icon" iconClass="bi bi-eye-fill"
+                        :tokenType="primaryViewerTokenType" :opensInNewTab="true">
+                    </TokenLinkButton>
+                </td>
+                <td v-if="hasPrimaryViewerIconPlaceholder"></td>
+                <td v-if="hasPdfReportIcon" class="td-pdf-icon">
+                    <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id" :linkUrl="pdfReport.url"
+                        :resources='[{ "Level": "Study", "ID": [study.ID] }]' linkType="icon"
+                        iconClass="bi bi-file-earmark-text" :tokenType="'download-instant-link'" :opensInNewTab="true"
+                        :title="pdfReport.title">
+                    </TokenLinkButton>
+                </td>
+                <td v-if="hasPdfReportIconPlaceholder"></td>
 
-                    <!-- right 80%: 2 info lines -->
-                    <div class="resource-card-info flex-grow-1">
+                <td v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" class="cut-text"
+                    :class="{ 'text-center': columnTag in ['modalities', 'seriesCount', 'instancesCount', 'seriesAndInstancesCount'] }"
+                    data-bs-toggle="collapse" v-bind:data-bs-target="'#study-details-' + this.studyId">
+                    <span v-if="columnTag == 'StudyDate'" data-bs-toggle="tooltip" v-bind:title="formattedStudyDate">{{
+                        formattedStudyDate }}
+                    </span>
+                    <span v-else-if="columnTag == 'AccessionNumber'" data-bs-toggle="tooltip"
+                        v-bind:title="study.MainDicomTags.AccessionNumber">{{ study.MainDicomTags.AccessionNumber }}
+                    </span>
+                    <span v-else-if="columnTag == 'PatientID'" data-bs-toggle="tooltip"
+                        v-bind:title="study.PatientMainDicomTags.PatientID">{{ study.PatientMainDicomTags.PatientID }}
+                    </span>
+                    <span v-else-if="columnTag == 'PatientSex'" data-bs-toggle="tooltip"
+                        v-bind:title="study.PatientMainDicomTags.PatientSex">{{ study.PatientMainDicomTags.PatientSex }}
+                    </span>
+                    <span v-else-if="columnTag == 'PatientName'" data-bs-toggle="tooltip"
+                        v-bind:title="formattedPatientName">{{ formattedPatientName }}
+                    </span>
+                    <span v-else-if="columnTag == 'PatientBirthDate'" data-bs-toggle="tooltip"
+                        v-bind:title="formattedPatientBirthDate">{{ formattedPatientBirthDate }}
+                    </span>
+                    <span v-else-if="columnTag == 'StudyDescription'" data-bs-toggle="tooltip"
+                        v-bind:title="study.MainDicomTags.StudyDescription">{{ study.MainDicomTags.StudyDescription }}
+                    </span>
+                    <span v-else-if="columnTag == 'modalities'" data-bs-toggle="tooltip"
+                        v-bind:title="modalitiesInStudyForDisplay">{{
+                            modalitiesInStudyForDisplay }}
+                    </span>
+                    <span v-else-if="columnTag == 'seriesCount'" data-bs-toggle="tooltip" v-bind:title="seriesCount">{{
+                        seriesCount }}
+                    </span>
+                    <span v-else-if="columnTag == 'instancesCount'" data-bs-toggle="tooltip"
+                        v-bind:title="instancesCount">{{ instancesCount }}
+                    </span>
+                    <span v-else-if="columnTag == 'seriesAndInstancesCount'" data-bs-toggle="tooltip"
+                        v-bind:title="seriesAndInstancesCount">{{ seriesAndInstancesCount }}
+                    </span>
+                    <span v-else>{{ study.MainDicomTags[columnTag] }}
+                    </span>
+                </td>
+            </tr>
+            <tr v-show="showLabels">
+                <td></td>
+                <td v-if="hasPrimaryViewerColumn"></td>
+                <td v-if="hasPdfReportIconColumn"></td>
+                <td :colspan="uiOptions.StudyListColumns.length" class="label-row">
+                    <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
+                    <span v-if="!hasLabels">&nbsp;</span>
+                </td>
+            </tr>
+            <tr v-show="loaded" class="collapse" :class="{ 'study-details-expanded': expanded }"
+                v-bind:id="'study-details-' + this.studyId" ref="study-collapsible-details">
+                <td v-if="loaded && expanded" :colspan="colSpanStudyDetails">
+                    <StudyDetails :studyId="this.studyId" :studyMainDicomTags="this.study.MainDicomTags"
+                        :patientMainDicomTags="this.study.PatientMainDicomTags" :labels="this.study.Labels"
+                        @deletedStudy="onDeletedStudy"></StudyDetails>
+                </td>
+            </tr>
+        </tbody>
+        <div v-else-if="loaded && isMobileNarrow" class="mobile-resource-card d-flex flex-column gap-1"
+            :class="{ 'expanded': expanded, 'selected': isSelected }">
+            <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
+                <div class="card-body p-0">
+                    <div class="d-flex">
 
-                        <!-- line 1: Patient info -->
-                        <div class="resource-card-line-1">
-                            <div class="field-w-50">{{ formattedPatientName }}</div>
-                            <div class="field-w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
-                            <div class="field-w-25 text-end">{{ formattedPatientBirthDate }}</div>
+                        <!-- left 20%: 2 icons, full height -->
+                        <div
+                            class="resource-card-icons-large d-flex flex-row justify-content-around align-items-center py-2">
+                            <input class="form-check-input" type="checkbox" :checked="isSelected"
+                                :indeterminate="isPartialySelected" @click.stop="clickedSelect">
+                            <span v-if="hasPrimaryViewerIcon">
+                                <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
+                                    :resources='[{ "Level": "Study", "ID": [study.ID] }]' linkType="icon"
+                                    iconClass="bi bi-eye-fill" :tokenType="primaryViewerTokenType"
+                                    :opensInNewTab="true">
+                                </TokenLinkButton>
+                            </span>
+                            <span v-if="hasPdfReportIcon">
+                                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id"
+                                    :linkUrl="pdfReport.url" :resources='[{ "Level": "Study", "ID": [study.ID] }]'
+                                    linkType="icon" iconClass="bi bi-file-earmark-text"
+                                    :tokenType="'download-instant-link'" :opensInNewTab="true" :title="pdfReport.title">
+                                </TokenLinkButton>
+                            </span>
                         </div>
-                        <div v-if="showLabels" class="resource-card-line-labels">
-                            <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
-                            <span v-if="!hasLabels" class="text-muted small">&nbsp;</span>
-                        </div>
-                        <div class="resource-card-line-2">
-                            <div class="field-w-20">{{ formattedStudyDate }}</div>
-                            <div class="field-w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
-                            <div class="field-w-35">{{ study.MainDicomTags.StudyDescription }}</div>
-                            <div class="field-w-10">{{ modalitiesInStudyForDisplay }}</div>
-                            <div class="field-w-10 text-end">{{ seriesAndInstancesCount }}</div>
+
+                        <!-- right 80%: 2 info lines -->
+                        <div class="resource-card-info flex-grow-1">
+
+                            <!-- line 1: Patient info -->
+                            <div class="resource-card-line-1">
+                                <div class="field-w-50">{{ formattedPatientName }}</div>
+                                <div class="field-w-25">{{ study.PatientMainDicomTags.PatientID }}</div>
+                                <div class="field-w-25 text-end">{{ formattedPatientBirthDate }}</div>
+                            </div>
+                            <div v-if="showLabels" class="resource-card-line-labels">
+                                <span v-for="label in study.Labels" :key="label" class="label badge">{{ label }}</span>
+                                <span v-if="!hasLabels" class="text-muted small">&nbsp;</span>
+                            </div>
+                            <div class="resource-card-line-2">
+                                <div class="field-w-20">{{ formattedStudyDate }}</div>
+                                <div class="field-w-20">{{ study.MainDicomTags.AccessionNumber }}</div>
+                                <div class="field-w-35">{{ study.MainDicomTags.StudyDescription }}</div>
+                                <div class="field-w-10">{{ modalitiesInStudyForDisplay }}</div>
+                                <div class="field-w-10 text-end">{{ seriesAndInstancesCount }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Details collapse (manual Vue binding) -->
-        <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
-            <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
-                :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
-                @deletedStudy="onDeletedStudy"></StudyDetails>
-        </div>
+            <!-- Details collapse (manual Vue binding) -->
+            <div v-if="expanded" class="msc-details msc-details-container border-top p-2">
+                <StudyDetails :studyId="studyId" :studyMainDicomTags="study.MainDicomTags"
+                    :patientMainDicomTags="study.PatientMainDicomTags" :labels="study.Labels"
+                    @deletedStudy="onDeletedStudy"></StudyDetails>
+            </div>
         </div>
     </div>
 </template>
@@ -411,5 +415,4 @@ export default {
     padding: 0;
     /* to maximize click space for the icon */
 }
-
 </style>

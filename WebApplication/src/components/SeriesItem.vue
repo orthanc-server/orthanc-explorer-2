@@ -126,7 +126,8 @@ export default {
             <div class="resource-card card mb-2" @click="expanded = !expanded" style="cursor: pointer">
                 <div class="card-body p-0">
                     <div class="d-flex">
-                        <div class="resource-card-icons-small d-flex flex-row justify-content-around align-items-center py-2">
+                        <div
+                            class="resource-card-icons-small d-flex flex-row justify-content-around align-items-center py-2">
                             <input class="form-check-input" type="checkbox" :checked="isSelected"
                                 :indeterminate="isPartialySelected" @click.stop="clickedSelect">
                         </div>

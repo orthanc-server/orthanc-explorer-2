@@ -71,7 +71,8 @@ export default {
         <tr :class="{ 'instance-row-collapsed': !expanded, 'instance-row-expanded': expanded }">
             <td>
                 <div v-if="isMultipleSelectionEnabled" class="form-check">
-                    <input class="form-check-input" type="checkbox" :checked="isSelected" :indeterminate="isPartialySelected" @click="clickedSelect">
+                    <input class="form-check-input" type="checkbox" :checked="isSelected"
+                        :indeterminate="isPartialySelected" @click="clickedSelect">
                 </div>
             </td>
             <td class="cut-text text-center" data-bs-toggle="collapse"

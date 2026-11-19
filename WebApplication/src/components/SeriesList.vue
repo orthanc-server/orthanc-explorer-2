@@ -100,7 +100,7 @@ export default {
                             style="font-weight: 400; font-size: small;">{{ selectedSeriesCount
                             }}</span>
                     </div>
-                </th> 
+                </th>
                 <th width="7%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
                     :title="columnTooltip('SeriesNumber')">{{ columnTitle('SeriesNumber') }}</th>
                 <th width="40%" scope="col" class="series-table-header cut-text" data-bs-toggle="tooltip"
@@ -118,8 +118,9 @@ export default {
     <div v-else>
         <div class="resource-cards-container mt-2">
             <SeriesItem v-for="seriesId in sortedSeriesIds" :key="seriesId" :seriesId="seriesId"
-                :seriesInfo="seriesInfo[seriesId]" :studySeries="studySeries" :studyMainDicomTags="this.studyMainDicomTags"
-                :patientMainDicomTags="this.patientMainDicomTags" @deletedSeries="onDeletedSeries"></SeriesItem>
+                :seriesInfo="seriesInfo[seriesId]" :studySeries="studySeries"
+                :studyMainDicomTags="this.studyMainDicomTags" :patientMainDicomTags="this.patientMainDicomTags"
+                @deletedSeries="onDeletedSeries"></SeriesItem>
         </div>
     </div>
 </template>
