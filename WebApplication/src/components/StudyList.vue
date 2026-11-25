@@ -351,9 +351,6 @@ export default {
         if (this.isConfigurationLoaded) { // this happens when we open the app e.g. on the #settings page and then, switch to the study list
             this.init();
         }
-        // this.updateSelectAll();
-        // this._onDocumentClick = this.onDocumentClick.bind(this);
-        // document.addEventListener('click', this._onDocumentClick, true);
     },
     beforeUnmount() {
         document.removeEventListener('click', this._onDocumentClick, true);
@@ -739,18 +736,6 @@ export default {
             this.updatingFilterUi = false;
             // console.log("StudyList: clearFiltersUi OUT");
         },
-        // onDocumentClick(ev) {
-        //     if (!this.showModalityDropdown) return;
-        //     const dropdown = document.getElementById('modality-filter-dropdown');
-        //     let btn = document.getElementById('dropdown-modalities-button');
-        //     if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile');
-        //     if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-row2');
-        //     if (!btn) btn = document.getElementById('dropdown-modalities-button-mobile-landscape');
-
-        //     if (dropdown && dropdown.contains(ev.target)) return;
-        //     if (btn && btn.contains(ev.target)) return;
-        //     this.showModalityDropdown = false;
-        // },
         async updateUrlNoReload() {
             this.updatingRouteWithoutReload = true;
             await this.updateUrl();
@@ -1265,10 +1250,6 @@ button.form-control.study-list-filter {
     line-height: 1.2rem;
     position: sticky;
 }
-
-/* .study-table> :not(:first-child) {
-  border-top: 0px !important;
-} */
 
 .study-table {
     table-layout: fixed;
