@@ -335,6 +335,11 @@ export default {
     },
     async created() {
         this.messageBus.on('modalities-filter-updated', this.modalitiesFilterUpdated);
+        // a freshly mounted filter dropdown asks for the current value to
+        // restore its checkboxes (e.g. after a desktop <-> mobile switch)
+        this.messageBus.on('request-modalities-filter', () => {
+            this.messageBus.emit('update-modalities-filter', this.modalitiesFilter);
+        });
         this.messageBus.on('date-picked', this.datePicked);
         this.messageBus.on('text-filter-updated', this.textFilterUpdated);
 

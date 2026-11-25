@@ -31,6 +31,15 @@ export default {
     beforeUnmount() {
         this.removeOutsideClickListener();
     },
+    mounted() {
+        // The component is re-created on desktop <-> mobile switches. The
+        // isConfigurationLoaded watcher does not fire again, so populate the
+        // list here and restore the currently applied selection.
+        if (this.isConfigurationLoaded) {
+            this.init();
+            this.messageBus.emit('request-modalities-filter');
+        }
+    },
     watch: {
         isConfigurationLoaded(newValue, oldValue) {
             this.init();
@@ -65,6 +74,9 @@ export default {
             }
         },
         updateModalitiesFilter(value) {
+            if (!value) {
+                return; // empty string: keep the default "all modalities selected"
+            }
             const modalities = value.split('\\');
             if (modalities.length > 0) {
                 let allModalitiesInFilter = true;
