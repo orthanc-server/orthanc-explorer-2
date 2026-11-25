@@ -1,4 +1,8 @@
 <script>
+import { useIsMobileNarrow, useIsMobileWide, useIsMobileAny } from "./helpers/media-helpers.js"
+
+const SIDEBAR_OPEN_STORAGE_KEY = "oe2-sidebar-open";
+
 function applyBootStrapTheme() {
     // hack to switch the theme: get the value from our custom css
     let bootstrapTheme = getComputedStyle(document.documentElement).getPropertyValue('--bootstrap-theme');
@@ -16,10 +20,15 @@ export default {
     data() {
         return {
             sidebarOpen: false,
+            isMobileWide: useIsMobileWide(),
         };
-    },    
+    },
     async created() {
         console.log("Creating App...");
+
+        try { // restore the state of the sidebar stored by toggleSidebar
+            this.sidebarOpen = localStorage.getItem(SIDEBAR_OPEN_STORAGE_KEY) == 'true';
+        } catch (e) { /* localStorage unavailable */ }
 
         {// Load the CSS dynamically since it can be a custom css
             console.log("Loading the defaults + custom CSS ...");
@@ -51,16 +60,25 @@ export default {
     },
     watch: {
         $route() {
-            // Auto-close the sidebar on mobile when navigating
-            this.sidebarOpen = false;
+            // Auto-close the sidebar when navigating, except in the mobile-wide
+            // breakpoint where it stays pinned next to the study list
+            if (!this.isMobileWide) {
+                this.closeSidebar();
+            }
         },
     },
     methods: {
         toggleSidebar() {
-            this.sidebarOpen = !this.sidebarOpen;
+            this.setSidebarOpen(!this.sidebarOpen);
         },
         closeSidebar() {
-            this.sidebarOpen = false;
+            this.setSidebarOpen(false);
+        },
+        setSidebarOpen(sidebarOpen) {
+            this.sidebarOpen = sidebarOpen;
+            try {
+                localStorage.setItem(SIDEBAR_OPEN_STORAGE_KEY, this.sidebarOpen ? 'true' : 'false');
+            } catch (e) { /* localStorage unavailable */ }
         },
     },
 }
@@ -84,7 +102,7 @@ export default {
         <div class="nav-side-layout" :class="{ 'nav-side-layout--open': sidebarOpen }">
             <router-view name="SideBarView"></router-view>
         </div>
-        <div class="content">
+        <div class="content" :class="{ 'content--sidebar-open': sidebarOpen }">
             <router-view name="ContentView"></router-view>
         </div>
     </div>
@@ -194,6 +212,20 @@ export default {
     /* Slide sidebar off-screen by default */
     .nav-side-layout--open {
         transform: translateX(0);
+    }
+}
+
+/* In the mobile-wide breakpoint, the open sidebar does not float on top of the
+   study list: the content is pushed to the right, like in desktop mode. */
+@include mobile-wide {
+    /* no dark backdrop: the whole study list remains visible and interactive */
+    .sidebar-overlay {
+        display: none;
+    }
+
+    .content.content--sidebar-open {
+        margin-left: var(--nav-bar-width);
+        transition: margin-left 0.3s ease;
     }
 }
 </style>
