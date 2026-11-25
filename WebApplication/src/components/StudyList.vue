@@ -942,9 +942,9 @@ export default {
         <table v-if="!isMobileAny || isMobileWide" class="table table-sm study-table table-borderless">
             <thead class="sticky-top">
                 <tr class="study-column-titles">
-                    <th :width="widthColum1" class="col-prefix col-checkbox" scope="col"></th>
-                    <th v-if="hasPrimaryViewerIcon" width="2%" class="col-prefix col-viewer" scope="col"></th>
-                    <th v-if="hasPdfReportIcon" width="2%" class="col-prefix col-pdf" scope="col"></th>
+                    <th :width="widthColum1" class="col-checkbox" scope="col"></th>
+                    <th v-if="hasPrimaryViewerIcon" width="2%" class="col-viewer" scope="col"></th>
+                    <th v-if="hasPdfReportIcon" width="2%" class="col-pdf" scope="col"></th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag" data-bs-toggle="tooltip"
                         v-bind:title="columnTooltip(columnTag)" v-bind:width="columnWidth(columnTag)"
                         class="study-table-title">
@@ -1409,12 +1409,6 @@ button.form-control.study-list-filter {
 
 /* ───── Mobile portrait & landscape breakpoint ───── */
 @include mobile-any {
-    .col-prefix {
-        width: 36px !important;
-        min-width: 36px !important;
-        max-width: 36px !important;
-        padding: 0 4px !important;
-    }
 
     /* Ensure DatePicker in table cell is visible and clickable */
     :deep(.dp__main),
