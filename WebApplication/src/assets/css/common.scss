@@ -103,13 +103,12 @@
 .resource-card {
   text-align: left;
 
-  .resource-card-icons-large {
-    width: 15%; // the requested 20%
-    min-width: 15%;
-    font-size: 1.25rem;
+  .resource-card-icons-small {
+    width: 10%;
+    min-width: 10%;
+    font-size: 1.15rem;
     color: var(--bs-secondary-color);
     background: var(--bs-tertiary-bg);
-    border-right: 1px solid var(--bs-border-color);
 
     // tappable targets on mobile
     span {
@@ -118,19 +117,12 @@
     }
   }
 
-  .resource-card-icons-small {
-    width: 10%; // the requested 20%
-    min-width: 10%;
-    font-size: 1.15rem;
-    color: var(--bs-secondary-color);
-    background: var(--bs-tertiary-bg);
+  .resource-card-icons-left {
     border-right: 1px solid var(--bs-border-color);
+  }
 
-    // tappable targets on mobile
-    span {
-      padding: 1rem;
-      cursor: pointer;
-    }
+  .resource-card-icons-right {
+    border-left: 1px solid var(--bs-border-color);
   }
 
   .resource-card-line-1 {

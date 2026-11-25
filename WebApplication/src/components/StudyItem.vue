@@ -297,23 +297,9 @@ export default {
                 <div class="card-body p-0">
                     <div class="d-flex">
                         <div
-                            class="resource-card-icons-large d-flex flex-row justify-content-around align-items-center py-2">
+                            class="resource-card-icons-small resource-card-icons-left d-flex flex-row justify-content-around align-items-center py-2">
                             <input class="form-check-input" type="checkbox" :checked="isSelected"
                                 :indeterminate="isPartialySelected" @click.stop="clickedSelect">
-                            <span v-if="hasPrimaryViewerIcon">
-                                <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
-                                    :resources='[{ "Level": "Study", "ID": [study.ID] }]' linkType="icon"
-                                    iconClass="bi bi-eye-fill" :tokenType="primaryViewerTokenType"
-                                    :opensInNewTab="true">
-                                </TokenLinkButton>
-                            </span>
-                            <span v-if="hasPdfReportIcon">
-                                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id"
-                                    :linkUrl="pdfReport.url" :resources='[{ "Level": "Study", "ID": [study.ID] }]'
-                                    linkType="icon" iconClass="bi bi-file-earmark-text"
-                                    :tokenType="'download-instant-link'" :opensInNewTab="true" :title="pdfReport.title">
-                                </TokenLinkButton>
-                            </span>
                         </div>
                         <div class="resource-card-info flex-grow-1">
                             <div class="resource-card-line-1">
@@ -332,6 +318,23 @@ export default {
                                 <div class="field-w-10">{{ modalitiesInStudyForDisplay }}</div>
                                 <div class="field-w-10 text-end">{{ seriesAndInstancesCount }}</div>
                             </div>
+                        </div>
+                        <div
+                            class="resource-card-icons-small resource-card-icons-right d-flex flex-row justify-content-around align-items-center py-2">
+                            <span v-if="hasPrimaryViewerIcon">
+                                <TokenLinkButton v-if="primaryViewerUrl" :linkUrl="primaryViewerUrl"
+                                    :resources='[{ "Level": "Study", "ID": [study.ID] }]' linkType="icon"
+                                    iconClass="bi bi-eye-fill" :tokenType="primaryViewerTokenType"
+                                    :opensInNewTab="true">
+                                </TokenLinkButton>
+                            </span>
+                            <span v-if="hasPdfReportIcon">
+                                <TokenLinkButton v-for="pdfReport in pdfReports" :key="pdfReport.id"
+                                    :linkUrl="pdfReport.url" :resources='[{ "Level": "Study", "ID": [study.ID] }]'
+                                    linkType="icon" iconClass="bi bi-file-earmark-text"
+                                    :tokenType="'download-instant-link'" :opensInNewTab="true" :title="pdfReport.title">
+                                </TokenLinkButton>
+                            </span>
                         </div>
                     </div>
                 </div>
