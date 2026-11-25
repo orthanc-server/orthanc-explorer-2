@@ -198,21 +198,7 @@ export default {
                 return [];
             }
         },
-        // mobileFiltersIn2Rows() {
-        //     const cols = this.mobileFilters || [];
-        //     const half = Math.ceil(cols.length / 2);
-        //     return [cols.slice(0, half), cols.slice(half)];
-        // },
-        mobileFilterRow1() {
-            const cols = this.mobileFilters || [];
-            const half = Math.ceil(cols.length / 2);
-            return cols.slice(0, half);
-        },
-        mobileFilterRow2() {
-            const cols = this.mobileFilters || [];
-            const half = Math.ceil(cols.length / 2);
-            return cols.slice(half);
-        },
+
         isSearchAsYouTypeEnabled() {
             if (this.sourceType == SourceType.LOCAL_ORTHANC) {
                 return this.uiOptions.StudyListSearchMode == "search-as-you-type";
@@ -1107,19 +1093,10 @@ export default {
             </StudyItem>
         </table>
         <div v-else class="mobile-study-list" :class="{ 'mobile-landscape': isMobileWide }">
-            <!-- Filter Strip (two-row grid) -->
+            <!-- Filter Strip (single row that wraps onto multiple lines on small screens) -->
             <div class="mobile-filter-strip" v-on:keyup.enter="search">
                 <div class="mobile-filter-row">
-                    <div class="mobile-filter-column mobile-clear-col">
-                        <div class="mobile-filter-title">&nbsp;</div>
-                        <div class="mobile-filter-input">
-                            <button @click="clearFilters" type="button"
-                                class="btn filter-button btn-sm mobile-clear-filter" title="Clear filter">
-                                <i class="fa-regular fa-circle-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div v-for="columnTag in mobileFilterRow1" :key="columnTag" class="mobile-filter-column">
+                    <div v-for="columnTag in mobileFilters" :key="columnTag" class="mobile-filter-column">
                         <div class="mobile-filter-title"
                             @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
                             :class="{ 'is-orderable': isOrderable(columnTag) }">
@@ -1135,41 +1112,32 @@ export default {
                                 :filterClass="getFilterClass(columnTag)" />
                         </div>
                     </div>
-                </div>
-                <!-- Row 2: remaining columns + search button -->
-                <div class="mobile-filter-row">
-                    <div v-for="(columnTag, index) in mobileFilterRow2" :key="columnTag" class="mobile-filter-column"
-                        :class="{
-                            'mobile-filter-column-estudio': index === 0,
-                            'mobile-filter-column-acceso': index === mobileFilterRow2.length - 1
-                        }">
-                        <div class="mobile-filter-title"
-                            @click="isOrderable(columnTag) ? toggleOrder($event, columnTag) : null"
-                            :class="{ 'is-orderable': isOrderable(columnTag) }">
-                            {{ columnTitle(columnTag) }}
-                            <div v-if="isOrderTagUp(columnTag)" class="title-arrow"><i class="bi bi-arrow-up"></i>
-                            </div>
-                            <div v-if="isOrderTagDown(columnTag)" class="title-arrow"><i class="bi bi-arrow-down"></i>
+                    <!-- Buttons group: must wrap together on small screens -->
+                    <div class="mobile-filter-buttons">
+                        <!-- Clear button -->
+                        <div class="mobile-filter-column mobile-clear-col">
+                            <div class="mobile-filter-title">&nbsp;</div>
+                            <div class="mobile-filter-input">
+                                <button @click="clearFilters" type="button"
+                                    class="btn filter-button btn-sm btn-secondary mobile-clear-filter"
+                                    title="Clear filter">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="mobile-filter-input">
-                            <StudyFilterCell :columnTag="columnTag" idPrefix="mobile"
-                                :placeholder="getFilterPlaceholder(columnTag)"
-                                :filterClass="getFilterClass(columnTag)" />
-                        </div>
-                    </div>
-                    <!-- Search Button -->
-                    <div class="mobile-filter-column mobile-search-col" v-if="isSearchButtonEnabled">
-                        <div class="mobile-filter-title">&nbsp;</div>
-                        <div class="mobile-filter-input">
-                            <button @click="search" type="submit"
-                                class="form-control study-list-filter btn filter-button btn-secondary search-button"
-                                :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
-                                title="Search">
-                                <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
-                                <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
-                                    aria-hidden="true"></span>
-                            </button>
+                        <!-- Search button -->
+                        <div class="mobile-filter-column mobile-search-col">
+                            <div class="mobile-filter-title">&nbsp;</div>
+                            <div class="mobile-filter-input">
+                                <button @click="search" type="submit"
+                                    class="form-control study-list-filter btn filter-button btn-secondary search-button"
+                                    :class="{ 'is-searching': isSearching, 'is-not-searching': !isSearching }"
+                                    title="Search">
+                                    <i v-if="!isSearching" class="fa-solid fa-magnifying-glass"></i>
+                                    <span v-if="isSearching" class="spinner-border spinner-border-sm" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1202,7 +1170,7 @@ export default {
                 </div>
 
                 <!-- Right side: Dropdown -->
-                <div class="flex-grow-1 mobile-labels-dropdown">
+                <div class="flex-grow-1">
                     <LabelsEditor id="multiLabelsFilterMobile" :labels="filterLabels" :key="multiLabelsComponentKey"
                         :studyId="null" @labelsUpdated="onMultiLabelsFilterChanged" :showTitle="false" :isFilter="true">
                     </LabelsEditor>
@@ -1468,8 +1436,6 @@ button.form-control.study-list-filter {
         width: 100% !important;
         min-width: 100px !important;
         height: 36px !important;
-        background-color: var(--study-even-bg-color, #212529) !important;
-        border: 1px solid #4caf50 !important;
         cursor: pointer !important;
     }
 }
@@ -1487,83 +1453,49 @@ button.form-control.study-list-filter {
     padding: 6px 8px;
     background-color: var(--study-table-filter-bg-color);
     border-bottom: 2px solid var(--bs-border-color);
-    min-height: 150px;
 }
 
-/* Landscape: single-row filter strip */
-.mobile-landscape .mobile-filter-strip {
-    min-height: auto;
-}
-
-.mobile-landscape .mobile-filter-row {
-    overflow-x: visible;
-    overflow-y: visible;
-}
-
+/* Landscape: force a single-row filter strip */
 .mobile-landscape .mobile-filter-column {
     flex: 1 1 0;
     min-width: 0;
 }
 
-.mobile-landscape .mobile-clear-col {
-    flex: 0 0 36px !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
-}
-
-.mobile-landscape .mobile-search-col {
-    flex: 0 0 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-}
-
 .mobile-filter-row {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: visible;
+    flex-wrap: wrap;
     gap: 8px;
-    flex: 1;
     width: 100%;
 }
 
+/* Each filter column wraps onto a new line when it cannot keep its target width */
 .mobile-filter-column {
     display: flex;
     flex-direction: column;
-    flex: 1 1 0;
+    flex: 1 1 130px;
     min-width: 0;
 }
 
-.mobile-filter-column-estudio {
-    flex: 0 0 47%;
-    max-width: 50%;
+/* Clear & Search buttons: kept together, always on the same line */
+.mobile-filter-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
 }
-
-.mobile-filter-column-acceso {
-    flex: 0 0 calc((100% - 66px) / 3);
-    max-width: calc((100% - 66px) / 3);
-}
-
 
 .mobile-clear-col {
-    flex: 0 0 42px !important;
-    min-width: 42px !important;
-    max-width: 42px !important;
-    justify-content: flex-start;
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background-color: var(--study-table-filter-bg-color);
+    flex: 0 0 44px;
+    min-width: 44px;
+    max-width: 44px;
 }
 
 .mobile-search-col {
-    flex: 0 0 45px !important;
-    min-width: 45px !important;
-    max-width: 45px !important;
-    justify-content: flex-end;
+    flex: 1 1 90px;
+    min-width: 90px;
 }
 
 .mobile-filter-title {
+    position: relative;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--bs-body-color);
@@ -1576,6 +1508,7 @@ button.form-control.study-list-filter {
     line-height: 28px;
     margin: 0;
     padding: 0;
+    padding-right: 18px; /* reserve space for the order arrow */
 }
 
 .mobile-filter-input {
@@ -1604,36 +1537,15 @@ button.form-control.study-list-filter {
     border: 1px solid var(--bs-border-color);
 }
 
-/* Deep selector to force the bootstrap5-tags dropdown to have the green border */
-.mobile-labels-dropdown :deep(.form-select),
-.mobile-labels-dropdown :deep(.dropdown.tags) {
-    border: 1px solid #4caf50 !important;
-    background-color: var(--study-even-bg-color, #212529) !important;
-    border-radius: 6px;
-}
-
 
 .mobile-clear-col .btn,
 .mobile-search-col .btn {
-    border: 1px solid #4caf50 !important;
-    background-color: var(--study-even-bg-color, #212529) !important;
-    border-radius: 6px;
-    color: var(--bs-body-color, #fff) !important;
-    width: 100%;
-    height: 36px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
+    height: 36px;
 }
 
-.mobile-filter-column :deep(.form-control),
+.mobile-filter-column :deep(.form-control:not(.search-button)),
 .mobile-filter-column :deep(.dp__input),
 .mobile-filter-column .btn.dropdown-toggle {
-    border: 1px solid #4caf50 !important;
-    background-color: var(--study-even-bg-color, #212529) !important;
-    border-radius: 6px !important;
-    color: var(--bs-body-color, #fff) !important;
     height: 36px !important;
     display: flex;
     align-items: center;
@@ -1644,13 +1556,9 @@ button.form-control.study-list-filter {
     padding-bottom: 0 !important;
 }
 
-.mobile-filter-column :deep(.form-control) {
+.mobile-filter-column :deep(.form-control:not(.search-button)) {
     justify-content: flex-start;
     padding-left: 8px;
 }
 
-.mobile-filter-column :deep(.form-control::placeholder),
-.mobile-filter-column :deep(.dp__input::placeholder) {
-    color: rgba(255, 255, 255, 0.4) !important;
-}
 </style>
