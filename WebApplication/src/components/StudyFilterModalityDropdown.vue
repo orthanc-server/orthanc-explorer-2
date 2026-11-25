@@ -156,17 +156,32 @@ export default {
             }
             const rect = btn.getBoundingClientRect();
             const maxHeight = Math.max(window.innerHeight - rect.bottom - 10, 150);
-            this.modalityDropdownStyle = {
+            const margin = 8;
+            const menu = document.getElementById('modality-filter-dropdown');
+            const menuWidth = menu ? menu.offsetWidth : 0;
+            const style = {
                 position: 'fixed',
                 top: (rect.bottom + 2) + 'px',
-                right: (window.innerWidth - rect.right) + 'px',
-                zIndex: 1050,
-                display: 'block',
                 maxHeight: maxHeight + 'px',
                 overflowY: 'auto',
-                overscrollBehavior: 'contain',   // scroll doesn't "leak" to the page behind
-                WebkitOverflowScrolling: 'touch' // smooth scrolling on iOS
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                zIndex: 1050
             };
+            // The dropdown extends leftward from the button by default; when the
+            // button sits near the left edge, anchor and clamp it from the left instead.
+            if (menuWidth && rect.right < menuWidth + margin) {
+                const left = Math.min(
+                    Math.max(rect.left, margin),
+                    Math.max(margin, window.innerWidth - margin - Math.min(menuWidth, window.innerWidth - 2 * margin))
+                );
+                style.left = left + 'px';
+                style.maxWidth = Math.min(menuWidth, window.innerWidth - 2 * margin) + 'px';
+                style.width = 'max-content';
+            } else {
+                style.right = (window.innerWidth - rect.right) + 'px';
+            }
+            this.modalityDropdownStyle = style;
         },
         onDocumentClick(ev) {
             if (!this.showModalityDropdown) return;
