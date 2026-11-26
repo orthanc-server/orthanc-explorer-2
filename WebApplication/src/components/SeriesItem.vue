@@ -54,7 +54,7 @@ export default {
     mounted() {
         for (const [k, v] of Object.entries(this.$route.query)) {
             if (k === 'expand') {
-                if (['study', 'series', 'instance'].indexOf(v) != -1) {
+                if (['series', 'instance'].indexOf(v) != -1) {
                     this.expanded = true;
                 }
             }
