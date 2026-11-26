@@ -193,7 +193,7 @@ export default {
         },
         mobileFilters() {
             if (this.uiOptions.StudyListColumns) {
-                return this.uiOptions.StudyListColumns.filter(n => ['seriesAndInstancesCount', 'instancesCount', 'seriesCount'].indexOf(n) == -1);
+                return this.uiOptions.StudyListColumns.filter(n => this.hasFilter(n));
             } else {
                 return [];
             }
@@ -431,6 +431,9 @@ export default {
             this.filterOrderBy = [o].concat(this.filterOrderBy.filter(i => i['Type'] != 'DicomTag'));
 
             this._updateOrderBy(true);
+        },
+        hasFilter(tagName) {
+            return ['seriesAndInstancesCount', 'instancesCount', 'seriesCount'].indexOf(tagName) != -1;
         },
         modalitiesFilterUpdated(modalitiesFilter) {
             this.modalitiesFilter = modalitiesFilter;
@@ -967,14 +970,11 @@ export default {
                         </button>
                     </th>
                     <th v-for="columnTag in uiOptions.StudyListColumns" :key="columnTag">
-                        <div class="dropdown">
-                            <StudyFilterCell :columnTag="columnTag" idPrefix="desktop"
-                                :placeholder="getFilterPlaceholder(columnTag)"
-                                :filterClass="getFilterClass(columnTag)" />
-                        </div>
+                        <StudyFilterCell v-if="hasFilter(columnTag)" :columnTag="columnTag" idPrefix="desktop"
+                            :placeholder="getFilterPlaceholder(columnTag)"
+                            :filterClass="getFilterClass(columnTag)" />
                     </th>
                 </tr>
-
                 <tr v-if="isMultiLabelsFilterVisible" class="study-table-actions">
                     <th :colspan="colSpanBeforeMultiLabelsFilter" scope="col">
                         <div class="w-100 d-flex justify-content-end">
