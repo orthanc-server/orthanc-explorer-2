@@ -807,7 +807,7 @@ export default {
                     }
                     await this.$store.dispatch('studies/clearStudies');
                     await this.$store.dispatch('studies/reloadFilteredStudies');
-                    if (this['studies/isMostRecentOrdering']) {
+                    if (this['studies/isMostRecentOrdering'] && this['studies/isFilterEmpty']) {
                         this.status = Status.DISPLAYING_MOST_RECENT_STUDIES;
                     } else {
                         this.status = Status.DISPLAYING_FILTERED_STUDIES;
