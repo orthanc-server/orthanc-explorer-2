@@ -1255,11 +1255,11 @@ button.form-control.study-list-filter {
     table-layout: fixed;
 }
 
-.study-table> :nth-child(odd)>tr>td {
+.study-table> :nth-child(odd)>*>* {
     background-color: var(--study-odd-bg-color);
 }
 
-.study-table> :nth-child(even)>tr>td {
+.study-table> :nth-child(even)>*>* {
     background-color: var(--study-even-bg-color);
 }
 

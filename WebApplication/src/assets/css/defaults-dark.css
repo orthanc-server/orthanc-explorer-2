@@ -18,7 +18,7 @@ therefore, it overrides all other definitions */
     --series-details-bg-color: var(--series-selected-color);
 
     --instance-odd-bg-color: rgb(35, 35, 40);
-    --instance-even-bg-color: rgb(30, 30, 35);
+    --instance-even-bg-color: rgb(25, 25, 30);
     --instance-hover-color:  var(--study-hover-color);
     --instance-selected-color: rgb(20, 20, 25);
     --instance-details-bg-color: var(--instance-selected-color);
