@@ -6,9 +6,6 @@ export default {
         columnTag: String,
         placeholder: String,
         filterClass: String,
-        // inputClass: { default: "form-control study-list-filter" },
-        // values from StudyList
-        // textValue: String,        // filterGenericTags[columnTag]
     },
     data() {
         return {

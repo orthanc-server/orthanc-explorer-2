@@ -10,14 +10,7 @@ export default {
         columnTag: String,
         placeholder: String,
         filterClass: String,
-        allModalitiesSelected: Boolean,
-        noneModalitiesSelected: Boolean,
-        showModalityDropdown: Boolean,
-        modalitiesFilter: Array,
-        inputClass: { default: "form-control study-list-filter" },
         idPrefix: String,
-        // values from StudyList
-        // textValue: String,
     },
     data() {
         return {
@@ -43,7 +36,6 @@ export default {
     </div>
     <div v-else>
         <StudyFilterText :columnTag="columnTag"
-            :placeholder="placeholder" :filterClass="filterClass"
-            :inputClass="isMobileAny && !isMobileWide ? 'form-control study-list-filter w-100 py-1' : 'form-control study-list-filter'" />
+            :placeholder="placeholder" :filterClass="filterClass" />
     </div>
 </template>
