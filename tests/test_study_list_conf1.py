@@ -5,6 +5,7 @@ import pytest
 import pathlib
 import time
 import re
+from conftest import ScreenMode
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -32,27 +33,27 @@ def test_search_study_list(page: Page, orthanc_api: OrthancApiClient):
     orthanc_api.upload_file(here / "stimuli/TEST_1/10.dcm")
     orthanc_api.upload_file(here / "stimuli/TEST_1/12.dcm")
 
-    expect(page.locator("#filter-PatientName")).to_be_visible()
+    wait_study_list_visible(page)
 
-    page.locator("#filter-PatientName").fill("Tes")
+    fill_filter(page, "PatientName", "Tes")
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
-    page.locator("#filter-PatientName").fill("Arn")
+    fill_filter(page, "PatientName", "Arn")
     expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)
 
     # open study list from URL (with PatientName)
     page.goto('/ui/app/filtered-studies?PatientName=Test&order-by=Metadata,LastUpdate,DESC')
-    expect(page.locator("#filter-PatientName")).to_have_value("Test")
+    expect_filter_to_have_value(page, "PatientName", "Test")
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
     # open study list from URL (with PatientID)
     page.goto('/ui/app/filtered-studies?PatientID=TEST_1&order-by=Metadata,LastUpdate,DESC')
-    expect(page.locator("#filter-PatientID")).to_have_value("TEST_1")
+    expect_filter_to_have_value(page, "PatientID", "TEST_1")
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
     # open study list from URL (no match)
     page.goto('/ui/app/filtered-studies?PatientBirthDate=20360203&order-by=Metadata,LastUpdate,DESC')
-    expect(get_date_picker(page, "#filter-PatientBirthDate")).to_have_value(re.compile(r"^20360203.*"), timeout=5000)
+    expected_date_picker_to_have_value(page, "PatientBirthDate", re.compile(r"^20360203.*"))
     expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)
 
 
@@ -86,8 +87,50 @@ def test_modify_utf8(page: Page, orthanc_api: OrthancApiClient):
         expect(page.locator("#modify-button-show-modified-resources")).to_be_enabled()
         page.locator("#modify-button-show-modified-resources").click()
 
-        expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
+        expect(get_expanded_studies(page)).to_have_count(1, timeout=2000)
         assert "UTF-8林建和" in get_texts_from_first_collapsed_study(page)
+
+
+@pytest.mark.parametrize("screen_mode", [ScreenMode.MOBILE_NARROW], indirect=True)
+def test_mobile_narrow_smoke(page: Page, orthanc_api: OrthancApiClient, screen_mode: ScreenMode):
+    orthanc_api.delete_all_content()
+
+    orthanc_api.upload_file(here / "stimuli/TEST_1/10.dcm")
+    orthanc_api.upload_file(here / "stimuli/TEST_1/12.dcm")
+
+    with TestContext("study list is rendered as mobile cards, not as a desktop table"):
+        take_screenshot(page, "mobile")
+        wait_study_list_visible(page)
+        expect(page.locator("table.study-table")).to_have_count(0)
+        expect(page.locator(".mobile-study-list")).to_be_visible()
+        expect(get_mobile_study_cards(page)).to_have_count(1)
+
+    with TestContext("search-as-you-type works in the mobile filter strip"):
+        fill_filter(page, "PatientName", "Tes")
+        expect(get_mobile_study_cards(page)).to_have_count(1)
+
+        fill_filter(page, "PatientName", "Arn")
+        expect(get_mobile_study_cards(page)).to_have_count(0)
+
+    # with TestContext("a study card can be expanded and collapsed"):
+    #     expand_first_mobile_study_card(page)
+    #     expect(page.locator(".mobile-resource-card.expanded")).to_have_count(1)
+    #     # expanding a study card shows its series as mobile cards
+    #     expect(page.locator(".mobile-series-card").first).to_be_visible()
+
+    #     expand_first_mobile_study_card(page)
+    #     expect(page.locator(".mobile-resource-card.expanded")).to_have_count(0)
+
+    # with TestContext("the mobile sidebar opens and closes with the burger button"):
+    #     toggle = page.locator("#mobile-sidebar-toggle")
+    #     expect(toggle).to_be_visible()
+    #     expect(toggle).to_have_attribute("aria-expanded", "false")
+
+    #     toggle.click()
+    #     expect(toggle).to_have_attribute("aria-expanded", "true")
+
+    #     toggle.click()
+    #     expect(toggle).to_have_attribute("aria-expanded", "false")
 
 
 

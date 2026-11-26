@@ -68,7 +68,7 @@ def test_inbox_link(page: Page, incognito_page: Page, orthanc_api: OrthancApiCli
     with TestContext("Generate an inbox-link from a logged-in user"):
         login_keycloak(page, "admin", "change-me")
         take_screenshot(page, "inbox-after-login")
-        expect(page.locator("#filter-PatientName")).to_be_visible(timeout=5000)
+        wait_study_list_visible(page)
 
         # generate an inbox-link
         page.locator('#inbox-links-side-menu').click()

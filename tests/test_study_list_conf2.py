@@ -29,16 +29,15 @@ def test_search_study_list(page: Page, orthanc_api: OrthancApiClient):
 
     orthanc_api.upload_file(here / "stimuli/TEST_1/10.dcm")
     orthanc_api.upload_file(here / "stimuli/TEST_1/12.dcm")
-
-    expect(page.locator("#filter-PatientName")).to_be_visible()
+    wait_study_list_visible(page)
 
     # search for a PatientName that exists
-    page.locator("#filter-PatientName").fill("Te")
+    fill_filter(page, "PatientName", "Te")
     page.locator('#search').click()
     expect(get_collapsed_studies(page)).to_have_count(1, timeout=2000)
 
     # search for a PatientName that does not exist
-    page.locator("#filter-PatientName").fill("Arn")
+    fill_filter(page, "PatientName", "Arn")
     page.locator('#search').click()
     expect(get_collapsed_studies(page)).to_have_count(0, timeout=2000)
 

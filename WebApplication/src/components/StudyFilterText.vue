@@ -6,6 +6,7 @@ export default {
         columnTag: String,
         placeholder: String,
         filterClass: String,
+        idPrefix: String
     },
     data() {
         return {
@@ -52,5 +53,5 @@ export default {
 <template>
     <input type="text" :class="[inputClass, filterClass]"
         :value="textValue" @input="textChanged($event)"
-        :placeholder="placeholder" :id="'filter-' + columnTag" />
+        :placeholder="placeholder" :id="idPrefix + '-filter-' + columnTag" />
 </template>

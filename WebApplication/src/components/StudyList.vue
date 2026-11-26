@@ -513,9 +513,6 @@ export default {
         hasFilter(tagName) {
             return ['seriesCount', 'instancesCount', 'seriesAndInstancesCount'].indexOf(tagName) == -1;
         },
-        getFilterId(tagName) {
-            return "filter-" + tagName;
-        },
         getFilterPlaceholder(tagName) {
             if (tagName in this.columns && this.columns[tagName].placeholder) {
                 return this.columns[tagName].placeholder;

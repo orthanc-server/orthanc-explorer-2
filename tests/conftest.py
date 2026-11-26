@@ -22,6 +22,11 @@ class ScreenMode(Enum):
     MOBILE_NARROW = 3
 
 
+@pytest.fixture
+def screen_mode(request) -> ScreenMode:
+    return request.param if hasattr(request, "param") else ScreenMode.DESKTOP
+
+
 # display the test name before running it
 @pytest.fixture(autouse=True)
 def test_context(request):
@@ -83,6 +88,9 @@ def wait_ui_is_available(request, orthanc_url, timeout=20):
                 print(f"Waiting for UI to be alive: Exception while testing {alive_test_url}")
 
         if success_count == len(alive_test_urls):
+            if request.module.HAS_KEYCLOAK:
+                print("Waiting an extra 20 seconds to let keycloak finish startup")
+                time.sleep(20)
             return True
         time.sleep(1)
 
@@ -278,7 +286,10 @@ def browser(ui):
         browser.close()
 
 @pytest.fixture
-def page(browser, request, orthanc_url, screen_mode: ScreenMode = ScreenMode.DESKTOP):
+def page(browser, request, orthanc_url, screen_mode):
+    # NOTE: do not give screen_mode a default value here: with pytest 9,
+    # a default in the fixture signature shadows the "screen_mode" fixture,
+    # so parametrizing it from the tests would have no effect.
     if screen_mode == ScreenMode.MOBILE_WIDE:  # not used yet
         viewport = {
             "width": 1400,

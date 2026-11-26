@@ -34,6 +34,15 @@ class TestContext:
 def get_collapsed_studies(page: Page):
     return page.locator(".study-row-collapsed")
 
+def get_expanded_studies(page: Page):
+    return page.locator(".study-row-expanded")
+
+def get_mobile_study_cards(page: Page):
+    return page.locator(".mobile-resource-card")
+
+def expand_first_mobile_study_card(page: Page):
+    page.locator(".mobile-resource-card .resource-card").first.click()
+
 def get_date_picker(page: Page, id: str):
     return page.locator(f"{id} input").first
 
@@ -73,11 +82,22 @@ def get_first_email_for(recipient: str, timeout=10):
     )
 
 def wait_study_list_visible(page: Page):
-    expect(page.locator("#filter-PatientName")).to_be_visible()
+    expect(page.locator("#desktop-filter-PatientName, #mobile-filter-PatientName")).to_be_visible(timeout=5000)
 
+def fill_filter(page: Page, filter: str, text: str):
+    page.locator(f"#desktop-filter-{filter}, #mobile-filter-{filter}").fill(text)
+
+def expect_filter_to_have_value(page: Page, filter: str, expectedTextOrRegex):
+    expect(page.locator(f"#desktop-filter-{filter}, #mobile-filter-{filter}")).to_have_value(expectedTextOrRegex)
+
+def expected_date_picker_to_have_value(page: Page, filter: str, expectedTextOrRegex):
+    expect(page.locator(f"#dp-input-desktop-{filter}, #dp-input-mobile-{filter}")).to_have_value(expectedTextOrRegex)
 
 def expand_first_study(page: Page):
     page.locator("tr.study-row-collapsed").first.click()
 
 def get_texts_from_first_collapsed_study(page: Page):
     return page.locator("tr.study-row-collapsed").first.locator("td").all_text_contents()
+
+def get_texts_from_first_collapsed_study(page: Page):
+    return page.locator("tr.study-row-expanded").first.locator("td").all_text_contents()

@@ -31,11 +31,11 @@ export default {
         <StudyFilterModalityDropdown :buttonId="idPrefix + '-modalities-button'" />
     </div>
     <div v-else-if="columnTag == 'StudyDate' || columnTag == 'PatientBirthDate'">
-        <StudyFilterDatePicker :columnTag="columnTag" :datePickerUid="idPrefix + '-study-date'"
+        <StudyFilterDatePicker :columnTag="columnTag" :datePickerUid="idPrefix + '-' + columnTag"
             :placeholder="placeholder" :filterClass="filterClass" />
     </div>
     <div v-else>
         <StudyFilterText :columnTag="columnTag"
-            :placeholder="placeholder" :filterClass="filterClass" />
+            :placeholder="placeholder" :filterClass="filterClass" :idPrefix="idPrefix"/>
     </div>
 </template>
