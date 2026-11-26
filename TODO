@@ -1,9 +1,6 @@
 mobile-ui branch:
 ----------------
 
-- check expanded color in desktop
-- checkbox and viewer col width in mobile-wide mode
-- use one 2 level arrays for mobileFilterRow1 & mobileFilterRow2
 
 
 Internals:

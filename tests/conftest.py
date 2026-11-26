@@ -8,12 +8,18 @@ import pytest
 from playwright.sync_api import sync_playwright
 import pathlib
 from urllib.parse import urljoin
+from enum import Enum
 import requests
 
 here = pathlib.Path(__file__).parent.resolve()
 
 
 ORTHANC_EXECUTABLE = here / "../../build/orthanc/Orthanc"
+
+class ScreenMode(Enum):
+    DESKTOP = 1
+    MOBILE_WIDE = 2
+    MOBILE_NARROW = 3
 
 
 # display the test name before running it
@@ -272,10 +278,26 @@ def browser(ui):
         browser.close()
 
 @pytest.fixture
-def page(browser, request, orthanc_url):
+def page(browser, request, orthanc_url, screen_mode: ScreenMode = ScreenMode.DESKTOP):
+    if screen_mode == ScreenMode.MOBILE_WIDE:  # not used yet
+        viewport = {
+            "width": 1400,
+            "height": 1000
+        }
+    elif screen_mode == ScreenMode.MOBILE_NARROW:  # not used yet
+        viewport = {
+            "width": 600,
+            "height": 1000
+        }
+    else:
+        viewport = {
+            "width": 1400,
+            "height": 1000
+        }
+    
     page = browser.new_page(
-        base_url=orthanc_url
-    )
+        base_url=orthanc_url,
+        viewport=viewport)
 
     page.on(
         "requestfailed",

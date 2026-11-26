@@ -29,7 +29,7 @@ services:
     depends_on: [keycloak, smtp-mock]
     restart: unless-stopped
     environment:
-      SECRET_KEY: "change-me-I-am-a-secret-key"
+      SECRET_KEY: "change-me-I-am-a-secret-key--------------------------------"
       KEYCLOAK_CLIENT_SECRET: "keycloak-client-secret-change-me"
       ENABLE_KEYCLOAK: "true"
       PUBLIC_ORTHANC_ROOT: "http://localhost/orthanc/"
